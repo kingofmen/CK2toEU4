@@ -1,0 +1,65 @@
+\documentclass[12pt,ebook,oneside]{book}
+
+\usepackage{graphicx} 
+\usepackage{layouts} 
+\usepackage{hyperref} 
+\textheight=1.2\textheight
+
+\begin{document}
+
+\section{How to use the converter}
+
+\begin{itemize}
+\item Download the zip file: \url{https://github.com/kingofmen/VickyToHoI3/archive/master.zip}.
+\item Unpack it. 
+\item Ignore the source code unless you intend to modify it. 
+\item Copy the CK2 savegame you intend to convert into the release
+  directory. 
+\item Start the CK2toEU4 executable. 
+\item Go to File->Load file and select your savegame. 
+\item Wait for it to load - it will take a minute or two. If it takes
+  more than five minutes, you have either a very slow computer, or a
+  problem - go to Troubleshooting, below. 
+\item Go to Actions->Convert to EU4. Wait until it says ``Done
+  writing''. If the output stops for more than a few minutes with any
+  other message, especially one starting `Error', go to
+  Troubleshooting. 
+\item Conversion is now done. Go to the Output directory. It should
+  contain `converted.eu4'. Move this to your EU4 savegames folder; on
+  my machine this is on C:\\Users\\UserName\\My Documents\\Paradox
+  Interactive\\Europa Universalis IV, but installations differ. 
+\item Start EU4 as usual. The converted game should appear as a
+  regular saved game; select your country and play. If it crashes or
+  hangs on loading, or within a few days of starting, go to
+  Troubleshooting. 
+\item Conquer \emph{All} the Pixels! 
+\end{itemize}
+
+\section{Troubleshooting}
+
+These are the most common issues people have had:
+\begin{itemize}
+\item EU4 crashes on loading the converted save. This is very often a
+  bug, which I'll try to fix (see below). However, there are two
+  causes that you can fix yourself: One, your Crusader Kings savegame
+  has names containing a hashtag, `\#'. This confuses the
+  parser. In that case just remove the hashtag. (Removing other
+  unusual characters may also be worth a try.) Two, do note that the
+  converted savegame is meant for EU4 with all four expansions, and
+  that if you don't have all three the game will choke.
+\item No converted save file. This is often caused by
+  impatience. Don't click ``convert'' immediately after ``load file'',
+  it takes some time to parse forty megabytes of savegame.
+\end{itemize}
+
+If none of the above is your problem: Upload your (zipped) Crusader Kings
+savegame somewhere, then send me (``King of Men'') a PM on Paradox,
+Ederon, or (``King\_of\_Men'') reddit with a link to the upload. Try to be as
+specific as possible about what the problem is - I cannot debug
+``things look weird''. Screenshots and province IDs are often
+helpful. I'll run the
+debugging version of the converter and try to fix the
+problem. If you are skilled at C++ development in Windows you can also
+try to compile in debug mode and run gdb on it. 
+
+\end{document}
