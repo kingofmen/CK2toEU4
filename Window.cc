@@ -49,24 +49,22 @@ int main (int argc, char** argv) {
   parentWindow->textWindow->move(5, 30);
   parentWindow->textWindow->show(); 
 
-  Logger::createStream(Logger::Debug);
-  Logger::createStream(Logger::Trace);
-  Logger::createStream(Logger::Game);
-  Logger::createStream(Logger::Warning);
-  Logger::createStream(Logger::Error);
+  Logger::createStream(LogStream::Debug);
+  Logger::createStream(LogStream::Info);
+  Logger::createStream(LogStream::Warn);
+  Logger::createStream(LogStream::Error);
 
-  QObject::connect(&(Logger::logStream(Logger::Debug)),   SIGNAL(message(QString)), parentWindow, SLOT(message(QString)));
-  QObject::connect(&(Logger::logStream(Logger::Trace)),   SIGNAL(message(QString)), parentWindow, SLOT(message(QString)));
-  QObject::connect(&(Logger::logStream(Logger::Game)),    SIGNAL(message(QString)), parentWindow, SLOT(message(QString)));
-  QObject::connect(&(Logger::logStream(Logger::Warning)), SIGNAL(message(QString)), parentWindow, SLOT(message(QString)));
-  QObject::connect(&(Logger::logStream(Logger::Error)),   SIGNAL(message(QString)), parentWindow, SLOT(message(QString)));
-
+  QObject::connect(&(Logger::logStream(LogStream::Debug)), SIGNAL(message(QString)), parentWindow, SLOT(message(QString)));
+  QObject::connect(&(Logger::logStream(LogStream::Info)),  SIGNAL(message(QString)), parentWindow, SLOT(message(QString)));
+  QObject::connect(&(Logger::logStream(LogStream::Warn)),  SIGNAL(message(QString)), parentWindow, SLOT(message(QString)));
+  QObject::connect(&(Logger::logStream(LogStream::Error)), SIGNAL(message(QString)), parentWindow, SLOT(message(QString)));
+  /*
   for (int i = DebugLeaders; i < NumDebugs; ++i) {
     Logger::createStream(i);
     QObject::connect(&(Logger::logStream(i)), SIGNAL(message(QString)), parentWindow, SLOT(message(QString)));
     Logger::logStream(i).setActive(false); 
   } 
-
+  */
   parentWindow->show();
   if (argc > 1) {
     parentWindow->loadFile(argv[2], (TaskType) atoi(argv[1])); 
@@ -92,8 +90,7 @@ void Window::message (QString m) {
 }
 
 void Window::loadFile () {
-  openDebugLog("Output\\logfile.txt");
-  QString filename = QFileDialog::getOpenFileName(this, tr("Select file"), QString(""), QString("*.v2"));
+  QString filename = QFileDialog::getOpenFileName(this, tr("Select file"), QString(""), QString("*.ck2"));
   string fn(filename.toAscii().data());
   if (fn == "") return;
   loadFile(fn);   
@@ -102,16 +99,16 @@ void Window::loadFile () {
 void Window::loadFile (string fname, TaskType autoTask) {
   openDebugLog("Output\\logfile.txt");
   if (worker) delete worker;
-  worker = new Converter(fname, autoTask);
+  worker = new Converter(this, fname, autoTask);
   worker->start();
 }
 
 void Window::convert () {
   if (!worker) {
-    Logger::logStream(Logger::Game) << "No file loaded.\n";
+    Logger::logStream(LogStream::Info) << "No file loaded.\n";
     return;
   }
-  Logger::logStream(Logger::Game) << "Convert to EU4.\n";
+  Logger::logStream(LogStream::Info) << "Convert to EU4.\n";
   worker->setTask(Convert); 
   worker->start(); 
 }
@@ -126,10 +123,10 @@ void Window::closeDebugLog () {
 bool Window::createOutputDir () {
   DWORD attribs = GetFileAttributesA("Output");
   if (attribs == INVALID_FILE_ATTRIBUTES) {
-    Logger::logStream(Logger::Warning) << "Warning, no Output directory, attempting to create one.\n";
+    Logger::logStream(LogStream::Warn) << "Warning, no Output directory, attempting to create one.\n";
     int error = _mkdir("Output");
     if (-1 == error) {
-      Logger::logStream(Logger::Error) << "Error: Could not create Output directory. Aborting.\n";
+      Logger::logStream(LogStream::Error) << "Error: Could not create Output directory. Aborting.\n";
       return false; 
     }
   }
@@ -140,11 +137,11 @@ void Window::openDebugLog (string fname) {
   if (fname == "") return;
   if (!createOutputDir()) return;
   if (debugFile) closeDebugLog();
-  Logger::logStream(Logger::Game) << "Opening debug log " << fname << "\n";
+  Logger::logStream(LogStream::Info) << "Opening debug log " << fname << "\n";
   DWORD attribs = GetFileAttributesA(fname.c_str());
   if (attribs != INVALID_FILE_ATTRIBUTES) {
     int error = remove(fname.c_str());
-    if (0 != error) Logger::logStream(Logger::Warning) << "Warning: Could not delete old log file. New one will be appended.\n";
+    if (0 != error) Logger::logStream(LogStream::Warn) << "Warning: Could not delete old log file. New one will be appended.\n";
   }
 
   debugFile = new ofstream(fname.c_str(), ios_base::trunc);

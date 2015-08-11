@@ -10,7 +10,6 @@
 #include <vector>
 #include "boost/foreach.hpp"
 #include "boost/tuple/tuple.hpp"
-#include "Logger.hh"
 
 using namespace std;
 enum Outcome {Disaster = 0, Bad, Neutral, Good, VictoGlory, NumOutcomes}; 
@@ -202,15 +201,15 @@ public:
   void resetName (string n) {T* dat = nameToObjectMap[name]; assert(dat); nameToObjectMap[n] = dat; name = n;}
   // Use setName for objects that don't have a name yet.
   void setName (string n) {assert(name == "ToBeNamed"); if (unique) assert(!nameToObjectMap[n]); nameToObjectMap[n] = (T*) this; name = n;}
-  static T* getByName (string n) {assert(unique); return nameToObjectMap[n];}
-  static T* findByName (string n) {return getByName(n);}
+  static T* getByName (const string& n) {assert(unique); return nameToObjectMap[n];}
+  static T* findByName (const string& n) {return getByName(n);}
   static void clear () {nameToObjectMap.clear();}
 private:
   string name;
-  static map<string, T*> nameToObjectMap;
+  static map<const string, T*> nameToObjectMap;
 };
 
-template<class T, bool unique> map<string, T*> Named<T, unique>::nameToObjectMap;
+template<class T, bool unique> map<const string, T*> Named<T, unique>::nameToObjectMap;
 
 template<class T> class Numbered {
 public:

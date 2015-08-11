@@ -13,9 +13,10 @@ enum TaskType {LoadFile = 0,
 	       NumTasks};
 
 class Object;
+class Window;
 class Converter : public QThread {
 public:
-  Converter (string fname, TaskType aTask = NumTasks);
+  Converter (Window* ow, string fname, TaskType aTask = NumTasks);
   ~Converter ();
   void setTask(TaskType t) {task = t;}
 
@@ -58,6 +59,8 @@ private:
   Object* provinceMapObject;
   Object* countryMapObject;
   Object* customObject;
+
+  Window* outputWindow;
 };
 
 #endif

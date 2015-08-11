@@ -5,18 +5,17 @@
 #include <algorithm>
 #include <direct.h>
 
+#include "Converter.hh"
+#include "Logger.hh"
 #include "Parser.hh"
 #include "StructUtils.hh" 
 #include "StringManips.hh"
 #include "UtilityFunctions.hh"
-
-
-#include "Converter.hh"
-#include "Logger.hh"
+#include "Window.hh"
 
 using namespace std;
 
-Converter::Converter (string fn, TaskType atask)
+Converter::Converter (Window* ow, string fn, TaskType atask)
   : targetVersion("")
   , sourceVersion("")
   , fname(fn)
@@ -28,6 +27,7 @@ Converter::Converter (string fn, TaskType atask)
   , provinceMapObject(0)
   , countryMapObject(0)
   , customObject(0)
+  , outputWindow(ow)
 {
   configure(); 
 }  
@@ -60,7 +60,7 @@ void Converter::loadFile (string fname) {
       break;
     }
   }
-  Logger::logStream(Logger::Game) << "Ready to convert.\n";
+  Logger::logStream(LogStream::Info) << "Ready to convert.\n";
 }
 
 void Converter::cleanUp () {
@@ -70,30 +70,43 @@ void Converter::configure () {
   configObject = processFile("config.txt");
   targetVersion = configObject->safeGetString("hoidir", targetVersion);
   sourceVersion = configObject->safeGetString("vicdir", sourceVersion);
-  Logger::logStream(Logger::Debug).setActive(false);
+  Logger::logStream(LogStream::Debug).setActive(false);
 
-  Object* debug = configObject->safeGetObject("debug");
+  Object* debug = configObject->safeGetObject("streams");
   if (debug) {
-    if (debug->safeGetString("generic", "no") == "yes") Logger::logStream(Logger::Debug).setActive(true);
+    objvec streams = debug->getLeaves();
+    for (objiter str = streams.begin(); str != streams.end(); ++str) {
+      string str_name = (*str)->getKey();
+      if (!LogStream::findByName(str_name)) {
+	LogStream const* new_stream = new LogStream(str_name);
+	Logger* newlog = Logger::createStream(*new_stream);
+	QObject::connect(newlog, SIGNAL(message(QString)), outputWindow, SLOT(message(QString)));
+      }
+      Logger::logStream(str_name).setActive((*str)->getLeaf() == "yes");
+    }
+
+    if (debug->safeGetString("generic", "no") == "yes") Logger::logStream(LogStream::Debug).setActive(true);
     bool activateAll = (debug->safeGetString("all", "no") == "yes");
-    for (int i = DebugLeaders; i < NumDebugs; ++i) {
-      sprintf(strbuffer, "%i", i);
-      if ((activateAll) || (debug->safeGetString(strbuffer, "no") == "yes")) Logger::logStream(i).setActive(true);
+    if (activateAll) {
+      for (objiter str = streams.begin(); str != streams.end(); ++str) {
+	string str_name = (*str)->getKey();
+	Logger::logStream(LogStream::findByName(str_name)).setActive(true);
+      }
     }
   }
 }
 
 Object* Converter::loadTextFile (string fname) {
-  Logger::logStream(Logger::Game) << "Parsing file " << fname << "\n";
+  Logger::logStream(LogStream::Info) << "Parsing file " << fname << "\n";
   ifstream reader;
   reader.open(fname.c_str());
   if ((reader.eof()) || (reader.fail())) {
-    Logger::logStream(Logger::Error) << "Could not open file, returning null object.\n";
+    Logger::logStream(LogStream::Error) << "Could not open file, returning null object.\n";
     return 0; 
   }
   
   Object* ret = processFile(fname);
-  Logger::logStream(Logger::Game) << " ... done.\n";
+  Logger::logStream(LogStream::Info) << " ... done.\n";
   return ret; 
 }
 
@@ -122,7 +135,7 @@ bool Converter::swapKeys (Object* one, Object* two, string key) {
 
 bool Converter::createCountryMap () {
   if (!countryMapObject) {
-    Logger::logStream(Logger::Error) << "Error: Could not find country-mapping object.\n";
+    Logger::logStream(LogStream::Error) << "Error: Could not find country-mapping object.\n";
     return false; 
   }
 
@@ -131,7 +144,7 @@ bool Converter::createCountryMap () {
 
 bool Converter::createProvinceMap () {
   if (!provinceMapObject) {
-    Logger::logStream(Logger::Error) << "Error: Could not find province-mapping object.\n";
+    Logger::logStream(LogStream::Error) << "Error: Could not find province-mapping object.\n";
     return false; 
   }
 
@@ -166,11 +179,11 @@ double calcAvg (Object* ofthis) {
 
 void Converter::convert () {
   if (!ck2Game) {
-    Logger::logStream(Logger::Game) << "No file loaded.\n";
+    Logger::logStream(LogStream::Info) << "No file loaded.\n";
     return; 
   }
 
-  Logger::logStream(Logger::Game) << "Loading HoI source file.\n";
+  Logger::logStream(LogStream::Info) << "Loading HoI source file.\n";
   eu4Game = loadTextFile(targetVersion + "input.hoi3");
 
   loadFiles();
@@ -178,13 +191,13 @@ void Converter::convert () {
   if (!createCountryMap()) return;
   cleanUp();
   
-  Logger::logStream(Logger::Game) << "Done with conversion, writing to Output/converted.hoi3.\n";
+  Logger::logStream(LogStream::Info) << "Done with conversion, writing to Output/converted.hoi3.\n";
  
   ofstream writer;
   writer.open(".\\Output\\converted.hoi3");
   Parser::topLevel = eu4Game;
   writer << (*eu4Game);
   writer.close();
-  Logger::logStream(Logger::Game) << "Done writing.\n";
+  Logger::logStream(LogStream::Info) << "Done writing.\n";
 }
 
