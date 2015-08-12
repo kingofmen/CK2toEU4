@@ -1,24 +1,25 @@
-#include "Window.hh" 
-#include <QPainter> 
+#include "Window.hh"
+#include <QPainter>
 #include "Parser.hh"
-#include <cstdio> 
+#include <cstdio>
 #include <QtGui>
 #include <QDesktopWidget>
 #include <QRect>
-#include <iostream> 
+#include <iostream>
 #include <string>
-#include "Logger.hh" 
+#include "Logger.hh"
 #include <set>
 #include <algorithm>
-#include "StructUtils.hh" 
+#include "StructUtils.hh"
 #include "StringManips.hh"
 #include "UtilityFunctions.hh"
 #include <direct.h>
+#include <windows.h>
 
-using namespace std; 
+using namespace std;
 
 Window* parentWindow;
-ofstream* debugFile = 0; 
+ofstream* debugFile = 0;
 
 int main (int argc, char** argv) {
   QApplication industryApp(argc, argv);
@@ -26,28 +27,28 @@ int main (int argc, char** argv) {
   QRect scr = desk->availableGeometry();
   parentWindow = new Window();
   parentWindow->show();
-  srand(42); 
-  
+  srand(42);
+
   parentWindow->resize(3*scr.width()/5, scr.height()/2);
   parentWindow->move(scr.width()/5, scr.height()/4);
   parentWindow->setWindowTitle(QApplication::translate("toplevel", "Vic2 to HoI3 converter"));
- 
+
   QMenuBar* menuBar = parentWindow->menuBar();
   QMenu* fileMenu = menuBar->addMenu("File");
   QAction* newGame = fileMenu->addAction("Load file");
   //QAction* newGame = fileMenu->addAction("Load-and-convert file");
   QAction* quit    = fileMenu->addAction("Quit");
-  QObject::connect(quit, SIGNAL(triggered()), parentWindow, SLOT(close())); 
-  QObject::connect(newGame, SIGNAL(triggered()), parentWindow, SLOT(loadFile())); 
+  QObject::connect(quit, SIGNAL(triggered()), parentWindow, SLOT(close()));
+  QObject::connect(newGame, SIGNAL(triggered()), parentWindow, SLOT(loadFile()));
 
   QMenu* actionMenu = menuBar->addMenu("Actions");
   QAction* convert = actionMenu->addAction("Convert to EU4");
   QObject::connect(convert, SIGNAL(triggered()), parentWindow, SLOT(convert()));
-  
+
   parentWindow->textWindow = new QPlainTextEdit(parentWindow);
   parentWindow->textWindow->setFixedSize(3*scr.width()/5 - 10, scr.height()/2-40);
   parentWindow->textWindow->move(5, 30);
-  parentWindow->textWindow->show(); 
+  parentWindow->textWindow->show();
 
   Logger::createStream(LogStream::Debug);
   Logger::createStream(LogStream::Info);
@@ -58,24 +59,26 @@ int main (int argc, char** argv) {
   QObject::connect(&(Logger::logStream(LogStream::Info)),  SIGNAL(message(QString)), parentWindow, SLOT(message(QString)));
   QObject::connect(&(Logger::logStream(LogStream::Warn)),  SIGNAL(message(QString)), parentWindow, SLOT(message(QString)));
   QObject::connect(&(Logger::logStream(LogStream::Error)), SIGNAL(message(QString)), parentWindow, SLOT(message(QString)));
-  /*
-  for (int i = DebugLeaders; i < NumDebugs; ++i) {
-    Logger::createStream(i);
-    QObject::connect(&(Logger::logStream(i)), SIGNAL(message(QString)), parentWindow, SLOT(message(QString)));
-    Logger::logStream(i).setActive(false); 
-  } 
-  */
+
   parentWindow->show();
   if (argc > 1) {
-    parentWindow->loadFile(argv[2], (TaskType) atoi(argv[1])); 
+    parentWindow->loadFile(argv[1]);
   }
+  if ((argc > 2) && ((unsigned int) atoi(argv[2]) == ConverterJob::Convert->getIdx())) {
+    while (!parentWindow->worker) {
+      Sleep(1000);
+      continue;
+    }
+    parentWindow->worker->scheduleJob(ConverterJob::Convert);
+  }
+
   int ret = industryApp.exec();
   delete parentWindow;
-  return ret; 
+  return ret;
 }
 
 
-Window::Window (QWidget* parent) 
+Window::Window (QWidget* parent)
   : QMainWindow(parent)
   , worker(0)
 {}
@@ -86,20 +89,21 @@ Window::~Window () {
 
 void Window::message (QString m) {
   textWindow->appendPlainText(m);
-  if (debugFile) (*debugFile) << m.toAscii().data() << std::endl;      
+  if (debugFile) (*debugFile) << m.toAscii().data() << std::endl;
 }
 
 void Window::loadFile () {
   QString filename = QFileDialog::getOpenFileName(this, tr("Select file"), QString(""), QString("*.ck2"));
   string fn(filename.toAscii().data());
   if (fn == "") return;
-  loadFile(fn);   
+  loadFile(fn);
 }
 
-void Window::loadFile (string fname, TaskType autoTask) {
+void Window::loadFile (string fname) {
   openDebugLog("Output\\logfile.txt");
   if (worker) delete worker;
-  worker = new Converter(this, fname, autoTask);
+  worker = new Converter(this, fname);
+  worker->scheduleJob(ConverterJob::LoadFile);
   worker->start();
 }
 
@@ -109,15 +113,14 @@ void Window::convert () {
     return;
   }
   Logger::logStream(LogStream::Info) << "Convert to EU4.\n";
-  worker->setTask(Convert); 
-  worker->start(); 
+  worker->scheduleJob(ConverterJob::Convert);
 }
 
 void Window::closeDebugLog () {
   if (!debugFile) return;
   debugFile->close();
   delete debugFile;
-  debugFile = 0; 
+  debugFile = 0;
 }
 
 bool Window::createOutputDir () {
@@ -127,10 +130,10 @@ bool Window::createOutputDir () {
     int error = _mkdir("Output");
     if (-1 == error) {
       Logger::logStream(LogStream::Error) << "Error: Could not create Output directory. Aborting.\n";
-      return false; 
+      return false;
     }
   }
-  return true; 
+  return true;
 }
 
 void Window::openDebugLog (string fname) {

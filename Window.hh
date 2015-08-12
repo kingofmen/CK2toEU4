@@ -18,7 +18,7 @@ public:
 
   QPlainTextEdit* textWindow;
   Converter* worker;
-  void loadFile (string fname, TaskType autoTask = NumTasks);
+  void loadFile (string fname);
 
 public slots:
 

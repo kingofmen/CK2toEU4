@@ -15,15 +15,16 @@
 
 using namespace std;
 
-Converter::Converter (Window* ow, string fn, TaskType atask)
+ConverterJob const* const ConverterJob::Convert = new ConverterJob("convert", false);
+ConverterJob const* const ConverterJob::LoadFile = new ConverterJob("loadfile", true);
+
+Converter::Converter (Window* ow, string fn)
   : targetVersion("")
   , sourceVersion("")
-  , fname(fn)
+  , ck2FileName(fn)
   , ck2Game(0)
   , eu4Game(0)
-  , task(LoadFile)
   , configObject(0)
-  , autoTask(atask)
   , provinceMapObject(0)
   , countryMapObject(0)
   , customObject(0)
@@ -40,26 +41,22 @@ Converter::~Converter () {
 }
 
 void Converter::run () {
-  switch (task) {
-  case LoadFile: loadFile(fname); break;
-  case Convert: convert(); break;
-  case NumTasks: 
-  default: break; 
+  while (true) {
+    if (jobsToDo.empty()) {
+      sleep(5);
+      continue;
+    }
+
+    ConverterJob const* const job = jobsToDo.front();
+    jobsToDo.pop();
+    if (ConverterJob::LoadFile == job) loadFile();
+    if (ConverterJob::Convert  == job) convert();
   }
 }
 
-void Converter::loadFile (string fname) {
-  ck2Game = loadTextFile(fname);
-  if (NumTasks != autoTask) {
-    task = autoTask; 
-    switch (autoTask) {
-    case Convert:
-      convert(); 
-      break;
-    default:
-      break;
-    }
-  }
+void Converter::loadFile () {
+  if (ck2FileName == "") return;
+  ck2Game = loadTextFile(ck2FileName);
   Logger::logStream(LogStream::Info) << "Ready to convert.\n";
 }
 
@@ -152,6 +149,9 @@ bool Converter::createProvinceMap () {
 }
 
 void Converter::loadFiles () {
+  string dirToUse = remQuotes(configObject->safeGetString("maps_dir", ".\\maps\\"));
+  Logger::logStream(LogStream::Info) << "Directory: \"" << dirToUse << "\"\n";
+  provinceMapObject = loadTextFile(dirToUse + "provinces.txt");
 }
 
 /******************************* End initialisers *******************************/ 

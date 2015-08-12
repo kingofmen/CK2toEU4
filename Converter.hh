@@ -5,20 +5,26 @@
 #include <fstream>
 #include <map>
 #include <string>
+#include <queue>
+
+#include "UtilityFunctions.hh"
 
 using namespace std;
 
-enum TaskType {LoadFile = 0,
-	       Convert,
-	       NumTasks};
+class ConverterJob : public Enumerable<const ConverterJob> {
+public:
+  ConverterJob (string n, bool final) : Enumerable<const ConverterJob>(this, n, final) {}
+  static ConverterJob const* const Convert;
+  static ConverterJob const* const LoadFile;
+};
 
 class Object;
 class Window;
 class Converter : public QThread {
 public:
-  Converter (Window* ow, string fname, TaskType aTask = NumTasks);
+  Converter (Window* ow, string fname);
   ~Converter ();
-  void setTask(TaskType t) {task = t;}
+  void scheduleJob (ConverterJob const* const cj) {jobsToDo.push(cj);}
 
 protected:
   void run ();
@@ -27,17 +33,16 @@ private:
   // Misc globals
   string targetVersion;
   string sourceVersion;
-  string fname;
+  string ck2FileName;
   Object* ck2Game;
   Object* eu4Game;
-  TaskType task;
+  queue<ConverterJob const*> jobsToDo;
   Object* configObject;
-  TaskType autoTask;
 
   // Conversion processes
 
   // Infrastructure
-  void loadFile (string fname);
+  void loadFile ();
   void convert ();
   void configure ();
 
