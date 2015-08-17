@@ -25,6 +25,7 @@ public:
   LogOption (string n, bool last) : Enumerable<const LogOption>(this, n, last) {}
   static LogOption const* const Indent;
   static LogOption const* const Unindent;
+  static LogOption const* const Undent;
 };
 
 class Logger : public QObject, public std::ostream {

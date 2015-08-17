@@ -21,9 +21,9 @@ public:
   void loadFile (string fname);
 
 public slots:
-
   void loadFile ();
   void convert ();
+  void debugParser ();
   void message (QString m);
 
 private:
@@ -31,25 +31,6 @@ private:
   bool createOutputDir ();
   void openDebugLog (string fname);
 };
-
-struct ObjectSorter {
-  ObjectSorter (string k) {keyword = k;}
-  string keyword;
-};
-struct ObjectAscendingSorter : public ObjectSorter {
-public:
-  ObjectAscendingSorter (string k) : ObjectSorter(k) {}
-  bool operator() (Object* one, Object* two) {return (one->safeGetFloat(keyword) < two->safeGetFloat(keyword));}
-private:
-};
-struct ObjectDescendingSorter : public ObjectSorter {
-public:
-  ObjectDescendingSorter (string k) : ObjectSorter(k) {}
-  bool operator() (Object* one, Object* two) {return (one->safeGetFloat(keyword) > two->safeGetFloat(keyword));}
-private:
-};
-
-double calcAvg (Object* ofthis);
 
 #endif
 

@@ -5,12 +5,13 @@
 std::map<int, Logger*> Logger::logs;
 
 LogStream const* const LogStream::Debug = new LogStream("debug");
-LogStream const* const LogStream::Info = new LogStream("info");
-LogStream const* const LogStream::Warn = new LogStream("warn");
+LogStream const* const LogStream::Info  = new LogStream("info");
+LogStream const* const LogStream::Warn  = new LogStream("warn");
 LogStream const* const LogStream::Error = new LogStream("error");
 
-LogOption const* const LogOption::Indent = new LogOption("indent", false);
+LogOption const* const LogOption::Indent   = new LogOption("indent", false);
 LogOption const* const LogOption::Unindent = new LogOption("unindent", true);
+LogOption const* const LogOption::Undent   = LogOption::Unindent;
 
 Logger::Logger ()
   : active(true)

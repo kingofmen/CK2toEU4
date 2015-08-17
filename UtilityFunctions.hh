@@ -11,6 +11,8 @@
 #include "boost/foreach.hpp"
 #include "boost/tuple/tuple.hpp"
 
+#include "Parser.hh"
+
 using namespace std;
 enum Outcome {Disaster = 0, Bad, Neutral, Good, VictoGlory, NumOutcomes}; 
 extern char strbuffer[1000]; 
@@ -280,6 +282,12 @@ protected:
 private:
 };
 
+struct ObjectWrapper {
+  ObjectWrapper (Object* o) : object(o) {}
+  virtual ~ObjectWrapper () {}
+  Object* object;
+};
+
 template<class T, void (T::*fPtr)()> class CallbackRegistry {
 public:
   CallbackRegistry () {}
@@ -297,5 +305,24 @@ private:
 #define REMOVE(from, dis) from.erase(find(from.begin(), from.end(), dis))
 string createString (const char* format, ...);
 void throwFormatted (const char* format, ...);
+
+struct ObjectSorter {
+  ObjectSorter (string k) {keyword = k;}
+  string keyword;
+};
+struct ObjectAscendingSorter : public ObjectSorter {
+public:
+  ObjectAscendingSorter (string k) : ObjectSorter(k) {}
+  bool operator() (Object* one, Object* two) {return (one->safeGetFloat(keyword) < two->safeGetFloat(keyword));}
+private:
+};
+struct ObjectDescendingSorter : public ObjectSorter {
+public:
+  ObjectDescendingSorter (string k) : ObjectSorter(k) {}
+  bool operator() (Object* one, Object* two) {return (one->safeGetFloat(keyword) > two->safeGetFloat(keyword));}
+private:
+};
+
+double calcAvg (Object* ofthis);
 
 #endif

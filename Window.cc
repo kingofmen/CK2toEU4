@@ -43,7 +43,9 @@ int main (int argc, char** argv) {
 
   QMenu* actionMenu = menuBar->addMenu("Actions");
   QAction* convert = actionMenu->addAction("Convert to EU4");
+  QAction* debugParser = actionMenu->addAction("Debug parser");
   QObject::connect(convert, SIGNAL(triggered()), parentWindow, SLOT(convert()));
+  QObject::connect(debugParser, SIGNAL(triggered()), parentWindow, SLOT(debugParser()));
 
   parentWindow->textWindow = new QPlainTextEdit(parentWindow);
   parentWindow->textWindow->setFixedSize(3*scr.width()/5 - 10, scr.height()/2-40);
@@ -114,6 +116,15 @@ void Window::convert () {
   }
   Logger::logStream(LogStream::Info) << "Convert to EU4.\n";
   worker->scheduleJob(ConverterJob::Convert);
+}
+
+void Window::debugParser () {
+  if (!worker) {
+    Logger::logStream(LogStream::Info) << "No file loaded.\n";
+    return;
+  }
+  Logger::logStream(LogStream::Info) << "Debug.\n";
+  worker->scheduleJob(ConverterJob::DebugParser);
 }
 
 void Window::closeDebugLog () {

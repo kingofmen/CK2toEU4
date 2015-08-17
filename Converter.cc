@@ -6,6 +6,8 @@
 #include <direct.h>
 
 #include "Converter.hh"
+#include "CK2Province.hh"
+#include "CK2Title.hh"
 #include "Logger.hh"
 #include "Parser.hh"
 #include "StructUtils.hh" 
@@ -16,6 +18,7 @@
 using namespace std;
 
 ConverterJob const* const ConverterJob::Convert = new ConverterJob("convert", false);
+ConverterJob const* const ConverterJob::DebugParser = new ConverterJob("debug", false);
 ConverterJob const* const ConverterJob::LoadFile = new ConverterJob("loadfile", true);
 
 Converter::Converter (Window* ow, string fn)
@@ -49,8 +52,9 @@ void Converter::run () {
 
     ConverterJob const* const job = jobsToDo.front();
     jobsToDo.pop();
-    if (ConverterJob::LoadFile == job) loadFile();
-    if (ConverterJob::Convert  == job) convert();
+    if (ConverterJob::Convert     == job) convert();
+    if (ConverterJob::DebugParser == job) debugParser();
+    if (ConverterJob::LoadFile    == job) loadFile();
   }
 }
 
@@ -93,6 +97,12 @@ void Converter::configure () {
   }
 }
 
+void Converter::debugParser () {
+  objvec parsed = ck2Game->getLeaves();
+  Logger::logStream(LogStream::Info) << "Last parsed object:\n"
+				     << parsed.back();
+}
+
 Object* Converter::loadTextFile (string fname) {
   Logger::logStream(LogStream::Info) << "Parsing file " << fname << "\n";
   ifstream reader;
@@ -130,6 +140,50 @@ bool Converter::swapKeys (Object* one, Object* two, string key) {
 
 /******************************** Begin initialisers **********************/
 
+bool Converter::createCK2Objects () {
+  Logger::logStream(LogStream::Info) << "Creating CK2 objects\n";
+  Object* wrapperObject = ck2Game->safeGetObject("provinces");
+  if (!wrapperObject) return false;
+
+  objvec provinces = wrapperObject->getLeaves();
+  for (objiter province = provinces.begin(); province != provinces.end(); ++province) {
+    new CK2Province(*province);
+  }
+  Logger::logStream(LogStream::Info) << LogOption::Indent << "Created " << CK2Province::totalAmount() << " CK2 provinces.\n";
+
+  wrapperObject = ck2Game->safeGetObject("title");
+  if (!wrapperObject) return false;
+  objvec titles = wrapperObject->getLeaves();
+  for (objiter title = titles.begin(); title != titles.end(); ++title) {
+    new CK2Title(*title);
+  }
+
+  Logger::logStream(LogStream::Info) << "Created " << CK2Title::totalAmount() << " CK2 titles.\n";
+
+  // We have a map from county titles to EU4 provinces.
+  // We also have a list of CK2 provinces that know what
+  // their primary settlement is; it's a barony. The barony
+  // knows its liege, which will be a county. So we go
+  // CK2 province -> CK2 barony -> CK2 county -> EU4 province.
+
+  map<string, string> baronyToCountyMap;
+  for (CK2Title::Iter title = CK2Title::start(); title != CK2Title::final(); ++title) {
+    if (TitleLevel::Barony != (*title)->getLevel()) continue;
+    CK2Title* liege = (*title)->getLiege();
+    if (!liege) {
+      Logger::logStream(LogStream::Error) << "Barony " << (*title)->getName() << " has no liege? Ignoring.\n";
+      continue;
+    }
+    if (TitleLevel::County != liege->getLevel()) {
+      // Not an error, indicates the family palace of a merchant republic.
+      continue;
+    }
+  }
+  
+  Logger::logStream(LogStream::Info) << LogOption::Undent << "Done with CK2 objects.\n";
+  return true;
+}
+
 bool Converter::createCountryMap () {
   if (!countryMapObject) {
     Logger::logStream(LogStream::Error) << "Error: Could not find country-mapping object.\n";
@@ -144,7 +198,7 @@ bool Converter::createProvinceMap () {
     Logger::logStream(LogStream::Error) << "Error: Could not find province-mapping object.\n";
     return false; 
   }
-
+  
   return true; 
 }
 
@@ -183,10 +237,11 @@ void Converter::convert () {
     return; 
   }
 
-  Logger::logStream(LogStream::Info) << "Loading HoI source file.\n";
-  eu4Game = loadTextFile(targetVersion + "input.hoi3");
+  Logger::logStream(LogStream::Info) << "Loading EU4 source file.\n";
+  eu4Game = loadTextFile(targetVersion + "input.eu4");
 
   loadFiles();
+  if (!createCK2Objects()) return;
   if (!createProvinceMap()) return; 
   if (!createCountryMap()) return;
   cleanUp();
