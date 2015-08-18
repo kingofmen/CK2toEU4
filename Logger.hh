@@ -50,7 +50,6 @@ public:
   void setPrecision (int p = -1) {precision = p;}
   bool isActive () const {return active;}
 
-  static Logger* createStream (int idx);
   static Logger* createStream (LogStream const* const str);
   static Logger& logStream (int idx);
   static Logger& logStream (LogStream const* const str);

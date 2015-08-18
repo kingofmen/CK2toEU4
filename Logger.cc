@@ -134,11 +134,6 @@ Logger& Logger::operator<< (LogOption const* const opt) {
   return *this;
 }
 
-Logger* Logger::createStream (int idx) {
-  logs[idx] = new Logger();
-  return logs[idx];
-}
-
 Logger* Logger::createStream (LogStream const* const str) {
   logs[*str] = new Logger();
   return logs[*str];

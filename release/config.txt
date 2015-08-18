@@ -1,31 +1,10 @@
-debug = {
+streams = {
   generic  = yes 
-  30 = no # Leaders
-  31 = yes # Provinces
-  32 = no # Ministers
-  33 = no # Tech teams 
-  34 = no # Strategic resources 
-  35 = no # Techs 
-  36 = no # Buildings 
-  37 = yes # Units 
-  38 = no # Stockpiles 
-  39 = no # Laws
-  40 = no # Misc
-  41 = no # Revolters 
-  42 = no # Cores 
-  43 = no # Countries 
-  44 = no # Base tax
-  45 = no # Manpower 
-  46 = no # Culture
-  47 = no # Religion 
-  48 = no # Governments 
-  49 = no # Industry 
-  50 = no # Urban terrain 
-  51 = no # Diplomacy  
-  52 = no # Resources 
+  provinces = no
   all = no
 }
 
 # NOCUSTOM or delete to ignore 
 custom = custom_overrides.txt
 
+maps_dir = ".\maps\"
