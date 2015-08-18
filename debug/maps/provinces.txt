@@ -1292,7 +1292,7 @@ c_ifni = 348 # Ifni - Sus
 c_ifni = 2470 # Ifni - Haha
 c_ifni = 1110 # Ifni - Agadir
 c_ifni = 347 # Ifni - Ifni
-c_tharasset = 347 - Ifni # 344;344 - Marrakech;Marrakech - Marrakech
+c_tharasset = 347 # Marrakech - Ifni
 c_marrakech = 2467 # Marrakech - Meknes
 c_marrakech = 2468 # Marrakech - Tadla
 
