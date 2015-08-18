@@ -285,6 +285,9 @@ private:
 struct ObjectWrapper {
   ObjectWrapper (Object* o) : object(o) {}
   virtual ~ObjectWrapper () {}
+
+  string getKey () const {return object->getKey();}
+  string safeGetString (string key, string def) const {return object->safeGetString(key, def);}
   Object* object;
 };
 

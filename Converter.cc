@@ -21,6 +21,8 @@ ConverterJob const* const ConverterJob::Convert = new ConverterJob("convert", fa
 ConverterJob const* const ConverterJob::DebugParser = new ConverterJob("debug", false);
 ConverterJob const* const ConverterJob::LoadFile = new ConverterJob("loadfile", true);
 
+const string QuotedNone("\"none\"");
+
 Converter::Converter (Window* ow, string fn)
   : targetVersion("")
   , sourceVersion("")
@@ -69,24 +71,24 @@ void Converter::cleanUp () {
 
 void Converter::configure () {
   configObject = processFile("config.txt");
-  targetVersion = configObject->safeGetString("hoidir", targetVersion);
-  sourceVersion = configObject->safeGetString("vicdir", sourceVersion);
   Logger::logStream(LogStream::Debug).setActive(false);
 
   Object* debug = configObject->safeGetObject("streams");
   if (debug) {
+    if (debug->safeGetString("generic", "no") == "yes") Logger::logStream(LogStream::Debug).setActive(true);
     objvec streams = debug->getLeaves();
     for (objiter str = streams.begin(); str != streams.end(); ++str) {
       string str_name = (*str)->getKey();
+      if (str_name == "generic") continue;
+      if (str_name == "all") continue;
       if (!LogStream::findByName(str_name)) {
 	LogStream const* new_stream = new LogStream(str_name);
-	Logger* newlog = Logger::createStream(*new_stream);
+	Logger* newlog = Logger::createStream(new_stream);
 	QObject::connect(newlog, SIGNAL(message(QString)), outputWindow, SLOT(message(QString)));
       }
       Logger::logStream(str_name).setActive((*str)->getLeaf() == "yes");
     }
 
-    if (debug->safeGetString("generic", "no") == "yes") Logger::logStream(LogStream::Debug).setActive(true);
     bool activateAll = (debug->safeGetString("all", "no") == "yes");
     if (activateAll) {
       for (objiter str = streams.begin(); str != streams.end(); ++str) {
@@ -117,8 +119,8 @@ Object* Converter::loadTextFile (string fname) {
   return ret; 
 }
 
-string nameAndNumber (Object* eu3prov) {
-  return eu3prov->getKey() + " (" + remQuotes(eu3prov->safeGetString("name", "\"could not find name\"")) + ")";
+string nameAndNumber (ObjectWrapper* prov) {
+  return prov->getKey() + " (" + remQuotes(prov->safeGetString("name", "\"could not find name\"")) + ")";
 }
 
 bool Converter::swapKeys (Object* one, Object* two, string key) {
@@ -160,26 +162,6 @@ bool Converter::createCK2Objects () {
 
   Logger::logStream(LogStream::Info) << "Created " << CK2Title::totalAmount() << " CK2 titles.\n";
 
-  // We have a map from county titles to EU4 provinces.
-  // We also have a list of CK2 provinces that know what
-  // their primary settlement is; it's a barony. The barony
-  // knows its liege, which will be a county. So we go
-  // CK2 province -> CK2 barony -> CK2 county -> EU4 province.
-
-  map<string, string> baronyToCountyMap;
-  for (CK2Title::Iter title = CK2Title::start(); title != CK2Title::final(); ++title) {
-    if (TitleLevel::Barony != (*title)->getLevel()) continue;
-    CK2Title* liege = (*title)->getLiege();
-    if (!liege) {
-      Logger::logStream(LogStream::Error) << "Barony " << (*title)->getName() << " has no liege? Ignoring.\n";
-      continue;
-    }
-    if (TitleLevel::County != liege->getLevel()) {
-      // Not an error, indicates the family palace of a merchant republic.
-      continue;
-    }
-  }
-  
   Logger::logStream(LogStream::Info) << LogOption::Undent << "Done with CK2 objects.\n";
   return true;
 }
@@ -198,7 +180,64 @@ bool Converter::createProvinceMap () {
     Logger::logStream(LogStream::Error) << "Error: Could not find province-mapping object.\n";
     return false; 
   }
+
+  Logger::logStream(LogStream::Info) << "Starting province mapping\n" << LogOption::Indent;
   
+  // We have a map from county titles to EU4 provinces.
+  // We also have a list of CK2 provinces that know what
+  // their primary settlement is; it's a barony. The barony
+  // knows its liege, which will be a county. So we go
+  // CK2 province -> CK2 barony -> CK2 county -> EU4 province.
+
+  map<string, string> baronyToCountyMap;
+  for (CK2Title::Iter title = CK2Title::start(); title != CK2Title::final(); ++title) {
+    if (TitleLevel::Barony != (*title)->getLevel()) continue;
+    CK2Title* liege = (*title)->getLiege();
+    if (!liege) {
+      Logger::logStream(LogStream::Error) << "Barony " << (*title)->getName() << " has no liege? Ignoring.\n";
+      continue;
+    }
+    if (TitleLevel::County != liege->getLevel()) {
+      // Not an error, indicates the family palace of a merchant republic.
+      continue;
+    }
+
+    baronyToCountyMap[(*title)->getName()] = liege->getName();
+  }
+  
+  for (CK2Province::Iter ckprov = CK2Province::start(); ckprov != CK2Province::final(); ++ckprov) {
+    string baronytag = remQuotes((*ckprov)->safeGetString("primary_settlement", QuotedNone));
+    if (QuotedNone == baronytag) {
+      Logger::logStream(LogStream::Warn) << "Could not find primary settlement of "
+					 << nameAndNumber(*ckprov)
+					 << ", ignoring.\n";
+      continue;
+    }
+    
+    if (0 == baronyToCountyMap.count(baronytag)) {
+      Logger::logStream(LogStream::Warn) << "Could not find county liege of barony "
+					 << addQuotes(baronytag)
+					 << " in county "
+					 << nameAndNumber(*ckprov)
+					 << ", ignoring.\n";
+      continue;
+    }
+    
+    string countytag = baronyToCountyMap[baronytag];
+    int eu4id = provinceMapObject->safeGetInt(countytag, -1);
+    if (-1 == eu4id) {
+      Logger::logStream(LogStream::Warn) << "Could not find EU4 equivalent for province "
+					 << nameAndNumber(*ckprov)
+					 << ", ignoring.\n";
+      continue;
+    }
+    
+    Logger::logStream("provinces") << nameAndNumber(*ckprov)
+				   << " mapped to EU4 province "
+				   << eu4id
+				   << ".\n";
+  }
+
   return true; 
 }
 

@@ -3,7 +3,7 @@
 
 #include "UtilityFunctions.hh"
 
-class CK2Province : public Iterable<CK2Province>, public ObjectWrapper {
+class CK2Province : public Enumerable<CK2Province>, public ObjectWrapper {
 public:
   CK2Province (Object* o);
 private:
