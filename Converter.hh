@@ -50,6 +50,7 @@ private:
 
   // Initialisers
   bool createCK2Objects ();
+  bool createEU4Objects ();
   bool createCountryMap ();
   bool createProvinceMap ();
   void loadFiles ();

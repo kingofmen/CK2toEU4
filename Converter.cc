@@ -8,6 +8,7 @@
 #include "Converter.hh"
 #include "CK2Province.hh"
 #include "CK2Title.hh"
+#include "EU4Province.hh"
 #include "Logger.hh"
 #include "Parser.hh"
 #include "StructUtils.hh" 
@@ -24,9 +25,7 @@ ConverterJob const* const ConverterJob::LoadFile = new ConverterJob("loadfile", 
 const string QuotedNone("\"none\"");
 
 Converter::Converter (Window* ow, string fn)
-  : targetVersion("")
-  , sourceVersion("")
-  , ck2FileName(fn)
+  : ck2FileName(fn)
   , ck2Game(0)
   , eu4Game(0)
   , configObject(0)
@@ -143,18 +142,24 @@ bool Converter::swapKeys (Object* one, Object* two, string key) {
 /******************************** Begin initialisers **********************/
 
 bool Converter::createCK2Objects () {
-  Logger::logStream(LogStream::Info) << "Creating CK2 objects\n";
+  Logger::logStream(LogStream::Info) << "Creating CK2 objects\n" << LogOption::Indent;
   Object* wrapperObject = ck2Game->safeGetObject("provinces");
-  if (!wrapperObject) return false;
+  if (!wrapperObject) {
+    Logger::logStream(LogStream::Error) << "Could not find provinces object, cannot continue.\n" << LogOption::Undent;
+    return false;
+  }
 
   objvec provinces = wrapperObject->getLeaves();
   for (objiter province = provinces.begin(); province != provinces.end(); ++province) {
     new CK2Province(*province);
   }
-  Logger::logStream(LogStream::Info) << LogOption::Indent << "Created " << CK2Province::totalAmount() << " CK2 provinces.\n";
+  Logger::logStream(LogStream::Info) << "Created " << CK2Province::totalAmount() << " CK2 provinces.\n";
 
   wrapperObject = ck2Game->safeGetObject("title");
-  if (!wrapperObject) return false;
+  if (!wrapperObject) {
+    Logger::logStream(LogStream::Error) << "Could not find title object, cannot continue.\n" << LogOption::Undent;
+    return false;
+  }
   objvec titles = wrapperObject->getLeaves();
   for (objiter title = titles.begin(); title != titles.end(); ++title) {
     new CK2Title(*title);
@@ -162,7 +167,28 @@ bool Converter::createCK2Objects () {
 
   Logger::logStream(LogStream::Info) << "Created " << CK2Title::totalAmount() << " CK2 titles.\n";
 
-  Logger::logStream(LogStream::Info) << LogOption::Undent << "Done with CK2 objects.\n";
+  Logger::logStream(LogStream::Info) << "Done with CK2 objects.\n" << LogOption::Undent;
+  return true;
+}
+
+bool Converter::createEU4Objects () {
+  Logger::logStream(LogStream::Info) << "Creating EU4 objects\n" << LogOption::Indent;
+  Object* wrapperObject = eu4Game->safeGetObject("provinces");
+  if (!wrapperObject) {
+    Logger::logStream(LogStream::Error) << "Could not find provinces object, cannot continue.\n" << LogOption::Undent;
+    return false;
+  }
+
+  objvec provinces = wrapperObject->getLeaves();
+  for (objiter province = provinces.begin(); province != provinces.end(); ++province) {
+    // For some reason, the province numbers are negative in the key, but nowhere else?!
+    string provid = (*province)->getKey();
+    if (provid[0] == '-') (*province)->setKey(provid.substr(1));
+    new EU4Province(*province);
+  }
+  Logger::logStream(LogStream::Info) << "Created " << EU4Province::totalAmount() << " provinces.\n";
+  
+  Logger::logStream(LogStream::Info) << "Done with EU4 objects.\n" << LogOption::Undent;
   return true;
 }
 
@@ -207,6 +233,7 @@ bool Converter::createProvinceMap () {
   
   for (CK2Province::Iter ckprov = CK2Province::start(); ckprov != CK2Province::final(); ++ckprov) {
     string baronytag = remQuotes((*ckprov)->safeGetString("primary_settlement", QuotedNone));
+    if (baronytag == "---") continue; // Indicates wasteland.
     if (QuotedNone == baronytag) {
       Logger::logStream(LogStream::Warn) << "Could not find primary settlement of "
 					 << nameAndNumber(*ckprov)
@@ -224,17 +251,26 @@ bool Converter::createProvinceMap () {
     }
     
     string countytag = baronyToCountyMap[baronytag];
-    int eu4id = provinceMapObject->safeGetInt(countytag, -1);
-    if (-1 == eu4id) {
+    string eu4id = provinceMapObject->safeGetString(countytag, QuotedNone);
+    if (QuotedNone == eu4id) {
       Logger::logStream(LogStream::Warn) << "Could not find EU4 equivalent for province "
 					 << nameAndNumber(*ckprov)
 					 << ", ignoring.\n";
       continue;
     }
-    
+
+    EU4Province* target = EU4Province::findByName(eu4id);
+    if (!target) {
+      Logger::logStream(LogStream::Warn) << "Could not find EU4 province " << eu4id
+					 << ", (missing DLC in input save?), skipping "
+					 << nameAndNumber(*ckprov) << ".\n";
+      continue;
+    }
+    (*ckprov)->setEu4Province(target);
+
     Logger::logStream("provinces") << nameAndNumber(*ckprov)
 				   << " mapped to EU4 province "
-				   << eu4id
+				   << nameAndNumber(target)
 				   << ".\n";
   }
 
@@ -243,8 +279,12 @@ bool Converter::createProvinceMap () {
 
 void Converter::loadFiles () {
   string dirToUse = remQuotes(configObject->safeGetString("maps_dir", ".\\maps\\"));
-  Logger::logStream(LogStream::Info) << "Directory: \"" << dirToUse << "\"\n";
+  Logger::logStream(LogStream::Info) << "Directory: \"" << dirToUse << "\"\n" << LogOption::Indent;
+
+  eu4Game = loadTextFile(dirToUse + "input.eu4");
   provinceMapObject = loadTextFile(dirToUse + "provinces.txt");
+
+  Logger::logStream(LogStream::Info) << "Done loading input files\n" << LogOption::Undent;
 }
 
 /******************************* End initialisers *******************************/ 
@@ -276,11 +316,9 @@ void Converter::convert () {
     return; 
   }
 
-  Logger::logStream(LogStream::Info) << "Loading EU4 source file.\n";
-  eu4Game = loadTextFile(targetVersion + "input.eu4");
-
   loadFiles();
   if (!createCK2Objects()) return;
+  if (!createEU4Objects()) return;
   if (!createProvinceMap()) return; 
   if (!createCountryMap()) return;
   cleanUp();
