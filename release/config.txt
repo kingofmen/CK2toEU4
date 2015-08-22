@@ -5,6 +5,6 @@ streams = {
 }
 
 # NOCUSTOM or delete to ignore 
-custom = custom_overrides.txt
+custom = "custom_overrides.txt"
 
 maps_dir = ".\maps\"

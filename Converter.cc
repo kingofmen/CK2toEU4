@@ -23,6 +23,7 @@ ConverterJob const* const ConverterJob::DebugParser = new ConverterJob("debug", 
 ConverterJob const* const ConverterJob::LoadFile = new ConverterJob("loadfile", true);
 
 const string QuotedNone("\"none\"");
+const string PlainNone("none");
 
 Converter::Converter (Window* ow, string fn)
   : ck2FileName(fn)
@@ -66,6 +67,11 @@ void Converter::loadFile () {
 }
 
 void Converter::cleanUp () {
+  // Restore the initial '-' in province tags.
+  string minus("-");
+  for (EU4Province::Iter prov = EU4Province::start(); prov != EU4Province::final(); ++prov) {
+    (*prov)->object->setKey(minus + (*prov)->getKey());
+  }
 }
 
 void Converter::configure () {
@@ -198,6 +204,8 @@ bool Converter::createCountryMap () {
     return false; 
   }
 
+  
+  
   return true; 
 }
 
@@ -274,6 +282,7 @@ bool Converter::createProvinceMap () {
 				   << ".\n";
   }
 
+  Logger::logStream(LogStream::Info) << "Done with province mapping.\n" << LogOption::Undent;
   return true; 
 }
 
@@ -281,9 +290,17 @@ void Converter::loadFiles () {
   string dirToUse = remQuotes(configObject->safeGetString("maps_dir", ".\\maps\\"));
   Logger::logStream(LogStream::Info) << "Directory: \"" << dirToUse << "\"\n" << LogOption::Indent;
 
+  Parser::ignoreString = "EU4txt";
   eu4Game = loadTextFile(dirToUse + "input.eu4");
+  Parser::ignoreString = "";
   provinceMapObject = loadTextFile(dirToUse + "provinces.txt");
 
+  string overrideFileName = remQuotes(configObject->safeGetString("custom", QuotedNone));
+  if (PlainNone != overrideFileName) customObject = loadTextFile(dirToUse + overrideFileName);
+  else customObject = new Object("custom");
+
+  countryMapObject = customObject->getNeededObject("country_overrides");
+  
   Logger::logStream(LogStream::Info) << "Done loading input files\n" << LogOption::Undent;
 }
 
@@ -323,13 +340,21 @@ void Converter::convert () {
   if (!createCountryMap()) return;
   cleanUp();
   
-  Logger::logStream(LogStream::Info) << "Done with conversion, writing to Output/converted.hoi3.\n";
- 
+  Logger::logStream(LogStream::Info) << "Done with conversion, writing to Output/converted.eu4.\n";
+
+  // Last leaf needs special treatment.
+  objvec leaves = eu4Game->getLeaves();
+  Object* final = leaves.back();
+  eu4Game->removeObject(final);
+  
+  Parser::EqualsSign = "="; // No whitespace around equals, thanks Paradox.
   ofstream writer;
-  writer.open(".\\Output\\converted.hoi3");
+  writer.open(".\\Output\\converted.eu4");
   Parser::topLevel = eu4Game;
+  writer << "EU4txt\n"; // Gah, don't ask me...
   writer << (*eu4Game);
-  writer.close();
+  // No closing endline, thanks Paradox.
+  writer << final->getKey() << "=" << final->getLeaf();
   Logger::logStream(LogStream::Info) << "Done writing.\n";
 }
 
