@@ -66,8 +66,8 @@ private:
   bool active;
   QString buffer;
   int precision;
-  int indent;
 
+  static int indent;
   static std::map<int, Logger*> logs;
 };
 

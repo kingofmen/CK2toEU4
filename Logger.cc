@@ -2,6 +2,7 @@
 #include <cassert>
 #include "Parser.hh"
 
+int Logger::indent = 0;
 std::map<int, Logger*> Logger::logs;
 
 LogStream const* const LogStream::Debug = new LogStream("debug");
@@ -17,7 +18,6 @@ Logger::Logger ()
   : active(true)
   , buffer()
   , precision(-1)
-  , indent(0)
 {}
 
 Logger::~Logger () {}
@@ -45,8 +45,8 @@ Logger& Logger::operator<< (std::string dat) {
 
 Logger& Logger::operator<< (Object* dat) {
   if (!active) return *this;
-  static int indent = 0;
-  for (int i = 0; i < indent; i++) {
+  static int objindent = 0;
+  for (int i = 0; i < objindent; i++) {
     *this << "  ";
   }
   if (dat->isLeaf()) {
@@ -60,15 +60,15 @@ Logger& Logger::operator<< (Object* dat) {
 
   if (dat != Parser::topLevel) {
     *this << dat->getKey() << " = { \n";
-    indent++;
+    objindent++;
   }
   objvec leaves = dat->getLeaves();
   for (objiter i = leaves.begin(); i != leaves.end(); ++i) {
     *this << (*i);
   }
   if (dat != Parser::topLevel) {
-    indent--;
-    for (int i = 0; i < indent; i++) {
+    objindent--;
+    for (int i = 0; i < objindent; i++) {
       *this << "  ";
     }
     *this << "} \n";
