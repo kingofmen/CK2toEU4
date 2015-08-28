@@ -7,8 +7,10 @@
 
 #include "Converter.hh"
 #include "CK2Province.hh"
+#include "CK2Ruler.hh"
 #include "CK2Title.hh"
 #include "EU4Province.hh"
+#include "EU4Country.hh"
 #include "Logger.hh"
 #include "Parser.hh"
 #include "StructUtils.hh" 
@@ -62,7 +64,9 @@ void Converter::run () {
 
 void Converter::loadFile () {
   if (ck2FileName == "") return;
+  Parser::ignoreString = "CK2text";
   ck2Game = loadTextFile(ck2FileName);
+  Parser::ignoreString = "";
   Logger::logStream(LogStream::Info) << "Ready to convert.\n";
 }
 
@@ -173,6 +177,38 @@ bool Converter::createCK2Objects () {
 
   Logger::logStream(LogStream::Info) << "Created " << CK2Title::totalAmount() << " CK2 titles.\n";
 
+  Object* characters = ck2Game->safeGetObject("character");
+  if (!characters) {
+    Logger::logStream(LogStream::Error) << "Could not find character object, cannot continue.\n" << LogOption::Undent;
+    return false;
+  }
+  for (CK2Title::Iter ckCountry = CK2Title::start(); ckCountry != CK2Title::final(); ++ckCountry) {
+    string holderId = (*ckCountry)->safeGetString("holder", PlainNone);
+    if (PlainNone == holderId) continue;
+    CK2Ruler* ruler = CK2Ruler::findByName(holderId);
+    if (!ruler) {
+      Object* character = characters->safeGetObject(holderId);
+      if (!character) {
+	Logger::logStream(LogStream::Warn) << "Could not find character " << holderId
+					   << ", holder of title " << (*ckCountry)->getKey()
+					   << ". Ignoring.\n";
+	continue;
+      }
+      ruler = new CK2Ruler(character);
+    }
+
+    ruler->addTitle(*ckCountry);
+  }
+
+  Logger::logStream(LogStream::Info) << "Created " << CK2Ruler::totalAmount() << " CK2 rulers.\n";
+  for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
+    (*ruler)->createLiege();
+  }
+
+  for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
+    (*ruler)->countBaronies();
+  }
+
   Logger::logStream(LogStream::Info) << "Done with CK2 objects.\n" << LogOption::Undent;
   return true;
 }
@@ -193,7 +229,19 @@ bool Converter::createEU4Objects () {
     new EU4Province(*province);
   }
   Logger::logStream(LogStream::Info) << "Created " << EU4Province::totalAmount() << " provinces.\n";
-  
+
+  wrapperObject = eu4Game->safeGetObject("countries");
+  if (!wrapperObject) {
+    Logger::logStream(LogStream::Error) << "Could not find countries object, cannot continue.\n" << LogOption::Undent;
+    return false;
+  }
+
+  objvec countries = wrapperObject->getLeaves();
+  for (objiter country = countries.begin(); country != countries.end(); ++country) {
+    new EU4Country(*country);
+  }
+  Logger::logStream(LogStream::Info) << "Created " << EU4Country::totalAmount() << " countries.\n";
+ 
   Logger::logStream(LogStream::Info) << "Done with EU4 objects.\n" << LogOption::Undent;
   return true;
 }
@@ -204,8 +252,140 @@ bool Converter::createCountryMap () {
     return false; 
   }
 
+  set<EU4Country*> forbiddenCountries;
+  Logger::logStream(LogStream::Info) << "Beginning country mapping.\n" << LogOption::Indent;
+  objvec overrides = countryMapObject->getLeaves();
+  for (objiter override = overrides.begin(); override != overrides.end(); ++override) {
+    string cktag = (*override)->getKey();
+    string eutag = (*override)->getLeaf();
+    CK2Title* ckCountry = CK2Title::findByName(cktag);
+    if (!ckCountry) {
+      Logger::logStream(LogStream::Warn) << "Attempted override "
+					 << cktag << " -> "
+					 << eutag << ", but could not find CK title. Ignoring.\n";
+      continue;
+    }
+    EU4Country* euCountry = EU4Country::findByName(eutag);
+    if (!euCountry) {
+      Logger::logStream(LogStream::Warn) << "Attempted override "
+					 << cktag << " -> "
+					 << eutag << ", but could not find EU country. Ignoring.\n";
+      continue;
+    }
+    euCountry->setRuler(ckCountry->getRuler());
+    forbiddenCountries.insert(euCountry);
+  }
+
+  // Candidate countries are: All countries that have provinces with
+  // CK equivalent and none without; plus all countries with no provinces,
+  // but which have discovered one of a configurable list of provinces.
+  set<EU4Country*> candidateCountries;
+  map<EU4Country*, vector<EU4Province*> > initialProvincesMap;
+  for (EU4Province::Iter eu4 = EU4Province::start(); eu4 != EU4Province::final(); ++eu4) {
+    string eu4tag = remQuotes((*eu4)->safeGetString("owner", QuotedNone));
+    if (PlainNone == eu4tag) continue;
+    EU4Country* owner = EU4Country::findByName(eu4tag);
+    initialProvincesMap[owner].push_back(*eu4);
+  }
+
+  for (map<EU4Country*, vector<EU4Province*> >::iterator eu4 = initialProvincesMap.begin(); eu4 != initialProvincesMap.end(); ++eu4) {
+    if (forbiddenCountries.count((*eu4).first)) continue;
+    string badProvinceTag = "";
+    bool hasGoodProvince = false;
+    for (vector<EU4Province*>::iterator prov = (*eu4).second.begin(); prov != (*eu4).second.end(); ++prov) {
+      if (0 < (*prov)->numCKProvinces()) hasGoodProvince = true;
+      else {
+	badProvinceTag = (*prov)->getKey();
+	break;
+      }
+    }
+    if (badProvinceTag != "") {
+      Logger::logStream("countries") << "Disregarding " << (*eu4).first->getKey() << " because it owns " << badProvinceTag << "\n";
+      forbiddenCountries.insert((*eu4).first);
+    }
+    else if (hasGoodProvince) {
+      candidateCountries.insert((*eu4).first);
+    }
+  }
   
+  Object* provsObject = customObject->safeGetObject("provinces_for_tags");
+  EU4Province::Container provsToKnow;
+  if (provsObject) {
+    for (int i = 0; i < provsObject->numTokens(); ++i) {
+      provsToKnow.push_back(EU4Province::findByName(provsObject->getToken(i)));
+    }
+  }
+  if (3 > provsToKnow.size()) {
+    provsToKnow.push_back(EU4Province::findByName("1"));
+    provsToKnow.push_back(EU4Province::findByName("112"));
+    provsToKnow.push_back(EU4Province::findByName("213"));
+  }
+
+  for (EU4Province::Iter known = provsToKnow.begin(); known != provsToKnow.end(); ++known) {
+    Object* discovered = (*known)->getNeededObject("discovered_by");
+    for (int i = 0; i < discovered->numTokens(); ++i) {
+      string eutag = discovered->getToken(i);
+      EU4Country* eu4Country = EU4Country::findByName(eutag);
+      if (!eu4Country) {
+	Logger::logStream(LogStream::Warn) << "Could not find EU4 country "
+					   << eutag
+					   << ", wanted for having discovered "
+					   << nameAndNumber(*known)
+					   << ".\n";
+	continue;
+      }
+      if (forbiddenCountries.count(eu4Country)) continue;
+      candidateCountries.insert(eu4Country);
+    }
+  }
+
+  Logger::logStream("countries") << "Found these EU4 countries:";
+  for (set<EU4Country*>::iterator eu4 = candidateCountries.begin(); eu4 != candidateCountries.end(); ++eu4) {
+    Logger::logStream("countries") << " " << (*eu4)->getName();
+  }
+  Logger::logStream("countries") << "\n";
+  if (12 > candidateCountries.size()) {
+    Logger::logStream(LogStream::Error) << "Found " << candidateCountries.size()
+					<< " EU4 countries; cannot continue with so few.\n" << LogOption::Undent;
+    return false;
+  }
+
+  CK2Ruler::Container rulers = CK2Ruler::makeCopy();  
+  std::sort(rulers.begin(), rulers.end(), ObjectDescendingSorter("totalRealmBaronies"));
+  for (CK2Ruler::Iter ruler = rulers.begin(); ruler != rulers.end(); ++ruler) {
+    if (0 == (*ruler)->countBaronies()) break; // Rebels, adventurers, and suchlike riffraff.
+    //Logger::logStream(LogStream::Info) << (*ruler)->getName() << " " << (*ruler)->safeGetString("birth_name") << " " << (*ruler)->countBaronies() << "\n";
+    EU4Country* bestCandidate = 0;
+    int highestOverlap = -1;
+    for (set<EU4Country*>::iterator cand = candidateCountries.begin(); cand != candidateCountries.end(); ++cand) {
+      vector<EU4Province*> eu4Provinces = initialProvincesMap[*cand];
+      int currentOverlap = 0;
+      for (vector<EU4Province*>::iterator eu4Province = eu4Provinces.begin(); eu4Province != eu4Provinces.end(); ++eu4Province) {
+	for (CK2Province::Iter ck2Prov = (*eu4Province)->startProv(); ck2Prov != (*eu4Province)->finalProv(); ++ck2Prov) {
+	  if ((*ruler)->hasTitle((*ck2Prov)->getCountyTitle())) ++currentOverlap;
+	}
+      }
+      if (currentOverlap <= highestOverlap) continue;
+      bestCandidate = (*cand);
+      highestOverlap = currentOverlap;
+    }
+    Logger::logStream(LogStream::Info) << "Converting "
+				       << bestCandidate->getName() << " from "
+				       << (*ruler)->getName() << " " << (*ruler)->safeGetString("birth_name")
+				       << " based on overlap " << highestOverlap
+				       << " with these counties: ";
+    for (CK2Title::Iter title = (*ruler)->startTitle(); title != (*ruler)->finalTitle(); ++title) {
+      if (TitleLevel::County != (*title)->getLevel()) continue;
+      Logger::logStream(LogStream::Info) << (*title)->getName() << " ";
+    }
+    Logger::logStream(LogStream::Info) << "\n";
+    bestCandidate->setRuler(*ruler);
+
+    candidateCountries.erase(bestCandidate);
+    if (0 == candidateCountries.size()) break;
+  }
   
+  Logger::logStream(LogStream::Info) << "Done with country mapping.\n" << LogOption::Undent;
   return true; 
 }
 
@@ -238,7 +418,7 @@ bool Converter::createProvinceMap () {
 
     baronyToCountyMap[(*title)->getName()] = liege->getName();
   }
-  
+
   for (CK2Province::Iter ckprov = CK2Province::start(); ckprov != CK2Province::final(); ++ckprov) {
     string baronytag = remQuotes((*ckprov)->safeGetString("primary_settlement", QuotedNone));
     if (baronytag == "---") continue; // Indicates wasteland.
@@ -248,7 +428,7 @@ bool Converter::createProvinceMap () {
 					 << ", ignoring.\n";
       continue;
     }
-    
+
     if (0 == baronyToCountyMap.count(baronytag)) {
       Logger::logStream(LogStream::Warn) << "Could not find county liege of barony "
 					 << addQuotes(baronytag)
@@ -257,29 +437,40 @@ bool Converter::createProvinceMap () {
 					 << ", ignoring.\n";
       continue;
     }
-    
+
     string countytag = baronyToCountyMap[baronytag];
-    string eu4id = provinceMapObject->safeGetString(countytag, QuotedNone);
-    if (QuotedNone == eu4id) {
+    CK2Title* county = CK2Title::findByName(countytag);
+    if (!county) {
+      Logger::logStream(LogStream::Warn) << "Could not find county "
+					 << countytag
+					 << ", allegedly location of barony "
+					 << baronytag
+					 << ".\n";
+    }
+    (*ckprov)->setCountyTitle(county);
+    objvec conversions = provinceMapObject->getValue(countytag);
+    if (0 == conversions.size()) {
       Logger::logStream(LogStream::Warn) << "Could not find EU4 equivalent for province "
 					 << nameAndNumber(*ckprov)
 					 << ", ignoring.\n";
       continue;
     }
 
-    EU4Province* target = EU4Province::findByName(eu4id);
-    if (!target) {
-      Logger::logStream(LogStream::Warn) << "Could not find EU4 province " << eu4id
-					 << ", (missing DLC in input save?), skipping "
-					 << nameAndNumber(*ckprov) << ".\n";
-      continue;
+    for (objiter conversion = conversions.begin(); conversion != conversions.end(); ++conversion) {
+      string eu4id = (*conversion)->getLeaf();
+      EU4Province* target = EU4Province::findByName(eu4id);
+      if (!target) {
+	Logger::logStream(LogStream::Warn) << "Could not find EU4 province " << eu4id
+					   << ", (missing DLC in input save?), skipping "
+					   << nameAndNumber(*ckprov) << ".\n";
+	continue;
+      }
+      (*ckprov)->assignProvince(target);
+      Logger::logStream("provinces") << nameAndNumber(*ckprov)
+				     << " mapped to EU4 province "
+				     << nameAndNumber(target)
+				     << ".\n";
     }
-    (*ckprov)->setEu4Province(target);
-
-    Logger::logStream("provinces") << nameAndNumber(*ckprov)
-				   << " mapped to EU4 province "
-				   << nameAndNumber(target)
-				   << ".\n";
   }
 
   Logger::logStream(LogStream::Info) << "Done with province mapping.\n" << LogOption::Undent;
@@ -309,6 +500,62 @@ void Converter::loadFiles () {
 
 /******************************* Begin conversions ********************************/
 
+bool Converter::transferProvinces () {
+  Logger::logStream(LogStream::Info) << "Beginning province transfer.\n" << LogOption::Indent;
+
+  for (EU4Province::Iter eu4Prov = EU4Province::start(); eu4Prov != EU4Province::final(); ++eu4Prov) {
+    if (0 == (*eu4Prov)->numCKProvinces()) continue; // ROTW or water.
+    map<EU4Country*, double> weights;
+    for (CK2Province::Iter ck2Prov = (*eu4Prov)->startProv(); ck2Prov != (*eu4Prov)->finalProv(); ++ck2Prov) {
+      CK2Title* countyTitle = (*ck2Prov)->getCountyTitle();
+      if (!countyTitle) {
+	Logger::logStream(LogStream::Warn) << "Could not find county title of CK province "
+					   << (*ck2Prov)->getName()
+					   << ", ignoring.\n";
+	continue;
+      }
+      CK2Ruler* ruler = countyTitle->getRuler();
+      if (!ruler) {
+	Logger::logStream(LogStream::Warn) << "County " << countyTitle->getName()
+					   << " has no CK ruler? Ignoring.\n";
+	continue;
+      }
+      while (!ruler->getEU4Country()) {
+	ruler = ruler->getLiege();
+	if (!ruler) break;
+      }
+      if (!ruler) {
+	Logger::logStream(LogStream::Warn) << "County " << countyTitle->getName()
+					   << " doesn't have an assigned EU4 nation; skipping.\n";
+	continue;
+      }
+      weights[ruler->getEU4Country()] += calculateWeight(*ck2Prov);
+    }
+    if (0 == weights.size()) {
+      Logger::logStream(LogStream::Warn) << "Could not find any candidates for "
+					 << nameAndNumber(*eu4Prov)
+					 << ", it will convert belonging to "
+					 << (*eu4Prov)->safeGetString("owner")
+					 << "\n";
+      continue;
+    }
+    EU4Country* best = 0;
+    double highest = -1;
+    for (map<EU4Country*, double>::iterator cand = weights.begin(); cand != weights.end(); ++cand) {
+      if ((*cand).second < highest) continue;
+      best = (*cand).first;
+      highest = (*cand).second;
+    }
+    Logger::logStream("provinces") << nameAndNumber(*eu4Prov) << " assigned to " << best->getName() << "\n";
+    (*eu4Prov)->setLeaf("owner", addQuotes(best->getName()));
+    (*eu4Prov)->setLeaf("controller", addQuotes(best->getName()));
+  }
+
+
+  Logger::logStream(LogStream::Info) << "Done with province transfer.\n" << LogOption::Undent;
+  return true;
+}
+
 /******************************* End conversions ********************************/
 
 /*******************************  Begin calculators ********************************/
@@ -325,6 +572,10 @@ double calcAvg (Object* ofthis) {
   return ret; 
 }
 
+double Converter::calculateWeight (CK2Province* prov) {
+  return 1;
+}
+
 /******************************* End calculators ********************************/
 
 void Converter::convert () {
@@ -338,6 +589,7 @@ void Converter::convert () {
   if (!createEU4Objects()) return;
   if (!createProvinceMap()) return; 
   if (!createCountryMap()) return;
+  if (!transferProvinces()) return;
   cleanUp();
   
   Logger::logStream(LogStream::Info) << "Done with conversion, writing to Output/converted.eu4.\n";

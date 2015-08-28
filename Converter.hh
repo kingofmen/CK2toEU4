@@ -9,6 +9,8 @@
 
 #include "UtilityFunctions.hh"
 
+class CK2Province;
+
 using namespace std;
 
 class ConverterJob : public Enumerable<const ConverterJob> {
@@ -41,7 +43,8 @@ private:
   Object* configObject;
 
   // Conversion processes
-
+  bool transferProvinces ();
+  
   // Infrastructure
   void loadFile ();
   void convert ();
@@ -56,6 +59,7 @@ private:
   void loadFiles ();
 
   // Helpers:
+  double calculateWeight (CK2Province* prov);
   void cleanUp ();
   Object* loadTextFile (string fname);
   bool swapKeys (Object* one, Object* two, string key);

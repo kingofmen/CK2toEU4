@@ -1,6 +1,8 @@
 streams = {
   generic  = yes 
-  provinces = no
+  provinces = yes
+  countries = yes
+  characters = yes
   all = no
 }
 
@@ -8,3 +10,6 @@ streams = {
 custom = "custom_overrides.txt"
 
 maps_dir = ".\maps\"
+
+# The EU4 tags that know about these provinces will be used.
+provinces_for_tags = { 1 112 213 1315 }

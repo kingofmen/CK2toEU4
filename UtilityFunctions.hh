@@ -154,10 +154,17 @@ template <class T> class Iterable {
     }
   }
 
+  typedef vector<T*> Container;
   typedef typename vector<T*>::iterator Iter;
   typedef typename vector<T*>::iterator Iterator;
   typedef typename vector<T*>::reverse_iterator rIter;
   typedef typename vector<T*>::reverse_iterator rIterator;
+
+  static Container makeCopy () {
+    Container ret;
+    for (Iter r = start(); r != final(); ++r) ret.push_back(*r);
+    return ret;
+  }
 
   static Iter start () {return allThings.begin();}
   static Iter final () {return allThings.end();}
@@ -287,7 +294,9 @@ struct ObjectWrapper {
   virtual ~ObjectWrapper () {}
 
   string getKey () const {return object->getKey();}
-  string safeGetString (string key, string def) const {return object->safeGetString(key, def);}
+  string safeGetString (string key, string def = "") const {return object->safeGetString(key, def);}
+  void setLeaf (string key, string value) {object->setLeaf(key, value);}
+  Object* getNeededObject (string key) {return object->getNeededObject(key);}
   Object* object;
 };
 
@@ -317,12 +326,14 @@ struct ObjectAscendingSorter : public ObjectSorter {
 public:
   ObjectAscendingSorter (string k) : ObjectSorter(k) {}
   bool operator() (Object* one, Object* two) {return (one->safeGetFloat(keyword) < two->safeGetFloat(keyword));}
+  bool operator() (ObjectWrapper* one, ObjectWrapper* two) {return (*this)(one->object, two->object);}
 private:
 };
 struct ObjectDescendingSorter : public ObjectSorter {
 public:
   ObjectDescendingSorter (string k) : ObjectSorter(k) {}
   bool operator() (Object* one, Object* two) {return (one->safeGetFloat(keyword) > two->safeGetFloat(keyword));}
+  bool operator() (ObjectWrapper* one, ObjectWrapper* two) {return (*this)(one->object, two->object);}
 private:
 };
 
