@@ -34,8 +34,6 @@ protected:
 
 private:
   // Misc globals
-  string targetVersion;
-  string sourceVersion;
   string ck2FileName;
   Object* ck2Game;
   Object* eu4Game;
@@ -59,7 +57,6 @@ private:
   void loadFiles ();
 
   // Helpers:
-  double calculateWeight (CK2Province* prov);
   void cleanUp ();
   Object* loadTextFile (string fname);
   bool swapKeys (Object* one, Object* two, string key);
@@ -69,6 +66,7 @@ private:
   // Lists
 
   // Input info
+  Object* deJureObject;
   Object* provinceMapObject;
   Object* countryMapObject;
   Object* customObject;

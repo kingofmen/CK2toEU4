@@ -294,7 +294,8 @@ struct ObjectWrapper {
   virtual ~ObjectWrapper () {}
 
   string getKey () const {return object->getKey();}
-  string safeGetString (string key, string def = "") const {return object->safeGetString(key, def);}
+  string  safeGetString (string key, string def = "") const {return object->safeGetString(key, def);}
+  Object* safeGetObject (string key, Object* def = 0) const {return object->safeGetObject(key, def);}
   void setLeaf (string key, string value) {object->setLeaf(key, value);}
   Object* getNeededObject (string key) {return object->getNeededObject(key);}
   Object* object;

@@ -10,16 +10,25 @@ TitleLevel const* const TitleLevel::Kingdom = new TitleLevel("kingdom", false);
 TitleLevel const* const TitleLevel::Empire  = new TitleLevel("empire", true);
 
 CK2Title::Container CK2Title::empires;
+CK2Title::Container CK2Title::kingdoms;
+CK2Title::Container CK2Title::duchies;
+CK2Title::Container CK2Title::counties;
+CK2Title::Container CK2Title::baronies;
 
 CK2Title::CK2Title (Object* o)
   : Enumerable<CK2Title>(this, o->getKey(), false)
   , ObjectWrapper(o)
   , ruler(0)
+  , deJureLiege(0)
   , eu4Country(0)
   , liegeTitle(0)
   , titleLevel(0)
 {
-  if (TitleLevel::Empire == getLevel()) empires.push_back(this);
+  if (TitleLevel::Empire  == getLevel()) empires.push_back(this);
+  if (TitleLevel::Kingdom == getLevel()) kingdoms.push_back(this);
+  if (TitleLevel::Duchy   == getLevel()) duchies.push_back(this);
+  if (TitleLevel::County  == getLevel()) counties.push_back(this);
+  baronies.push_back(this);
 }
 
 void CK2Title::assignCountry (EU4Country* eu4) {
@@ -60,4 +69,27 @@ CK2Title* CK2Title::getLiege () {
   string liegeTitleKey = remQuotes(liegeObject->safeGetString("title", "nonesuch"));
   liegeTitle = findByName(liegeTitleKey);
   return liegeTitle;
+}
+
+void CK2Title::setDeJureLiege (CK2Title* djl) {
+  if (!djl) return;
+  Logger::logStream("titles") << getName() << " has de jure liege " << djl->getName() << "\n";
+  deJureLiege = djl;
+}
+
+CK2Title::Iter CK2Title::startLevel (TitleLevel const* const level) {
+  if (TitleLevel::Empire  == level) return empires.begin();
+  if (TitleLevel::Kingdom == level) return kingdoms.begin();
+  if (TitleLevel::Duchy   == level) return duchies.begin();
+  if (TitleLevel::County  == level) return counties.begin();
+  return baronies.begin();
+}
+
+
+CK2Title::Iter CK2Title::finalLevel (TitleLevel const* const level) {
+  if (TitleLevel::Empire  == level) return empires.end();
+  if (TitleLevel::Kingdom == level) return kingdoms.end();
+  if (TitleLevel::Duchy   == level) return duchies.end();
+  if (TitleLevel::County  == level) return counties.end();
+  return baronies.end();
 }

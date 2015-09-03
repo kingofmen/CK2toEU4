@@ -12,6 +12,7 @@ public:
 
   void assignProvince (EU4Province* t);
   CK2Title* getCountyTitle () const {return countyTitle;}
+  double getWeight () {return 1;}
   void setCountyTitle (CK2Title* t) {countyTitle = t;}
 private:
   CK2Title* countyTitle;

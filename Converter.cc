@@ -9,6 +9,7 @@
 #include "CK2Province.hh"
 #include "CK2Ruler.hh"
 #include "CK2Title.hh"
+#include "CK2War.hh"
 #include "EU4Province.hh"
 #include "EU4Country.hh"
 #include "Logger.hh"
@@ -32,6 +33,7 @@ Converter::Converter (Window* ow, string fn)
   , ck2Game(0)
   , eu4Game(0)
   , configObject(0)
+  , deJureObject(0)
   , provinceMapObject(0)
   , countryMapObject(0)
   , customObject(0)
@@ -176,6 +178,27 @@ bool Converter::createCK2Objects () {
   }
 
   Logger::logStream(LogStream::Info) << "Created " << CK2Title::totalAmount() << " CK2 titles.\n";
+  // De-jure lieges
+  map<string, string> deJureMap;
+  if (deJureObject) {
+    objvec dejures = deJureObject->getLeaves();
+    for (objiter dejure = dejures.begin(); dejure != dejures.end(); ++dejure) {
+      deJureMap[(*dejure)->getKey()] = (*dejure)->getLeaf();
+    }
+  }
+  for (CK2Title::Iter ckCountry = CK2Title::start(); ckCountry != CK2Title::final(); ++ckCountry) {
+    if ((*ckCountry)->safeGetString("landless", "no") == "yes") continue;
+    Object* deJureObj = (*ckCountry)->safeGetObject("de_jure_liege");
+    string deJureTag = PlainNone;
+    if (deJureObj) deJureTag = remQuotes(deJureObj->safeGetString("title", QuotedNone));
+    if ((deJureTag == PlainNone) && (deJureMap.count((*ckCountry)->getName()))) {
+      deJureTag = deJureMap[(*ckCountry)->getName()];
+    }
+    if (deJureTag == PlainNone) {
+      continue;
+    }
+    (*ckCountry)->setDeJureLiege(CK2Title::findByName(deJureTag));
+  }
 
   Object* characters = ck2Game->safeGetObject("character");
   if (!characters) {
@@ -209,6 +232,39 @@ bool Converter::createCK2Objects () {
     (*ruler)->countBaronies();
   }
 
+  // Diplomacy
+  Object* relationObject = ck2Game->getNeededObject("relation");
+  objvec relations = relationObject->getLeaves();
+  for (objiter relation = relations.begin(); relation != relations.end(); ++relation) {
+    string key = (*relation)->getKey();
+    string rel_type = getField(key, 0, '_');
+    if (rel_type != "diplo") continue;
+    string mainCharTag = getField(key, 1, '_');
+    CK2Ruler* mainChar = CK2Ruler::findByName(mainCharTag);
+    if (!mainChar) {
+      Logger::logStream(LogStream::Warn) << "Could not find ruler "
+					 << mainCharTag
+					 << " from diplo object "
+					 << (*relation)
+					 << "\n";
+      continue;
+    }
+    objvec subjects = (*relation)->getLeaves();
+    for (objiter subject = subjects.begin(); subject != subjects.end(); ++subject) {
+      CK2Ruler* otherChar = CK2Ruler::findByName((*subject)->getKey());
+      if (!otherChar) continue;
+      if ((*subject)->safeGetString("tributary", PlainNone) == mainCharTag) {
+	mainChar->addTributary(otherChar);
+      }
+    }
+  }
+  
+  objvec wars = ck2Game->getValue("active_war");
+  for (objiter war = wars.begin(); war != wars.end(); ++war) {
+    new CK2War(*war);
+  }
+  Logger::logStream(LogStream::Info) << "Created " << CK2War::totalAmount() << " CK2 wars.\n";
+  
   Logger::logStream(LogStream::Info) << "Done with CK2 objects.\n" << LogOption::Undent;
   return true;
 }
@@ -354,7 +410,6 @@ bool Converter::createCountryMap () {
   std::sort(rulers.begin(), rulers.end(), ObjectDescendingSorter("totalRealmBaronies"));
   for (CK2Ruler::Iter ruler = rulers.begin(); ruler != rulers.end(); ++ruler) {
     if (0 == (*ruler)->countBaronies()) break; // Rebels, adventurers, and suchlike riffraff.
-    //Logger::logStream(LogStream::Info) << (*ruler)->getName() << " " << (*ruler)->safeGetString("birth_name") << " " << (*ruler)->countBaronies() << "\n";
     EU4Country* bestCandidate = 0;
     int highestOverlap = -1;
     for (set<EU4Country*>::iterator cand = candidateCountries.begin(); cand != candidateCountries.end(); ++cand) {
@@ -485,6 +540,7 @@ void Converter::loadFiles () {
   eu4Game = loadTextFile(dirToUse + "input.eu4");
   Parser::ignoreString = "";
   provinceMapObject = loadTextFile(dirToUse + "provinces.txt");
+  deJureObject = loadTextFile(dirToUse + "de_jure_lieges.txt");
 
   string overrideFileName = remQuotes(configObject->safeGetString("custom", QuotedNone));
   if (PlainNone != overrideFileName) customObject = loadTextFile(dirToUse + overrideFileName);
@@ -506,6 +562,7 @@ bool Converter::transferProvinces () {
   for (EU4Province::Iter eu4Prov = EU4Province::start(); eu4Prov != EU4Province::final(); ++eu4Prov) {
     if (0 == (*eu4Prov)->numCKProvinces()) continue; // ROTW or water.
     map<EU4Country*, double> weights;
+    double rebelWeight = 0;
     for (CK2Province::Iter ck2Prov = (*eu4Prov)->startProv(); ck2Prov != (*eu4Prov)->finalProv(); ++ck2Prov) {
       CK2Title* countyTitle = (*ck2Prov)->getCountyTitle();
       if (!countyTitle) {
@@ -520,16 +577,101 @@ bool Converter::transferProvinces () {
 					   << " has no CK ruler? Ignoring.\n";
 	continue;
       }
+      bool printed = false;
       while (!ruler->getEU4Country()) {
 	ruler = ruler->getLiege();
 	if (!ruler) break;
       }
-      if (!ruler) {
+      if (ruler) {
+	Logger::logStream("provinces") << countyTitle->getName()
+				       << " assigned "
+				       << ruler->getEU4Country()->getName()
+				       << " from regular liege chain.\n";
+	printed = true;
+      }
+      else {
+	// We didn't find an EU4 nation in the
+	// chain of lieges. Possibly this is a
+	// rebel-controlled county.
+	ruler = countyTitle->getRuler();
+	CK2Ruler* cand = 0;
+	for (CK2Ruler::Iter enemy = ruler->startEnemy(); enemy != ruler->finalEnemy(); ++enemy) {
+	  if (!(*enemy)->getEU4Country()) continue;
+	  cand = (*enemy); // Intuitively would assign to ruler, but that breaks the iterator, despite the exit below.
+	  rebelWeight += (*ck2Prov)->getWeight();
+	  break;
+	}
+	ruler = cand;
+      }
+      if (ruler) {
+	if (!printed) Logger::logStream("provinces") << countyTitle->getName()
+						     << " assigned "
+						     << ruler->getEU4Country()->getName()
+						     << " from war - assumed rebel.\n";
+	printed = true;
+      }
+      else {
+	// Not a rebel. Might be an independent count. Try for de-jure liege.
+	CK2Title* currTitle = countyTitle;
+	while (currTitle) {
+	  currTitle = currTitle->getDeJureLiege();
+	  if (!currTitle) break;
+	  ruler = currTitle->getRuler();
+	  if (!ruler) continue;
+	  if (ruler->getEU4Country()) break;
+	  ruler = 0;
+	}
+      }
+      if (ruler) {
+	if (!printed) Logger::logStream("provinces") << countyTitle->getName()
+						     << " assigned "
+						     << ruler->getEU4Country()->getName()
+						     << " from de-jure liege chain.\n";
+	printed = true;
+      }
+      else {
+	// Try for tribute overlord.
+	CK2Ruler* suzerain = countyTitle->getRuler()->getSuzerain();
+	while (suzerain) {
+	  if (suzerain->getEU4Country()) {
+	    ruler = suzerain;
+	    break;
+	  }
+	  suzerain = suzerain->getSuzerain();
+	}
+      }
+      if (ruler) {
+	if (!printed) Logger::logStream("provinces") << countyTitle->getName()
+						     << " assigned "
+						     << ruler->getEU4Country()->getName()
+						     << " from tributary chain.\n";
+	printed = true;
+      }
+      else {
+	// Same dynasty.
+ 	CK2Ruler* original = countyTitle->getRuler();
+	string dynasty = original->safeGetString("dynasty", "dsa");
+	for (CK2Ruler::Iter cand = CK2Ruler::start(); cand != CK2Ruler::final(); ++cand) {
+	  if (!(*cand)->getEU4Country()) continue;
+	  if (dynasty != (*cand)->safeGetString("dynasty", "fds")) continue;
+	  if ((*cand) == original) continue;
+	  if ((ruler) && (ruler->countBaronies() > (*cand)->countBaronies())) continue;
+	  ruler = (*cand);
+	}
+      }
+      if (ruler) {
+	if (!printed) Logger::logStream("provinces") << countyTitle->getName()
+						     << " assigned "
+						     << ruler->getEU4Country()->getName()
+						     << " from same dynasty.\n";
+	printed = true;
+      }
+      else {
 	Logger::logStream(LogStream::Warn) << "County " << countyTitle->getName()
 					   << " doesn't have an assigned EU4 nation; skipping.\n";
 	continue;
       }
-      weights[ruler->getEU4Country()] += calculateWeight(*ck2Prov);
+      weights[ruler->getEU4Country()] += (*ck2Prov)->getWeight();
     }
     if (0 == weights.size()) {
       Logger::logStream(LogStream::Warn) << "Could not find any candidates for "
@@ -570,10 +712,6 @@ double calcAvg (Object* ofthis) {
   }
   ret /= num;
   return ret; 
-}
-
-double Converter::calculateWeight (CK2Province* prov) {
-  return 1;
 }
 
 /******************************* End calculators ********************************/

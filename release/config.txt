@@ -3,6 +3,7 @@ streams = {
   provinces = yes
   countries = yes
   characters = yes
+  titles = yes
   all = no
 }
 
