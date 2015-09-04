@@ -41,6 +41,7 @@ private:
   Object* configObject;
 
   // Conversion processes
+  bool setupDiplomacy ();
   bool transferProvinces ();
   
   // Infrastructure

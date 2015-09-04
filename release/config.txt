@@ -4,6 +4,7 @@ streams = {
   countries = yes
   characters = yes
   titles = no
+  diplomacy = yes
   all = no
 }
 

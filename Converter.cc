@@ -558,6 +558,41 @@ void Converter::loadFiles () {
 
 /******************************* Begin conversions ********************************/
 
+bool Converter::setupDiplomacy () {
+  Logger::logStream(LogStream::Info) << "Beginning diplomacy.\n" << LogOption::Indent;
+  Object* euDipObject = eu4Game->getNeededObject("diplomacy");
+  euDipObject->clear();
+  Object* ckDipObject = ck2Game->getNeededObject("relation");
+
+  for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
+    if (!(*ruler)->getEU4Country()) continue;
+    CK2Ruler* liege = (*ruler)->getLiege();
+    while (liege) {
+      if (liege->getEU4Country()) break;
+      liege = liege->getLiege();
+    }
+    if (!liege) continue;
+    Object* vassal = new Object("vassal");
+    euDipObject->setValue(vassal);
+    vassal->setLeaf("first", addQuotes(liege->getEU4Country()->getName()));
+    vassal->setLeaf("second", addQuotes((*ruler)->getEU4Country()->getName()));
+    vassal->setLeaf("end_date", "1836.1.1");
+    vassal->setLeaf("cancel", "no");
+    vassal->setLeaf("start_date", remQuotes(ck2Game->safeGetString("date")));
+    Logger::logStream("diplomacy") << (*ruler)->getEU4Country()->getName()
+				   << " is vassal of "
+				   << liege->getEU4Country()->getName()
+				   << " based on characters "
+				   << (*ruler)->getKey() << " " << (*ruler)->safeGetString("birth_name")
+				   << " and "
+				   << liege->getKey() << " " << liege->safeGetString("birth_name")
+				   << ".\n";
+  }
+  
+  Logger::logStream(LogStream::Info) << "Done with diplomacy.\n" << LogOption::Undent;
+  return true;
+}
+  
 bool Converter::transferProvinces () {
   Logger::logStream(LogStream::Info) << "Beginning province transfer.\n" << LogOption::Indent;
 
@@ -730,6 +765,7 @@ void Converter::convert () {
   if (!createProvinceMap()) return; 
   if (!createCountryMap()) return;
   if (!transferProvinces()) return;
+  if (!setupDiplomacy()) return;
   cleanUp();
   
   Logger::logStream(LogStream::Info) << "Done with conversion, writing to Output/converted.eu4.\n";
