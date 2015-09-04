@@ -15,6 +15,7 @@ CK2Ruler::CK2Ruler (Object* obj)
 
 void CK2Ruler::addTitle (CK2Title* title) {
   titles.push_back(title);
+  titlesWithVassals.push_back(title);
   title->setRuler(this);
 }
 
@@ -57,6 +58,9 @@ void CK2Ruler::createLiege () {
 				  << ".\n";
   liege = liegeCand;
   liege->vassals.push_back(this);
+  for (CK2Title::Iter title = startTitle(); title != finalTitle(); ++title) {
+    liege->titlesWithVassals.push_back(*title);
+  }
 }
 
 // Ha ha, pun!
@@ -74,6 +78,7 @@ int CK2Ruler::countBaronies () {
   return totalRealmBaronies;
 }
 
-bool CK2Ruler::hasTitle (CK2Title* title) const {
+bool CK2Ruler::hasTitle (CK2Title* title, bool includeVassals) const {
+  if (includeVassals) return (find(titlesWithVassals.begin(), titlesWithVassals.end(), title) != titlesWithVassals.end());
   return (find(titles.begin(), titles.end(), title) != titles.end());
 }

@@ -18,7 +18,7 @@ public:
   EU4Country* getEU4Country () const {return eu4Country;}
   CK2Ruler* getLiege () {return liege;}
   CK2Ruler* getSuzerain () {return suzerain;}
-  bool hasTitle (CK2Title* title) const;
+  bool hasTitle (CK2Title* title, bool includeVassals = false) const;
   bool isSovereign () const {return (0 == liege);}
   void setEU4Country (EU4Country* eu4) {eu4Country = eu4;}
 
@@ -26,11 +26,15 @@ public:
   
   CK2Title::Iter startTitle () {return titles.begin();}
   CK2Title::Iter finalTitle () {return titles.end();}
+  CK2Title::Iter startTitleVassals () {return titlesWithVassals.begin();}
+  CK2Title::Iter finalTitleVassals () {return titlesWithVassals.end();}
+  
   Iter startEnemy () {return enemies.begin();}
   Iter finalEnemy () {return enemies.end();}
 private:
   EU4Country* eu4Country;
   CK2Title::Container titles;
+  CK2Title::Container titlesWithVassals;
   Container enemies; // Opponents in active wars.
   Container tributaries;
   Container vassals;

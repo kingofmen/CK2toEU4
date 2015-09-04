@@ -411,27 +411,29 @@ bool Converter::createCountryMap () {
   for (CK2Ruler::Iter ruler = rulers.begin(); ruler != rulers.end(); ++ruler) {
     if (0 == (*ruler)->countBaronies()) break; // Rebels, adventurers, and suchlike riffraff.
     EU4Country* bestCandidate = 0;
-    int highestOverlap = -1;
+    vector<pair<string, string> > bestOverlapList;
     for (set<EU4Country*>::iterator cand = candidateCountries.begin(); cand != candidateCountries.end(); ++cand) {
       vector<EU4Province*> eu4Provinces = initialProvincesMap[*cand];
-      int currentOverlap = 0;
+      vector<pair<string, string> > currOverlapList;
       for (vector<EU4Province*>::iterator eu4Province = eu4Provinces.begin(); eu4Province != eu4Provinces.end(); ++eu4Province) {
 	for (CK2Province::Iter ck2Prov = (*eu4Province)->startProv(); ck2Prov != (*eu4Province)->finalProv(); ++ck2Prov) {
-	  if ((*ruler)->hasTitle((*ck2Prov)->getCountyTitle())) ++currentOverlap;
+	  CK2Title* countyTitle = (*ck2Prov)->getCountyTitle();
+	  if ((*ruler)->hasTitle(countyTitle, true /* includeVassals */)) {
+	    currOverlapList.push_back(pair<string, string>(countyTitle->getName(), nameAndNumber(*eu4Province)));
+	  }
 	}
       }
-      if (currentOverlap <= highestOverlap) continue;
+      if ((0 < bestOverlapList.size()) && (currOverlapList.size() <= bestOverlapList.size())) continue;
       bestCandidate = (*cand);
-      highestOverlap = currentOverlap;
+      bestOverlapList = currOverlapList;
     }
     Logger::logStream(LogStream::Info) << "Converting "
 				       << bestCandidate->getName() << " from "
 				       << (*ruler)->getName() << " " << (*ruler)->safeGetString("birth_name")
-				       << " based on overlap " << highestOverlap
+				       << " based on overlap " << bestOverlapList.size()
 				       << " with these counties: ";
-    for (CK2Title::Iter title = (*ruler)->startTitle(); title != (*ruler)->finalTitle(); ++title) {
-      if (TitleLevel::County != (*title)->getLevel()) continue;
-      Logger::logStream(LogStream::Info) << (*title)->getName() << " ";
+    for (vector<pair<string, string> >::iterator overlap = bestOverlapList.begin(); overlap != bestOverlapList.end(); ++overlap) {
+      Logger::logStream(LogStream::Info) << (*overlap).first << " -> " << (*overlap).second << " ";
     }
     Logger::logStream(LogStream::Info) << "\n";
     bestCandidate->setRuler(*ruler);
