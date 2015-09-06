@@ -1,0 +1,4 @@
+country_overrides = {
+  k_papal_state = PAP
+}
+

@@ -3,6 +3,7 @@
 *.pro
 release/*.o
 release/moc*
+debug/*
 documentation.aux
 documentation.out
 documentation.log

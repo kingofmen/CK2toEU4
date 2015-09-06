@@ -293,11 +293,16 @@ struct ObjectWrapper {
   ObjectWrapper (Object* o) : object(o) {}
   virtual ~ObjectWrapper () {}
 
-  string getKey () const {return object->getKey();}
+  string  getKey () const {return object->getKey();}
+  Object* getNeededObject (string key) {return object->getNeededObject(key);}
+  void    resetLeaf (string k, string value) {object->resetLeaf(k, value);}
+  void    resetLeaf (string k, int value) {object->resetLeaf(k, value);}
+  void    resetLeaf (string k, unsigned int value) {object->resetLeaf(k, value);}
+  void    resetLeaf (string k, double value) {object->resetLeaf(k, value);}
   string  safeGetString (string key, string def = "") const {return object->safeGetString(key, def);}
   Object* safeGetObject (string key, Object* def = 0) const {return object->safeGetObject(key, def);}
-  void setLeaf (string key, string value) {object->setLeaf(key, value);}
-  Object* getNeededObject (string key) {return object->getNeededObject(key);}
+  void    setLeaf (string key, string value) {object->setLeaf(key, value);}
+
   Object* object;
 };
 

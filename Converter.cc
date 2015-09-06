@@ -1,9 +1,10 @@
-#include <cstdio> 
+#include <algorithm>
+#include <cstdio>
+#include <direct.h>
+#include <deque>
 #include <iostream> 
 #include <string>
 #include <set>
-#include <algorithm>
-#include <direct.h>
 
 #include "Converter.hh"
 #include "CK2Province.hh"
@@ -330,6 +331,10 @@ bool Converter::createCountryMap () {
     }
     euCountry->setRuler(ckCountry->getRuler());
     forbiddenCountries.insert(euCountry);
+    Logger::logStream(LogStream::Info) << "Converting "
+				       << euCountry->getName() << " from "
+				       << ckCountry->getRuler()->getName() << " " << ckCountry->getRuler()->safeGetString("birth_name")
+				       << " due to custom override.\n";
   }
 
   // Candidate countries are: All countries that have provinces with
@@ -407,9 +412,17 @@ bool Converter::createCountryMap () {
   }
 
   CK2Ruler::Container rulers = CK2Ruler::makeCopy();  
-  std::sort(rulers.begin(), rulers.end(), ObjectDescendingSorter("totalRealmBaronies"));
+  sort(rulers.begin(), rulers.end(), ObjectDescendingSorter("totalRealmBaronies"));
+  deque<CK2Ruler*> rulerQueue;
   for (CK2Ruler::Iter ruler = rulers.begin(); ruler != rulers.end(); ++ruler) {
     if (0 == (*ruler)->countBaronies()) break; // Rebels, adventurers, and suchlike riffraff.
+    if ((*ruler)->getEU4Country()) continue;   // Already converted.
+    rulerQueue.push_back(*ruler);
+  }
+  set<CK2Ruler*> attempted;
+  while (!rulerQueue.empty()) {
+    CK2Ruler* ruler = rulerQueue.front();
+    rulerQueue.pop_front();
     EU4Country* bestCandidate = 0;
     vector<pair<string, string> > bestOverlapList;
     for (set<EU4Country*>::iterator cand = candidateCountries.begin(); cand != candidateCountries.end(); ++cand) {
@@ -418,7 +431,7 @@ bool Converter::createCountryMap () {
       for (vector<EU4Province*>::iterator eu4Province = eu4Provinces.begin(); eu4Province != eu4Provinces.end(); ++eu4Province) {
 	for (CK2Province::Iter ck2Prov = (*eu4Province)->startProv(); ck2Prov != (*eu4Province)->finalProv(); ++ck2Prov) {
 	  CK2Title* countyTitle = (*ck2Prov)->getCountyTitle();
-	  if ((*ruler)->hasTitle(countyTitle, true /* includeVassals */)) {
+	  if (ruler->hasTitle(countyTitle, true /* includeVassals */)) {
 	    currOverlapList.push_back(pair<string, string>(countyTitle->getName(), nameAndNumber(*eu4Province)));
 	  }
 	}
@@ -427,16 +440,22 @@ bool Converter::createCountryMap () {
       bestCandidate = (*cand);
       bestOverlapList = currOverlapList;
     }
+    if ((0 == bestOverlapList.size()) && (!attempted.count(ruler))) {
+      rulerQueue.push_back(ruler);
+      attempted.insert(ruler);
+      continue;
+    }
+    
     Logger::logStream(LogStream::Info) << "Converting "
 				       << bestCandidate->getName() << " from "
-				       << (*ruler)->getName() << " " << (*ruler)->safeGetString("birth_name")
+				       << ruler->getName() << " " << ruler->safeGetString("birth_name")
 				       << " based on overlap " << bestOverlapList.size()
 				       << " with these counties: ";
     for (vector<pair<string, string> >::iterator overlap = bestOverlapList.begin(); overlap != bestOverlapList.end(); ++overlap) {
       Logger::logStream(LogStream::Info) << (*overlap).first << " -> " << (*overlap).second << " ";
     }
     Logger::logStream(LogStream::Info) << "\n";
-    bestCandidate->setRuler(*ruler);
+    bestCandidate->setRuler(ruler);
 
     candidateCountries.erase(bestCandidate);
     if (0 == candidateCountries.size()) break;
@@ -726,8 +745,8 @@ bool Converter::transferProvinces () {
       highest = (*cand).second;
     }
     Logger::logStream("provinces") << nameAndNumber(*eu4Prov) << " assigned to " << best->getName() << "\n";
-    (*eu4Prov)->setLeaf("owner", addQuotes(best->getName()));
-    (*eu4Prov)->setLeaf("controller", addQuotes(best->getName()));
+    (*eu4Prov)->resetLeaf("owner", addQuotes(best->getName()));
+    (*eu4Prov)->resetLeaf("controller", addQuotes(best->getName()));
   }
 
 
