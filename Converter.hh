@@ -41,6 +41,8 @@ private:
   Object* configObject;
 
   // Conversion processes
+  bool calculateProvinceWeights ();
+  bool modifyProvinces ();
   bool setupDiplomacy ();
   bool transferProvinces ();
   

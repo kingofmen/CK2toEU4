@@ -1,6 +1,6 @@
 streams = {
   generic  = yes 
-  provinces = no
+  provinces = yes
   countries = yes
   characters = no
   titles = no
@@ -15,3 +15,9 @@ maps_dir = ".\maps\"
 
 # The EU4 tags that know about these provinces will be used.
 provinces_for_tags = { 1 112 213 1315 }
+
+buildings = {
+  temple = { prod = 0.8 tax = 0.2 }
+  city   = { prod = 0.2 tax = 0.8 }
+  castle = { prod = 0.1 tax = 0.1 }
+}

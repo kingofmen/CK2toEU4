@@ -2130,7 +2130,7 @@ c_mordva = 302 # Mordva - Tambov
 c_burtasy = 303 # Lower Volga - Saratov
 c_burtasy = 2415 # Lower Volga - Etkara
 
-c_mountain_cheremisa = 1304 # Mountain Cheremisa - Penza
+c_mountain_cheremisa = 304 # Mountain Cheremisa - Penza
 
 c_chuvash = 2423 # Chuvash - Alatyr
 

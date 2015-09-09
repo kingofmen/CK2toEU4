@@ -22,6 +22,31 @@
 
 using namespace std;
 
+/*
+ * Wars
+ * Armies, fleets
+ * Trade?
+ * Religion
+ * Known provinces
+ * Advisors
+ * Rulers
+ * Bonus events
+ * Governments
+ * Unions?
+ * Cultures
+ * Base tax
+ * Manpower
+ * Autonomy
+ * Cores
+ * Liberty desire
+ * Claims
+ * Buildings
+ * Starting money, manpower, ADM
+ * Techs
+ * Generals
+ * Rebels
+ */
+
 ConverterJob const* const ConverterJob::Convert = new ConverterJob("convert", false);
 ConverterJob const* const ConverterJob::DebugParser = new ConverterJob("debug", false);
 ConverterJob const* const ConverterJob::LoadFile = new ConverterJob("loadfile", true);
@@ -577,11 +602,135 @@ void Converter::loadFiles () {
 
 /******************************* Begin conversions ********************************/
 
+bool Converter::calculateProvinceWeights () {
+  Logger::logStream(LogStream::Info) << "Beginning province weight calculations.\n" << LogOption::Indent;
+
+  map<string, int> castleBuildings;
+  map<string, int> templeBuildings;
+  map<string, int> cityBuildings;
+  map<string, double> troopTypes;
+  for (CK2Province::Iter ck2prov = CK2Province::start(); ck2prov != CK2Province::final(); ++ck2prov) {
+    for (objiter barony = (*ck2prov)->startBarony(); barony != (*ck2prov)->finalBarony(); ++barony) {
+      string baronyType = (*barony)->safeGetString("type", PlainNone);
+      if (PlainNone == baronyType) continue;
+      map<string, int>* buildings = 0;
+      string prefix;
+      if (baronyType == "city") {
+	prefix = "ct_";
+	buildings = &cityBuildings;
+      }
+      else if (baronyType == "temple") {
+	prefix = "tp_";
+	buildings = &templeBuildings;
+      }
+      else if (baronyType == "castle") {
+	prefix = "ca_";
+	buildings = &castleBuildings;
+      }
+      else if (baronyType == "tradepost") {
+	continue;
+      }
+      else {
+	Logger::logStream(LogStream::Warn) << "Could not determine type of barony "
+					   << (*barony)->getKey() << " in province "
+					   << nameAndNumber(*ck2prov) << "\n";
+	continue;
+      }
+      objvec leaves = (*barony)->getLeaves();
+      for (objiter leaf = leaves.begin(); leaf != leaves.end(); ++leaf) {
+	if (!hasPrefix(prefix, (*leaf)->getKey())) continue;
+	(*buildings)[(*leaf)->getKey()]++;
+      }
+      Object* levyObject = (*barony)->safeGetObject("levy");
+      if (!levyObject) continue;
+      objvec levies = levyObject->getLeaves();
+      for (objiter levy = levies.begin(); levy != levies.end(); ++levy) {
+	troopTypes[(*levy)->getKey()] += (*levy)->tokenAsFloat(1);
+      }
+    }
+  }
+
+  Object* weightObject = configObject->getNeededObject("buildings");
+  for (CK2Province::Iter ck2prov = CK2Province::start(); ck2prov != CK2Province::final(); ++ck2prov) {
+    for (objiter barony = (*ck2prov)->startBarony(); barony != (*ck2prov)->finalBarony(); ++barony) {
+      string baronyType = (*barony)->safeGetString("type", PlainNone);
+      if (PlainNone == baronyType) continue;
+      map<string, int>* buildings = 0;
+      if (baronyType == "city") buildings = &cityBuildings;
+      else if (baronyType == "temple") buildings = &templeBuildings;
+      else if (baronyType == "castle") buildings = &castleBuildings;
+      else continue;
+      Object* weights = weightObject->getNeededObject(baronyType);
+      double prodMultiplier = weights->safeGetFloat("prod", 0.5);
+      double taxMultiplier  = weights->safeGetFloat("tax", 0.5);
+      double buildingWeight = 0;
+      for (map<string, int>::iterator b = buildings->begin(); b != buildings->end(); ++b) {
+	if ((*barony)->safeGetString((*b).first, "no") == "no") continue;
+	buildingWeight += 1.0 / (*b).second;
+      }
+      double prodWeight = buildingWeight * prodMultiplier;
+      double taxWeight  = buildingWeight * taxMultiplier;
+      Object* levyObject = (*barony)->safeGetObject("levy");
+      double mpWeight = 0;
+      if (levyObject) {
+	objvec levies = levyObject->getLeaves();
+	for (objiter levy = levies.begin(); levy != levies.end(); ++levy) {
+	  string key = (*levy)->getKey();
+	  double amount = (*levy)->tokenAsFloat(1);
+	  mpWeight += amount / troopTypes[key];
+	}
+      }
+      (*barony)->setLeaf(ProvinceWeight::Production->getName(), prodWeight);
+      (*barony)->setLeaf(ProvinceWeight::Taxation->getName(), taxWeight);
+      (*barony)->setLeaf(ProvinceWeight::Manpower->getName(), mpWeight);
+    }
+    Logger::logStream("provinces") << nameAndNumber(*ck2prov)
+				   << " has weights production "
+				   << (*ck2prov)->getWeight(ProvinceWeight::Production)
+				   << ", taxation "
+				   << (*ck2prov)->getWeight(ProvinceWeight::Taxation)
+				   << ", manpower "
+				   << (*ck2prov)->getWeight(ProvinceWeight::Manpower)
+				   << ".\n";
+  }
+
+  Logger::logStream(LogStream::Info) << "Done with province weight calculations.\n" << LogOption::Undent;
+  return true;
+}
+
+bool Converter::modifyProvinces () {
+  Logger::logStream(LogStream::Info) << "Beginning province modifications.\n" << LogOption::Indent;
+  double totalBaseTax = 0;
+  double totalBaseProd = 0;
+  double totalBaseManpower = 0;
+  for (EU4Province::Iter eu4prov = EU4Province::start(); eu4prov != EU4Province::final(); ++eu4prov) {
+    if (0 == (*eu4prov)->numCKProvinces()) continue;
+    totalBaseTax += (*eu4prov)->safeGetFloat("base_tax");
+    totalBaseProd += (*eu4prov)->safeGetFloat("base_production");
+    totalBaseManpower += (*eu4prov)->safeGetFloat("base_manpower");
+  }
+
+  Logger::logStream("provinces") << "Redistributing "
+				 << totalBaseTax << " base tax, "
+				 << totalBaseProd << " base production, "
+				 << totalBaseManpower << " base manpower.\n";
+  
+  for (EU4Province::Iter eu4prov = EU4Province::start(); eu4prov != EU4Province::final(); ++eu4prov) {
+    if (0 == (*eu4prov)->numCKProvinces()) continue;
+    (*eu4prov)->resetLeaf("base_tax", 10.0);
+    (*eu4prov)->resetLeaf("base_production", 10.0);
+    (*eu4prov)->resetLeaf("base_manpower", 10.0);
+  }
+  
+  Logger::logStream(LogStream::Info) << "Done modifying provinces.\n" << LogOption::Undent;
+  return true;
+}
+
 bool Converter::setupDiplomacy () {
   Logger::logStream(LogStream::Info) << "Beginning diplomacy.\n" << LogOption::Indent;
   Object* euDipObject = eu4Game->getNeededObject("diplomacy");
   euDipObject->clear();
-  Object* ckDipObject = ck2Game->getNeededObject("relation");
+  //Object* ckDipObject = ck2Game->getNeededObject("relation");
 
   for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
     if (!(*ruler)->getEU4Country()) continue;
@@ -654,7 +803,7 @@ bool Converter::transferProvinces () {
 	for (CK2Ruler::Iter enemy = ruler->startEnemy(); enemy != ruler->finalEnemy(); ++enemy) {
 	  if (!(*enemy)->getEU4Country()) continue;
 	  cand = (*enemy); // Intuitively would assign to ruler, but that breaks the iterator, despite the exit below.
-	  rebelWeight += (*ck2Prov)->getWeight();
+	  rebelWeight += (*ck2Prov)->getWeight(ProvinceWeight::Manpower);
 	  break;
 	}
 	ruler = cand;
@@ -727,7 +876,7 @@ bool Converter::transferProvinces () {
 					   << " doesn't have an assigned EU4 nation; skipping.\n";
 	continue;
       }
-      weights[ruler->getEU4Country()] += (*ck2Prov)->getWeight();
+      weights[ruler->getEU4Country()] += (*ck2Prov)->getWeight(ProvinceWeight::Manpower);
     }
     if (0 == weights.size()) {
       Logger::logStream(LogStream::Warn) << "Could not find any candidates for "
@@ -783,7 +932,9 @@ void Converter::convert () {
   if (!createEU4Objects()) return;
   if (!createProvinceMap()) return; 
   if (!createCountryMap()) return;
+  if (!calculateProvinceWeights()) return;
   if (!transferProvinces()) return;
+  if (!modifyProvinces()) return;
   if (!setupDiplomacy()) return;
   cleanUp();
   

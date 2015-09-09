@@ -350,3 +350,11 @@ void throwFormatted (const char* format, ...) {
   va_end(arglist);
   throw error;
 }
+
+bool hasPrefix (string prefix, string candidate) {
+  if (candidate.size() < prefix.size()) return false;
+  for (int i = 0; i < prefix.size(); ++i) {
+    if (candidate[i] != prefix[i]) return false;
+  }
+  return true;
+}
