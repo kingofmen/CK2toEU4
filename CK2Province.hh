@@ -22,7 +22,9 @@ public:
   void assignProvince (EU4Province* t);
   CK2Title* getCountyTitle () const {return countyTitle;}
   double getWeight (ProvinceWeight const* const pw);
+  int numEU4Provinces () const {return targets.size();}
   void setCountyTitle (CK2Title* t) {countyTitle = t;}
+
   objiter startBarony () {return baronies.begin();}
   objiter finalBarony () {return baronies.end();}
   

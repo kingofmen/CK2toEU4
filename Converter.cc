@@ -701,27 +701,63 @@ bool Converter::calculateProvinceWeights () {
 bool Converter::modifyProvinces () {
   Logger::logStream(LogStream::Info) << "Beginning province modifications.\n" << LogOption::Indent;
   double totalBaseTax = 0;
-  double totalBaseProd = 0;
-  double totalBaseManpower = 0;
+  double totalBasePro = 0;
+  double totalBaseMen = 0;
   for (EU4Province::Iter eu4prov = EU4Province::start(); eu4prov != EU4Province::final(); ++eu4prov) {
     if (0 == (*eu4prov)->numCKProvinces()) continue;
     totalBaseTax += (*eu4prov)->safeGetFloat("base_tax");
-    totalBaseProd += (*eu4prov)->safeGetFloat("base_production");
-    totalBaseManpower += (*eu4prov)->safeGetFloat("base_manpower");
+    totalBasePro += (*eu4prov)->safeGetFloat("base_production");
+    totalBaseMen += (*eu4prov)->safeGetFloat("base_manpower");
   }
 
   Logger::logStream("provinces") << "Redistributing "
 				 << totalBaseTax << " base tax, "
-				 << totalBaseProd << " base production, "
-				 << totalBaseManpower << " base manpower.\n";
-  
+				 << totalBasePro << " base production, "
+				 << totalBaseMen << " base manpower.\n";
+
+  double totalCKtax = 0;
+  double totalCKpro = 0;
+  double totalCKmen = 0;
+  for (CK2Province::Iter ck2prov = CK2Province::start(); ck2prov != CK2Province::final(); ++ck2prov) {
+    totalCKtax += (*ck2prov)->getWeight(ProvinceWeight::Taxation);
+    totalCKpro += (*ck2prov)->getWeight(ProvinceWeight::Production);
+    totalCKmen += (*ck2prov)->getWeight(ProvinceWeight::Manpower);
+  }
+
+  totalBaseTax /= totalCKtax;
+  totalBasePro /= totalCKpro;
+  totalBaseMen /= totalCKmen;
+
+  double afterTax = 0;
+  double afterPro = 0;
+  double afterMen = 0;
   for (EU4Province::Iter eu4prov = EU4Province::start(); eu4prov != EU4Province::final(); ++eu4prov) {
     if (0 == (*eu4prov)->numCKProvinces()) continue;
-    (*eu4prov)->resetLeaf("base_tax", 10.0);
-    (*eu4prov)->resetLeaf("base_production", 10.0);
-    (*eu4prov)->resetLeaf("base_manpower", 10.0);
+    double provTaxWeight = 0;
+    double provProWeight = 0;
+    double provManWeight = 0;
+    for (CK2Province::Iter ck2prov = (*eu4prov)->startProv(); ck2prov != (*eu4prov)->finalProv(); ++ck2prov) {
+      double fraction = 1.0 / (*ck2prov)->numEU4Provinces();
+      provTaxWeight += fraction * (*ck2prov)->getWeight(ProvinceWeight::Taxation);
+      provProWeight += fraction * (*ck2prov)->getWeight(ProvinceWeight::Production);
+      provManWeight += fraction * (*ck2prov)->getWeight(ProvinceWeight::Manpower);
+    }
+    provTaxWeight *= totalBaseTax;
+    provProWeight *= totalBasePro;
+    provManWeight *= totalBaseMen;
+    double amount = max(1.0, floor(provTaxWeight + 0.5));
+    (*eu4prov)->resetLeaf("base_tax", amount); afterTax += amount;
+    amount = max(1.0, floor(provProWeight + 0.5));
+    (*eu4prov)->resetLeaf("base_production", amount); afterPro += amount;
+    amount = max(1.0, floor(provManWeight + 0.5));
+    (*eu4prov)->resetLeaf("base_manpower", amount); afterMen += amount;
   }
-  
+
+  Logger::logStream("provinces") << "After distribution: "
+				 << afterTax << " base tax, "
+				 << afterPro << " base production, "
+				 << afterMen << " base manpower.\n";
+
   Logger::logStream(LogStream::Info) << "Done modifying provinces.\n" << LogOption::Undent;
   return true;
 }
