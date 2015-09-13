@@ -497,7 +497,6 @@ bool Converter::createProvinceMap () {
   }
 
   Logger::logStream(LogStream::Info) << "Starting province mapping\n" << LogOption::Indent;
-  
   // We have a map from county titles to EU4 provinces.
   // We also have a list of CK2 provinces that know what
   // their primary settlement is; it's a barony. The barony
@@ -604,6 +603,28 @@ void Converter::loadFiles () {
 
 bool Converter::calculateProvinceWeights () {
   Logger::logStream(LogStream::Info) << "Beginning province weight calculations.\n" << LogOption::Indent;
+
+  // Add merchant-family houses to provinces.
+  for (CK2Title::Iter title = CK2Title::start(); title != CK2Title::final(); ++title) {
+    if (TitleLevel::Barony != (*title)->getLevel()) continue;
+    Object* settlement = (*title)->safeGetObject("settlement");
+    if (!settlement) continue;
+    if (settlement->safeGetString("type") != "family_palace") continue;
+    CK2Title* liegeTitle = (*title)->getLiege();
+    if (!liegeTitle) continue;
+    CK2Ruler* liege = liegeTitle->getRuler();
+    Object* demesne = liege->safeGetObject("demesne");
+    if (!demesne) continue;
+    string capTag = remQuotes(demesne->safeGetString("capital", QuotedNone));
+    CK2Province* capital = CK2Province::getFromBarony(capTag);
+    if (!capital) continue;
+    capital->addBarony(settlement);
+    Logger::logStream("provinces") << "Assigning family house "
+				   << (*title)->getKey()
+				   << " to province "
+				   << nameAndNumber(capital)
+				   << ".\n";
+  }
 
   map<string, int> castleBuildings;
   map<string, int> templeBuildings;

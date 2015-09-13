@@ -19,6 +19,7 @@ class CK2Province : public Enumerable<CK2Province>, public ObjectWrapper {
 public:
   CK2Province (Object* o);
 
+  void addBarony (Object* house) {baronies.push_back(house);}
   void assignProvince (EU4Province* t);
   CK2Title* getCountyTitle () const {return countyTitle;}
   double getWeight (ProvinceWeight const* const pw);
@@ -27,12 +28,16 @@ public:
 
   objiter startBarony () {return baronies.begin();}
   objiter finalBarony () {return baronies.end();}
-  
+
+
+  static CK2Province* getFromBarony (string baronyTag) {return baronyMap[baronyTag];}
 private:
   CK2Title* countyTitle;
   objvec baronies;
   vector<EU4Province*> targets;
   vector<double> weights;
+
+  static map<string, CK2Province*> baronyMap;
 };
 
 #endif

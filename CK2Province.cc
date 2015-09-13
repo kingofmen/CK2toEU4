@@ -1,10 +1,11 @@
 #include "CK2Province.hh"
-
 #include "EU4Province.hh"
 
 ProvinceWeight const* const ProvinceWeight::Manpower = new ProvinceWeight("pw_manpower", false);
 ProvinceWeight const* const ProvinceWeight::Production = new ProvinceWeight("pw_production", false);
 ProvinceWeight const* const ProvinceWeight::Taxation = new ProvinceWeight("pw_taxation", true);
+
+map<string, CK2Province*> CK2Province::baronyMap;
 
 CK2Province::CK2Province (Object* o)
   : Enumerable<CK2Province>(this, o->getKey(), false)
@@ -20,6 +21,7 @@ CK2Province::CK2Province (Object* o)
     string baronyType = (*leaf)->safeGetString("type", "None");
     if (baronyType == "None") continue;
     baronies.push_back(*leaf);
+    baronyMap[(*leaf)->getKey()] = this;
   }
 }
 
