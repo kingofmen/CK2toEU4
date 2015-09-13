@@ -21,14 +21,14 @@ public:
 
   void addBarony (Object* house) {baronies.push_back(house);}
   void assignProvince (EU4Province* t);
+  void calculateWeights (Object* weightObject, Object* troops, objvec& buildings);
   CK2Title* getCountyTitle () const {return countyTitle;}
-  double getWeight (ProvinceWeight const* const pw);
+  double getWeight (ProvinceWeight const* const pw) const;
   int numEU4Provinces () const {return targets.size();}
   void setCountyTitle (CK2Title* t) {countyTitle = t;}
 
   objiter startBarony () {return baronies.begin();}
   objiter finalBarony () {return baronies.end();}
-
 
   static CK2Province* getFromBarony (string baronyTag) {return baronyMap[baronyTag];}
 private:

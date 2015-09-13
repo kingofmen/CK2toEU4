@@ -28,6 +28,7 @@ using namespace std;
  * Trade?
  * Religion
  * Known provinces
+ * Development
  * Advisors
  * Rulers
  * Bonus events
@@ -38,6 +39,7 @@ using namespace std;
  * Manpower
  * Autonomy
  * Cores
+ * Fortifications
  * Liberty desire
  * Claims
  * Buildings
@@ -58,11 +60,12 @@ Converter::Converter (Window* ow, string fn)
   : ck2FileName(fn)
   , ck2Game(0)
   , eu4Game(0)
+  , buildingObject(0)
+  , countryMapObject(0)
   , configObject(0)
+  , customObject(0)
   , deJureObject(0)
   , provinceMapObject(0)
-  , countryMapObject(0)
-  , customObject(0)
   , outputWindow(ow)
 {
   configure(); 
@@ -586,11 +589,11 @@ void Converter::loadFiles () {
   Parser::ignoreString = "";
   provinceMapObject = loadTextFile(dirToUse + "provinces.txt");
   deJureObject = loadTextFile(dirToUse + "de_jure_lieges.txt");
+  buildingObject = loadTextFile(dirToUse + "buildings.txt");
 
   string overrideFileName = remQuotes(configObject->safeGetString("custom", QuotedNone));
   if (PlainNone != overrideFileName) customObject = loadTextFile(dirToUse + overrideFileName);
   else customObject = new Object("custom");
-
   countryMapObject = customObject->getNeededObject("country_overrides");
   
   Logger::logStream(LogStream::Info) << "Done loading input files\n" << LogOption::Undent;
@@ -625,86 +628,26 @@ bool Converter::calculateProvinceWeights () {
 				   << nameAndNumber(capital)
 				   << ".\n";
   }
-
-  map<string, int> castleBuildings;
-  map<string, int> templeBuildings;
-  map<string, int> cityBuildings;
-  map<string, double> troopTypes;
-  for (CK2Province::Iter ck2prov = CK2Province::start(); ck2prov != CK2Province::final(); ++ck2prov) {
-    for (objiter barony = (*ck2prov)->startBarony(); barony != (*ck2prov)->finalBarony(); ++barony) {
-      string baronyType = (*barony)->safeGetString("type", PlainNone);
-      if (PlainNone == baronyType) continue;
-      map<string, int>* buildings = 0;
-      string prefix;
-      if (baronyType == "city") {
-	prefix = "ct_";
-	buildings = &cityBuildings;
-      }
-      else if (baronyType == "temple") {
-	prefix = "tp_";
-	buildings = &templeBuildings;
-      }
-      else if (baronyType == "castle") {
-	prefix = "ca_";
-	buildings = &castleBuildings;
-      }
-      else if (baronyType == "tradepost") {
-	continue;
-      }
-      else {
-	Logger::logStream(LogStream::Warn) << "Could not determine type of barony "
-					   << (*barony)->getKey() << " in province "
-					   << nameAndNumber(*ck2prov) << "\n";
-	continue;
-      }
-      objvec leaves = (*barony)->getLeaves();
-      for (objiter leaf = leaves.begin(); leaf != leaves.end(); ++leaf) {
-	if (!hasPrefix(prefix, (*leaf)->getKey())) continue;
-	(*buildings)[(*leaf)->getKey()]++;
-      }
-      Object* levyObject = (*barony)->safeGetObject("levy");
-      if (!levyObject) continue;
-      objvec levies = levyObject->getLeaves();
-      for (objiter levy = levies.begin(); levy != levies.end(); ++levy) {
-	troopTypes[(*levy)->getKey()] += (*levy)->tokenAsFloat(1);
-      }
-    }
+  if (!buildingObject) {
+    Logger::logStream(LogStream::Error) << "Cannot proceed without building object.\n";
+    return false;
   }
-
+  objvec buildingTypes = buildingObject->getLeaves();
+  if (10 > buildingTypes.size()) {
+    Logger::logStream(LogStream::Warn) << "Only found "
+				       << buildingTypes.size()
+				       << " types of buildings. Proceeding, but dubiously.\n";
+  }
+  for (objiter bt = buildingTypes.begin(); bt != buildingTypes.end(); ++bt) {
+    double weight = (*bt)->safeGetFloat("gold_cost");
+    weight += (*bt)->safeGetFloat("build_time") / 36.5;
+    (*bt)->setLeaf("weight", weight);
+  }
+    
   Object* weightObject = configObject->getNeededObject("buildings");
+  Object* troops = configObject->getNeededObject("troops");
   for (CK2Province::Iter ck2prov = CK2Province::start(); ck2prov != CK2Province::final(); ++ck2prov) {
-    for (objiter barony = (*ck2prov)->startBarony(); barony != (*ck2prov)->finalBarony(); ++barony) {
-      string baronyType = (*barony)->safeGetString("type", PlainNone);
-      if (PlainNone == baronyType) continue;
-      map<string, int>* buildings = 0;
-      if (baronyType == "city") buildings = &cityBuildings;
-      else if (baronyType == "temple") buildings = &templeBuildings;
-      else if (baronyType == "castle") buildings = &castleBuildings;
-      else continue;
-      Object* weights = weightObject->getNeededObject(baronyType);
-      double prodMultiplier = weights->safeGetFloat("prod", 0.5);
-      double taxMultiplier  = weights->safeGetFloat("tax", 0.5);
-      double buildingWeight = 0;
-      for (map<string, int>::iterator b = buildings->begin(); b != buildings->end(); ++b) {
-	if ((*barony)->safeGetString((*b).first, "no") == "no") continue;
-	buildingWeight += 1.0 / (*b).second;
-      }
-      double prodWeight = buildingWeight * prodMultiplier;
-      double taxWeight  = buildingWeight * taxMultiplier;
-      Object* levyObject = (*barony)->safeGetObject("levy");
-      double mpWeight = 0;
-      if (levyObject) {
-	objvec levies = levyObject->getLeaves();
-	for (objiter levy = levies.begin(); levy != levies.end(); ++levy) {
-	  string key = (*levy)->getKey();
-	  double amount = (*levy)->tokenAsFloat(1);
-	  mpWeight += amount / troopTypes[key];
-	}
-      }
-      (*barony)->setLeaf(ProvinceWeight::Production->getName(), prodWeight);
-      (*barony)->setLeaf(ProvinceWeight::Taxation->getName(), taxWeight);
-      (*barony)->setLeaf(ProvinceWeight::Manpower->getName(), mpWeight);
-    }
+    (*ck2prov)->calculateWeights(weightObject, troops, buildingTypes);
     Logger::logStream("provinces") << nameAndNumber(*ck2prov)
 				   << " has weights production "
 				   << (*ck2prov)->getWeight(ProvinceWeight::Production)

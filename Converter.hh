@@ -38,7 +38,6 @@ private:
   Object* ck2Game;
   Object* eu4Game;
   queue<ConverterJob const*> jobsToDo;
-  Object* configObject;
 
   // Conversion processes
   bool calculateProvinceWeights ();
@@ -69,10 +68,12 @@ private:
   // Lists
 
   // Input info
-  Object* deJureObject;
-  Object* provinceMapObject;
+  Object* buildingObject;
+  Object* configObject;
   Object* countryMapObject;
   Object* customObject;
+  Object* deJureObject;
+  Object* provinceMapObject;
 
   Window* outputWindow;
 };
