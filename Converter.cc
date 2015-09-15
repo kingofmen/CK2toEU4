@@ -61,8 +61,8 @@ Converter::Converter (Window* ow, string fn)
   , ck2Game(0)
   , eu4Game(0)
   , buildingObject(0)
-  , countryMapObject(0)
   , configObject(0)
+  , countryMapObject(0)
   , customObject(0)
   , deJureObject(0)
   , provinceMapObject(0)
@@ -731,25 +731,43 @@ bool Converter::setupDiplomacy () {
   Object* euDipObject = eu4Game->getNeededObject("diplomacy");
   euDipObject->clear();
   //Object* ckDipObject = ck2Game->getNeededObject("relation");
+  vector<string> keyWords;
+  keyWords.push_back("friends");
+  keyWords.push_back("subjects");
+  keyWords.push_back("vassals");
+  for (EU4Country::Iter eu4 = EU4Country::start(); eu4 != EU4Country::final(); ++eu4) {
+    for (vector<string>::iterator key = keyWords.begin(); key != keyWords.end(); ++key) {
+      Object* toClear = (*eu4)->getNeededObject(*key);
+      toClear->clear();
+    }
+  }
 
   for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
-    if (!(*ruler)->getEU4Country()) continue;
+    EU4Country* vassalCountry = (*ruler)->getEU4Country();
+    if (!vassalCountry) continue;
     CK2Ruler* liege = (*ruler)->getLiege();
     while (liege) {
       if (liege->getEU4Country()) break;
       liege = liege->getLiege();
     }
     if (!liege) continue;
+    EU4Country* liegeCountry = liege->getEU4Country();
     Object* vassal = new Object("vassal");
     euDipObject->setValue(vassal);
-    vassal->setLeaf("first", addQuotes(liege->getEU4Country()->getName()));
-    vassal->setLeaf("second", addQuotes((*ruler)->getEU4Country()->getName()));
+    vassal->setLeaf("first", addQuotes(liegeCountry->getName()));
+    vassal->setLeaf("second", addQuotes(vassalCountry->getName()));
     vassal->setLeaf("end_date", "1836.1.1");
     vassal->setLeaf("cancel", "no");
     vassal->setLeaf("start_date", remQuotes(ck2Game->safeGetString("date")));
-    Logger::logStream("diplomacy") << (*ruler)->getEU4Country()->getName()
+
+    for (vector<string>::iterator key = keyWords.begin(); key != keyWords.end(); ++key) {
+      Object* toAdd = liegeCountry->getNeededObject(*key);
+      toAdd->addToList(addQuotes(vassalCountry->getName()));
+    }
+    
+    Logger::logStream("diplomacy") << vassalCountry->getName()
 				   << " is vassal of "
-				   << liege->getEU4Country()->getName()
+				   << liegeCountry->getName()
 				   << " based on characters "
 				   << (*ruler)->getKey() << " " << (*ruler)->safeGetString("birth_name")
 				   << " and "
