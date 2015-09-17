@@ -1,10 +1,11 @@
 streams = {
   generic  = yes 
-  provinces = yes
-  countries = yes
+  provinces = no
+  countries = no
   characters = no
   titles = no
-  diplomacy = yes
+  diplomacy = no
+  armies = yes
   all = no
 }
 

@@ -40,6 +40,7 @@ private:
   queue<ConverterJob const*> jobsToDo;
 
   // Conversion processes
+  bool createArmies ();
   bool calculateProvinceWeights ();
   bool modifyProvinces ();
   bool setupDiplomacy ();
@@ -60,6 +61,7 @@ private:
 
   // Helpers:
   void cleanUp ();
+  Object* createUnitId (string unitType);
   Object* loadTextFile (string fname);
   bool swapKeys (Object* one, Object* two, string key);
 

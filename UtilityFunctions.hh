@@ -295,6 +295,7 @@ struct ObjectWrapper {
 
   string  getKey () const {return object->getKey();}
   Object* getNeededObject (string key) {return object->getNeededObject(key);}
+  objvec  getValue (string key) const {return object->getValue(key);}
   void    resetLeaf (string k, string value) {object->resetLeaf(k, value);}
   void    resetLeaf (string k, int value) {object->resetLeaf(k, value);}
   void    resetLeaf (string k, unsigned int value) {object->resetLeaf(k, value);}
@@ -303,6 +304,8 @@ struct ObjectWrapper {
   string  safeGetString (string key, string def = "") const {return object->safeGetString(key, def);}
   Object* safeGetObject (string key, Object* def = 0) const {return object->safeGetObject(key, def);}
   void    setLeaf (string key, string value) {object->setLeaf(key, value);}
+  void    setValue (Object* val, Object* beforeThis = 0) {object->setValue(val, beforeThis);}
+  void    unsetValue (string val) {object->unsetValue(val);}
 
   Object* object;
 };
