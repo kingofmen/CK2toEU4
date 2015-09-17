@@ -766,18 +766,15 @@ bool Converter::createArmies () {
     army->setLeaf("name", addQuotes(string("Army of ") + name));
     string capitalTag = eu4Country->safeGetString("capital");
     string location = capitalTag;
-    Logger::logStream("armies") << "Capital is " << capitalTag;
     if (0 == armyLocations.count(capitalTag)) {
-      Logger::logStream("armies") << "; did not find it";
       for (EU4Province::Iter prov = eu4Country->startProvince(); prov != eu4Country->finalProvince(); ++prov) {
 	string provTag = (*prov)->getKey();
 	if (0 == armyLocations.count(provTag)) continue;
 	location = provTag;
-	Logger::logStream("armies") << "; will use location " << provTag;
 	break;
       }
     }
-    Logger::logStream("armies") << "; final location " << location << "\n";
+
     army->setLeaf("location", location);
     EU4Province* eu4prov = EU4Province::findByName(location);
     Object* unit = new Object(armyId);
