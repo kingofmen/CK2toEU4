@@ -40,9 +40,11 @@ private:
   queue<ConverterJob const*> jobsToDo;
 
   // Conversion processes
-  bool createArmies ();
   bool calculateProvinceWeights ();
+  bool createArmies ();
+  bool createNavies ();  
   bool modifyProvinces ();
+  bool moveCapitals ();
   bool setupDiplomacy ();
   bool transferProvinces ();
   

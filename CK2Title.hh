@@ -4,7 +4,6 @@
 #include "UtilityFunctions.hh"
 
 class CK2Ruler;
-class EU4Country;
 
 class TitleLevel : public Enumerable<TitleLevel> {
 public:
@@ -21,10 +20,8 @@ class CK2Title : public Enumerable<CK2Title>, public ObjectWrapper {
 public:
   CK2Title (Object* o);
 
-  void assignCountry (EU4Country* eu4);
   TitleLevel const* const getLevel ();
   CK2Title* getDeJureLiege () const {return deJureLiege;}
-  EU4Country* getEUcountry () const {return eu4Country;}
   CK2Title* getLiege ();
   CK2Ruler* getRuler () {return ruler;}
   void setRuler (CK2Ruler* r) {ruler = r;}
@@ -37,7 +34,6 @@ public:
 private:
   CK2Ruler* ruler;
   CK2Title* deJureLiege;
-  EU4Country* eu4Country;
   CK2Title* liegeTitle;
   TitleLevel const* titleLevel;
 

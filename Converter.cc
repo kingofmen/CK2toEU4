@@ -23,8 +23,8 @@
 using namespace std;
 
 /*
+ * Reset and rewrite histories
  * Wars
- * Armies, fleets
  * Trade?
  * Religion
  * Known provinces
@@ -416,8 +416,8 @@ bool Converter::createCountryMap () {
     Object* discovered = (*known)->getNeededObject("discovered_by");
     for (int i = 0; i < discovered->numTokens(); ++i) {
       string eutag = discovered->getToken(i);
-      EU4Country* eu4Country = EU4Country::findByName(eutag);
-      if (!eu4Country) {
+      EU4Country* eu4country = EU4Country::findByName(eutag);
+      if (!eu4country) {
 	Logger::logStream(LogStream::Warn) << "Could not find EU4 country "
 					   << eutag
 					   << ", wanted for having discovered "
@@ -425,8 +425,8 @@ bool Converter::createCountryMap () {
 					   << ".\n";
 	continue;
       }
-      if (forbiddenCountries.count(eu4Country)) continue;
-      candidateCountries.insert(eu4Country);
+      if (forbiddenCountries.count(eu4country)) continue;
+      candidateCountries.insert(eu4country);
     }
   }
 
@@ -660,6 +660,21 @@ bool Converter::calculateProvinceWeights () {
 				   << ".\n";
   }
 
+  // Initialise EU4Country iterator over baronies.
+  for (CK2Province::Iter ck2prov = CK2Province::start(); ck2prov != CK2Province::final(); ++ck2prov) {
+    for (objiter barony = (*ck2prov)->startBarony(); barony != (*ck2prov)->finalBarony(); ++barony) {
+      CK2Title* baronyTitle = CK2Title::findByName((*barony)->getKey());
+      if (!baronyTitle) continue;
+      CK2Ruler* ruler = baronyTitle->getRuler();
+      while (!ruler->getEU4Country()) {
+	ruler = ruler->getLiege();
+	if (!ruler) break;
+      }
+      if (!ruler) continue;
+      ruler->getEU4Country()->addBarony(*barony);
+    }
+  }
+  
   Logger::logStream(LogStream::Info) << "Done with province weight calculations.\n" << LogOption::Undent;
   return true;
 }
@@ -671,6 +686,7 @@ bool Converter::createArmies () {
   set<string> armyLocations;
   string armyType = "54";
   string regimentType = "54";
+  vector<string> regimentTypeStrings;
   
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
     if (!(*eu4country)->getRuler()) continue;
@@ -686,6 +702,7 @@ bool Converter::createArmies () {
 	if (id) regimentIds.push_back(id);
 	location = (*regiment)->safeGetString("home", "-1");
 	if (location != "-1") armyLocations.insert(location);
+	regimentTypeStrings.push_back((*regiment)->safeGetString("type"));
       }
     }
     (*eu4country)->unsetValue("army");
@@ -703,8 +720,8 @@ bool Converter::createArmies () {
   Object* troopWeights = configObject->getNeededObject("troops");
   objvec troopTypes = troopWeights->getLeaves();
   for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
-    EU4Country* eu4Country = (*ruler)->getEU4Country();
-    if (!eu4Country) continue;
+    EU4Country* eu4country = (*ruler)->getEU4Country();
+    if (!eu4country) continue;
     Object* demesne = (*ruler)->getNeededObject("demesne");
     objvec armies = demesne->getValue("army");
     double currRetinue = 0;
@@ -739,8 +756,8 @@ bool Converter::createArmies () {
 			      << numRegiments
 			      << ".\n";
   for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
-    EU4Country* eu4Country = (*ruler)->getEU4Country();
-    if (!eu4Country) continue;
+    EU4Country* eu4country = (*ruler)->getEU4Country();
+    if (!eu4country) continue;
     double currWeight = (*ruler)->safeGetFloat("retinueWeight");
     Logger::logStream("armies") << nameAndNumber(*ruler)
 				<< " has retinue weight "
@@ -752,7 +769,7 @@ bool Converter::createArmies () {
 				<< regimentsToCreate
 				<< " regiments.\n";
     if (0 == regimentsToCreate) continue;
-    Object* army = eu4Country->getNeededObject("army");
+    Object* army = eu4country->getNeededObject("army");
     Object* armyId = 0;
     if (!armyIds.empty()) {
       armyId = armyIds.back();
@@ -764,10 +781,10 @@ bool Converter::createArmies () {
     army->setValue(armyId);
     string name = remQuotes((*ruler)->safeGetString("birth_name", "\"Nemo\""));
     army->setLeaf("name", addQuotes(string("Army of ") + name));
-    string capitalTag = eu4Country->safeGetString("capital");
+    string capitalTag = eu4country->safeGetString("capital");
     string location = capitalTag;
     if (0 == armyLocations.count(capitalTag)) {
-      for (EU4Province::Iter prov = eu4Country->startProvince(); prov != eu4Country->finalProvince(); ++prov) {
+      for (EU4Province::Iter prov = eu4country->startProvince(); prov != eu4country->finalProvince(); ++prov) {
 	string provTag = (*prov)->getKey();
 	if (0 == armyLocations.count(provTag)) continue;
 	location = provTag;
@@ -794,12 +811,167 @@ bool Converter::createArmies () {
       regiment->setValue(regimentId);
       regiment->setLeaf("home", location);
       regiment->setLeaf("name", createString("\"Retinue Regiment %i\"", i+1));
-      regiment->setLeaf("type", addQuotes("western_medieval_infantry"));
+      regiment->setLeaf("type", regimentTypeStrings.back());
+      if (1 < regimentTypeStrings.size()) regimentTypeStrings.pop_back();
       regiment->setLeaf("strength", "1.000");
     }
   }
   
-  Logger::logStream(LogStream::Info) << "Done with armed forces.\n" << LogOption::Undent;
+  Logger::logStream(LogStream::Info) << "Done with armies.\n" << LogOption::Undent;
+  return true;
+}
+
+bool Converter::createNavies () {
+  Logger::logStream(LogStream::Info) << "Beginning navy creation.\n" << LogOption::Indent;
+  objvec navyIds;
+  objvec shipIds;
+  set<string> navyLocations;
+  vector<string> shipTypeStrings;
+  map<string, vector<string> > shipNames;
+  string navyType = "54";
+  string shipType = "54";
+  
+  for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
+    if (!(*eu4country)->getRuler()) continue;
+    objvec navies = (*eu4country)->getValue("navy");
+    for (objiter navy = navies.begin(); navy != navies.end(); ++navy) {
+      Object* id = (*navy)->safeGetObject("id");
+      if (id) navyIds.push_back(id);
+      string location = (*navy)->safeGetString("location", "-1");
+      if (location != "-1") navyLocations.insert(location);
+      objvec ships = (*navy)->getValue("ship");
+      for (objiter ship = ships.begin(); ship != ships.end(); ++ship) {
+	Object* id = (*ship)->safeGetObject("id");
+	if (id) shipIds.push_back(id);
+	location = (*ship)->safeGetString("home", "-1");
+	if (location != "-1") navyLocations.insert(location);
+	shipTypeStrings.push_back((*ship)->safeGetString("type"));
+	shipNames[(*eu4country)->getKey()].push_back((*ship)->safeGetString("name"));
+      }
+    }
+    (*eu4country)->unsetValue("navy");
+  }
+
+  if (0 < shipIds.size()) shipType = shipIds.back()->safeGetString("type", shipType);
+  if (0 < navyIds.size()) navyType = navyIds.back()->safeGetString("type", navyType);
+  for (set<string>::iterator loc = navyLocations.begin(); loc != navyLocations.end(); ++loc) {
+    EU4Province* eu4prov = EU4Province::findByName(*loc);
+    if (!eu4prov) continue;
+    eu4prov->unsetValue("unit");
+  }
+  
+  double totalShips = 0;
+  Object* shipWeights = configObject->getNeededObject("ships");
+  objvec shipTypes = shipWeights->getLeaves();
+  for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
+    EU4Country* eu4country = (*ruler)->getEU4Country();
+    if (!eu4country) continue;
+    double currShip = 0;
+    for (objiter barony = eu4country->startBarony(); barony != eu4country->finalBarony(); ++barony) {
+      Object* baronyLevy = (*barony)->getNeededObject("levy");
+      for (objiter ttype = shipTypes.begin(); ttype != shipTypes.end(); ++ttype) {
+	string key = (*ttype)->getKey();
+	Object* strength = baronyLevy->safeGetObject(key);
+	if (!strength) continue;
+	double amount = strength->tokenAsFloat(1);
+	amount *= shipWeights->safeGetFloat(key);
+	currShip += amount;
+      }
+    }
+    totalShips += currShip;
+    (*ruler)->resetLeaf("shipWeight", currShip);    
+  }
+
+  if (0 == totalShips) {
+    Logger::logStream(LogStream::Warn) << "Warning: Found no liege-levy ships. No navies will be created.\n";
+    return true;
+  }
+
+  Object* forbidden = configObject->getNeededObject("forbidNavies");
+  set<string> forbid;
+  for (unsigned int i = 0; i < forbidden->numTokens(); ++i) forbid.insert(forbidden->getToken(i));
+  
+  int numShips = shipIds.size();
+  Logger::logStream("navies") << "Total weighted navy strength "
+			      << totalShips
+			      << ", EU4 ships "
+			      << numShips
+			      << ".\n";
+  for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
+    EU4Country* eu4country = (*ruler)->getEU4Country();
+    if (!eu4country) continue;
+    string eu4Tag = eu4country->getKey();
+    double currWeight = (*ruler)->safeGetFloat("shipWeight");
+    Logger::logStream("navies") << nameAndNumber(*ruler)
+				<< " has ship weight "
+				<< currWeight;
+    currWeight /= totalShips;
+    currWeight *= numShips;
+    int shipsToCreate = (int) floor(0.5 + currWeight);
+    Logger::logStream("navies") << " and gets "
+				<< shipsToCreate
+				<< " ships.\n";
+    if (0 == shipsToCreate) continue;
+    Object* navy = eu4country->getNeededObject("navy");
+    Object* navyId = 0;
+    if (!navyIds.empty()) {
+      navyId = navyIds.back();
+      navyIds.pop_back();
+    }
+    else {
+      navyId = createUnitId(navyType);
+    }
+    navy->setValue(navyId);
+    string name = remQuotes((*ruler)->safeGetString("birth_name", "\"Nemo\""));
+    navy->setLeaf("name", addQuotes(string("Navy of ") + name));
+    string capitalTag = eu4country->safeGetString("capital");
+    string location = capitalTag;
+    if ((0 == navyLocations.count(capitalTag)) || (forbid.count(capitalTag))) {
+      for (EU4Province::Iter prov = eu4country->startProvince(); prov != eu4country->finalProvince(); ++prov) {
+	string provTag = (*prov)->getKey();
+	if (forbid.count(provTag)) continue;
+	if ((0 == forbid.count(location)) && (0 == navyLocations.count(provTag))) continue;
+	location = provTag;
+	if (navyLocations.count(location)) break;
+      }
+    }
+
+    navy->setLeaf("location", location);
+    EU4Province* eu4prov = EU4Province::findByName(location);
+    Object* unit = new Object(navyId);
+    unit->setKey("unit");
+    eu4prov->setValue(unit);
+    int created = 0;
+    for (int i = 0; i < shipsToCreate; ++i) {
+      Object* ship = new Object("ship");
+      navy->setValue(ship);
+      Object* shipId = 0;
+      if (shipIds.empty()) {
+	shipId = createUnitId(shipType);
+      }
+      else {
+	shipId = shipIds.back();
+	shipIds.pop_back();
+      }
+      ship->setValue(shipId);
+      ship->setLeaf("home", location);
+      string name;
+      if (!shipNames[eu4Tag].empty()) {
+	name = shipNames[eu4Tag].back();
+	shipNames[eu4Tag].pop_back();
+      }
+      else {
+	name = createString("\"%s conversion ship %i\"", eu4Tag.c_str(), ++created);
+      }
+      ship->setLeaf("name", name);
+      name = shipTypeStrings.back();
+      if (shipTypeStrings.size() > 1) shipTypeStrings.pop_back();
+      ship->setLeaf("type", name);
+      ship->setLeaf("strength", "1.000");
+    }
+  }
+  
+  Logger::logStream(LogStream::Info) << "Done with navies.\n" << LogOption::Undent;
   return true;
 }
 
@@ -873,6 +1045,62 @@ bool Converter::modifyProvinces () {
 				 << afterMen << " base manpower.\n";
 
   Logger::logStream(LogStream::Info) << "Done modifying provinces.\n" << LogOption::Undent;
+  return true;
+}
+
+bool Converter::moveCapitals () {
+  Logger::logStream(LogStream::Info) << "Moving capitals.\n" << LogOption::Indent;
+  for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
+    CK2Ruler* ruler = (*eu4country)->getRuler();
+    if (!ruler) continue;
+    string eu4Tag = (*eu4country)->getKey();
+    Object* demesne = ruler->getNeededObject("demesne");
+    string capitalTag = remQuotes(demesne->safeGetString("capital", QuotedNone));
+    CK2Province* ckCapital = CK2Province::getFromBarony(capitalTag);
+    if (ckCapital) {
+      EU4Province* newCapital = 0;
+      for (EU4Province::Iter eu4prov = ckCapital->startEU4Province(); eu4prov != ckCapital->finalEU4Province(); ++eu4prov) {
+	EU4Country* owner = (*eu4prov)->getEU4Country();
+	if (owner != (*eu4country)) continue;
+	newCapital = (*eu4prov);
+	break;
+      }
+      if (newCapital) {
+	Logger::logStream("countries") << "Setting capital of "
+				       << eu4Tag
+				       << " to "
+				       << nameAndNumber(newCapital)
+				       << "based on capital "
+				       << capitalTag
+				       << " of "
+				       << nameAndNumber(ruler)
+				       << ".\n";
+	(*eu4country)->resetLeaf("capital", newCapital->getKey());
+	(*eu4country)->resetLeaf("original_capital", newCapital->getKey());
+	(*eu4country)->resetHistory("capital", newCapital->getKey());
+	continue;
+      }
+    }
+    Logger::logStream(LogStream::Warn) << "Could not find province for "
+				       << capitalTag
+				       << ", allegedly capital of "
+				       << nameAndNumber(ruler)
+				       << "; it may have converted owned by someone else. Picking random owned province for capital of "
+				       << eu4Tag
+				       << ".\n";
+    for (EU4Province::Iter prov = (*eu4country)->startProvince(); prov != (*eu4country)->finalProvince(); ++prov) {
+      Logger::logStream("countries") << "Setting capital of "
+				     << eu4Tag
+				     << " to "
+				     << nameAndNumber(*prov)
+				     << ".\n";
+      (*eu4country)->resetLeaf("capital", (*prov)->getKey());
+      (*eu4country)->resetLeaf("original_capital", (*prov)->getKey());
+      (*eu4country)->resetHistory("capital", (*prov)->getKey());
+      break;      
+    }
+  }
+  Logger::logStream(LogStream::Info) << "Done with capitals.\n" << LogOption::Undent;
   return true;
 }
 
@@ -1068,8 +1296,8 @@ bool Converter::transferProvinces () {
     best->addProvince(*eu4Prov);
     (*eu4Prov)->resetLeaf("owner", addQuotes(best->getName()));
     (*eu4Prov)->resetLeaf("controller", addQuotes(best->getName()));
+    (*eu4Prov)->assignCountry(best);
   }
-
 
   Logger::logStream(LogStream::Info) << "Done with province transfer.\n" << LogOption::Undent;
   return true;
@@ -1106,8 +1334,10 @@ void Converter::convert () {
   if (!createCountryMap()) return;
   if (!calculateProvinceWeights()) return;
   if (!transferProvinces()) return;
+  if (!moveCapitals()) return;
   if (!modifyProvinces()) return;
   if (!createArmies()) return;
+  if (!createNavies()) return;
   if (!setupDiplomacy()) return;
   cleanUp();
   

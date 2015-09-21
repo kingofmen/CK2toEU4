@@ -27,6 +27,8 @@ public:
   int numEU4Provinces () const {return targets.size();}
   void setCountyTitle (CK2Title* t) {countyTitle = t;}
 
+  vector<EU4Province*>::iterator startEU4Province () {return targets.begin();}
+  vector<EU4Province*>::iterator finalEU4Province () {return targets.end();}
   objiter startBarony () {return baronies.begin();}
   objiter finalBarony () {return baronies.end();}
 

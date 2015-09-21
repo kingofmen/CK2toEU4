@@ -1,11 +1,14 @@
 streams = {
+  # NB, do not remove these lines, they are used to create
+  # debug streams and the code relies on them being present.
   generic  = yes 
   provinces = no
-  countries = no
+  countries = yes
   characters = no
   titles = no
   diplomacy = no
-  armies = yes
+  armies = no
+  navies = no
   all = no
 }
 
@@ -34,3 +37,12 @@ troops = {
   archers_f        = 2
   knights_f        = 4
 }
+
+ships = {
+  galleys_f = 1
+}
+
+# Blacklist for navies; provinces listed here cannot be used as navy
+# locations. This is a patched-up workaround for not having a good way
+# to identify coastal provinces.
+forbidNavies = { 134 }

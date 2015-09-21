@@ -20,7 +20,6 @@ CK2Title::CK2Title (Object* o)
   , ObjectWrapper(o)
   , ruler(0)
   , deJureLiege(0)
-  , eu4Country(0)
   , liegeTitle(0)
   , titleLevel(0)
 {
@@ -29,21 +28,6 @@ CK2Title::CK2Title (Object* o)
   if (TitleLevel::Duchy   == getLevel()) duchies.push_back(this);
   if (TitleLevel::County  == getLevel()) counties.push_back(this);
   baronies.push_back(this);
-}
-
-void CK2Title::assignCountry (EU4Country* eu4) {
-  if (eu4Country) {
-    Logger::logStream(LogStream::Warn) << "Attempted to assign EU4 "
-				       << eu4->getName()
-				       << " to CK2 "
-				       << getName()
-				       << ", but already assigned "
-				       << eu4Country->getName()
-				       << ". Ignoring.\n";
-    return;
-  }
-  eu4Country = eu4;
-  eu4Country->assignCountry(this);
 }
 
 TitleLevel const* const CK2Title::getLevel () {
