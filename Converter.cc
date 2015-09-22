@@ -23,11 +23,9 @@
 using namespace std;
 
 /*
- * Reset and rewrite histories
  * Wars
  * Trade?
  * Religion
- * Known provinces
  * Development
  * Advisors
  * Rulers
@@ -889,7 +887,7 @@ bool Converter::createNavies () {
 
   Object* forbidden = configObject->getNeededObject("forbidNavies");
   set<string> forbid;
-  for (unsigned int i = 0; i < forbidden->numTokens(); ++i) forbid.insert(forbidden->getToken(i));
+  for (int i = 0; i < forbidden->numTokens(); ++i) forbid.insert(forbidden->getToken(i));
   
   int numShips = shipIds.size();
   Logger::logStream("navies") << "Total weighted navy strength "
@@ -1110,9 +1108,33 @@ bool Converter::resetHistories () {
   vector<string> objectsToClear;
   objectsToClear.push_back("history");
   for (EU4Province::Iter eu4province = EU4Province::start(); eu4province != EU4Province::final(); ++eu4province) {
+    if (0 == (*eu4province)->numCKProvinces()) continue;
     for (vector<string>::iterator tag = objectsToClear.begin(); tag != objectsToClear.end(); ++tag) {
       Object* history = (*eu4province)->getNeededObject(*tag);
       history->clear();
+      history->resetLeaf("discovered_by", addQuotes("western"));
+    }
+
+    Object* discovered = (*eu4province)->safeGetObject("discovered_dates");
+    if ((discovered) && (1 < discovered->numTokens())) {
+      discovered->resetToken(1, "1.1.1");
+    }
+    discovered = (*eu4province)->safeGetObject("discovered_by");
+    if (discovered) {
+      vector<string> extraTags;
+      for (int i = 0; i < discovered->numTokens(); ++i) {
+	string tag = discovered->getToken(i);
+	if (EU4Country::findByName(tag)) continue;
+	extraTags.push_back(tag);
+      }
+      discovered->clear();
+      for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
+	if (!(*eu4country)->getRuler()) continue;
+	discovered->addToList((*eu4country)->getKey());
+      }
+      for (vector<string>::iterator tag = extraTags.begin(); tag != extraTags.end(); ++tag) {
+	discovered->addToList(*tag);
+      }
     }
   }
 
@@ -1121,6 +1143,7 @@ bool Converter::resetHistories () {
   objectsToClear.push_back("hidden_flags");
   objectsToClear.push_back("variables");
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
+    if (!(*eu4country)->getRuler()) continue;
     for (vector<string>::iterator tag = objectsToClear.begin(); tag != objectsToClear.end(); ++tag) {
       Object* history = (*eu4country)->getNeededObject(*tag);
       history->clear();
