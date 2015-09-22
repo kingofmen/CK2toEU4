@@ -1077,6 +1077,7 @@ bool Converter::moveCapitals () {
 				       << ".\n";
 	(*eu4country)->resetLeaf("capital", newCapital->getKey());
 	(*eu4country)->resetLeaf("original_capital", newCapital->getKey());
+	(*eu4country)->resetLeaf("trade_port", newCapital->getKey());
 	(*eu4country)->resetHistory("capital", newCapital->getKey());
 	continue;
       }
@@ -1101,6 +1102,32 @@ bool Converter::moveCapitals () {
     }
   }
   Logger::logStream(LogStream::Info) << "Done with capitals.\n" << LogOption::Undent;
+  return true;
+}
+
+bool Converter::resetHistories () {
+  Logger::logStream(LogStream::Info) << "Clearing histories and flags.\n" << LogOption::Indent;
+  vector<string> objectsToClear;
+  objectsToClear.push_back("history");
+  for (EU4Province::Iter eu4province = EU4Province::start(); eu4province != EU4Province::final(); ++eu4province) {
+    for (vector<string>::iterator tag = objectsToClear.begin(); tag != objectsToClear.end(); ++tag) {
+      Object* history = (*eu4province)->getNeededObject(*tag);
+      history->clear();
+    }
+  }
+
+  objectsToClear.push_back("flags");
+  objectsToClear.push_back("ruler_flags");
+  objectsToClear.push_back("hidden_flags");
+  objectsToClear.push_back("variables");
+  for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
+    for (vector<string>::iterator tag = objectsToClear.begin(); tag != objectsToClear.end(); ++tag) {
+      Object* history = (*eu4country)->getNeededObject(*tag);
+      history->clear();
+    }
+  }
+
+  Logger::logStream(LogStream::Info) << "Done with clearing.\n" << LogOption::Undent;
   return true;
 }
 
@@ -1332,6 +1359,7 @@ void Converter::convert () {
   if (!createEU4Objects()) return;
   if (!createProvinceMap()) return; 
   if (!createCountryMap()) return;
+  if (!resetHistories()) return;
   if (!calculateProvinceWeights()) return;
   if (!transferProvinces()) return;
   if (!moveCapitals()) return;

@@ -45,6 +45,7 @@ private:
   bool createNavies ();  
   bool modifyProvinces ();
   bool moveCapitals ();
+  bool resetHistories ();
   bool setupDiplomacy ();
   bool transferProvinces ();
   
