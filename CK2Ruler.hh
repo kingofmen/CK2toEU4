@@ -17,6 +17,7 @@ public:
   void createLiege ();
   EU4Country* getEU4Country () const {return eu4Country;}
   CK2Ruler* getLiege () {return liege;}
+  CK2Title* getPrimaryTitle ();
   CK2Ruler* getSuzerain () {return suzerain;}
   bool hasTitle (CK2Title* title, bool includeVassals = false) const;
   bool isSovereign () const {return (0 == liege);}

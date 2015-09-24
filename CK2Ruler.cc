@@ -82,3 +82,23 @@ bool CK2Ruler::hasTitle (CK2Title* title, bool includeVassals) const {
   if (includeVassals) return (find(titlesWithVassals.begin(), titlesWithVassals.end(), title) != titlesWithVassals.end());
   return (find(titles.begin(), titles.end(), title) != titles.end());
 }
+
+CK2Title* CK2Ruler::getPrimaryTitle () {
+  if (0 == titles.size()) return 0;
+  Object* demesne = safeGetObject("demesne");
+  if (demesne) {
+    Object* primary = demesne->safeGetObject("primary");
+    if (primary) {
+      string tag = remQuotes(primary->safeGetString("title"));
+      return CK2Title::findByName(tag);
+    }
+  }
+
+  // No primary title in save; return the first highest-level title.
+  CK2Title* best = *startTitle();
+  for (CK2Title::Iter title = startTitle(); title != finalTitle(); ++title) {
+    if (*(*title)->getLevel() <= *(best->getLevel())) continue;
+    best = (*title);
+  }
+  return best;
+}

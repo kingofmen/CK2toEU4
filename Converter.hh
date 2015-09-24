@@ -46,6 +46,7 @@ private:
   bool modifyProvinces ();
   bool moveCapitals ();
   bool resetHistories ();
+  bool setCores ();
   bool setupDiplomacy ();
   bool transferProvinces ();
   

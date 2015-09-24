@@ -1,5 +1,6 @@
 #include "CK2Title.hh"
 
+#include "CK2Ruler.hh"
 #include "EU4Country.hh"
 #include "Logger.hh"
 
@@ -53,6 +54,24 @@ CK2Title* CK2Title::getLiege () {
   string liegeTitleKey = remQuotes(liegeObject->safeGetString("title", "nonesuch"));
   liegeTitle = findByName(liegeTitleKey);
   return liegeTitle;
+}
+
+CK2Ruler* CK2Title::getSovereign () {
+  CK2Title* currTitle = this;
+  while (currTitle) {
+    CK2Ruler* ruler = currTitle->getRuler();
+    if (ruler->getEU4Country()) return ruler;
+    currTitle = currTitle->getLiege();
+  }
+
+  currTitle = this;
+  while (currTitle) {
+    CK2Ruler* ruler = currTitle->getRuler();
+    if (ruler->getEU4Country()) return ruler;
+    currTitle = currTitle->getDeJureLiege();
+  }
+
+  return 0;
 }
 
 void CK2Title::setDeJureLiege (CK2Title* djl) {

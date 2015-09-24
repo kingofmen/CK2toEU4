@@ -708,11 +708,6 @@ bool Converter::createArmies () {
 
   if (0 < regimentIds.size()) regimentType = regimentIds.back()->safeGetString("type", regimentType);
   if (0 < armyIds.size()) armyType = armyIds.back()->safeGetString("type", armyType);
-  for (set<string>::iterator loc = armyLocations.begin(); loc != armyLocations.end(); ++loc) {
-    EU4Province* eu4prov = EU4Province::findByName(*loc);
-    if (!eu4prov) continue;
-    eu4prov->unsetValue("unit");
-  }
   
   double totalRetinues = 0;
   Object* troopWeights = configObject->getNeededObject("troops");
@@ -852,11 +847,6 @@ bool Converter::createNavies () {
 
   if (0 < shipIds.size()) shipType = shipIds.back()->safeGetString("type", shipType);
   if (0 < navyIds.size()) navyType = navyIds.back()->safeGetString("type", navyType);
-  for (set<string>::iterator loc = navyLocations.begin(); loc != navyLocations.end(); ++loc) {
-    EU4Province* eu4prov = EU4Province::findByName(*loc);
-    if (!eu4prov) continue;
-    eu4prov->unsetValue("unit");
-  }
   
   double totalShips = 0;
   Object* shipWeights = configObject->getNeededObject("ships");
@@ -1107,12 +1097,19 @@ bool Converter::resetHistories () {
   Logger::logStream(LogStream::Info) << "Clearing histories and flags.\n" << LogOption::Indent;
   vector<string> objectsToClear;
   objectsToClear.push_back("history");
+  vector<string> valuesToRemove;
+  valuesToRemove.push_back("core");
+  valuesToRemove.push_back("unit");
   for (EU4Province::Iter eu4province = EU4Province::start(); eu4province != EU4Province::final(); ++eu4province) {
     if (0 == (*eu4province)->numCKProvinces()) continue;
     for (vector<string>::iterator tag = objectsToClear.begin(); tag != objectsToClear.end(); ++tag) {
       Object* history = (*eu4province)->getNeededObject(*tag);
       history->clear();
       history->resetLeaf("discovered_by", addQuotes("western"));
+    }
+
+    for (vector<string>::iterator tag = valuesToRemove.begin(); tag != valuesToRemove.end(); ++tag) {
+      (*eu4province)->unsetValue(*tag);
     }
 
     Object* discovered = (*eu4province)->safeGetObject("discovered_dates");
@@ -1151,6 +1148,69 @@ bool Converter::resetHistories () {
   }
 
   Logger::logStream(LogStream::Info) << "Done with clearing.\n" << LogOption::Undent;
+  return true;
+}
+
+bool Converter::setCores () {
+  Logger::logStream(LogStream::Info) << "Beginning cores and claims.\n" << LogOption::Indent;
+  for (CK2Province::Iter ck2prov = CK2Province::start(); ck2prov != CK2Province::final(); ++ck2prov) {
+    Logger::logStream("cores") << "Seeking core for "
+			       << nameAndNumber(*ck2prov)
+			       << ".\n"
+			       << LogOption::Indent;
+    CK2Title* title = (*ck2prov)->getCountyTitle();
+    while (title) {
+      Logger::logStream("cores") << "Looking at title "
+				 << title->getKey();
+      CK2Ruler* ruler = title->getRuler();
+      if (ruler) {
+	Logger::logStream("cores") << " with ruler " << nameAndNumber(ruler);
+	EU4Country* country = ruler->getEU4Country();
+	if (country) {
+	  Logger::logStream("cores") << " and country " << country->getKey();
+	  CK2Title* primary = ruler->getPrimaryTitle();
+	  if (primary == title) {
+	    Logger::logStream("cores") << ".\n" << LogOption::Indent;
+	    string quotedTag = addQuotes(country->getKey());
+	    for (EU4Province::Iter eu4prov = (*ck2prov)->startEU4Province(); eu4prov != (*ck2prov)->finalEU4Province(); ++eu4prov) {
+	      objvec cores = (*eu4prov)->getValue("core");
+	      bool found = false;
+	      for (objiter core = cores.begin(); core != cores.end(); ++core) {
+		if ((*core)->getLeaf() != quotedTag) continue;
+		found = true;
+		break;
+	      }
+	      if (!found) {
+		Logger::logStream("cores") << nameAndNumber(*eu4prov)
+					   << " is core of "
+					   << country->getKey()
+					   << " because of "
+					   << title->getKey()
+					   << ".\n";
+		(*eu4prov)->setLeaf("core", quotedTag);
+		(*eu4prov)->resetHistory("add_core", quotedTag);
+	      }
+	    }
+	    Logger::logStream("cores") << LogOption::Undent;
+	  }
+	  else {
+	    Logger::logStream("cores") << " but primary is "
+				       << (primary ? primary->getKey() : string("none"))
+				       << ".\n";
+	  }
+	}
+	else {
+	  Logger::logStream("cores") << " who has no EU4 country.\n";
+	}
+      }
+      else {
+	Logger::logStream("cores") << " which has no ruler.\n";
+      }
+      title = title->getDeJureLiege();
+    }
+    Logger::logStream("cores") << LogOption::Undent;    
+  }
+  Logger::logStream(LogStream::Info) << "Done with cores and claims.\n" << LogOption::Indent;
   return true;
 }
 
@@ -1385,6 +1445,7 @@ void Converter::convert () {
   if (!resetHistories()) return;
   if (!calculateProvinceWeights()) return;
   if (!transferProvinces()) return;
+  if (!setCores()) return;
   if (!moveCapitals()) return;
   if (!modifyProvinces()) return;
   if (!createArmies()) return;

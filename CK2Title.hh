@@ -24,6 +24,7 @@ public:
   CK2Title* getDeJureLiege () const {return deJureLiege;}
   CK2Title* getLiege ();
   CK2Ruler* getRuler () {return ruler;}
+  CK2Ruler* getSovereign (); // Returns the liege that converts to an EU4 nation.
   void setRuler (CK2Ruler* r) {ruler = r;}
   void setDeJureLiege (CK2Title* djl);
 
