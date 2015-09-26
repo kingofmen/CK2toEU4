@@ -1168,7 +1168,7 @@ c_vaspurakan = 2306 # Vaspurakan - Mush # 2306
 c_dwin = 419 # Dwin - Armenia
 
 c_kartli = 423 # Kartli - Kartli
-c_kahketi = 3423 # Kahketi - Gori
+c_kahketi = 3424 # Kahketi - Gori
 c_lori = 3425 # Kahketi - Vanadzor
 
 c_guria = 2196 # Guria - Gruia
@@ -1470,14 +1470,11 @@ c_zeila = 1208 # Zeila - Haud
 c_canarias = 366 # Canarias - The Canarias
 c_canarias = 3004 # Canarias - Los Palmas
 
-c_anti-atlas = 348 # Anti-Atlas - Sus
+c_anti-atlas = 344 # Anti-Atlas - Marrakech
 c_anti-atlas = 2470 # Anti-Atlas - Haha
-c_anti-atlas = 1110 # Anti-Atlas - Agadir
 c_anti-atlas = 2464 # Anti-Atlas -Quarzazate
 c_ifni = 348 # Ifni - Sus
-c_ifni = 2470 # Ifni - Haha
 c_ifni = 1110 # Ifni - Agadir
-c_ifni = 347 # Ifni - Ifni
 c_tharasset = 347 # Marrakech - Ifni
 c_marrakech = 2467 # Marrakech - Meknes
 c_marrakech = 2468 # Marrakech - Tadla
@@ -2230,6 +2227,8 @@ c_mstislavl = 3383 # Mstislavl - Mstislavl
 c_orsha = 292 # Orsha - Mogilev
 
 c_chernigov = 289 # Chernigov - Chernigov
+c_chernigov = 3381 # Chernigov - Recyca
+c_chernigov = 3409 # Chernigov - Starodub
 
 c_novgorod_seversky = 1945 # Novgorod Seversky - Novgorod-Seversky
 
@@ -2290,6 +2289,7 @@ c_pereyaslavl = 307 # Pereyaslavl - Vladimir
 d_moskva = 295 # Duchy Moskva - Moskva
 c_moskva = 295 # County Moskva - Moskva
 c_moskva = 3421 # County Moskva - Zuvy Volochok
+c_moskva = 3411 # County Moskva - Volokolamsk
 c_mozhaysk = 3418 # Mozhaysk - Mozhaysk
 c_pereyaslavl_zalessky = 3412 # Pereyaslavl-Zalessky - Pereyaslavl-Zalessky
 c_pereyaslavl_zalessky = 3420 # Pereyaslavl-Zalessky - Shuya
