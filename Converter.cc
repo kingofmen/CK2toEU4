@@ -1152,6 +1152,10 @@ bool Converter::resetHistories () {
 }
 
 bool Converter::setCores () {
+  // Cores on the following provinces:
+  // 1. You hold a barony in the province (including the province itself).
+  // 2. You hold the de-jure duchy.
+  // 3. The de-jure kingdom or empire is your primary title.
   Logger::logStream(LogStream::Info) << "Beginning cores and claims.\n" << LogOption::Indent;
   for (CK2Province::Iter ck2prov = CK2Province::start(); ck2prov != CK2Province::final(); ++ck2prov) {
     Logger::logStream("cores") << "Seeking core for "
@@ -1169,32 +1173,24 @@ bool Converter::setCores () {
 	if (country) {
 	  Logger::logStream("cores") << " and country " << country->getKey();
 	  CK2Title* primary = ruler->getPrimaryTitle();
-	  if (primary == title) {
+	  if ((primary == title) || (*(title->getLevel()) < *TitleLevel::Kingdom)) {
 	    Logger::logStream("cores") << ".\n" << LogOption::Indent;
 	    string quotedTag = addQuotes(country->getKey());
 	    for (EU4Province::Iter eu4prov = (*ck2prov)->startEU4Province(); eu4prov != (*ck2prov)->finalEU4Province(); ++eu4prov) {
-	      objvec cores = (*eu4prov)->getValue("core");
-	      bool found = false;
-	      for (objiter core = cores.begin(); core != cores.end(); ++core) {
-		if ((*core)->getLeaf() != quotedTag) continue;
-		found = true;
-		break;
-	      }
-	      if (!found) {
-		Logger::logStream("cores") << nameAndNumber(*eu4prov)
-					   << " is core of "
-					   << country->getKey()
-					   << " because of "
-					   << title->getKey()
-					   << ".\n";
-		(*eu4prov)->setLeaf("core", quotedTag);
-		(*eu4prov)->resetHistory("add_core", quotedTag);
-	      }
+	      if ((*eu4prov)->hasCore(quotedTag)) continue;
+	      Logger::logStream("cores") << nameAndNumber(*eu4prov)
+					 << " is core of "
+					 << country->getKey()
+					 << " because of "
+					 << title->getKey()
+					 << ".\n";
+	      (*eu4prov)->addCore(quotedTag);
 	    }
 	    Logger::logStream("cores") << LogOption::Undent;
 	  }
 	  else {
-	    Logger::logStream("cores") << " but primary is "
+	    Logger::logStream("cores") << " but level is " << title->getLevel()->getName()
+				       << " and primary is "
 				       << (primary ? primary->getKey() : string("none"))
 				       << ".\n";
 	  }
@@ -1208,8 +1204,30 @@ bool Converter::setCores () {
       }
       title = title->getDeJureLiege();
     }
+    for (objiter barony = (*ck2prov)->startBarony(); barony != (*ck2prov)->finalBarony(); ++barony) {
+      CK2Title* baronyTitle = CK2Title::findByName((*barony)->getKey());
+      if (!baronyTitle) continue;
+      CK2Ruler* baron = baronyTitle->getRuler();
+      if (!baron) continue;
+      EU4Country* eu4country = baron->getEU4Country();
+      if (!eu4country) continue;
+      for (EU4Province::Iter eu4prov = (*ck2prov)->startEU4Province(); eu4prov != (*ck2prov)->finalEU4Province(); ++eu4prov) {
+	if ((*eu4prov)->hasCore(eu4country->getKey())) continue;
+	Logger::logStream("cores") << nameAndNumber(*eu4prov)
+				   << " is core of "
+				   << eu4country->getKey()
+				   << " because of "
+				   << baronyTitle->getKey()
+				   << ".\n";
+	(*eu4prov)->addCore(eu4country->getKey());
+      }
+    }
     Logger::logStream("cores") << LogOption::Undent;    
   }
+
+  // Claims on:
+  //
+  
   Logger::logStream(LogStream::Info) << "Done with cores and claims.\n" << LogOption::Indent;
   return true;
 }
