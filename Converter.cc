@@ -34,7 +34,6 @@ using namespace std;
  * Unions?
  * Cultures
  * Autonomy
- * Cores
  * Fortifications
  * Liberty desire
  * Claims
@@ -259,6 +258,7 @@ bool Converter::createCK2Objects () {
 
   for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
     (*ruler)->countBaronies();
+    (*ruler)->createClaims();
   }
 
   // Diplomacy
@@ -1156,7 +1156,12 @@ bool Converter::setCores () {
   // 1. You hold a barony in the province (including the province itself).
   // 2. You hold the de-jure duchy.
   // 3. The de-jure kingdom or empire is your primary title.
+  // Claims on:
+  // 1. It is your vassal (including a baron), but you don't have a core.
+  // 2. You have a CK claim on its de-jure liege.
+
   Logger::logStream(LogStream::Info) << "Beginning cores and claims.\n" << LogOption::Indent;
+  map<CK2Province*, map<EU4Country*, int> > claimsMap;
   for (CK2Province::Iter ck2prov = CK2Province::start(); ck2prov != CK2Province::final(); ++ck2prov) {
     Logger::logStream("cores") << "Seeking core for "
 			       << nameAndNumber(*ck2prov)
@@ -1202,6 +1207,13 @@ bool Converter::setCores () {
       else {
 	Logger::logStream("cores") << " which has no ruler.\n";
       }
+
+      for (CK2Ruler::Iter claimant = title->startClaimant(); claimant != title->finalClaimant(); ++claimant) {
+	EU4Country* eu4country = (*claimant)->getEU4Country();
+	if (!eu4country) continue;
+	claimsMap[*ck2prov][eu4country]++;
+      }
+      
       title = title->getDeJureLiege();
     }
     for (objiter barony = (*ck2prov)->startBarony(); barony != (*ck2prov)->finalBarony(); ++barony) {
@@ -1210,24 +1222,51 @@ bool Converter::setCores () {
       CK2Ruler* baron = baronyTitle->getRuler();
       if (!baron) continue;
       EU4Country* eu4country = baron->getEU4Country();
-      if (!eu4country) continue;
-      for (EU4Province::Iter eu4prov = (*ck2prov)->startEU4Province(); eu4prov != (*ck2prov)->finalEU4Province(); ++eu4prov) {
-	if ((*eu4prov)->hasCore(eu4country->getKey())) continue;
-	Logger::logStream("cores") << nameAndNumber(*eu4prov)
-				   << " is core of "
-				   << eu4country->getKey()
-				   << " because of "
-				   << baronyTitle->getKey()
-				   << ".\n";
-	(*eu4prov)->addCore(eu4country->getKey());
+      if (eu4country) {
+	for (EU4Province::Iter eu4prov = (*ck2prov)->startEU4Province(); eu4prov != (*ck2prov)->finalEU4Province(); ++eu4prov) {
+	  if ((*eu4prov)->hasCore(eu4country->getKey())) continue;
+	  Logger::logStream("cores") << nameAndNumber(*eu4prov)
+				     << " is core of "
+				     << eu4country->getKey()
+				     << " because of "
+				     << baronyTitle->getKey()
+				     << ".\n";
+	  (*eu4prov)->addCore(eu4country->getKey());
+	}
+      }
+      // Iterate up the liege list for claims.
+      CK2Title* title = baronyTitle;
+      while (title) {
+	CK2Ruler* ruler = title->getRuler();
+	eu4country = ruler->getEU4Country();
+	if (eu4country) claimsMap[*ck2prov][eu4country]++;
+	title = title->getLiege();
       }
     }
     Logger::logStream("cores") << LogOption::Undent;    
   }
 
-  // Claims on:
-  //
-  
+  for (map<CK2Province*, map<EU4Country*, int> >::iterator claim = claimsMap.begin(); claim != claimsMap.end(); ++claim) {
+    CK2Province* ck2prov = (*claim).first;
+    for (map<EU4Country*, int>::iterator strength = (*claim).second.begin(); strength != (*claim).second.end(); ++strength) {
+      EU4Country* eu4country = (*strength).first;
+      int numClaims = (*strength).second;
+      if (1 > numClaims) continue;
+      int startYear = year(eu4Game->safeGetString("date", "1444.1.1"));
+      int claimYear = startYear - 25;
+      claimYear += numClaims * 5;
+      if (claimYear > startYear) claimYear = startYear;
+      string date = createString("%i.1.1", claimYear);
+      for (EU4Province::Iter eu4prov = ck2prov->startEU4Province(); eu4prov != ck2prov->finalEU4Province(); ++eu4prov) {
+	(*eu4prov)->setLeaf("claim", addQuotes(eu4country->getKey()));
+	Object* history = (*eu4prov)->getNeededObject("history");
+	Object* add_claim = new Object(date);
+	history->setValue(add_claim);
+	add_claim->setLeaf("add_claim", addQuotes(eu4country->getKey()));
+      }
+    }
+  }
+
   Logger::logStream(LogStream::Info) << "Done with cores and claims.\n" << LogOption::Indent;
   return true;
 }

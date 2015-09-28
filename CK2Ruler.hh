@@ -14,6 +14,7 @@ public:
   void addTitle (CK2Title* title);
   void addTributary (CK2Ruler* trib);
   int  countBaronies ();
+  void createClaims ();
   void createLiege ();
   EU4Country* getEU4Country () const {return eu4Country;}
   CK2Ruler* getLiege () {return liege;}
@@ -34,6 +35,7 @@ public:
   Iter finalEnemy () {return enemies.end();}
 private:
   EU4Country* eu4Country;
+  CK2Title::Container claims;
   CK2Title::Container titles;
   CK2Title::Container titlesWithVassals;
   Container enemies; // Opponents in active wars.

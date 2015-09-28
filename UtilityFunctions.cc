@@ -195,6 +195,7 @@ bool intersect (double line1x1, double line1y1, double line1x2, double line1y2,
 }
 
 string remQuotes (string tag) {
+  
   string ret;
   bool found = false; 
   for (unsigned int i = 0; i < tag.size(); ++i) {
@@ -208,6 +209,7 @@ string remQuotes (string tag) {
     if (curr == '"') break;
     ret += curr; 
   }
+  if (!found) return tag;
   return ret; 
 }
 
