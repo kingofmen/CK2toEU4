@@ -44,6 +44,7 @@ private:
   bool createArmies ();
   bool createNavies ();  
   bool modifyProvinces ();
+  bool moveBuildings ();
   bool moveCapitals ();
   bool resetHistories ();
   bool setCores ();
@@ -74,11 +75,12 @@ private:
   // Lists
 
   // Input info
-  Object* buildingObject;
+  Object* ckBuildingObject;  
   Object* configObject;
   Object* countryMapObject;
   Object* customObject;
   Object* deJureObject;
+  Object* euBuildingObject;
   Object* provinceMapObject;
 
   Window* outputWindow;

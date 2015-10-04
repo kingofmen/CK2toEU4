@@ -1,0 +1,341 @@
+marketplace = {
+  cost = 100
+  time = 12
+
+  modifier = {
+    province_trade_power_modifier = 0.5
+  }
+}
+
+workshop = {
+  cost = 100
+  time = 12
+  modifier = {
+    local_production_efficiency = 0.5
+  }
+
+  allow_in_gold_provinces = no
+}
+
+temple = {
+  cost = 100
+  time = 12
+  modifier = {
+    local_tax_modifier = 0.4
+  }
+}
+
+barracks = {
+  cost = 100
+  time = 12
+  modifier = {
+    local_manpower_modifier = 0.5
+  }
+}
+
+shipyard = {
+  cost = 100
+  time = 12
+  trigger = {
+    has_port = yes
+  }
+  modifier = {
+    local_ship_cost = -0.10
+    local_ship_repair = 0.25
+    ship_recruit_speed = -0.50
+  }
+
+  sort_by = pw_galleys
+  extra = 3
+}
+
+fort_15th = {
+  cost = 200
+  time = 30
+  modifier = {
+    fort_level = 2
+  }
+  onmap = yes
+  influencing_fort = yes
+
+  sort_by = pw_fortification
+}
+
+courthouse = {
+  cost = 200
+  time = 12
+  modifier = {
+    local_unrest = -3
+  }
+
+  sort_by = pw_production
+}
+
+dock = {
+  cost = 200
+  time = 12
+  trigger = {
+    has_port = yes
+  }
+  modifier = {
+    naval_forcelimit = 2
+  }
+}
+
+regimental_camp = {
+  cost = 200
+  time = 12
+  modifier = {
+    land_forcelimit = 1
+  }
+}
+
+fort_16th = {
+  cost = 400
+  time = 30
+  make_obsolete = fort_15th
+  modifier = {
+    fort_level = 4
+  }
+
+  onmap = yes
+
+  influencing_fort = yes
+}
+
+cathedral = {
+  make_obsolete = temple
+
+  cost = 300
+  time = 12
+  modifier = {
+    local_missionary_strength = 0.03
+    local_tax_modifier = 0.6
+  }
+}
+
+
+university = {
+  cost = 300
+  time = 12
+  modifier = {
+    local_development_cost = -0.20
+    allowed_num_of_buildings = 1
+  }
+}
+
+
+
+trade_depot = {
+  cost = 300
+  time = 12
+
+  make_obsolete = marketplace
+
+  modifier = {
+    province_trade_power_modifier = 1
+  }
+}
+
+grand_shipyard = {
+  cost = 300
+  time = 12
+
+  make_obsolete = shipyard
+
+  trigger = {
+    has_port = yes
+  }
+  modifier = {
+    local_ship_cost = -0.2
+    local_ship_repair = 0.5
+    ship_recruit_speed = -0.5
+  }
+}
+
+training_fields = {
+  cost = 300
+  time = 12
+
+  make_obsolete = barracks
+
+  modifier = {
+    local_manpower_modifier = 1
+  }
+}
+
+
+fort_17th = {
+  cost = 600
+  time = 30
+
+  make_obsolete = fort_16th
+
+  modifier = {
+    fort_level = 6
+  }
+
+  onmap = yes
+
+  influencing_fort = yes
+}
+
+stock_exchange = {
+  cost = 400
+  time = 12
+
+  make_obsolete = trade_depot
+
+  modifier = {
+    province_trade_power_modifier = 1.25
+  }
+}
+
+counting_house = {
+  cost = 400
+  time = 12
+
+  make_obsolete = workshop
+  modifier = {
+    local_production_efficiency = 1
+  }
+
+  allow_in_gold_provinces = no
+}
+
+
+
+
+town_hall = {
+  cost = 400
+  time = 12
+
+  make_obsolete = courthouse
+
+  modifier = {
+    local_unrest = -5
+  }
+}
+
+drydock = {
+  cost = 400
+  time = 12
+
+  make_obsolete = dock
+
+  trigger = {
+    has_port = yes
+  }
+
+  modifier = {
+    naval_forcelimit = 4
+  }
+}
+
+conscription_center = {
+  cost = 400
+  time = 12
+
+
+  make_obsolete = regimental_camp
+
+  modifier = {
+    land_forcelimit = 2
+  }
+}
+
+
+
+fort_18th = {
+  cost = 800
+  time = 30
+  make_obsolete = fort_17th
+  modifier = {
+    fort_level = 8
+  }
+  onmap = yes
+  influencing_fort = yes
+}
+
+wharf = {
+  cost = 500
+  time = 60
+  manufactory = {
+    naval_supplies
+    fish
+    salt
+    tropical_wood
+  }
+  modifier = {
+    trade_goods_size = 1.0
+  }
+  onmap = yes
+}
+
+weapons = {
+  cost = 500
+  time = 60
+  manufactory = {
+    copper
+    iron
+  }
+  modifier = {
+    trade_goods_size = 1.0
+  }
+  onmap = yes
+}
+
+textile = {
+  cost = 500
+  time = 60
+  manufactory = {
+    wool
+    cloth
+    silk
+    dyes
+  }
+  modifier = {
+    trade_goods_size = 1.0
+  }
+  onmap = yes
+}
+
+
+
+plantations = {
+  cost = 500
+  time = 60
+  manufactory = {
+    coffee
+    cotton
+    sugar
+    tobacco
+    cocoa
+    grain
+  }
+  modifier = {
+    trade_goods_size = 1.0
+  }
+  onmap = yes
+}
+
+tradecompany = {
+  cost = 500
+  time = 60
+  manufactory = {
+    ivory
+    tea
+    chinaware
+    slaves
+    spices
+    fur
+    wine
+  }
+  modifier = {
+    trade_goods_size = 1.0
+  }
+  onmap = yes
+}
+
+
+

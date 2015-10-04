@@ -1,9 +1,11 @@
 #include "CK2Province.hh"
 #include "EU4Province.hh"
 
-ProvinceWeight const* const ProvinceWeight::Manpower = new ProvinceWeight("pw_manpower", false);
-ProvinceWeight const* const ProvinceWeight::Production = new ProvinceWeight("pw_production", false);
-ProvinceWeight const* const ProvinceWeight::Taxation = new ProvinceWeight("pw_taxation", true);
+ProvinceWeight const* const ProvinceWeight::Manpower      = new ProvinceWeight("pw_manpower", false);
+ProvinceWeight const* const ProvinceWeight::Production    = new ProvinceWeight("pw_production", false);
+ProvinceWeight const* const ProvinceWeight::Taxation      = new ProvinceWeight("pw_taxation", false);
+ProvinceWeight const* const ProvinceWeight::Galleys       = new ProvinceWeight("pw_galleys", false);
+ProvinceWeight const* const ProvinceWeight::Fortification = new ProvinceWeight("pw_fortification", true);
 
 map<string, CK2Province*> CK2Province::baronyMap;
 
@@ -41,24 +43,34 @@ void CK2Province::calculateWeights (Object* weightObject, Object* troops, objvec
     if (baronyType == "None") continue;
     Object* typeWeight = weightObject->getNeededObject(baronyType);
     double buildingWeight = 0;
+    double forts = 0;
     for (objiter building = buildings.begin(); building != buildings.end(); ++building) {
       if ((*barony)->safeGetString((*building)->getKey(), "no") != "yes") continue;
       buildingWeight += (*building)->safeGetFloat("weight");
+      forts += (*building)->safeGetFloat("fort_level");
     }
     (*barony)->setLeaf(ProvinceWeight::Production->getName(), buildingWeight * typeWeight->safeGetFloat("prod", 0.5));
     (*barony)->setLeaf(ProvinceWeight::Taxation->getName(), buildingWeight * typeWeight->safeGetFloat("tax", 0.5));
+    (*barony)->setLeaf(ProvinceWeight::Fortification->getName(), forts);
 
     Object* levyObject = (*barony)->safeGetObject("levy");
     double mpWeight = 0;
+    double galleys = 0;
     if (levyObject) {
       objvec levies = levyObject->getLeaves();
       for (objiter levy = levies.begin(); levy != levies.end(); ++levy) {
 	string key = (*levy)->getKey();
 	double amount = (*levy)->tokenAsFloat(1);
-	mpWeight += amount * troops->safeGetFloat(key, 0.0001);
+	if (key == "galleys_f") {
+	  galleys += amount;
+	}
+	else {
+	  mpWeight += amount * troops->safeGetFloat(key, 0.0001);
+	}
       }
     }
     (*barony)->setLeaf(ProvinceWeight::Manpower->getName(), mpWeight);
+    (*barony)->setLeaf(ProvinceWeight::Galleys->getName(), galleys);
     for (ProvinceWeight::Iter p = ProvinceWeight::start(); p != ProvinceWeight::final(); ++p) {
       weights[**p] += (*barony)->safeGetFloat((*p)->getName());
     }

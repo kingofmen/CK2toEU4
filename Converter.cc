@@ -36,7 +36,6 @@ using namespace std;
  * Autonomy
  * Fortifications
  * Liberty desire
- * Claims
  * Buildings
  * Starting money, manpower, ADM
  * Techs
@@ -55,11 +54,12 @@ Converter::Converter (Window* ow, string fn)
   : ck2FileName(fn)
   , ck2Game(0)
   , eu4Game(0)
-  , buildingObject(0)
+  , ckBuildingObject(0)
   , configObject(0)
   , countryMapObject(0)
   , customObject(0)
   , deJureObject(0)
+  , euBuildingObject(0)
   , provinceMapObject(0)
   , outputWindow(ow)
 {
@@ -101,6 +101,10 @@ void Converter::cleanUp () {
   string minus("-");
   for (EU4Province::Iter prov = EU4Province::start(); prov != EU4Province::final(); ++prov) {
     (*prov)->object->setKey(minus + (*prov)->getKey());
+    (*prov)->unsetValue("fort_level");
+    (*prov)->unsetValue("base_fort_level");
+    (*prov)->unsetValue("influencing_fort");
+    (*prov)->unsetValue("fort_influencing");
   }
 }
 
@@ -589,7 +593,8 @@ void Converter::loadFiles () {
   Parser::ignoreString = "";
   provinceMapObject = loadTextFile(dirToUse + "provinces.txt");
   deJureObject = loadTextFile(dirToUse + "de_jure_lieges.txt");
-  buildingObject = loadTextFile(dirToUse + "buildings.txt");
+  ckBuildingObject = loadTextFile(dirToUse + "ck_buildings.txt");
+  euBuildingObject = loadTextFile(dirToUse + "eu_buildings.txt");
 
   string overrideFileName = remQuotes(configObject->safeGetString("custom", QuotedNone));
   if (PlainNone != overrideFileName) customObject = loadTextFile(dirToUse + overrideFileName);
@@ -628,11 +633,11 @@ bool Converter::calculateProvinceWeights () {
 				   << nameAndNumber(capital)
 				   << ".\n";
   }
-  if (!buildingObject) {
+  if (!ckBuildingObject) {
     Logger::logStream(LogStream::Error) << "Cannot proceed without building object.\n";
     return false;
   }
-  objvec buildingTypes = buildingObject->getLeaves();
+  objvec buildingTypes = ckBuildingObject->getLeaves();
   if (10 > buildingTypes.size()) {
     Logger::logStream(LogStream::Warn) << "Only found "
 				       << buildingTypes.size()
@@ -1036,6 +1041,123 @@ bool Converter::modifyProvinces () {
   return true;
 }
 
+// Apparently making this definition local to the function confuses the compiler.
+struct WeightDescendingSorter {
+  WeightDescendingSorter (ProvinceWeight const* const w, map<CK2Province*, double>* adj) : weight(w), adjustment(adj) {}
+  bool operator() (CK2Province* one, CK2Province* two) {
+    double weightOne = one->getWeight(weight);
+    if (adjustment->count(one)) weightOne *= adjustment->at(one);
+    double weightTwo = two->getWeight(weight);
+    if (adjustment->count(two)) weightTwo *= adjustment->at(two);
+    return weightOne > weightTwo;
+  }
+  ProvinceWeight const* const weight;
+  map<CK2Province*, double> const* const adjustment;
+};
+
+bool Converter::moveBuildings () {
+  Logger::logStream(LogStream::Info) << "Moving buildings.\n" << LogOption::Indent;
+  if (!euBuildingObject) {
+    Logger::logStream(LogStream::Warn) << "No EU building info. Buildings will not be moved.\n" << LogOption::Undent;
+    return true;
+  }
+
+  map<string, string> makesObsolete;
+  map<string, string> nextLevel;
+  map<string, Object*> euBuildingTypes;
+  
+  objvec euBuildings = euBuildingObject->getLeaves();
+  for (objiter euBuilding = euBuildings.begin(); euBuilding != euBuildings.end(); ++euBuilding) {
+    int numToBuild = (*euBuilding)->safeGetInt("extra");
+    string buildingTag = (*euBuilding)->getKey();
+    for (EU4Province::Iter eu4prov = EU4Province::start(); eu4prov != EU4Province::final(); ++eu4prov) {
+      if ((*eu4prov)->safeGetString(buildingTag, "no") != "yes") continue;
+      numToBuild++;
+      (*eu4prov)->unsetValue(buildingTag);
+    }
+    if (0 == numToBuild) continue;
+    Logger::logStream("buildings") << "Found "
+				   << numToBuild << " "
+				   << buildingTag << ".\n";
+    (*euBuilding)->setLeaf("num_to_build", numToBuild);
+    euBuildingTypes[buildingTag] = (*euBuilding);
+    string obsolifies = (*euBuilding)->safeGetString("make_obsolete", PlainNone);
+    if (obsolifies != PlainNone) {
+      makesObsolete[buildingTag] = obsolifies;
+      nextLevel[obsolifies] = buildingTag;
+    }
+  }
+
+  CK2Province::Container provList = CK2Province::makeCopy();
+  map<CK2Province*, double> adjustment;
+  for (CK2Province::Iter prov = provList.begin(); prov != provList.end(); ++prov) {
+    adjustment[*prov] = 1;
+    for (map<string, Object*>::iterator tag = euBuildingTypes.begin(); tag != euBuildingTypes.end(); ++tag) {
+      (*prov)->unsetValue((*tag).first);
+    }
+  }
+  
+  while (!euBuildingTypes.empty()) {
+    Object* building = 0;
+    string buildingTag;
+    for (map<string, Object*>::iterator tag = euBuildingTypes.begin(); tag != euBuildingTypes.end(); ++tag) {
+      buildingTag = (*tag).first;
+      if (nextLevel[buildingTag] != "") continue;
+      building = (*tag).second;
+      break;
+    }
+    if (!building) {
+      Logger::logStream(LogStream::Warn) << "Could not find a building that's not obsolete. This should never happen. Bailing.\n";
+      break;
+    }
+    string obsolifies = makesObsolete[buildingTag];
+    if (obsolifies != "") nextLevel[obsolifies] = "";
+    int numToBuild = building->safeGetInt("num_to_build", 0);
+    euBuildingTypes.erase(buildingTag);
+    if (0 == numToBuild) continue;
+    string sortBy = building->safeGetString("sort_by", PlainNone);
+    ProvinceWeight const* const weight = ProvinceWeight::findByName(sortBy);
+    if (!weight) continue;
+    sort(provList.begin(), provList.end(), WeightDescendingSorter(weight, &adjustment));
+    for (int i = 0; i < numToBuild; ++i) {
+      if (0 == provList[i]->numEU4Provinces()) continue;
+      EU4Province* target = *(provList[i]->startEU4Province());
+      string tradeGood = target->safeGetString("trade_goods");
+      if ((tradeGood == "gold") && (building->safeGetString("allow_in_gold_provinces") == "no")) {
+	continue;
+      }
+      Object* manu = building->safeGetObject("manufactory");
+      bool badGood = false;
+      if (manu) {
+	for (int i = 0; i < manu->numTokens(); ++i) {
+	  if (manu->getToken(i) != tradeGood) continue;
+	  badGood = true;
+	  break;
+	}
+      }
+      if (badGood) continue;
+      Logger::logStream("buildings") << "Creating " << buildingTag << " in "
+				     << nameAndNumber(target)
+				     << " with adjusted weight "
+				     << provList[i]->getWeight(weight) * adjustment[provList[i]]
+				     << ".\n";
+      adjustment[provList[i]] *= 0.75;
+      target->setLeaf(buildingTag, "yes");
+      if (building->safeGetString("influencing_fort", "no") == "yes") {
+	target->setLeaf("influencing_fort", "yes");
+	Object* modifier = building->safeGetObject("modifier");
+	if (modifier) {
+	  string fortLevel = modifier->safeGetString("fort_level", PlainNone);
+	  if (fortLevel != PlainNone) target->setLeaf("fort_level", fortLevel);
+	}
+      }
+    }
+  }
+
+  Logger::logStream(LogStream::Info) << "Done with buildings.\n" << LogOption::Undent;
+  return true;
+}
+
 bool Converter::moveCapitals () {
   Logger::logStream(LogStream::Info) << "Moving capitals.\n" << LogOption::Indent;
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
@@ -1267,7 +1389,7 @@ bool Converter::setCores () {
     }
   }
 
-  Logger::logStream(LogStream::Info) << "Done with cores and claims.\n" << LogOption::Indent;
+  Logger::logStream(LogStream::Info) << "Done with cores and claims.\n" << LogOption::Undent;
   return true;
 }
 
@@ -1505,6 +1627,7 @@ void Converter::convert () {
   if (!setCores()) return;
   if (!moveCapitals()) return;
   if (!modifyProvinces()) return;
+  if (!moveBuildings()) return;
   if (!createArmies()) return;
   if (!createNavies()) return;
   if (!setupDiplomacy()) return;

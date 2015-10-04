@@ -3,7 +3,8 @@ streams = {
   # debug streams and the code relies on them being present.
   generic  = yes 
   provinces = no
-  cores = yes
+  buildings = yes
+  cores = no
   countries = no
   characters = no
   titles = no

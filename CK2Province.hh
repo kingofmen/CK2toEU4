@@ -13,6 +13,8 @@ public:
   static ProvinceWeight const* const Manpower;
   static ProvinceWeight const* const Production;
   static ProvinceWeight const* const Taxation;
+  static ProvinceWeight const* const Galleys;
+  static ProvinceWeight const* const Fortification;
 };
 
 class CK2Province : public Enumerable<CK2Province>, public ObjectWrapper {
