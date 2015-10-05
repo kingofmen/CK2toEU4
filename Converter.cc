@@ -26,7 +26,6 @@ using namespace std;
  * Wars
  * Trade?
  * Religion
- * Development
  * Advisors
  * Rulers
  * Bonus events
@@ -34,7 +33,6 @@ using namespace std;
  * Unions?
  * Cultures
  * Autonomy
- * Fortifications
  * Liberty desire
  * Buildings
  * Starting money, manpower, ADM
@@ -612,6 +610,7 @@ void Converter::loadFiles () {
 bool Converter::calculateProvinceWeights () {
   Logger::logStream(LogStream::Info) << "Beginning province weight calculations.\n" << LogOption::Indent;
 
+  map<string, CK2Province*> patricianToCapitalMap;
   // Add merchant-family houses to provinces.
   for (CK2Title::Iter title = CK2Title::start(); title != CK2Title::final(); ++title) {
     if (TitleLevel::Barony != (*title)->getLevel()) continue;
@@ -632,7 +631,25 @@ bool Converter::calculateProvinceWeights () {
 				   << " to province "
 				   << nameAndNumber(capital)
 				   << ".\n";
+    string holder = (*title)->safeGetString("holder", PlainNone);
+    if (holder != PlainNone) patricianToCapitalMap[holder] = capital;
   }
+
+  for (CK2Province::Iter ck2prov = CK2Province::start(); ck2prov != CK2Province::final(); ++ck2prov) {
+    Object* tradepost = (*ck2prov)->safeGetObject("tradepost");
+    if (!tradepost) continue;
+    string owner = tradepost->safeGetString("owner", PlainNone);
+    if (owner == PlainNone) continue;
+    CK2Province* capital = patricianToCapitalMap[owner];
+    if (!capital) continue;
+    Logger::logStream("provinces") << "Trade post in "
+				   << nameAndNumber(*ck2prov)
+				   << " assigned to capital "
+				   << nameAndNumber(capital)
+				   << ".\n";
+    capital->resetLeaf("realm_tradeposts", 1 + capital->safeGetInt("realm_tradeposts"));
+  }
+  
   if (!ckBuildingObject) {
     Logger::logStream(LogStream::Error) << "Cannot proceed without building object.\n";
     return false;

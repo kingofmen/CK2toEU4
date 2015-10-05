@@ -301,6 +301,7 @@ struct ObjectWrapper {
   void    resetLeaf (string k, unsigned int value) {object->resetLeaf(k, value);}
   void    resetLeaf (string k, double value) {object->resetLeaf(k, value);}
   double  safeGetFloat (string key, double def = 0) const {return object->safeGetFloat(key, def);}
+  int     safeGetInt (string key, int def = 0) const {return object->safeGetInt(key, def);}
   string  safeGetString (string key, string def = "") const {return object->safeGetString(key, def);}
   Object* safeGetObject (string key, Object* def = 0) const {return object->safeGetObject(key, def);}
   void    setLeaf (string key, string value) {object->setLeaf(key, value);}

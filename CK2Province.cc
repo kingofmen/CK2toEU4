@@ -5,6 +5,7 @@ ProvinceWeight const* const ProvinceWeight::Manpower      = new ProvinceWeight("
 ProvinceWeight const* const ProvinceWeight::Production    = new ProvinceWeight("pw_production", false);
 ProvinceWeight const* const ProvinceWeight::Taxation      = new ProvinceWeight("pw_taxation", false);
 ProvinceWeight const* const ProvinceWeight::Galleys       = new ProvinceWeight("pw_galleys", false);
+ProvinceWeight const* const ProvinceWeight::Trade         = new ProvinceWeight("pw_trade", false);
 ProvinceWeight const* const ProvinceWeight::Fortification = new ProvinceWeight("pw_fortification", true);
 
 map<string, CK2Province*> CK2Province::baronyMap;
@@ -75,4 +76,5 @@ void CK2Province::calculateWeights (Object* weightObject, Object* troops, objvec
       weights[**p] += (*barony)->safeGetFloat((*p)->getName());
     }
   }
+  weights[*ProvinceWeight::Trade] = safeGetInt("realm_tradeposts");
 }

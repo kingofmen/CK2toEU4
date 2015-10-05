@@ -14,6 +14,7 @@ public:
   static ProvinceWeight const* const Production;
   static ProvinceWeight const* const Taxation;
   static ProvinceWeight const* const Galleys;
+  static ProvinceWeight const* const Trade;
   static ProvinceWeight const* const Fortification;
 };
 

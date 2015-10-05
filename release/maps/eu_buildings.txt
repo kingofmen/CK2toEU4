@@ -5,6 +5,9 @@ marketplace = {
   modifier = {
     province_trade_power_modifier = 0.5
   }
+
+  extra = 5
+  sort_by = pw_trade
 }
 
 workshop = {
@@ -15,6 +18,8 @@ workshop = {
   }
 
   allow_in_gold_provinces = no
+  extra = 5
+  sort_by = pw_production
 }
 
 temple = {
@@ -31,6 +36,9 @@ barracks = {
   modifier = {
     local_manpower_modifier = 0.5
   }
+
+  sort_by = pw_manpower
+  extra = 5
 }
 
 shipyard = {
@@ -46,7 +54,7 @@ shipyard = {
   }
 
   sort_by = pw_galleys
-  extra = 3
+  extra = 4
 }
 
 fort_15th = {
@@ -68,7 +76,8 @@ courthouse = {
     local_unrest = -3
   }
 
-  sort_by = pw_production
+  extra = 4
+  sort_by = pw_taxation
 }
 
 dock = {
