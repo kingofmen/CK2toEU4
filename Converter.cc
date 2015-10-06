@@ -34,11 +34,11 @@ using namespace std;
  * Cultures
  * Autonomy
  * Liberty desire
- * Buildings
  * Starting money, manpower, ADM
  * Techs
  * Generals
  * Rebels
+ * HRE
  */
 
 ConverterJob const* const ConverterJob::Convert = new ConverterJob("convert", false);
@@ -985,6 +985,86 @@ bool Converter::createNavies () {
   return true;
 }
 
+void findCorrespondence (CK2Province* ck2prov, EU4Province* eu4prov, map<string, map<string, int> >& corrMap, string key) {
+  string ckThing = ck2prov->safeGetString(key, PlainNone);
+  if (PlainNone == ckThing) return;
+  string euThing = eu4prov->safeGetString(key, PlainNone);
+  if (PlainNone == euThing) return;
+  corrMap[ckThing][euThing]++;
+}
+
+pair<string, string> findBest (map<string, map<string, int> >& corrMap) {
+  pair<string, string> ret(PlainNone, PlainNone);
+  int highest = 0;
+  for (map<string, map<string, int> >::iterator corr = corrMap.begin(); corr != corrMap.end(); ++corr) {
+    for (map<string, int>::iterator curr = (*corr).second.begin(); curr != (*corr).second.end(); ++curr) {
+      if ((*curr).second <= highest) continue;
+      highest    = (*curr).second;
+      ret.first  = (*corr).first;
+      ret.second = (*curr).first;
+    }
+  }
+  return ret;
+}
+
+void makeMap (map<string, map<string, int> >& religions, map<string, string>& assigns) {
+  while (!religions.empty()) {
+    pair<string, string> best = findBest(religions);
+    string ckReligion = best.first;
+    if (ckReligion == PlainNone) break;
+    string euReligion = best.second;
+    
+    Logger::logStream("cultures") << "Assigning " << ckReligion << " to "
+				  << euReligion << " based on overlap " << religions[ckReligion][euReligion]
+				  << ".\n";
+
+    religions.erase(ckReligion);
+    assigns[ckReligion] = euReligion;
+  }
+}
+
+void proselytise (map<string, string>& religionMap, string key) {
+  for (EU4Province::Iter eu4prov = EU4Province::start(); eu4prov != EU4Province::final(); ++eu4prov) {
+    if (0 == (*eu4prov)->numCKProvinces()) continue;
+    map<string, double> weights;
+    double weightiest = 0;
+    string best;
+    for (CK2Province::Iter ck2prov = (*eu4prov)->startProv(); ck2prov != (*eu4prov)->finalProv(); ++ck2prov) {
+      string ckReligion = (*ck2prov)->safeGetString(key, PlainNone);
+      if (PlainNone == ckReligion) continue;
+      weights[ckReligion] += (*ck2prov)->getWeight(ProvinceWeight::Manpower);
+      if (weights[ckReligion] <= weightiest) continue;
+      weightiest = weights[ckReligion];
+      best = ckReligion;
+    }
+    (*eu4prov)->resetLeaf(key, religionMap[best]);
+    (*eu4prov)->resetHistory(key, religionMap[best]);
+  }
+}
+
+bool Converter::cultureAndReligion () {
+  Logger::logStream(LogStream::Info) << "Beginning culture and religion.\n" << LogOption::Indent;
+  map<string, map<string, int> > religions;
+  map<string, map<string, int> > cultures;
+  for (CK2Province::Iter ck2prov = CK2Province::start(); ck2prov != CK2Province::final(); ++ck2prov) {
+    for (EU4Province::Iter eu4prov = (*ck2prov)->startEU4Province(); eu4prov != (*ck2prov)->finalEU4Province(); ++eu4prov) {
+      findCorrespondence((*ck2prov), (*eu4prov), religions, "religion");
+      findCorrespondence((*ck2prov), (*eu4prov), cultures, "culture");
+    }
+  }
+
+  map<string, string> religionMap;
+  makeMap(religions, religionMap);
+  map<string, string> cultureMap;
+  makeMap(cultures, cultureMap);
+  
+  proselytise(religionMap, "religion");
+  proselytise(cultureMap, "culture");
+  
+  Logger::logStream(LogStream::Info) << "Done with culture and religion.\n" << LogOption::Undent;
+  return true;
+}
+
 Object* Converter::createUnitId (string unitType) {
   Object* unitId = new Object("id");
   int unitNum = eu4Game->safeGetInt("unit");
@@ -1648,6 +1728,7 @@ void Converter::convert () {
   if (!createArmies()) return;
   if (!createNavies()) return;
   if (!setupDiplomacy()) return;
+  if (!cultureAndReligion()) return;
   cleanUp();
   
   Logger::logStream(LogStream::Info) << "Done with conversion, writing to Output/converted.eu4.\n";

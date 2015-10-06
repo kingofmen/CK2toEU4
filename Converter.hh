@@ -42,7 +42,8 @@ private:
   // Conversion processes
   bool calculateProvinceWeights ();
   bool createArmies ();
-  bool createNavies ();  
+  bool createNavies ();
+  bool cultureAndReligion ();
   bool modifyProvinces ();
   bool moveBuildings ();
   bool moveCapitals ();
