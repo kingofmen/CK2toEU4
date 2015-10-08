@@ -26,12 +26,12 @@ accepted_culture_cutoff = 0.5
 provinces_for_tags = { 1 112 213 1315 }
 
 buildings = {
-  temple        = { prod = 0.8 tax = 0.2 }
-  city          = { prod = 0.2 tax = 0.8 }
-  castle        = { prod = 0.1 tax = 0.1 }
+  temple        = { prod = 0.6 tax = 0.4 }
+  city          = { prod = 0.4 tax = 0.6 }
+  castle        = { prod = 0.45 tax = 0.45 }
   fort          = { prod = 0.0 tax = 0.0 }
   trade_post    = { prod = 0.9 tax = 0.0 }
-  family_palace = { prod = 0.1 tax = 0.9 }
+  family_palace = { prod = 0.4 tax = 0.6 }
 }
 
 troops = {
