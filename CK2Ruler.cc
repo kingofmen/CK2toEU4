@@ -1,17 +1,24 @@
 #include "CK2Ruler.hh"
 
 #include <algorithm>
+#include "CK2Province.hh"
 #include "CK2Title.hh"
 #include "Logger.hh"
 
-CK2Ruler::CK2Ruler (Object* obj)
+CK2Ruler::CK2Ruler (Object* obj, Object* dynasties)
   : Enumerable<CK2Ruler>(this, obj->getKey(), false)
   , ObjectWrapper(obj)
+  , dynasty(0)
   , eu4Country(0)
   , liege(0)
   , suzerain(0)
   , totalRealmBaronies(-1)
-{}
+{
+  string dynastyNum = safeGetString("dynasty", PlainNone);
+  if (dynastyNum != PlainNone) {
+    dynasty = dynasties->safeGetObject(dynastyNum);
+  }
+}
 
 void CK2Ruler::addTitle (CK2Title* title) {
   titles.push_back(title);
@@ -93,6 +100,30 @@ int CK2Ruler::countBaronies () {
 bool CK2Ruler::hasTitle (CK2Title* title, bool includeVassals) const {
   if (includeVassals) return (find(titlesWithVassals.begin(), titlesWithVassals.end(), title) != titlesWithVassals.end());
   return (find(titles.begin(), titles.end(), title) != titles.end());
+}
+
+string CK2Ruler::getBelief (string keyword) const {
+  string ret = remQuotes(safeGetString(keyword, QuotedNone));
+  if (ret != PlainNone) return ret;
+  if (dynasty) {
+    ret = remQuotes(dynasty->safeGetString(keyword, QuotedNone));
+    if (ret != PlainNone) return ret;
+    Object* coa = dynasty->safeGetObject("coat_of_arms");
+    if (coa) {
+      ret = remQuotes(coa->safeGetString(keyword, QuotedNone));
+      if (ret != PlainNone) return ret;
+    }
+  }
+
+  for (CK2Title::cIter title = startTitle(); title != finalTitle(); ++title) {
+    if (TitleLevel::Barony != (*title)->getLevel()) continue;
+    CK2Province* province = CK2Province::getFromBarony((*title)->getKey());
+    if (!province) continue;
+    ret = province->safeGetString(keyword, PlainNone);
+    if (PlainNone != ret) return ret;
+  }
+  
+  return PlainNone;
 }
 
 CK2Title* CK2Ruler::getPrimaryTitle () {

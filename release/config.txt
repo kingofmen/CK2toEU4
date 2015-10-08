@@ -20,6 +20,8 @@ custom = "custom_overrides.txt"
 
 maps_dir = ".\maps\"
 
+accepted_culture_cutoff = 0.5
+
 # The EU4 tags that know about these provinces will be used.
 provinces_for_tags = { 1 112 213 1315 }
 

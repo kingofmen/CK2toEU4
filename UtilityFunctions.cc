@@ -9,6 +9,9 @@ char strbuffer[1000];
 const doublet doublet::zero(0, 0);
 const triplet triplet::zero(0, 0, 0); 
 
+const string QuotedNone("\"none\"");
+const string PlainNone("none");
+
 double degToRad (double degrees) {
   return degrees * 3.14159265 / 180; 
 }
@@ -355,7 +358,7 @@ void throwFormatted (const char* format, ...) {
 
 bool hasPrefix (string prefix, string candidate) {
   if (candidate.size() < prefix.size()) return false;
-  for (int i = 0; i < prefix.size(); ++i) {
+  for (unsigned int i = 0; i < prefix.size(); ++i) {
     if (candidate[i] != prefix[i]) return false;
   }
   return true;

@@ -17,6 +17,9 @@ using namespace std;
 enum Outcome {Disaster = 0, Bad, Neutral, Good, VictoGlory, NumOutcomes}; 
 extern char strbuffer[1000]; 
 
+extern const string QuotedNone;
+extern const string PlainNone;
+
 double degToRad (double degrees);
 double radToDeg (double radians); 
 
@@ -157,6 +160,7 @@ template <class T> class Iterable {
   typedef vector<T*> Container;
   typedef typename vector<T*>::iterator Iter;
   typedef typename vector<T*>::iterator Iterator;
+  typedef typename vector<T*>::const_iterator cIter;
   typedef typename vector<T*>::reverse_iterator rIter;
   typedef typename vector<T*>::reverse_iterator rIterator;
 
