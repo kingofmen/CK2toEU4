@@ -25,8 +25,8 @@ using namespace std;
 /*
  * Wars
  * Trade?
- * Subcultures
  * Heresies - must be rebel factions?
+ * Development?
  * Advisors
  * Rulers
  * Bonus events
@@ -1020,39 +1020,71 @@ pair<string, string> findBest (map<string, map<string, int> >& corrMap) {
       ret.second = curr->first;
     }
   }
-  Logger::logStream("cultures") << "Assigning " << ret.first << " to "
-				<< ret.second << " based on overlap " << highest
-				<< ".\n";
   return ret;
 }
 
-void makeMap (map<string, map<string, int> >& religions, map<string, string>& assigns) {
-  while (!religions.empty()) {
-    pair<string, string> best = findBest(religions);
-    string ckReligion = best.first;
-    if (ckReligion == PlainNone) break;
-    string euReligion = best.second;
-    religions.erase(ckReligion);
-    assigns[ckReligion] = euReligion;
+void makeMap (map<string, map<string, int> >& cultures, map<string, vector<string> >& assigns) {
+  map<string, map<string, int> > reverseMap;
+  for (map<string, map<string, int> >::iterator cult = cultures.begin(); cult != cultures.end(); ++cult) {
+    for (map<string, int>::iterator look = cult->second.begin(); look != cult->second.end(); ++look) {
+      reverseMap[look->first][cult->first] += look->second;
+    }
+  }
+
+  
+  while (!cultures.empty()) {
+    pair<string, string> best = findBest(cultures);
+    string ckCulture = best.first;
+    if (ckCulture == PlainNone) break;
+    string euCulture = best.second;
+    assigns[ckCulture].push_back(euCulture);
+    double highestValue = cultures[ckCulture][euCulture];
+    Logger::logStream("cultures") << "Assigning " << ckCulture << " to "
+				  << euCulture << " based on overlap " << highestValue << " ";
+    
+    for (map<string, int>::iterator cand = cultures[ckCulture].begin(); cand != cultures[ckCulture].end(); ++cand) {
+      if (cand->first == euCulture) continue;
+      Logger::logStream("cultures") << "(" << cand->first << " " << cand->second << " ";
+      if (cand->second > highestValue * 0.75) {
+	Logger::logStream("cultures") << "[" << cand->second / highestValue << "]) ";
+      }
+      else if (1 == reverseMap[cand->first].size()) {
+	Logger::logStream("cultures") << "[sole]) ";
+      }
+      else {
+	Logger::logStream("cultures") << ") ";
+	continue;
+      }
+      assigns[ckCulture].push_back(cand->first);
+    }
+    Logger::logStream("cultures") << "\n";
+    cultures.erase(ckCulture);
   }
 }
 
-void proselytise (map<string, string>& religionMap, string key) {
+void proselytise (map<string, vector<string> >& religionMap, string key) {
   for (EU4Province::Iter eu4prov = EU4Province::start(); eu4prov != EU4Province::final(); ++eu4prov) {
     if (0 == (*eu4prov)->numCKProvinces()) continue;
     map<string, double> weights;
     double weightiest = 0;
-    string best;
+    string ckBest;
     for (CK2Province::Iter ck2prov = (*eu4prov)->startProv(); ck2prov != (*eu4prov)->finalProv(); ++ck2prov) {
       string ckReligion = (*ck2prov)->safeGetString(key, PlainNone);
       if (PlainNone == ckReligion) continue;
       weights[ckReligion] += (*ck2prov)->getWeight(ProvinceWeight::Manpower);
       if (weights[ckReligion] <= weightiest) continue;
       weightiest = weights[ckReligion];
-      best = ckReligion;
+      ckBest = ckReligion;
     }
-    (*eu4prov)->resetLeaf(key, religionMap[best]);
-    (*eu4prov)->resetHistory(key, religionMap[best]);
+    string euBest = religionMap[ckBest][0];
+    if (key == "culture") {
+      string existingCulture = (*eu4prov)->safeGetString("culture", PlainNone);
+      if (find(religionMap[ckBest].begin(), religionMap[ckBest].end(), existingCulture) != religionMap[ckBest].end()) {
+	euBest = existingCulture;
+      }
+    }
+    (*eu4prov)->resetLeaf(key, euBest);
+    (*eu4prov)->resetHistory(key, euBest);
   }
 }
 
@@ -1089,9 +1121,9 @@ bool Converter::cultureAndReligion () {
     }
   }
 
-  map<string, string> religionMap;
+  map<string, vector<string> > religionMap;
   makeMap(religions, religionMap);
-  map<string, string> cultureMap;
+  map<string, vector<string> >cultureMap;
   makeMap(cultures, cultureMap);
   
   proselytise(religionMap, "religion");
@@ -1104,19 +1136,19 @@ bool Converter::cultureAndReligion () {
     map<string, double> religionWeights;
     map<string, double> cultureWeights;
     recursiveFindCulture(ruler, religionWeights, cultureWeights);
-    string stateReligion = findMax(religionWeights);
-    string stateCulture  = findMax(cultureWeights);
+    string ckRulerReligion = findMax(religionWeights);
+    string ckRulerCulture  = findMax(cultureWeights);
     vector<string> acceptedCultures;
     for (map<string, double>::iterator cand = cultureWeights.begin(); cand != cultureWeights.end(); ++cand) {
-      if (cand->first == stateCulture) continue;
-      if (cand->second > acceptedCutoff * cultureWeights[stateCulture]) {
+      if (cand->first == ckRulerCulture) continue;
+      if (cand->second > acceptedCutoff * cultureWeights[ckRulerCulture]) {
 	acceptedCultures.push_back(cand->first);
       }
     }
     Logger::logStream("cultures") << (*eu4country)->getKey() << ":\n" << LogOption::Indent;
-    if (stateReligion != PlainNone) {
-      string euReligion = religionMap[stateReligion];
-      Logger::logStream("cultures") << "Religion: " << euReligion << " based on CK religion " << stateReligion << ".\n";
+    if (ckRulerReligion != PlainNone) {
+      string euReligion = religionMap[ckRulerReligion][0];
+      Logger::logStream("cultures") << "Religion: " << euReligion << " based on CK religion " << ckRulerReligion << ".\n";
       (*eu4country)->resetLeaf("religion", euReligion);
       (*eu4country)->resetHistory("religion", euReligion);
     }
@@ -1126,12 +1158,22 @@ bool Converter::cultureAndReligion () {
 					 << ".\n";
     }
 
-    if (stateCulture != PlainNone) {
-      string euCulture = cultureMap[stateCulture];
+    if (ckRulerCulture != PlainNone) {
+      string euCulture = cultureMap[ckRulerCulture][0];
+      if (1 < cultureMap[ckRulerCulture].size()) {
+	string capitalTag = (*eu4country)->safeGetString("capital");
+	EU4Province* capital = EU4Province::findByName(capitalTag);
+	if (capital) {
+	  string capitalCulture = capital->safeGetString("culture");
+	  if (find(cultureMap[ckRulerCulture].begin(), cultureMap[ckRulerCulture].end(), capitalCulture) != cultureMap[ckRulerCulture].end()) {
+	    euCulture = capitalCulture;
+	  }
+	}
+      }
       Logger::logStream("cultures") << "Culture: "
 				    << euCulture
 				    << " based on CK culture "
-				    << stateCulture
+				    << ckRulerCulture
 				    << ".\n";
       (*eu4country)->resetLeaf("primary_culture", euCulture);
       (*eu4country)->resetHistory("primary_culture", euCulture);

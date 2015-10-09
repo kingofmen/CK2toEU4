@@ -31,7 +31,7 @@ int main (int argc, char** argv) {
 
   parentWindow->resize(3*scr.width()/5, scr.height()/2);
   parentWindow->move(scr.width()/5, scr.height()/4);
-  parentWindow->setWindowTitle(QApplication::translate("toplevel", "Vic2 to HoI3 converter"));
+  parentWindow->setWindowTitle(QApplication::translate("toplevel", "CK2 to EU4 converter"));
 
   QMenuBar* menuBar = parentWindow->menuBar();
   QMenu* fileMenu = menuBar->addMenu("File");
