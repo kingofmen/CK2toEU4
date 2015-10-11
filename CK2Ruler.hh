@@ -19,6 +19,7 @@ public:
   void createClaims ();
   void createLiege ();
   string getBelief (string keyword) const;
+  Object* getDynasty () const {return dynasty;}
   EU4Country* getEU4Country () const {return eu4Country;}
   CK2Ruler* getLiege () {return liege;}
   CK2Title* getPrimaryTitle ();

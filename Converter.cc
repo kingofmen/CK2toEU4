@@ -835,6 +835,37 @@ bool Converter::createArmies () {
   return true;
 }
 
+bool Converter::createCharacters () {
+  Logger::logStream(LogStream::Info) << "Beginning character creation.\n" << LogOption::Indent;
+  int monarchNumber = eu4Game->safeGetInt("monarch", 1);
+  const string defaultDynasty = "\"Generic Dynasty\"";
+  for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
+    CK2Ruler* ruler = (*eu4country)->getRuler();
+    if (!ruler) continue;
+    Object* monarchDef = new Object("monarch");
+    monarchDef->setLeaf("name", ruler->safeGetString("birth_name", "\"Some Guy\""));
+    monarchDef->setLeaf("country", addQuotes((*eu4country)->getKey()));
+    monarchDef->setLeaf("DIP", 3);
+    monarchDef->setLeaf("ADM", 3);
+    monarchDef->setLeaf("MIL", 3);
+    Object* monarchId = createMonarchId();
+    monarchDef->setValue(monarchId);
+    Object* ckDynasty = ruler->getDynasty();
+    monarchDef->setLeaf("dynasty", ckDynasty ? ckDynasty->safeGetString("name", defaultDynasty) : defaultDynasty);
+    monarchDef->setLeaf("birth_date", remQuotes(ruler->safeGetString("birth_date", addQuotes(eu4Game->safeGetString("date", "1444.1.1")))));
+    Object* coronation = new Object(eu4Game->safeGetString("date", "1444.1.1"));
+    coronation->setValue(monarchDef);
+    (*eu4country)->getNeededObject("history")->setValue(coronation);
+    (*eu4country)->unsetValue("monarch");
+    Object* monarch = new Object(monarchId);
+    monarch->setKey("monarch");
+    (*eu4country)->setValue(monarch);
+
+  }  
+  Logger::logStream(LogStream::Info) << "Done with character creation.\n" << LogOption::Undent;
+  return true;
+}
+
 bool Converter::createNavies () {
   Logger::logStream(LogStream::Info) << "Beginning navy creation.\n" << LogOption::Indent;
   objvec navyIds;
@@ -1198,13 +1229,21 @@ bool Converter::cultureAndReligion () {
   return true;
 }
 
-Object* Converter::createUnitId (string unitType) {
+Object* Converter::createTypedId (string keyword, string idType) {
   Object* unitId = new Object("id");
-  int unitNum = eu4Game->safeGetInt("unit");
-  unitId->setLeaf("id", unitNum);
-  eu4Game->resetLeaf("unit", ++unitNum);
-  unitId->setLeaf("type", unitType);
+  int number = eu4Game->safeGetInt(keyword, 1);
+  unitId->setLeaf("id", number);
+  eu4Game->resetLeaf(keyword, ++number);
+  unitId->setLeaf("type", idType);
   return unitId;
+}
+
+Object* Converter::createUnitId (string unitType) {
+  return createTypedId("unit", unitType);
+}
+
+Object* Converter::createMonarchId () {
+  return createTypedId("monarch", "48");
 }
 
 bool Converter::modifyProvinces () {
@@ -1637,6 +1676,11 @@ bool Converter::setupDiplomacy () {
       Object* toClear = (*eu4)->getNeededObject(*key);
       toClear->clear();
     }
+    (*eu4)->unsetValue("luck");
+    (*eu4)->unsetValue("is_subject");
+    (*eu4)->unsetValue("is_lesser_in_union");
+    (*eu4)->unsetValue("overlord");
+    (*eu4)->unsetValue("previous_monarch");
   }
 
   for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
@@ -1862,6 +1906,7 @@ void Converter::convert () {
   if (!createNavies()) return;
   if (!setupDiplomacy()) return;
   if (!cultureAndReligion()) return;
+  if (!createCharacters()) return;
   cleanUp();
   
   Logger::logStream(LogStream::Info) << "Done with conversion, writing to Output/converted.eu4.\n";

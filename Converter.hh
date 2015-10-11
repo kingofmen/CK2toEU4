@@ -42,6 +42,7 @@ private:
   // Conversion processes
   bool calculateProvinceWeights ();
   bool createArmies ();
+  bool createCharacters ();
   bool createNavies ();
   bool cultureAndReligion ();
   bool modifyProvinces ();
@@ -67,6 +68,8 @@ private:
 
   // Helpers:
   void cleanUp ();
+  Object* createMonarchId ();
+  Object* createTypedId (string keyword, string idType);
   Object* createUnitId (string unitType);
   Object* loadTextFile (string fname);
   bool swapKeys (Object* one, Object* two, string key);
