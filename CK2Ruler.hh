@@ -1,6 +1,7 @@
 #ifndef CK2RULER_HH
 #define CK2RULER_HH
 
+#include <set>
 #include <string>
 
 #include "CK2Title.hh"
@@ -8,7 +9,31 @@
 
 class EU4Country;
 
-class CK2Ruler : public Enumerable<CK2Ruler>, public ObjectWrapper {
+class CKAttribute : public Enumerable<CKAttribute> {
+public:
+  CKAttribute (string n, bool f) : Enumerable<CKAttribute>(this, n, f) {};
+
+  static CKAttribute const* const Diplomacy;
+  static CKAttribute const* const Martial;
+  static CKAttribute const* const Stewardship;  
+  static CKAttribute const* const Intrigue;
+  static CKAttribute const* const Learning;
+};
+
+class CK2Character : public ObjectWrapper {
+public:
+  CK2Character (Object* obj);
+
+  int getAttribute (CKAttribute const* const att) const {return attributes[*att];}
+  bool hasTrait (const string& t) const {return 0 != traits.count(t);}
+  
+  static objvec ckTraits;
+private:
+  vector<int> attributes;
+  set<string> traits;
+};
+
+class CK2Ruler : public Enumerable<CK2Ruler>, public CK2Character {
 public:
   CK2Ruler (Object* obj, Object* dynasties);
 

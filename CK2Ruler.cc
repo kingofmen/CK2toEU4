@@ -5,9 +5,45 @@
 #include "CK2Title.hh"
 #include "Logger.hh"
 
+objvec CK2Character::ckTraits;
+
+CKAttribute const* const CKAttribute::Diplomacy = new CKAttribute("diplomacy", false);
+CKAttribute const* const CKAttribute::Martial = new CKAttribute("martial", false);
+CKAttribute const* const CKAttribute::Stewardship = new CKAttribute("stewardship", false);  
+CKAttribute const* const CKAttribute::Intrigue = new CKAttribute("intrigue", false);
+CKAttribute const* const CKAttribute::Learning = new CKAttribute("learning", true);
+
+CK2Character::CK2Character (Object* obj)
+  : ObjectWrapper(obj)
+  , attributes(CKAttribute::totalAmount(), 0)
+{
+  Object* attribs = safeGetObject("attributes");
+  if (attribs) {
+    for (int i = 0; i < (int) attributes.size(); ++i) {
+      if (i >= attribs->numTokens()) break;
+      attributes[i] = attribs->tokenAsInt(i);
+    }
+  }
+  Object* traitList = safeGetObject("traits");
+  if (traitList) {
+    for (int i = 0; i < traitList->numTokens(); ++i) {
+      int index = traitList->tokenAsInt(i) - 1;
+      if (index >= (int) ckTraits.size()) {
+	Logger::logStream(LogStream::Warn) << getKey() << " has unknown trait " << index << ", skipping.\n";
+	continue;
+      }
+      Object* traitObject = ckTraits[index];
+      traits.insert(traitObject->getKey());
+      for (CKAttribute::Iter att = CKAttribute::start(); att != CKAttribute::final(); ++att) {
+	attributes[**att] += traitObject->safeGetInt((*att)->getName());
+      }
+    }
+  }
+}
+
 CK2Ruler::CK2Ruler (Object* obj, Object* dynasties)
   : Enumerable<CK2Ruler>(this, obj->getKey(), false)
-  , ObjectWrapper(obj)
+  , CK2Character(obj)
   , dynasty(0)
   , eu4Country(0)
   , liege(0)

@@ -4,7 +4,7 @@ streams = {
   generic  = yes 
   provinces = no
   buildings = no
-  characters = no
+  characters = yes
   cores = no
   countries = no
   cultures = yes # Also covers religion
@@ -32,6 +32,12 @@ buildings = {
   fort          = { prod = 0.0 tax = 0.0 }
   trade_post    = { prod = 0.9 tax = 0.0 }
   family_palace = { prod = 0.4 tax = 0.6 }
+}
+
+bonusTraits = {
+  DIP = { grey_eminence = 1 }
+  MIL = { brilliant_strategist = 1 }
+  ADM = { midas_touched = 1 }
 }
 
 troops = {
