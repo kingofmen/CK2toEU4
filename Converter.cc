@@ -35,6 +35,7 @@ using namespace std;
  * Autonomy
  * Liberty desire
  * Starting money, manpower, ADM
+ * Fix cores
  * Techs
  * Generals
  * Rebels
@@ -100,6 +101,10 @@ void Converter::cleanUp () {
     (*prov)->unsetValue("base_fort_level");
     (*prov)->unsetValue("influencing_fort");
     (*prov)->unsetValue("fort_influencing");
+  }
+
+  for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
+    (*eu4country)->unsetValue("needs_heir");
   }
 }
 
@@ -892,11 +897,54 @@ bool Converter::createCharacters () {
     monarch->setKey("monarch");
     (*eu4country)->setValue(monarch);
 
+    if ((*eu4country)->safeGetString("needs_heir", "no") == "yes") {
+      
+    }
   }  
   Logger::logStream(LogStream::Info) << "Done with character creation.\n" << LogOption::Undent;
   return true;
 }
 
+bool Converter::createGovernments () {
+  Logger::logStream(LogStream::Info) << "Beginning governments.\n" << LogOption::Indent;
+  Object* govObject = configObject->getNeededObject("governments");
+  for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
+    CK2Ruler* ruler = (*eu4country)->getRuler();
+    if (!ruler) continue;
+    string ckGovernment = ruler->safeGetString("government", "feudal_government");
+    Object* govInfo = govObject->safeGetObject(ckGovernment);
+    string euGovernment = (*eu4country)->safeGetString("government");
+    if (govInfo) {
+      Logger::logStream("governments") << nameAndNumber(ruler) << " of " << (*eu4country)->getKey()
+				       << " has CK government " << ckGovernment;
+      CK2Title* primary = ruler->getPrimaryTitle();
+      if (primary) {
+	string succession = primary->safeGetString("succession", PlainNone);
+	Object* successionObject = govInfo->safeGetObject(succession);
+	if (successionObject) {
+	  Logger::logStream("governments") << " (" << succession << ")";
+	  govInfo = successionObject;
+	}
+      }
+      euGovernment = govInfo->safeGetString("eugov");
+      Logger::logStream("governments") << " giving EU government " << euGovernment << ".\n";
+      (*eu4country)->resetLeaf("needs_heir", govInfo->safeGetString("heir", "no"));
+    }
+    else {
+      Logger::logStream(LogStream::Warn) << "No information about CK government "
+					 << ckGovernment
+					 << ", leaving "
+					 << (*eu4country)->getKey()
+					 << " as "
+					 << euGovernment
+					 << ".\n";
+    }
+    (*eu4country)->resetLeaf("government", euGovernment);
+    (*eu4country)->resetHistory("government", euGovernment);
+  }  
+  Logger::logStream(LogStream::Info) << "Done with governments.\n" << LogOption::Undent;
+  return true;
+}
 bool Converter::createNavies () {
   Logger::logStream(LogStream::Info) << "Beginning navy creation.\n" << LogOption::Indent;
   objvec navyIds;
@@ -1937,6 +1985,7 @@ void Converter::convert () {
   if (!createNavies()) return;
   if (!setupDiplomacy()) return;
   if (!cultureAndReligion()) return;
+  if (!createGovernments()) return;
   if (!createCharacters()) return;
   cleanUp();
   

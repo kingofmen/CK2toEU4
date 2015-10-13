@@ -7,7 +7,8 @@ streams = {
   characters = yes
   cores = no
   countries = no
-  cultures = yes # Also covers religion
+  cultures = no # Also covers religion
+  governments = yes
   titles = no
   diplomacy = no
   armies = no
@@ -32,6 +33,33 @@ buildings = {
   fort          = { prod = 0.0 tax = 0.0 }
   trade_post    = { prod = 0.9 tax = 0.0 }
   family_palace = { prod = 0.4 tax = 0.6 }
+}
+
+governments = {
+  feudal_government = {
+    eugov = feudal_monarchy
+    heir = yes
+  }
+  merchant_republic_government = {
+    eugov = merchant_republic
+    heir = no
+  }
+  republic_government = {
+    eugov = noble_republic
+    heir = no
+  }
+  theocracy_government = {
+    eugov = theocratic_government
+    heir = no
+    papal_succession = {
+      eugov = papal_government
+      heir = no
+    }
+  }
+  muslim_government = {
+    eugov = iqta
+    heir = yes
+  }
 }
 
 bonusTraits = {

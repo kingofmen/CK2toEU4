@@ -43,7 +43,8 @@ private:
   bool calculateProvinceWeights ();
   bool createArmies ();
   bool createCharacters ();
-  bool createNavies ();
+  bool createGovernments ();
+  bool createNavies ();  
   bool cultureAndReligion ();
   bool modifyProvinces ();
   bool moveBuildings ();
