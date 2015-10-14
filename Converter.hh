@@ -10,6 +10,8 @@
 #include "UtilityFunctions.hh"
 
 class CK2Province;
+class CK2Character;
+class EU4Country;
 
 using namespace std;
 
@@ -73,6 +75,7 @@ private:
   Object* createTypedId (string keyword, string idType);
   Object* createUnitId (string unitType);
   Object* loadTextFile (string fname);
+  void makeMonarch (CK2Character* ruler, const string& keyword, EU4Country* country, Object* bonusTraits);
   bool swapKeys (Object* one, Object* two, string key);
 
   // Maps

@@ -27,10 +27,10 @@ using namespace std;
  * Trade?
  * Heresies - must be rebel factions?
  * Development?
+ * Vassals again
  * Advisors
- * Rulers
  * Bonus events
- * Governments
+ * Government rank 
  * Unions?
  * Autonomy
  * Liberty desire
@@ -162,7 +162,7 @@ string nameAndNumber (ObjectWrapper* prov) {
   return prov->getKey() + " (" + remQuotes(prov->safeGetString("name", "\"could not find name\"")) + ")";
 }
 
-string nameAndNumber (CK2Ruler* ruler) {
+string nameAndNumber (CK2Character* ruler) {
   return ruler->safeGetString("birth_name") + " (" + ruler->getKey() + ")";
 }
 
@@ -265,6 +265,16 @@ bool Converter::createCK2Objects () {
   for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
     (*ruler)->countBaronies();
     (*ruler)->createClaims();
+  }
+
+  objvec allChars = characters->getLeaves();
+  for (objiter ch = allChars.begin(); ch != allChars.end(); ++ch) {
+    CK2Ruler* father = CK2Ruler::findByName((*ch)->safeGetString("father"));
+    CK2Ruler* mother = CK2Ruler::findByName((*ch)->safeGetString("mother"));
+    if (!father & !mother) continue;
+    CK2Character* current = new CK2Character((*ch), dynasties);
+    if (father) father->personOfInterest(current);
+    if (mother) mother->personOfInterest(current);
   }
 
   // Diplomacy
@@ -846,59 +856,84 @@ bool Converter::createArmies () {
   return true;
 }
 
+void Converter::makeMonarch (CK2Character* ruler, const string& keyword, EU4Country* country, Object* bonusTraits) {
+  static const string defaultDynasty = "\"Generic Dynasty\"";
+  Object* monarchDef = new Object(keyword);
+  monarchDef->setLeaf("name", ruler->safeGetString("birth_name", "\"Some Guy\""));
+  monarchDef->setLeaf("country", addQuotes(country->getKey()));
+  map<string, map<string, double> > sources;
+  sources["MIL"]["ck_martial"] = max(0, ruler->getAttribute(CKAttribute::Martial) / 5);
+  sources["DIP"]["ck_diplomacy"] = max(0, ruler->getAttribute(CKAttribute::Diplomacy) / 5);
+  sources["ADM"]["ck_stewardship"] = max(0, ruler->getAttribute(CKAttribute::Stewardship) / 5);
+  for (map<string, map<string, double> >::iterator area = sources.begin(); area != sources.end(); ++area) {
+    Object* bonus = bonusTraits->getNeededObject(area->first);
+    objvec bonoi = bonus->getLeaves();
+    for (objiter bon = bonoi.begin(); bon != bonoi.end(); ++bon) {
+      string desc = (*bon)->getKey();
+      if (!ruler->hasTrait(desc)) continue;
+      area->second[desc] = bonus->safeGetInt(desc);
+    }
+  }
+  string gameDate = eu4Game->safeGetString("date", "1444.1.1");
+  double age = ruler->getAge(gameDate);
+  if (age < 16) {
+    age = 16 / max(1.0, age);
+    for (map<string, map<string, double> >::iterator area = sources.begin(); area != sources.end(); ++area) {
+      area->second["ck_martial"] *= age;
+      area->second["ck_diplomacy"] *= age;
+      area->second["ck_stewardship"] *= age;
+    }
+  }
+  Logger::logStream("characters") << "Created EU4 " << keyword << " " << nameAndNumber(ruler)
+				  << " of " << country->getKey()
+				  << " with " << "\n" << LogOption::Indent;
+  for (map<string, map<string, double> >::iterator area = sources.begin(); area != sources.end(); ++area) {
+    Logger::logStream("characters") << area->first << " : ";
+    int amount = 0;
+    for (map<string, double>::iterator source = area->second.begin(); source != area->second.end(); ++source) {
+      int rounded = (int) floor(0.5 + source->second);
+      if (rounded < 1) continue;
+      Logger::logStream("characters") << source->first << " " << rounded << " ";
+      amount += rounded;
+    }
+    if (amount < 1) {
+      Logger::logStream("characters") << "minimum 1 ";
+      amount = 1;
+    }
+    else if (amount > 6) {
+      Logger::logStream("characters") << "maximum 6 ";
+      amount = 6;
+    }
+    Logger::logStream("characters") << "total: " << amount << "\n";
+    monarchDef->setLeaf(area->first, amount);
+  }
+  Logger::logStream("characters") << LogOption::Undent;
+  Object* monarchId = createMonarchId();
+  monarchDef->setValue(monarchId);
+  Object* ckDynasty = ruler->getDynasty();
+  monarchDef->setLeaf("dynasty", ckDynasty ? ckDynasty->safeGetString("name", defaultDynasty) : defaultDynasty);
+  monarchDef->setLeaf("birth_date", remQuotes(ruler->safeGetString("birth_date", addQuotes(gameDate))));
+  Object* coronation = new Object(eu4Game->safeGetString("date", "1444.1.1"));
+  coronation->setValue(monarchDef);
+  country->getNeededObject("history")->setValue(coronation);
+  country->unsetValue(keyword);
+  Object* monarch = new Object(monarchId);
+  monarch->setKey(keyword);
+  country->setValue(monarch);  
+}
+
 bool Converter::createCharacters () {
   Logger::logStream(LogStream::Info) << "Beginning character creation.\n" << LogOption::Indent;
-  const string defaultDynasty = "\"Generic Dynasty\"";
   Object* bonusTraits = configObject->getNeededObject("bonusTraits");
-  objvec bonuses = bonusTraits->getLeaves();
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
     CK2Ruler* ruler = (*eu4country)->getRuler();
     if (!ruler) continue;
-    Object* monarchDef = new Object("monarch");
-    monarchDef->setLeaf("name", ruler->safeGetString("birth_name", "\"Some Guy\""));
-    monarchDef->setLeaf("country", addQuotes((*eu4country)->getKey()));
-    map<string, map<string, int> > sources;
-    sources["MIL"]["ck_martial"] = max(0, ruler->getAttribute(CKAttribute::Martial) / 5);
-    sources["DIP"]["ck_diplomacy"] = max(0, ruler->getAttribute(CKAttribute::Diplomacy) / 5);
-    sources["ADM"]["ck_stewardship"] = max(0, ruler->getAttribute(CKAttribute::Stewardship) / 5);
-    for (map<string, map<string, int> >::iterator area = sources.begin(); area != sources.end(); ++area) {
-      Object* bonus = bonusTraits->getNeededObject(area->first);
-      objvec bonoi = bonus->getLeaves();
-      for (objiter bon = bonoi.begin(); bon != bonoi.end(); ++bon) {
-	string desc = (*bon)->getKey();
-	if (!ruler->hasTrait(desc)) continue;
-	area->second[desc] = bonus->safeGetInt(desc);
-      }
-    }
-    Logger::logStream("characters") << "Created EU4 ruler " << nameAndNumber(ruler)
-				    << " of " << (*eu4country)->getKey()
-				    << " with " << "\n" << LogOption::Indent;
-    for (map<string, map<string, int> >::iterator area = sources.begin(); area != sources.end(); ++area) {
-      Logger::logStream("characters") << area->first << " : ";
-      int amount = 0;
-      for (map<string, int>::iterator source = area->second.begin(); source != area->second.end(); ++source) {
-	Logger::logStream("characters") << source->first << " " << source->second << " ";
-	amount += source->second;
-      }
-      Logger::logStream("characters") << "total: " << amount << "\n";
-      monarchDef->setLeaf(area->first, amount);
-    }
-    Logger::logStream("characters") << LogOption::Undent;
-    Object* monarchId = createMonarchId();
-    monarchDef->setValue(monarchId);
-    Object* ckDynasty = ruler->getDynasty();
-    monarchDef->setLeaf("dynasty", ckDynasty ? ckDynasty->safeGetString("name", defaultDynasty) : defaultDynasty);
-    monarchDef->setLeaf("birth_date", remQuotes(ruler->safeGetString("birth_date", addQuotes(eu4Game->safeGetString("date", "1444.1.1")))));
-    Object* coronation = new Object(eu4Game->safeGetString("date", "1444.1.1"));
-    coronation->setValue(monarchDef);
-    (*eu4country)->getNeededObject("history")->setValue(coronation);
-    (*eu4country)->unsetValue("monarch");
-    Object* monarch = new Object(monarchId);
-    monarch->setKey("monarch");
-    (*eu4country)->setValue(monarch);
+    makeMonarch(ruler, "monarch", (*eu4country), bonusTraits);
 
+    (*eu4country)->unsetValue("heir");
     if ((*eu4country)->safeGetString("needs_heir", "no") == "yes") {
-      
+      CK2Character* ckHeir = ruler->getOldestChild();
+      if (ckHeir) makeMonarch(ckHeir, "heir", (*eu4country), bonusTraits);
     }
   }  
   Logger::logStream(LogStream::Info) << "Done with character creation.\n" << LogOption::Undent;

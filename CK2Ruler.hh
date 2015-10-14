@@ -22,15 +22,22 @@ public:
 
 class CK2Character : public ObjectWrapper {
 public:
-  CK2Character (Object* obj);
+  CK2Character (Object* obj, Object* dynasties);
 
+  double getAge (string date) const;
   int getAttribute (CKAttribute const* const att) const {return attributes[*att];}
+  Object* getDynasty () const {return dynasty;}
+  CK2Character* getOldestChild () const {return oldestChild;}
   bool hasTrait (const string& t) const {return 0 != traits.count(t);}
-  
+  void personOfInterest (CK2Character* person);
+
   static objvec ckTraits;
 private:
   vector<int> attributes;
+  Object* dynasty;
   set<string> traits;
+  vector<CK2Character*> children;
+  CK2Character* oldestChild;
 };
 
 class CK2Ruler : public Enumerable<CK2Ruler>, public CK2Character {
@@ -44,7 +51,7 @@ public:
   void createClaims ();
   void createLiege ();
   string getBelief (string keyword) const;
-  Object* getDynasty () const {return dynasty;}
+  int getEnemies () const {return enemies.size();}
   EU4Country* getEU4Country () const {return eu4Country;}
   CK2Ruler* getLiege () {return liege;}
   CK2Title* getPrimaryTitle ();
@@ -53,7 +60,7 @@ public:
   bool isSovereign () const {return (0 == liege);}
   void setEU4Country (EU4Country* eu4) {eu4Country = eu4;}
 
-  int getEnemies () const {return enemies.size();}
+
 
   CK2Title::Iter startTitle () {return titles.begin();}
   CK2Title::Iter finalTitle () {return titles.end();}
@@ -67,7 +74,6 @@ public:
   Iter startVassal () {return vassals.begin();}
   Iter finalVassal () {return vassals.end();}  
 private:
-  Object* dynasty;
   EU4Country* eu4Country;
   CK2Title::Container claims;
   CK2Title::Container titles;

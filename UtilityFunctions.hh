@@ -23,6 +23,8 @@ extern const string PlainNone;
 double degToRad (double degrees);
 double radToDeg (double radians); 
 
+bool yearMonthDay (const string& date, int& year, int& month, int& day);
+
 enum RollType {Equal = 0, GtEqual, LtEqual, Greater, Less};
 
 struct DieRoll {

@@ -1,5 +1,5 @@
 #include "UtilityFunctions.hh"
-//#include <vector>
+#include <cctype>
 #include <cmath>
 #include <cstdio>
 #include <algorithm>
@@ -361,5 +361,25 @@ bool hasPrefix (string prefix, string candidate) {
   for (unsigned int i = 0; i < prefix.size(); ++i) {
     if (candidate[i] != prefix[i]) return false;
   }
+  return true;
+}
+
+bool yearMonthDay (const string& date, int& year, int& month, int& day) {
+  int firstDotIdx = -1;
+  int secondDotIdx = -1;
+  for (int i = 0; i < date.size(); ++i) {
+    if (isdigit(date[i])) continue;
+    if (date[i] != '.') return false;
+    if (firstDotIdx < 0) firstDotIdx = i;
+    else if (secondDotIdx < 0) secondDotIdx = i;
+    else return false;
+  }
+  if (firstDotIdx < 0) return false;
+  if (secondDotIdx < 0) return false;
+  if (firstDotIdx + 1 == secondDotIdx) return false;
+  if (secondDotIdx + 1 == date.size()) return false;
+  year = atoi(date.substr(0, firstDotIdx).c_str());
+  month = atoi(date.substr(firstDotIdx+1, secondDotIdx).c_str());
+  day = atoi(date.substr(secondDotIdx).c_str());
   return true;
 }

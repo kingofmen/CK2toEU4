@@ -4,6 +4,7 @@
 #include "CK2Province.hh"
 #include "CK2Title.hh"
 #include "Logger.hh"
+#include "UtilityFunctions.hh"
 
 objvec CK2Character::ckTraits;
 
@@ -13,10 +14,17 @@ CKAttribute const* const CKAttribute::Stewardship = new CKAttribute("stewardship
 CKAttribute const* const CKAttribute::Intrigue = new CKAttribute("intrigue", false);
 CKAttribute const* const CKAttribute::Learning = new CKAttribute("learning", true);
 
-CK2Character::CK2Character (Object* obj)
+CK2Character::CK2Character (Object* obj, Object* dynasties)
   : ObjectWrapper(obj)
   , attributes(CKAttribute::totalAmount(), 0)
+  , dynasty(0)
+  , oldestChild(0)
 {
+  string dynastyNum = safeGetString("dynasty", PlainNone);
+  if (dynastyNum != PlainNone) {
+    dynasty = dynasties->safeGetObject(dynastyNum);
+  }
+  
   Object* attribs = safeGetObject("attributes");
   if (attribs) {
     for (int i = 0; i < (int) attributes.size(); ++i) {
@@ -41,20 +49,46 @@ CK2Character::CK2Character (Object* obj)
   }
 }
 
+double CK2Character::getAge (string date) const {
+  int gameYear, gameMonth, gameDay;
+  if (!yearMonthDay(date, gameYear, gameMonth, gameDay)) {
+    Logger::logStream(LogStream::Warn) << "Could not get year, month, day from '" << date << "'\n";
+    return 16;
+  }
+  int charYear, charMonth, charDay;
+  string birthday = remQuotes(safeGetString("birth_date", QuotedNone));
+  if (!yearMonthDay(birthday, charYear, charMonth, charDay)) {
+    Logger::logStream(LogStream::Warn) << "Could not get year, month, day from ("
+				       << getKey() << " " << safeGetString("birth_name") << ") '"
+				       << birthday << "'\n";
+    return 16;
+  }
+  double years = gameYear;
+  years -= charYear;
+  years += (charMonth - gameMonth) / 12.0;
+  years += (charDay - gameDay) / 365.0;
+  return years;
+}
+
+void CK2Character::personOfInterest (CK2Character* person) {
+  string myId = getKey();
+  if ((person->safeGetString("father") == myId) ||
+      (person->safeGetString("mother") == myId)) {
+    children.push_back(person);
+    if ((!oldestChild) || (oldestChild->getAge(remQuotes(person->safeGetString("birth_date"))) < 0)) {
+      oldestChild = person;
+    }
+  }
+}
+
 CK2Ruler::CK2Ruler (Object* obj, Object* dynasties)
   : Enumerable<CK2Ruler>(this, obj->getKey(), false)
-  , CK2Character(obj)
-  , dynasty(0)
+  , CK2Character(obj, dynasties)
   , eu4Country(0)
   , liege(0)
   , suzerain(0)
   , totalRealmBaronies(-1)
-{
-  string dynastyNum = safeGetString("dynasty", PlainNone);
-  if (dynastyNum != PlainNone) {
-    dynasty = dynasties->safeGetObject(dynastyNum);
-  }
-}
+{}
 
 void CK2Ruler::addTitle (CK2Title* title) {
   titles.push_back(title);
@@ -141,10 +175,11 @@ bool CK2Ruler::hasTitle (CK2Title* title, bool includeVassals) const {
 string CK2Ruler::getBelief (string keyword) const {
   string ret = remQuotes(safeGetString(keyword, QuotedNone));
   if (ret != PlainNone) return ret;
-  if (dynasty) {
-    ret = remQuotes(dynasty->safeGetString(keyword, QuotedNone));
+  Object* myDynasty = getDynasty();
+  if (myDynasty) {
+    ret = remQuotes(myDynasty->safeGetString(keyword, QuotedNone));
     if (ret != PlainNone) return ret;
-    Object* coa = dynasty->safeGetObject("coat_of_arms");
+    Object* coa = myDynasty->safeGetObject("coat_of_arms");
     if (coa) {
       ret = remQuotes(coa->safeGetString(keyword, QuotedNone));
       if (ret != PlainNone) return ret;
