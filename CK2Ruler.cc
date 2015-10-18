@@ -8,15 +8,23 @@
 
 objvec CK2Character::ckTraits;
 
-CKAttribute const* const CKAttribute::Diplomacy = new CKAttribute("diplomacy", false);
-CKAttribute const* const CKAttribute::Martial = new CKAttribute("martial", false);
-CKAttribute const* const CKAttribute::Stewardship = new CKAttribute("stewardship", false);  
-CKAttribute const* const CKAttribute::Intrigue = new CKAttribute("intrigue", false);
-CKAttribute const* const CKAttribute::Learning = new CKAttribute("learning", true);
+CKAttribute const* const CKAttribute::Diplomacy    = new CKAttribute("diplomacy",   false);
+CKAttribute const* const CKAttribute::Martial      = new CKAttribute("martial",     false);
+CKAttribute const* const CKAttribute::Stewardship  = new CKAttribute("stewardship", false);  
+CKAttribute const* const CKAttribute::Intrigue     = new CKAttribute("intrigue",    false);
+CKAttribute const* const CKAttribute::Learning     = new CKAttribute("learning",    true);
+
+CouncilTitle const* const CouncilTitle::Chancellor = new CouncilTitle("job_chancellor", false);
+CouncilTitle const* const CouncilTitle::Marshal    = new CouncilTitle("job_marshal",    false);
+CouncilTitle const* const CouncilTitle::Steward    = new CouncilTitle("job_treasurer",  false);
+CouncilTitle const* const CouncilTitle::Spymaster  = new CouncilTitle("job_spymaster",  false);
+CouncilTitle const* const CouncilTitle::Chaplain   = new CouncilTitle("job_spiritual",  true);
 
 CK2Character::CK2Character (Object* obj, Object* dynasties)
   : ObjectWrapper(obj)
+  , admiral(0)
   , attributes(CKAttribute::totalAmount(), 0)
+  , council(CouncilTitle::totalAmount())
   , dynasty(0)
   , oldestChild(0)
 {
@@ -70,6 +78,17 @@ double CK2Character::getAge (string date) const {
   return years;
 }
 
+bool CK2Character::hasModifier (const string& mod) {
+  if (modifiers.count(mod)) return modifiers[mod];
+  modifiers[mod] = false;
+  objvec mods = getValue("modifier");
+  for (objiter m = mods.begin(); m != mods.end(); ++m) {
+    string modname = remQuotes((*m)->safeGetString("modifier", QuotedNone));
+    modifiers[modname] = true;
+  }
+  return modifiers[mod];
+}
+
 void CK2Character::personOfInterest (CK2Character* person) {
   string myId = getKey();
   if ((person->safeGetString("father") == myId) ||
@@ -77,6 +96,22 @@ void CK2Character::personOfInterest (CK2Character* person) {
     children.push_back(person);
     if ((!oldestChild) || (oldestChild->getAge(remQuotes(person->safeGetString("birth_date"))) < 0)) {
       oldestChild = person;
+    }
+  }
+
+  if (person->safeGetString("host") == myId) {
+    objvec titles = person->getValue("title");
+    for (objiter title = titles.begin(); title != titles.end(); ++title) {
+      if (!(*title)->isLeaf()) continue;
+      string job = remQuotes((*title)->getLeaf());
+      if (job == "title_commander") commanders.push_back(person);
+      else if (job == "title_high_admiral") admiral = person;
+    }
+    string job = remQuotes(person->safeGetString("job_title", QuotedNone));
+    for (CouncilTitle::Iter con = CouncilTitle::start(); con != CouncilTitle::final(); ++con) {
+      if (job != (*con)->getName()) continue;
+      council[**con] = person;
+      break;
     }
   }
 }

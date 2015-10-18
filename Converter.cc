@@ -28,10 +28,10 @@ using namespace std;
  * Heresies - must be rebel factions?
  * Development?
  * Vassals again
- * Advisors
  * Bonus events
  * Government rank 
  * Unions?
+ * Fix multiclaims
  * Autonomy
  * Liberty desire
  * Starting money, manpower, ADM
@@ -271,10 +271,17 @@ bool Converter::createCK2Objects () {
   for (objiter ch = allChars.begin(); ch != allChars.end(); ++ch) {
     CK2Ruler* father = CK2Ruler::findByName((*ch)->safeGetString("father"));
     CK2Ruler* mother = CK2Ruler::findByName((*ch)->safeGetString("mother"));
-    if (!father & !mother) continue;
+    CK2Ruler* employer = 0;
+    if (((*ch)->safeGetString("job_title", PlainNone) != PlainNone) ||
+	((*ch)->safeGetString("title", PlainNone) == "\"title_commander\"") ||
+	((*ch)->safeGetString("title", PlainNone) == "\"title_high_admiral\"")) {
+      employer = CK2Ruler::findByName((*ch)->safeGetString("host"));
+    }
+    if ((!father) && (!mother) && (!employer)) continue;
     CK2Character* current = new CK2Character((*ch), dynasties);
     if (father) father->personOfInterest(current);
     if (mother) mother->personOfInterest(current);
+    if (employer) employer->personOfInterest(current);
   }
 
   // Diplomacy
@@ -613,7 +620,12 @@ void Converter::loadFiles () {
   euBuildingObject = loadTextFile(dirToUse + "eu_buildings.txt");
   Object* ckTraitObject = loadTextFile(dirToUse + "ck_traits.txt");
   CK2Character::ckTraits = ckTraitObject->getLeaves();
-
+  advisorTypesObject = loadTextFile(dirToUse + "advisors.txt");
+  if (!advisorTypesObject) {
+    Logger::logStream(LogStream::Warn) << "Warning: Did not find advisors.txt. Proceeding without advisor types info. No advisors will be created.\n";
+    advisorTypesObject = new Object("dummy_advisors");
+  }
+  
   string overrideFileName = remQuotes(configObject->safeGetString("custom", QuotedNone));
   if (PlainNone != overrideFileName) customObject = loadTextFile(dirToUse + overrideFileName);
   else customObject = new Object("custom");
@@ -780,7 +792,7 @@ bool Converter::createArmies () {
   }
 
   if (0 == totalRetinues) {
-    Logger::logStream(LogStream::Warn) << "Warning: Found no retinue troops. No armies will be created.\n";
+    Logger::logStream(LogStream::Warn) << "Warning: Found no retinue troops. No armies will be created.\n" << LogOption::Undent;
     return true;
   }
 
@@ -856,8 +868,13 @@ bool Converter::createArmies () {
   return true;
 }
 
-void Converter::makeMonarch (CK2Character* ruler, const string& keyword, EU4Country* country, Object* bonusTraits) {
+string getDynastyName (CK2Character* ruler) {
   static const string defaultDynasty = "\"Generic Dynasty\"";
+  Object* ckDynasty = ruler->getDynasty();
+  return ckDynasty ? ckDynasty->safeGetString("name", defaultDynasty) : defaultDynasty;
+}
+
+void Converter::makeMonarch (CK2Character* ruler, const string& keyword, EU4Country* country, Object* bonusTraits) {
   Object* monarchDef = new Object(keyword);
   monarchDef->setLeaf("name", ruler->safeGetString("birth_name", "\"Some Guy\""));
   monarchDef->setLeaf("country", addQuotes(country->getKey()));
@@ -884,8 +901,7 @@ void Converter::makeMonarch (CK2Character* ruler, const string& keyword, EU4Coun
       area->second["ck_stewardship"] *= age;
     }
   }
-  Logger::logStream("characters") << "Created EU4 " << keyword << " " << nameAndNumber(ruler)
-				  << " of " << country->getKey()
+  Logger::logStream("characters") << keyword << " " << nameAndNumber(ruler)
 				  << " with " << "\n" << LogOption::Indent;
   for (map<string, map<string, double> >::iterator area = sources.begin(); area != sources.end(); ++area) {
     Logger::logStream("characters") << area->first << " : ";
@@ -910,8 +926,7 @@ void Converter::makeMonarch (CK2Character* ruler, const string& keyword, EU4Coun
   Logger::logStream("characters") << LogOption::Undent;
   Object* monarchId = createMonarchId();
   monarchDef->setValue(monarchId);
-  Object* ckDynasty = ruler->getDynasty();
-  monarchDef->setLeaf("dynasty", ckDynasty ? ckDynasty->safeGetString("name", defaultDynasty) : defaultDynasty);
+  monarchDef->setLeaf("dynasty", getDynastyName(ruler));
   monarchDef->setLeaf("birth_date", remQuotes(ruler->safeGetString("birth_date", addQuotes(gameDate))));
   Object* coronation = new Object(eu4Game->safeGetString("date", "1444.1.1"));
   coronation->setValue(monarchDef);
@@ -925,9 +940,16 @@ void Converter::makeMonarch (CK2Character* ruler, const string& keyword, EU4Coun
 bool Converter::createCharacters () {
   Logger::logStream(LogStream::Info) << "Beginning character creation.\n" << LogOption::Indent;
   Object* bonusTraits = configObject->getNeededObject("bonusTraits");
+  Object* active_advisors = eu4Game->getNeededObject("active_advisors");
+  map<string, objvec> allAdvisors;
+  objvec advisorTypes = advisorTypesObject->getLeaves();
+  map<string, objvec> countryAdvisors;
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
     CK2Ruler* ruler = (*eu4country)->getRuler();
     if (!ruler) continue;
+    string eu4Tag = (*eu4country)->getKey();
+    (*eu4country)->unsetValue("advisor");
+    Logger::logStream("characters") << "Creating characters for " << eu4Tag << ":\n" << LogOption::Indent;
     makeMonarch(ruler, "monarch", (*eu4country), bonusTraits);
 
     (*eu4country)->unsetValue("heir");
@@ -935,7 +957,104 @@ bool Converter::createCharacters () {
       CK2Character* ckHeir = ruler->getOldestChild();
       if (ckHeir) makeMonarch(ckHeir, "heir", (*eu4country), bonusTraits);
     }
-  }  
+
+    Object* country_advisors = active_advisors->getNeededObject((*eu4country)->getKey());
+    country_advisors->clear();
+    string capitalTag = (*eu4country)->safeGetString("capital");
+    EU4Province* capital = EU4Province::findByName(capitalTag);
+    if (!capital) continue;
+    Object* history = capital->getNeededObject("history");
+    for (CouncilTitle::Iter council = CouncilTitle::start(); council != CouncilTitle::final(); ++council) {
+      CK2Character* councillor = ruler->getCouncillor(*council);
+      Logger::logStream("characters") << (*council)->getName() << ": " << (councillor ? nameAndNumber(councillor) : "None\n");
+      if (!councillor) continue;
+
+      Object* advisor = new Object("advisor");
+      string name = remQuotes(councillor->safeGetString("birth_name", "Someone"));
+      name += " ";
+      name += remQuotes(getDynastyName(councillor));
+      advisor->setLeaf("name", addQuotes(name));
+      int points = -1;
+      Object* advObject = 0;
+      set<string> decisionTraits;
+      for (objiter advType = advisorTypes.begin(); advType != advisorTypes.end(); ++advType) {
+	Object* mods = (*advType)->getNeededObject("traits");
+	objvec traits = mods->getLeaves();
+	int currPoints = 0;
+	set<string> yesTraits;
+	for (objiter trait = traits.begin(); trait != traits.end(); ++trait) {
+	  string traitName = (*trait)->getKey();
+	  if ((!councillor->hasTrait(traitName)) && (!councillor->hasModifier(traitName))) continue;
+	  currPoints += mods->safeGetInt(traitName);
+	  yesTraits.insert(traitName);
+	}
+	if (currPoints < points) continue;
+	points = currPoints;
+	advObject = (*advType);
+	decisionTraits = yesTraits;
+      }
+      string advisorType = advObject->getKey();
+      advisor->setLeaf("type", advisorType);
+      allAdvisors[advisorType].push_back(advisor);
+      int skill = 0;
+      for (CKAttribute::Iter att = CKAttribute::start(); att != CKAttribute::final(); ++att) {
+	int mult = 1;
+	if ((*att)->getName() == advObject->safeGetString("main_attribute")) mult = 2;
+	skill += councillor->getAttribute(*att);
+      }
+      advisor->setLeaf("skill", skill);
+      Logger::logStream("characters") << " " << advisorType << " based on traits ";
+      for (set<string>::iterator t = decisionTraits.begin(); t != decisionTraits.end(); ++t) {
+	Logger::logStream("characters") << (*t) << " ";
+      }
+      Logger::logStream("characters") << "\n";
+      advisor->setLeaf("location", capitalTag);
+      advisor->setLeaf("date", "1444.1.1");
+      advisor->setLeaf("hire_date", "1.1.1");
+      advisor->setLeaf("death_date", "9999.1.1");
+      advisor->setLeaf("female", councillor->safeGetString("female", "no"));
+      Object* id = createTypedId("advisor", "51");
+      advisor->setValue(id);
+      Object* birth = new Object(eu4Game->safeGetString("date", "1444.11.11"));
+      birth->setValue(advisor);
+      history->setValue(birth);
+      Object* active = new Object(id);
+      active->setKey("advisor");
+      country_advisors->setValue(active);
+      countryAdvisors[eu4Tag].push_back(advisor);
+    }
+    Logger::logStream("characters") << LogOption::Undent;
+  }
+  Logger::logStream("characters") << "Advisors created:\n" << LogOption::Indent;
+  ObjectDescendingSorter skillSorter("skill");
+  for (map<string, objvec>::iterator adv = allAdvisors.begin(); adv != allAdvisors.end(); ++adv) {
+    Logger::logStream("characters") << adv->first << ": " << adv->second.size() << "\n";
+    sort(adv->second.begin(), adv->second.end(), skillSorter);
+    for (unsigned int i = 0; i < adv->second.size(); ++i) {
+      double fraction = i;
+      fraction /= adv->second.size();
+      int actualSkill = (fraction < 0.1 ? 3 : (fraction < 0.333 ? 2 : 1));
+      adv->second[i]->resetLeaf("skill", actualSkill);
+    }
+  }
+  for (map<string, objvec>::iterator adv = countryAdvisors.begin(); adv != countryAdvisors.end(); ++adv) {
+    EU4Country* eu4country = EU4Country::findByName(adv->first);
+    sort(adv->second.begin(), adv->second.end(), skillSorter);
+    set<string> advisorSlots;
+    for (objiter cand = adv->second.begin(); cand != adv->second.end(); ++cand) {
+      Object* advisorType = advisorTypesObject->safeGetObject((*cand)->safeGetString("type"));
+      if (!advisorType) continue; // This should never happen.
+      string slot = advisorType->safeGetString("monarch_power", PlainNone);
+      if (slot == PlainNone) continue;
+      if (advisorSlots.count(slot)) continue;
+      Object* advisorId = new Object((*cand)->safeGetObject("id"));
+      advisorId->setKey("advisor");
+      eu4country->setValue(advisorId);
+      advisorSlots.insert(slot);
+    }
+  }
+  
+  Logger::logStream("characters") << LogOption::Undent;
   Logger::logStream(LogStream::Info) << "Done with character creation.\n" << LogOption::Undent;
   return true;
 }
@@ -1037,7 +1156,7 @@ bool Converter::createNavies () {
   }
 
   if (0 == totalShips) {
-    Logger::logStream(LogStream::Warn) << "Warning: Found no liege-levy ships. No navies will be created.\n";
+    Logger::logStream(LogStream::Warn) << "Warning: Found no liege-levy ships. No navies will be created.\n" << LogOption::Undent;
     return true;
   }
 

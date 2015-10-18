@@ -78,11 +78,8 @@ private:
   void makeMonarch (CK2Character* ruler, const string& keyword, EU4Country* country, Object* bonusTraits);
   bool swapKeys (Object* one, Object* two, string key);
 
-  // Maps
-
-  // Lists
-
   // Input info
+  Object* advisorTypesObject;
   Object* ckBuildingObject;  
   Object* configObject;
   Object* countryMapObject;

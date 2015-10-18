@@ -1,6 +1,7 @@
 #ifndef CK2RULER_HH
 #define CK2RULER_HH
 
+#include <map>
 #include <set>
 #include <string>
 
@@ -11,7 +12,7 @@ class EU4Country;
 
 class CKAttribute : public Enumerable<CKAttribute> {
 public:
-  CKAttribute (string n, bool f) : Enumerable<CKAttribute>(this, n, f) {};
+  CKAttribute (string n, bool f) : Enumerable<CKAttribute>(this, n, f) {}
 
   static CKAttribute const* const Diplomacy;
   static CKAttribute const* const Martial;
@@ -20,24 +21,51 @@ public:
   static CKAttribute const* const Learning;
 };
 
+class CouncilTitle : public Enumerable<CouncilTitle> {
+public:
+  CouncilTitle (string n, bool f) : Enumerable<CouncilTitle>(this, n, f) {}
+
+  static CouncilTitle const* const Chancellor;
+  static CouncilTitle const* const Marshal;
+  static CouncilTitle const* const Steward;
+  static CouncilTitle const* const Spymaster;
+  static CouncilTitle const* const Chaplain;
+};
+
 class CK2Character : public ObjectWrapper {
 public:
   CK2Character (Object* obj, Object* dynasties);
 
+  typedef vector<CK2Character*>::const_iterator CharacterIter;
+
+  CK2Character* getAdmiral () const {return admiral;}
   double getAge (string date) const;
   int getAttribute (CKAttribute const* const att) const {return attributes[*att];}
+  CK2Character* getCouncillor (CouncilTitle const* const con) const {return council[*con];}
   Object* getDynasty () const {return dynasty;}
   CK2Character* getOldestChild () const {return oldestChild;}
+  bool hasModifier (const string& mod);
   bool hasTrait (const string& t) const {return 0 != traits.count(t);}
   void personOfInterest (CK2Character* person);
 
+  CharacterIter startChild () const {return children.begin();}
+  CharacterIter finalChild () const {return children.end();}
+  CharacterIter startCommander () const {return commanders.begin();}
+  CharacterIter finalCommander () const {return commanders.end();}  
+  CharacterIter startCouncillor () const {return council.begin();}
+  CharacterIter finalCouncillor () const {return council.end();}
+
   static objvec ckTraits;
 private:
+  CK2Character* admiral;
   vector<int> attributes;
-  Object* dynasty;
-  set<string> traits;
   vector<CK2Character*> children;
-  CK2Character* oldestChild;
+  vector<CK2Character*> commanders;
+  vector<CK2Character*> council; 
+  Object* dynasty;
+  CK2Character* oldestChild;  
+  set<string> traits;
+  map<string, bool> modifiers;
 };
 
 class CK2Ruler : public Enumerable<CK2Ruler>, public CK2Character {

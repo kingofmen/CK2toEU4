@@ -1,0 +1,317 @@
+# Traits not used:
+# amateurish_plotter
+# intricate_webweaver
+# elusive_shadow
+# naive_appeaser
+# underhanded_rogue
+# indulgent_wastrel
+# thrifty_clerk
+# misguided_warrior
+# tough_soldier
+# detached_priest
+# martial_cleric
+# kinslayer
+# homosexual
+# strong
+# hedonist
+# hunter
+# falconer
+# lustful
+# chaste
+# greedy
+# slothful
+# envious
+# wroth
+# proud
+# deceitful
+# craven
+# shy
+# ambitious
+# arbitrary
+# cynical
+# trusting
+# trickster
+# flanker
+# mujahid
+# sayyid
+# mirza
+# rough_terrain_leader
+# mountain_terrain_leader
+# desert_terrain_leader
+# unyielding_leader
+# viking
+# ashari
+# narrow_flank_leader
+# vaishya
+# jungle_terrain_leader
+# seducer
+# seductress
+# adventurer
+
+philosopher = {
+  monarch_power = ADM
+  prestige = 1
+  chance = {
+    factor = 1
+  }
+  traits = {
+    scholar = 6
+    faqih = 3
+    heresiarch = 1
+    celibate = 3
+  }
+  main_attribute = learning
+}
+
+natural_scientist = {
+  monarch_power = ADM
+  production_efficiency = 0.10
+  chance = {
+    factor = 1
+  }
+  traits = {
+    genius = 5
+    quick = 2
+    honest = 1
+    humble = 2
+    gardener = 2
+    studying_the_stars = 4
+    impaler = 1 # Vivisection, for great science!
+  }
+  main_attribute = learning
+}
+
+artist = {
+  monarch_power = ADM
+  stability_cost_traits = -0.10
+  chance = {
+    factor = 1
+  }
+  traits = {
+    poet = 5
+    content = 5
+    hafiz = 3
+  }
+  main_attribute = learning
+}
+
+treasurer = {
+  monarch_power = ADM
+  global_tax_traits = 0.1
+  chance = {
+    factor = 1
+  }
+  traits = {
+    midas_touched = 7
+    just = 2
+  }
+  main_attribute = stewardship
+}
+
+theologian = {
+  monarch_power = ADM
+  global_unrest = -2
+
+  chance = {
+    factor = 1
+  }
+  traits = {
+    mastermind_theologian = 5
+    theologian = 4
+    scholarly_theologian = 2
+    mystic = 1
+    brahmin = 2
+    mutazilite = 2
+    monk = 1
+    nun = 1
+  }
+  main_attribute = learning
+}
+
+master_of_mint = {
+  monarch_power = ADM
+  inflation_reduction = 0.10
+  chance = {
+    factor = 1
+  }
+  traits = {
+    honest = 1
+    administrator = 5
+    diligent = 3
+  }
+  main_attribute = stewardship
+}
+
+inquisitor = {
+  monarch_power = ADM
+  global_missionary_strength = 0.02
+  chance = {
+    factor = 1
+  }
+  traits = {
+    zealous = 7
+    paranoid = 3
+    holy_warrior = 4
+  }
+  main_attribute = intrigue
+}
+
+statesman = {
+  monarch_power = DIP
+  diplomatic_reputation = 1
+  chance = {
+    factor = 1
+  }
+  traits = {
+    grey_eminence = 8
+    gregarious = 2
+    charitable = 1
+  }
+  main_attribute = diplomacy
+}
+
+trader = {
+  monarch_power = DIP
+  trade_efficiency = 0.10
+  chance = {
+    factor = 1
+  }
+  traits = {
+    architect = 3
+    fortune_builder = 7
+  }
+  main_attribute = stewardship
+}
+
+spymaster = {
+  monarch_power = DIP
+  spy_offence = 0.10
+  chance = {
+    factor = 1
+  }
+  traits = {
+    schemer = 4
+    flamboyant_schemer = 4
+  }
+  main_attribute = intrigue
+}
+
+diplomat = {
+  monarch_power = DIP
+  relations_decay_of_me = 0.3
+  chance = {
+    factor = 1
+  }
+  traits = {
+    cavalry_leader = 3
+    socializer = 3
+    charismatic_negotiator = 5
+  }
+  main_attribute = diplomacy
+}
+
+army_reformer = {
+  monarch_power = MIL
+  land_morale = 0.10
+  chance = {
+    factor = 1
+  }
+  traits = {
+    experimenter = 6
+    gamer = 5 # Always fiddling with the build!
+    brilliant_strategist = 5
+  }
+  main_attribute = martial
+}
+
+army_organiser = {
+  monarch_power = MIL
+  land_forcelimit_traits = 0.10
+  chance = {
+    factor = 1
+  }
+  traits = {
+    organizer = 6
+    patient = 3
+  }
+  main_attribute = martial
+}
+
+commandant = {
+  monarch_power = MIL
+  discipline = 0.05
+  chance = {
+    factor = 1
+  }
+  traits = {
+    cruel = 1
+    heavy_infantry_leader = 5
+    inspiring_leader = 5
+    brave = 2
+    skilled_tactician = 3
+    duelist = 1
+  }
+  main_attribute = martial
+}
+
+quartermaster = {
+  monarch_power = MIL
+  reinforce_speed = 0.33
+
+  chance = {
+    factor = 1
+  }
+  traits = {
+    winter_soldier = 4
+    organizer = 7
+    gluttonous = 2
+    temperate = 3
+    greedy = 1
+  }
+  main_attribute = martial
+}
+
+recruitmaster = {
+  monarch_power = MIL
+  global_manpower_traits = 0.10
+  chance = {
+    factor = 1
+  }
+  traits = {
+    light_foot_leader = 8
+    peasant_leader = 7
+    crusader = 3
+    varangian = 2
+    war_elephant_leader = 3 # Because really, who wouldn't want to join an army with elephants?
+    kind = 4
+  }
+  main_attribute = martial
+}
+
+fortification_expert = {
+  monarch_power = MIL
+  defensiveness = 0.2
+  chance = {
+    factor = 1
+  }
+  traits = {
+    siege_leader = 6
+    defensive_leader = 8
+  }
+  main_attribute = martial
+}
+
+grand_captain = {
+  monarch_power = MIL
+  land_maintenance_traits = -0.10
+    chance = {
+    factor = 1
+  }
+  traits = {
+    flat_terrain_leader = 7
+    aggressive_leader = 5
+    kshatriya = 3  
+    strategist = 4
+  }
+  main_attribute = martial
+}
