@@ -29,7 +29,6 @@ using namespace std;
  * Development?
  * Vassals again
  * Bonus events
- * Government rank 
  * Unions?
  * Fix multiclaims
  * Autonomy
@@ -1133,13 +1132,20 @@ bool Converter::createGovernments () {
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
     CK2Ruler* ruler = (*eu4country)->getRuler();
     if (!ruler) continue;
+    CK2Title* primary = ruler->getPrimaryTitle();
+    string government_rank = "1";
+    if (primary) {
+      if (primary->getLevel() == TitleLevel::Empire) government_rank = "3";
+      else if (primary->getLevel() == TitleLevel::Kingdom) government_rank = "2";
+    }
+    (*eu4country)->resetLeaf("government_rank", government_rank);
+    (*eu4country)->resetHistory("government_rank", government_rank);
     string ckGovernment = ruler->safeGetString("government", "feudal_government");
     Object* govInfo = govObject->safeGetObject(ckGovernment);
     string euGovernment = (*eu4country)->safeGetString("government");
     if (govInfo) {
       Logger::logStream("governments") << nameAndNumber(ruler) << " of " << (*eu4country)->getKey()
 				       << " has CK government " << ckGovernment;
-      CK2Title* primary = ruler->getPrimaryTitle();
       if (primary) {
 	string succession = primary->safeGetString("succession", PlainNone);
 	Object* successionObject = govInfo->safeGetObject(succession);
