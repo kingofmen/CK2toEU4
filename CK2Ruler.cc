@@ -89,7 +89,7 @@ bool CK2Character::hasModifier (const string& mod) {
   return modifiers[mod];
 }
 
-void CK2Character::personOfInterest (CK2Character* person) {
+void CK2Ruler::personOfInterest (CK2Character* person) {
   string myId = getKey();
   if ((person->safeGetString("father") == myId) ||
       (person->safeGetString("mother") == myId)) {
@@ -99,7 +99,9 @@ void CK2Character::personOfInterest (CK2Character* person) {
     }
   }
 
-  if (person->safeGetString("host") == myId) {
+  CK2Ruler* other = findByName(person->getKey());
+  bool vassal = ((other) && (other->getLiege() == this));
+  if ((person->safeGetString("host") == myId) || (vassal)) {
     objvec titles = person->getValue("title");
     for (objiter title = titles.begin(); title != titles.end(); ++title) {
       if (!(*title)->isLeaf()) continue;
@@ -111,6 +113,7 @@ void CK2Character::personOfInterest (CK2Character* person) {
     for (CouncilTitle::Iter con = CouncilTitle::start(); con != CouncilTitle::final(); ++con) {
       if (job != (*con)->getName()) continue;
       council[**con] = person;
+      if ((*con) == CouncilTitle::Marshal) commanders.push_back(person);
       break;
     }
   }

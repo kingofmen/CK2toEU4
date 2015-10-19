@@ -2,5 +2,6 @@ country_overrides = {
   k_papal_state = PAP
   k_byzantium = BYZ
   e_dyn_252411 = PER
+  k_venice = VEN
 }
 

@@ -75,6 +75,7 @@ private:
   Object* createTypedId (string keyword, string idType);
   Object* createUnitId (string unitType);
   Object* loadTextFile (string fname);
+  void makeLeader (EU4Country* eu4country, const string& keyword, CK2Character* base, const objvec& generalSkills, const string& birthDate);
   void makeMonarch (CK2Character* ruler, const string& keyword, EU4Country* country, Object* bonusTraits);
   bool swapKeys (Object* one, Object* two, string key);
 

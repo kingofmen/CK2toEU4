@@ -46,7 +46,6 @@ public:
   CK2Character* getOldestChild () const {return oldestChild;}
   bool hasModifier (const string& mod);
   bool hasTrait (const string& t) const {return 0 != traits.count(t);}
-  void personOfInterest (CK2Character* person);
 
   CharacterIter startChild () const {return children.begin();}
   CharacterIter finalChild () const {return children.end();}
@@ -56,7 +55,7 @@ public:
   CharacterIter finalCouncillor () const {return council.end();}
 
   static objvec ckTraits;
-private:
+protected:
   CK2Character* admiral;
   vector<int> attributes;
   vector<CK2Character*> children;
@@ -86,9 +85,8 @@ public:
   CK2Ruler* getSuzerain () {return suzerain;}
   bool hasTitle (CK2Title* title, bool includeVassals = false) const;
   bool isSovereign () const {return (0 == liege);}
+  void personOfInterest (CK2Character* person);
   void setEU4Country (EU4Country* eu4) {eu4Country = eu4;}
-
-
 
   CK2Title::Iter startTitle () {return titles.begin();}
   CK2Title::Iter finalTitle () {return titles.end();}

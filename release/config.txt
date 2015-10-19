@@ -68,6 +68,21 @@ bonusTraits = {
   ADM = { midas_touched = 1 }
 }
 
+generalSkills = {
+  # Not my typo, Pdox spells it like this
+  manuever = { flat_terrain_leader aggressive_leader cavalry_leader
+  skilled_tactician trickster deceitful desert_terrain_leader
+  rough_terrain_leader quick diligent administrator schemer gamer
+  experimenter brilliant_strategist brilliant_strategist winter_soldier }
+  shock = { war_elephant_leader unyielding_leader narrow_flank_leader
+  heavy_infantry_leader crusader narrow_flank_leader
+  brilliant_strategist brilliant_strategist cruel wroth brave flanker zealous impaler
+  inspiring_leader holy_warrior strong genius }
+  fire = { brilliant_strategist strategist organizer light_foot_leader hunter patient
+  cynical }
+  siege = { siege_leader defensive_leader }
+}
+
 troops = {
   light_infantry_f = 1
   heavy_infantry_f = 3

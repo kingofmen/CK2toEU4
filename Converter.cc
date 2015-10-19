@@ -37,7 +37,6 @@ using namespace std;
  * Starting money, manpower, ADM
  * Fix cores
  * Techs
- * Generals
  * Rebels
  * HRE
  */
@@ -874,6 +873,13 @@ string getDynastyName (CK2Character* ruler) {
   return ckDynasty ? ckDynasty->safeGetString("name", defaultDynasty) : defaultDynasty;
 }
 
+string getFullName (CK2Character* character) {
+  string name = remQuotes(character->safeGetString("birth_name", "Someone"));
+  name += " ";
+  name += remQuotes(getDynastyName(character));
+  return addQuotes(name);
+}
+
 void Converter::makeMonarch (CK2Character* ruler, const string& keyword, EU4Country* country, Object* bonusTraits) {
   Object* monarchDef = new Object(keyword);
   monarchDef->setLeaf("name", ruler->safeGetString("birth_name", "\"Some Guy\""));
@@ -937,6 +943,36 @@ void Converter::makeMonarch (CK2Character* ruler, const string& keyword, EU4Coun
   country->setValue(monarch);  
 }
 
+void Converter::makeLeader (EU4Country* eu4country, const string& keyword, CK2Character* base, const objvec& generalSkills, const string& birthDate) {
+  Object* leader = new Object("leader");
+  leader->setLeaf("name", getFullName(base));
+  leader->setLeaf("type", keyword);
+  for (vector<Object*>::const_iterator skill = generalSkills.begin(); skill != generalSkills.end(); ++skill) {
+    string keyword = (*skill)->getKey();
+    int amount = 0;
+    for (int i = 0; i < (*skill)->numTokens(); ++i) {
+      if (!base->hasTrait((*skill)->getToken(i))) continue;
+      ++amount;
+    }
+    Logger::logStream("characters") << " " << keyword << ": " << amount << (amount > 0 ? " from " : "");
+    for (int i = 0; i < (*skill)->numTokens(); ++i) {
+      if (!base->hasTrait((*skill)->getToken(i))) continue;
+      Logger::logStream("characters") << (*skill)->getToken(i) << " ";
+    }
+    leader->setLeaf(keyword, amount);
+    Logger::logStream("characters") << "\n";
+  }
+  leader->setLeaf("activation", "1444.1.1");
+  Object* id = createTypedId("leader", "49");
+  leader->setValue(id);
+  Object* active = new Object(id);
+  active->setKey("leader");
+  eu4country->setValue(active);
+  Object* birth = new Object(birthDate);
+  birth->setValue(leader);
+  eu4country->getNeededObject("history")->setValue(birth);
+}
+
 bool Converter::createCharacters () {
   Logger::logStream(LogStream::Info) << "Beginning character creation.\n" << LogOption::Indent;
   Object* bonusTraits = configObject->getNeededObject("bonusTraits");
@@ -944,6 +980,9 @@ bool Converter::createCharacters () {
   map<string, objvec> allAdvisors;
   objvec advisorTypes = advisorTypesObject->getLeaves();
   map<string, objvec> countryAdvisors;
+  objvec generalSkills = configObject->getNeededObject("generalSkills")->getLeaves();
+  string birthDate = eu4Game->safeGetString("date", "1444.11.11");
+  
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
     CK2Ruler* ruler = (*eu4country)->getRuler();
     if (!ruler) continue;
@@ -970,10 +1009,7 @@ bool Converter::createCharacters () {
       if (!councillor) continue;
 
       Object* advisor = new Object("advisor");
-      string name = remQuotes(councillor->safeGetString("birth_name", "Someone"));
-      name += " ";
-      name += remQuotes(getDynastyName(councillor));
-      advisor->setLeaf("name", addQuotes(name));
+      advisor->setLeaf("name", getFullName(councillor));
       int points = -1;
       Object* advObject = 0;
       set<string> decisionTraits;
@@ -1015,7 +1051,7 @@ bool Converter::createCharacters () {
       advisor->setLeaf("female", councillor->safeGetString("female", "no"));
       Object* id = createTypedId("advisor", "51");
       advisor->setValue(id);
-      Object* birth = new Object(eu4Game->safeGetString("date", "1444.11.11"));
+      Object* birth = new Object(birthDate);
       birth->setValue(advisor);
       history->setValue(birth);
       Object* active = new Object(id);
@@ -1023,6 +1059,38 @@ bool Converter::createCharacters () {
       country_advisors->setValue(active);
       countryAdvisors[eu4Tag].push_back(advisor);
     }
+
+    CK2Character* bestGeneral = 0;
+    int highestSkill = -1;
+    for (CK2Character::CharacterIter commander = ruler->startCommander(); commander != ruler->finalCommander(); ++commander) {
+      int currSkill = 0;
+      for (objiter skill = generalSkills.begin(); skill != generalSkills.end(); ++skill) {
+	string keyword = (*skill)->getKey();
+	for (int i = 0; i < (*skill)->numTokens(); ++i) {
+	  if (!(*commander)->hasTrait((*skill)->getToken(i))) continue;
+	  (*commander)->resetLeaf(keyword, 1 + (*commander)->safeGetInt(keyword));
+	  ++currSkill;
+	}
+      }
+      if (currSkill < highestSkill) continue;
+      highestSkill = currSkill;
+      bestGeneral = (*commander);
+    }
+    Logger::logStream("characters") << "General: " << (bestGeneral ? nameAndNumber(bestGeneral) : "None") << "\n";
+    if (bestGeneral) {
+      Logger::logStream("characters") << LogOption::Indent;
+      makeLeader((*eu4country), string("general"), bestGeneral, generalSkills, birthDate);
+      Logger::logStream("characters") << LogOption::Undent;
+    }
+
+    CK2Character* admiral = ruler->getAdmiral();
+    Logger::logStream("characters") << "Admiral: " << (admiral ? nameAndNumber(admiral) : "None") << "\n";
+    if (admiral) {
+      Logger::logStream("characters") << LogOption::Indent;
+      makeLeader((*eu4country), string("admiral"), admiral, generalSkills, birthDate);
+      Logger::logStream("characters") << LogOption::Undent;
+    }
+    
     Logger::logStream("characters") << LogOption::Undent;
   }
   Logger::logStream("characters") << "Advisors created:\n" << LogOption::Indent;
