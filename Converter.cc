@@ -26,14 +26,20 @@ using namespace std;
  * Wars
  * Trade?
  * Heresies - must be rebel factions?
- * Development?
  * Vassals again
  * Bonus events
  * Unions?
  * Fix multiclaims
+ * Stability
+ * Army/navy tradition
+ * Reset or distribute:
+   - Papal influence
+   - Loans
+   - Wartax
+   - Bankruptcy
+   - Mercantilism (?!)
  * Autonomy
- * Liberty desire
- * Starting money, manpower, ADM
+ * Starting manpower
  * Fix cores
  * Techs
  * Rebels
@@ -43,6 +49,9 @@ using namespace std;
 ConverterJob const* const ConverterJob::Convert = new ConverterJob("convert", false);
 ConverterJob const* const ConverterJob::DebugParser = new ConverterJob("debug", false);
 ConverterJob const* const ConverterJob::LoadFile = new ConverterJob("loadfile", true);
+
+const string kDynastyPower = "dynasty_power";
+const string kAwesomePower = "awesome_power";
 
 Converter::Converter (Window* ow, string fn)
   : ck2FileName(fn)
@@ -265,8 +274,21 @@ bool Converter::createCK2Objects () {
     (*ruler)->createClaims();
   }
 
+  map<string, int> dynastyPower;
   objvec allChars = characters->getLeaves();
   for (objiter ch = allChars.begin(); ch != allChars.end(); ++ch) {
+    if ((*ch)->safeGetString("d_d", PlainNone) != PlainNone) {
+      // Dead character, check for dynasty power.
+      string dynastyId = (*ch)->safeGetString("dynasty", PlainNone);
+      if (PlainNone == dynastyId) continue;
+      objvec holdings = (*ch)->getValue("old_holding");
+      for (objiter holding = holdings.begin(); holding != holdings.end(); ++holding) {
+	CK2Title* title = CK2Title::findByName(remQuotes((*holding)->getLeaf()));
+	if (!title) continue;
+	dynastyPower[dynastyId] += (1 + *title->getLevel());
+      }
+      continue;
+    }
     CK2Ruler* father = CK2Ruler::findByName((*ch)->safeGetString("father"));
     CK2Ruler* mother = CK2Ruler::findByName((*ch)->safeGetString("mother"));
     CK2Ruler* employer = 0;
@@ -282,6 +304,12 @@ bool Converter::createCK2Objects () {
     if (employer) employer->personOfInterest(current);
   }
 
+  for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
+    string dynastyId = (*ruler)->safeGetString("dynasty", PlainNone);
+    if (PlainNone == dynastyId) continue;
+    (*ruler)->resetLeaf(kDynastyPower, dynastyPower[dynastyId]);
+  }
+  
   // Diplomacy
   Object* relationObject = ck2Game->getNeededObject("relation");
   objvec relations = relationObject->getLeaves();
@@ -344,7 +372,12 @@ bool Converter::createEU4Objects () {
 
   objvec countries = wrapperObject->getLeaves();
   for (objiter country = countries.begin(); country != countries.end(); ++country) {
-    new EU4Country(*country);
+    EU4Country* eu4country = new EU4Country(*country);
+    Object* powers = eu4country->safeGetObject("powers");
+    if (!powers) continue;
+    int totalPower = 0;
+    for (int i = 0; i < powers->numTokens(); ++i) totalPower += powers->tokenAsInt(i);
+    eu4country->resetLeaf(kAwesomePower, totalPower);
   }
   Logger::logStream(LogStream::Info) << "Created " << EU4Country::totalAmount() << " countries.\n";
  
@@ -1791,6 +1824,62 @@ bool Converter::moveCapitals () {
   return true;
 }
 
+bool Converter::redistributeMana () {
+  Logger::logStream(LogStream::Info) << "Redistributing mana.\n" << LogOption::Indent;
+  map<string, string> keywords;
+  keywords["wealth"] = "treasury";
+  keywords["prestige"] = "prestige";
+  keywords[kDynastyPower] = kAwesomePower;
+  map<string, doublet> globalAmounts;
+  for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
+    CK2Ruler* ruler = (*eu4country)->getRuler();
+    if (!ruler) continue;
+    for (map<string, string>::iterator keyword = keywords.begin(); keyword != keywords.end(); ++keyword) {
+      string ck2word = keyword->first;
+      string eu4word = keyword->second;
+      double amount = ruler->safeGetFloat(ck2word);
+      if (amount > 0) globalAmounts[ck2word].x() += amount;
+      amount = (*eu4country)->safeGetFloat(eu4word);
+      if (amount > 0) globalAmounts[ck2word].y() += amount;
+    }
+  }
+
+  for (map<string, string>::iterator keyword = keywords.begin(); keyword != keywords.end(); ++keyword) {
+    string ck2word = keyword->first;
+    string eu4word = keyword->second;
+    Logger::logStream("mana") << "Redistributing " << globalAmounts[ck2word].y() << " EU4 " << eu4word
+			      << " to " << globalAmounts[ck2word].x() << " CK2 " << ck2word << ".\n" << LogOption::Indent;
+
+    double ratio = globalAmounts[ck2word].y() / (1 + globalAmounts[ck2word].x());
+    for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
+      CK2Ruler* ruler = (*eu4country)->getRuler();
+      if (!ruler) continue;
+      double ck2Amount = ruler->safeGetFloat(ck2word);
+      if (ck2Amount <= 0) continue;
+      double eu4Amount = ck2Amount * ratio;
+      Logger::logStream("mana") << nameAndNumber(ruler) << " has " << ck2Amount << " " << ck2word << ", so "
+				<< (*eu4country)->getKey() << " gets " << eu4Amount << " " << eu4word << ".\n";
+      (*eu4country)->resetLeaf(eu4word, eu4Amount);
+    }
+
+    Logger::logStream("mana") << LogOption::Undent;
+  }
+
+  for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
+    int totalPower = (*eu4country)->safeGetFloat(kAwesomePower);
+    (*eu4country)->unsetValue(kAwesomePower);
+    if (!(*eu4country)->getRuler()) continue;
+    Object* powers = (*eu4country)->getNeededObject("powers");
+    powers->clear();
+    totalPower /= 3;
+    powers->addToList(totalPower);
+    powers->addToList(totalPower);
+    powers->addToList(totalPower);
+  }
+  Logger::logStream(LogStream::Info) << "Done with mana.\n" << LogOption::Undent;
+  return true;
+}
+
 bool Converter::resetHistories () {
   Logger::logStream(LogStream::Info) << "Clearing histories and flags.\n" << LogOption::Indent;
   vector<string> objectsToClear;
@@ -2215,6 +2304,7 @@ void Converter::convert () {
   if (!cultureAndReligion()) return;
   if (!createGovernments()) return;
   if (!createCharacters()) return;
+  if (!redistributeMana()) return;
   cleanUp();
   
   Logger::logStream(LogStream::Info) << "Done with conversion, writing to Output/converted.eu4.\n";

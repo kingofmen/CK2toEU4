@@ -4,15 +4,16 @@ streams = {
   generic  = yes 
   provinces = no
   buildings = no
-  characters = yes
+  characters = no
   cores = no
   countries = no
   cultures = no # Also covers religion
-  governments = yes
+  governments = no
   titles = no
   diplomacy = no
   armies = no
   navies = no
+  mana = yes
   all = no
 }
 

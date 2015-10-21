@@ -51,6 +51,7 @@ private:
   bool modifyProvinces ();
   bool moveBuildings ();
   bool moveCapitals ();
+  bool redistributeMana ();
   bool resetHistories ();
   bool setCores ();
   bool setupDiplomacy ();
