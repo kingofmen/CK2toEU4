@@ -24,20 +24,14 @@ using namespace std;
 
 /*
  * Wars
- * Trade?
+ * Trade? (Mercantilism?)
  * Heresies - must be rebel factions?
  * Vassals again
  * Bonus events
  * Unions?
  * Fix multiclaims
  * Stability
- * Army/navy tradition
- * Reset or distribute:
-   - Papal influence
-   - Loans
-   - Wartax
-   - Bankruptcy
-   - Mercantilism (?!)
+ * Legitimacy
  * Autonomy
  * Starting manpower
  * Fix cores
@@ -112,6 +106,15 @@ void Converter::cleanUp () {
 
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
     (*eu4country)->unsetValue("needs_heir");
+    if (!(*eu4country)->getRuler()) continue;
+    (*eu4country)->unsetValue("loan");
+    (*eu4country)->resetLeaf("army_tradition", "0.000");
+    (*eu4country)->resetLeaf("navy_tradition", "0.000");
+    (*eu4country)->resetLeaf("papal_influence", "0.000");
+    (*eu4country)->resetLeaf("mercantilism", "0.100");
+    (*eu4country)->resetLeaf("last_bankrupt", "1.1.1");
+    (*eu4country)->resetLeaf("wartax", "1.1.1");
+    (*eu4country)->resetLeaf("", "0.000");
   }
 }
 
