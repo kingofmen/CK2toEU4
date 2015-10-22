@@ -30,7 +30,6 @@ using namespace std;
  * Bonus events
  * Unions?
  * Fix multiclaims
- * Stability
  * Legitimacy
  * Autonomy
  * Starting manpower
@@ -114,7 +113,6 @@ void Converter::cleanUp () {
     (*eu4country)->resetLeaf("mercantilism", "0.100");
     (*eu4country)->resetLeaf("last_bankrupt", "1.1.1");
     (*eu4country)->resetLeaf("wartax", "1.1.1");
-    (*eu4country)->resetLeaf("", "0.000");
   }
 }
 
@@ -323,11 +321,7 @@ bool Converter::createCK2Objects () {
     string mainCharTag = getField(key, 1, '_');
     CK2Ruler* mainChar = CK2Ruler::findByName(mainCharTag);
     if (!mainChar) {
-      Logger::logStream(LogStream::Warn) << "Could not find ruler "
-					 << mainCharTag
-					 << " from diplo object "
-					 << (*relation)
-					 << "\n";
+      // Indicates a courtier.
       continue;
     }
     objvec subjects = (*relation)->getLeaves();
@@ -1868,16 +1862,54 @@ bool Converter::redistributeMana () {
     Logger::logStream("mana") << LogOption::Undent;
   }
 
+  objvec factions = ck2Game->getValue("active_faction");
+  map<CK2Ruler*, vector<CK2Ruler*> > factionMap;
+  for (objiter faction = factions.begin(); faction != factions.end(); ++faction) {
+    Object* scope = (*faction)->getNeededObject("scope");
+    string creatorId = scope->safeGetString("char");
+    CK2Ruler* creator = CK2Ruler::findByName(creatorId);
+    CK2Ruler* target = 0;
+    Object* targetTitle = scope->safeGetObject("title");
+    if (targetTitle) {
+      string titleTag = remQuotes(targetTitle->safeGetString("title"));
+      CK2Title* title = CK2Title::findByName(titleTag);
+      target = title->getRuler();
+    }
+    if ((!target) && (creator)) target = creator->getLiege();
+    if (!target) continue;
+    if (creator) factionMap[target].push_back(creator);
+
+    objvec backers = (*faction)->getValue("backer");
+    for (objiter backer = backers.begin(); backer != backers.end(); ++backer) {
+      CK2Ruler* rebel = CK2Ruler::findByName((*backer)->getLeaf());
+      if (rebel) factionMap[target].push_back(rebel);
+    }
+  }
+  
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
     int totalPower = (*eu4country)->safeGetFloat(kAwesomePower);
     (*eu4country)->unsetValue(kAwesomePower);
-    if (!(*eu4country)->getRuler()) continue;
+    CK2Ruler* ruler = (*eu4country)->getRuler();
+    if (!ruler) continue;
     Object* powers = (*eu4country)->getNeededObject("powers");
     powers->clear();
     totalPower /= 3;
     powers->addToList(totalPower);
     powers->addToList(totalPower);
     powers->addToList(totalPower);
+
+    double totalFactionStrength = 0;
+    for (vector<CK2Ruler*>::iterator rebel = factionMap[ruler].begin(); rebel != factionMap[ruler].end(); ++rebel) {
+      totalFactionStrength += (*rebel)->countBaronies();
+    }
+    totalFactionStrength /= (1 + ruler->countBaronies());
+    int stability = 3;
+    Logger::logStream("mana") << nameAndNumber(ruler) << " has faction strength " << totalFactionStrength;
+    totalFactionStrength *= 18;
+    stability -= (int) floor(totalFactionStrength);
+    if (stability < -3) stability = -3;
+    (*eu4country)->resetLeaf("stability", stability);
+    Logger::logStream("mana") << " so " << (*eu4country)->getKey() << " has stability " << stability << ".\n";
   }
   Logger::logStream(LogStream::Info) << "Done with mana.\n" << LogOption::Undent;
   return true;
