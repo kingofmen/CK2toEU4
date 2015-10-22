@@ -30,7 +30,6 @@ using namespace std;
  * Bonus events
  * Unions?
  * Fix multiclaims
- * Legitimacy
  * Autonomy
  * Starting manpower
  * Fix cores
@@ -290,6 +289,8 @@ bool Converter::createCK2Objects () {
       }
       continue;
     }
+
+    objvec claims = (*ch)->getValue("claim");    
     CK2Ruler* father = CK2Ruler::findByName((*ch)->safeGetString("father"));
     CK2Ruler* mother = CK2Ruler::findByName((*ch)->safeGetString("mother"));
     CK2Ruler* employer = 0;
@@ -298,11 +299,12 @@ bool Converter::createCK2Objects () {
 	((*ch)->safeGetString("title", PlainNone) == "\"title_high_admiral\"")) {
       employer = CK2Ruler::findByName((*ch)->safeGetString("host"));
     }
-    if ((!father) && (!mother) && (!employer)) continue;
+    if ((!father) && (!mother) && (!employer) && (0 == claims.size())) continue;
     CK2Character* current = new CK2Character((*ch), dynasties);
     if (father) father->personOfInterest(current);
     if (mother) mother->personOfInterest(current);
     if (employer) employer->personOfInterest(current);
+    current->createClaims();
   }
 
   for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
@@ -1910,6 +1912,25 @@ bool Converter::redistributeMana () {
     if (stability < -3) stability = -3;
     (*eu4country)->resetLeaf("stability", stability);
     Logger::logStream("mana") << " so " << (*eu4country)->getKey() << " has stability " << stability << ".\n";
+
+    (*eu4country)->resetLeaf("legitimacy", "0.000");
+    if (((*eu4country)->safeGetString("government") == "merchant_republic") ||
+	((*eu4country)->safeGetString("government") == "noble_republic")) {
+      (*eu4country)->resetLeaf("republican_tradition", "1.000");
+    }
+    else {
+      CK2Title* primary = ruler->getPrimaryTitle();
+      if (!primary) continue;
+      int claimants = 0;
+      for (CK2Character::CharacterIter claimant = primary->startClaimant(); claimant != primary->finalClaimant(); ++claimant) {
+	++claimants;
+      }
+      double legitimacy = 1 - 0.05*claimants;
+      if (legitimacy < 0) legitimacy = 0;
+      (*eu4country)->resetLeaf("legitimacy", legitimacy);
+      Logger::logStream("mana") << claimants << " claims on " << primary->getKey() << ", hence "
+				<< (*eu4country)->getKey() << " has legitimacy " << legitimacy << ".\n";
+    }
   }
   Logger::logStream(LogStream::Info) << "Done with mana.\n" << LogOption::Undent;
   return true;
@@ -2030,7 +2051,7 @@ bool Converter::setCores () {
 	Logger::logStream("cores") << " which has no ruler.\n";
       }
 
-      for (CK2Ruler::Iter claimant = title->startClaimant(); claimant != title->finalClaimant(); ++claimant) {
+      for (CK2Character::CharacterIter claimant = title->startClaimant(); claimant != title->finalClaimant(); ++claimant) {
 	EU4Country* eu4country = (*claimant)->getEU4Country();
 	if (!eu4country) continue;
 	claimsMap[*ck2prov][eu4country]++;

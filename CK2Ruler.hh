@@ -38,11 +38,13 @@ public:
 
   typedef vector<CK2Character*>::const_iterator CharacterIter;
 
+  void createClaims ();
   CK2Character* getAdmiral () const {return admiral;}
   double getAge (string date) const;
   int getAttribute (CKAttribute const* const att) const {return attributes[*att];}
   CK2Character* getCouncillor (CouncilTitle const* const con) const {return council[*con];}
   Object* getDynasty () const {return dynasty;}
+  virtual EU4Country* getEU4Country () const {return 0;}
   CK2Character* getOldestChild () const {return oldestChild;}
   bool hasModifier (const string& mod);
   bool hasTrait (const string& t) const {return 0 != traits.count(t);}
@@ -75,11 +77,10 @@ public:
   void addTitle (CK2Title* title);
   void addTributary (CK2Ruler* trib);
   int  countBaronies ();
-  void createClaims ();
   void createLiege ();
   string getBelief (string keyword) const;
   int getEnemies () const {return enemies.size();}
-  EU4Country* getEU4Country () const {return eu4Country;}
+  virtual EU4Country* getEU4Country () const {return eu4Country;}
   CK2Ruler* getLiege () {return liege;}
   CK2Title* getPrimaryTitle ();
   CK2Ruler* getSuzerain () {return suzerain;}
@@ -101,7 +102,6 @@ public:
   Iter finalVassal () {return vassals.end();}  
 private:
   EU4Country* eu4Country;
-  CK2Title::Container claims;
   CK2Title::Container titles;
   CK2Title::Container titlesWithVassals;
   Container enemies; // Opponents in active wars.

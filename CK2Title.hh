@@ -3,6 +3,7 @@
 
 #include "UtilityFunctions.hh"
 
+class CK2Character;
 class CK2Ruler;
 
 class TitleLevel : public Enumerable<TitleLevel> {
@@ -20,7 +21,7 @@ class CK2Title : public Enumerable<CK2Title>, public ObjectWrapper {
 public:
   CK2Title (Object* o);
 
-  void addClaimant (CK2Ruler* claimant) {claimants.push_back(claimant);}
+  void addClaimant (CK2Character* claimant) {claimants.push_back(claimant);}
   TitleLevel const* const getLevel ();
   CK2Title* getDeJureLiege () const {return deJureLiege;}
   CK2Title* getLiege ();
@@ -28,15 +29,15 @@ public:
   CK2Ruler* getSovereign (); // Returns the liege that converts to an EU4 nation.
   void setRuler (CK2Ruler* r) {ruler = r;}
   void setDeJureLiege (CK2Title* djl);
-  vector<CK2Ruler*>::iterator startClaimant () {return claimants.begin();}
-  vector<CK2Ruler*>::iterator finalClaimant () {return claimants.end();}
+  vector<CK2Character*>::iterator startClaimant () {return claimants.begin();}
+  vector<CK2Character*>::iterator finalClaimant () {return claimants.end();}
     
   static Iter startEmpire () {return empires.begin();}
   static Iter finalEmpire () {return empires.end();}
   static Iter startLevel (TitleLevel const* const level);
   static Iter finalLevel (TitleLevel const* const level);
 private:
-  vector<CK2Ruler*> claimants;
+  vector<CK2Character*> claimants;
   CK2Ruler* ruler;
   CK2Title* deJureLiege;
   CK2Title* liegeTitle;

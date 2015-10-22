@@ -139,14 +139,13 @@ void CK2Ruler::addTributary (CK2Ruler* trib) {
   tributaries.push_back(trib);
 }
 
-void CK2Ruler::createClaims () {
+void CK2Character::createClaims () {
   objvec clams = getValue("claim");
   for (objiter clam = clams.begin(); clam != clams.end(); ++clam) {
     Object* obj = (*clam)->safeGetObject("title");
     if (!obj) continue;
-    CK2Title* title = CK2Title::findByName(remQuotes(obj->safeGetString("title")));
+    CK2Title* title = CK2Title::findByName(remQuotes(obj->safeGetString("title", QuotedNone)));
     if (!title) continue;
-    claims.push_back(title);
     title->addClaimant(this);
   }
 }
