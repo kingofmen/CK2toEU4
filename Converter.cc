@@ -31,7 +31,7 @@ using namespace std;
  * Unions?
  * Fix multiclaims
  * Autonomy
- * Starting manpower
+ * BRI in Nantes issue
  * Fix cores
  * Techs
  * Rebels
@@ -112,6 +112,7 @@ void Converter::cleanUp () {
     (*eu4country)->resetLeaf("mercantilism", "0.100");
     (*eu4country)->resetLeaf("last_bankrupt", "1.1.1");
     (*eu4country)->resetLeaf("wartax", "1.1.1");
+    (*eu4country)->resetLeaf("manpower", "10.000");
   }
 }
 
@@ -1830,6 +1831,7 @@ bool Converter::redistributeMana () {
   keywords["prestige"] = "prestige";
   keywords[kDynastyPower] = kAwesomePower;
   map<string, doublet> globalAmounts;
+
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
     CK2Ruler* ruler = (*eu4country)->getRuler();
     if (!ruler) continue;
