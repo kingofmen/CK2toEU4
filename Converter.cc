@@ -24,12 +24,11 @@ using namespace std;
 
 /*
  * Wars
- * Trade? (Mercantilism?)
+ * Trade?
  * Heresies - must be rebel factions?
  * Vassals again
  * Bonus events
  * Unions?
- * Fix multiclaims
  * Autonomy
  * BRI in Nantes issue
  * Fix cores
@@ -109,7 +108,7 @@ void Converter::cleanUp () {
     (*eu4country)->resetLeaf("army_tradition", "0.000");
     (*eu4country)->resetLeaf("navy_tradition", "0.000");
     (*eu4country)->resetLeaf("papal_influence", "0.000");
-    (*eu4country)->resetLeaf("mercantilism", "0.100");
+    (*eu4country)->resetLeaf("mercantilism", (*eu4country)->safeGetString("government") == "merchant_republic" ? "0.250" : "0.100");
     (*eu4country)->resetLeaf("last_bankrupt", "1.1.1");
     (*eu4country)->resetLeaf("wartax", "1.1.1");
     (*eu4country)->resetLeaf("manpower", "10.000");
@@ -2006,7 +2005,7 @@ bool Converter::setCores () {
   // 2. You have a CK claim on its de-jure liege.
 
   Logger::logStream(LogStream::Info) << "Beginning cores and claims.\n" << LogOption::Indent;
-  map<CK2Province*, map<EU4Country*, int> > claimsMap;
+  map<EU4Province*, map<EU4Country*, int> > claimsMap;
   for (CK2Province::Iter ck2prov = CK2Province::start(); ck2prov != CK2Province::final(); ++ck2prov) {
     Logger::logStream("cores") << "Seeking core for "
 			       << nameAndNumber(*ck2prov)
@@ -2056,7 +2055,9 @@ bool Converter::setCores () {
       for (CK2Character::CharacterIter claimant = title->startClaimant(); claimant != title->finalClaimant(); ++claimant) {
 	EU4Country* eu4country = (*claimant)->getEU4Country();
 	if (!eu4country) continue;
-	claimsMap[*ck2prov][eu4country]++;
+	for (EU4Province::Iter eu4prov = (*ck2prov)->startEU4Province(); eu4prov != (*ck2prov)->finalEU4Province(); ++eu4prov) {
+	  claimsMap[*eu4prov][eu4country]++;
+	}
       }
       
       title = title->getDeJureLiege();
@@ -2084,31 +2085,33 @@ bool Converter::setCores () {
       while (title) {
 	CK2Ruler* ruler = title->getRuler();
 	eu4country = ruler->getEU4Country();
-	if (eu4country) claimsMap[*ck2prov][eu4country]++;
+	if (eu4country) {
+	  for (EU4Province::Iter eu4prov = (*ck2prov)->startEU4Province(); eu4prov != (*ck2prov)->finalEU4Province(); ++eu4prov) {
+	    claimsMap[*eu4prov][eu4country]++;
+	  }
+	}
 	title = title->getLiege();
       }
     }
     Logger::logStream("cores") << LogOption::Undent;    
   }
 
-  for (map<CK2Province*, map<EU4Country*, int> >::iterator claim = claimsMap.begin(); claim != claimsMap.end(); ++claim) {
-    CK2Province* ck2prov = (*claim).first;
-    for (map<EU4Country*, int>::iterator strength = (*claim).second.begin(); strength != (*claim).second.end(); ++strength) {
-      EU4Country* eu4country = (*strength).first;
-      int numClaims = (*strength).second;
+  for (map<EU4Province*, map<EU4Country*, int> >::iterator claim = claimsMap.begin(); claim != claimsMap.end(); ++claim) {
+    EU4Province* eu4prov = claim->first;
+    for (map<EU4Country*, int>::iterator strength = claim->second.begin(); strength != claim->second.end(); ++strength) {
+      EU4Country* eu4country = strength->first;
+      int numClaims = strength->second;
       if (1 > numClaims) continue;
       int startYear = year(eu4Game->safeGetString("date", "1444.1.1"));
       int claimYear = startYear - 25;
       claimYear += numClaims * 5;
       if (claimYear > startYear) claimYear = startYear;
       string date = createString("%i.1.1", claimYear);
-      for (EU4Province::Iter eu4prov = ck2prov->startEU4Province(); eu4prov != ck2prov->finalEU4Province(); ++eu4prov) {
-	(*eu4prov)->setLeaf("claim", addQuotes(eu4country->getKey()));
-	Object* history = (*eu4prov)->getNeededObject("history");
-	Object* add_claim = new Object(date);
-	history->setValue(add_claim);
-	add_claim->setLeaf("add_claim", addQuotes(eu4country->getKey()));
-      }
+      eu4prov->setLeaf("claim", addQuotes(eu4country->getKey()));
+      Object* history = eu4prov->getNeededObject("history");
+      Object* add_claim = new Object(date);
+      history->setValue(add_claim);
+      add_claim->setLeaf("add_claim", addQuotes(eu4country->getKey()));
     }
   }
 
