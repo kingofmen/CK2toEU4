@@ -27,9 +27,7 @@ using namespace std;
  * Trade?
  * Heresies - must be rebel factions?
  * Vassals again
- * Bonus events
  * Unions?
- * Autonomy
  * BRI in Nantes issue
  * Fix cores
  * Techs
@@ -1933,6 +1931,93 @@ bool Converter::redistributeMana () {
 				<< (*eu4country)->getKey() << " has legitimacy " << legitimacy << ".\n";
     }
   }
+
+  keywords.clear();
+  keywords["autonomy"] = "local_autonomy";
+  globalAmounts.clear();
+  
+  for (CK2Province::Iter ck2prov = CK2Province::start(); ck2prov != CK2Province::final(); ++ck2prov) {
+    CK2Title* title = (*ck2prov)->getCountyTitle();
+    if (!title) continue;
+    int distance = 0;
+    int dejure = 0;
+    int culture = 0;
+    int religion = 0;
+    CK2Ruler* ruler = title->getRuler();
+    CK2Ruler* countyRuler = ruler;
+    while ((ruler) && (!ruler->getEU4Country())) {
+      ++distance;
+      ruler = ruler->getLiege();
+    }
+
+    if (!ruler) {
+      distance = 3;
+      dejure = 3;
+      culture = 1;
+      religion = 1;
+    }
+    else {
+      CK2Ruler* liege = title->getRuler();
+      while ((liege) && (liege != ruler)) {
+	++dejure;
+	title = title->getDeJureLiege();
+	if (title) liege = title->getRuler();
+	else liege = 0;
+      }
+
+      if (countyRuler) {
+	if (ruler != countyRuler) {
+	  if (ruler->getBelief("culture") != countyRuler->getBelief("culture")) culture = 1;
+	  if (ruler->getBelief("religion") != countyRuler->getBelief("religion")) religion = 1;
+	}
+      }
+      else {
+	culture = religion = 1;
+      }
+    }
+
+    double autonomy = distance + dejure + culture + religion;
+    Logger::logStream("mana") << nameAndNumber(*ck2prov) << " gets "
+			      << autonomy << " autonomy from "
+			      << distance << " vassal distance, "
+			      << dejure << " dejure distance, "
+			      << culture << " culture difference, "
+			      << religion << " religion difference.\n";
+    (*ck2prov)->resetLeaf("autonomy", autonomy);
+  }
+
+  for (EU4Province::Iter eu4prov = EU4Province::start(); eu4prov != EU4Province::final(); ++eu4prov) {
+    if (0 == (*eu4prov)->numCKProvinces()) continue;
+    for (CK2Province::Iter ck2prov = (*eu4prov)->startProv(); ck2prov != (*eu4prov)->finalProv(); ++ck2prov) {
+      for (map<string, string>::iterator keyword = keywords.begin(); keyword != keywords.end(); ++keyword) {
+	string ck2word = keyword->first;
+	string eu4word = keyword->second;
+	double amount = (*ck2prov)->safeGetFloat(ck2word);
+	if (amount > 0) globalAmounts[ck2word].x() += amount;
+	amount = (*eu4prov)->safeGetFloat(eu4word);
+	if (amount > 0) globalAmounts[ck2word].y() += amount;
+      }
+    }
+  }
+
+  for (map<string, string>::iterator keyword = keywords.begin(); keyword != keywords.end(); ++keyword) {
+    string ck2word = keyword->first;
+    string eu4word = keyword->second;      
+    Logger::logStream("mana") << "Redistributing " << globalAmounts[ck2word].y() << " EU4 " << eu4word
+			      << " across " << globalAmounts[ck2word].x() << " CK2 " << ck2word << ".\n";
+    for (EU4Province::Iter eu4prov = EU4Province::start(); eu4prov != EU4Province::final(); ++eu4prov) {
+      if (0 == (*eu4prov)->numCKProvinces()) continue;
+      double current = 0;
+      for (CK2Province::Iter ck2prov = (*eu4prov)->startProv(); ck2prov != (*eu4prov)->finalProv(); ++ck2prov) {
+	double amount = (*ck2prov)->safeGetFloat(ck2word);
+	if (amount > 0) current += (*ck2prov)->safeGetFloat(ck2word);
+      }
+      current /= globalAmounts[ck2word].x();
+      current *= globalAmounts[ck2word].y();
+      (*eu4prov)->resetLeaf(eu4word, current);
+    }
+  }
+
   Logger::logStream(LogStream::Info) << "Done with mana.\n" << LogOption::Undent;
   return true;
 }
