@@ -31,6 +31,7 @@ using namespace std;
  * BRI in Nantes issue
  * Fix cores
  * Armies again
+ * Mercenaries
  * Rebels
  * HRE
  */
@@ -103,13 +104,20 @@ void Converter::cleanUp () {
     (*eu4country)->unsetValue("needs_heir");
     if (!(*eu4country)->getRuler()) continue;
     (*eu4country)->unsetValue("loan");
+    (*eu4country)->unsetValue("rival");
     (*eu4country)->resetLeaf("army_tradition", "0.000");
     (*eu4country)->resetLeaf("navy_tradition", "0.000");
     (*eu4country)->resetLeaf("papal_influence", "0.000");
     (*eu4country)->resetLeaf("mercantilism", (*eu4country)->safeGetString("government") == "merchant_republic" ? "0.250" : "0.100");
     (*eu4country)->resetLeaf("last_bankrupt", "1.1.1");
+    (*eu4country)->resetLeaf("last_focus_move", "1.1.1");
+    (*eu4country)->resetLeaf("last_conversion", "1.1.1");
+    (*eu4country)->resetLeaf("last_sacrifice", "1.1.1");
+    (*eu4country)->resetLeaf("last_debate", "1.1.1");
     (*eu4country)->resetLeaf("wartax", "1.1.1");
     (*eu4country)->resetLeaf("manpower", "10.000");
+    (*eu4country)->resetLeaf("technology_group", "western");
+    (*eu4country)->resetHistory("technology_group", "western");
   }
 }
 
