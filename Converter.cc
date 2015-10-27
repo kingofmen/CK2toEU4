@@ -30,7 +30,7 @@ using namespace std;
  * Unions?
  * BRI in Nantes issue
  * Fix cores
- * Techs
+ * Armies again
  * Rebels
  * HRE
  */
@@ -2018,6 +2018,60 @@ bool Converter::redistributeMana () {
     }
   }
 
+  vector<string> techAreas;
+  techAreas.push_back("mil_tech");
+  techAreas.push_back("adm_tech");
+  techAreas.push_back("dip_tech");
+  for (unsigned int i = 0; i < techAreas.size(); ++i) {
+    string eu4tech = techAreas[i];
+    vector<int> eu4Values;
+    CK2Ruler::Container rulers;
+    for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
+      CK2Ruler* ruler = (*eu4country)->getRuler();
+      if (!ruler) continue;
+      rulers.push_back(ruler);
+      Object* tech = (*eu4country)->getNeededObject("technology");
+      eu4Values.push_back(tech->safeGetInt(eu4tech, 3));
+
+      double ckTech = 0;
+      int provinces = 0;
+      for (EU4Province::Iter eu4prov = (*eu4country)->startProvince(); eu4prov != (*eu4country)->finalProvince(); ++eu4prov) {
+	for (CK2Province::Iter ck2prov = (*eu4prov)->startProv(); ck2prov != (*eu4prov)->finalProv(); ++ck2prov) {
+	  ++provinces;
+	  tech = (*ck2prov)->safeGetObject("technology");
+	  if (!tech) continue;
+	  tech = tech->safeGetObject("tech_levels");
+	  if (!tech) continue;
+	  for (unsigned int idx = i*6; idx < (i+1)*6; ++idx) {
+	    ckTech += tech->tokenAsFloat(idx);
+	  }
+	}
+      }
+      if (0 == provinces) continue;
+      ckTech /= provinces;
+      ruler->resetLeaf("tech_value", ckTech);
+    }
+
+    sort(eu4Values.begin(), eu4Values.end()); // NB, ascending order.
+    reverse(eu4Values.begin(), eu4Values.end());
+    while (eu4Values.size() < rulers.size()) eu4Values.push_back(eu4Values.back());
+    sort(rulers.begin(), rulers.end(), ObjectDescendingSorter("tech_value"));
+    int previous = 1e6;
+    for (unsigned int idx = 0; idx < rulers.size(); ++idx) {
+      int curr = eu4Values[idx];
+      CK2Ruler* ruler = rulers[idx];
+      EU4Country* eu4country = ruler->getEU4Country();
+      if (previous > curr) {
+	Logger::logStream("mana") << nameAndNumber(ruler) << " at index " << idx << " with "
+				  << ruler->safeGetFloat("tech_value") << " " << eu4tech << " points gives "
+				  << eu4country->getKey() << " level " << curr << ".\n";
+      }
+      previous = curr;
+      Object* tech = eu4country->getNeededObject("technology");
+      tech->resetLeaf(eu4tech, curr);
+    }
+  }
+  
   Logger::logStream(LogStream::Info) << "Done with mana.\n" << LogOption::Undent;
   return true;
 }
