@@ -28,12 +28,12 @@ accepted_culture_cutoff = 0.5
 provinces_for_tags = { 1 112 213 1315 }
 
 buildings = {
-  temple        = { prod = 0.6 tax = 0.4 }
-  city          = { prod = 0.4 tax = 0.6 }
-  castle        = { prod = 0.45 tax = 0.45 }
-  fort          = { prod = 0.0 tax = 0.0 }
-  trade_post    = { prod = 0.9 tax = 0.0 }
-  family_palace = { prod = 0.4 tax = 0.6 }
+  temple        = { prod = 0.6 tax = 0.4 cost = 720 } # 730 days plus avg 700 gold
+  city          = { prod = 0.4 tax = 0.6 cost = 720 }
+  castle        = { prod = 0.45 tax = 0.45 cost = 720 }
+  fort          = { prod = 0.0 tax = 0.0 cost = 21 }
+  trade_post    = { prod = 0.9 tax = 0.0 cost = 160 }
+  family_palace = { prod = 0.4 tax = 0.6 cost = 1}
 }
 
 governments = {

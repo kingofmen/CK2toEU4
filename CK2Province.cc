@@ -43,7 +43,7 @@ void CK2Province::calculateWeights (Object* weightObject, Object* troops, objvec
     string baronyType = (*barony)->safeGetString("type", "None");
     if (baronyType == "None") continue;
     Object* typeWeight = weightObject->getNeededObject(baronyType);
-    double buildingWeight = 0;
+    double buildingWeight = typeWeight->safeGetFloat("cost");
     double forts = 0;
     for (objiter building = buildings.begin(); building != buildings.end(); ++building) {
       if ((*barony)->safeGetString((*building)->getKey(), "no") != "yes") continue;
