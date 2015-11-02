@@ -5,6 +5,7 @@
 
 class CK2Character;
 class CK2Ruler;
+class EU4Country;
 
 class TitleLevel : public Enumerable<TitleLevel> {
 public:
@@ -23,21 +24,26 @@ public:
 
   void addClaimant (CK2Character* claimant) {claimants.push_back(claimant);}
   TitleLevel const* const getLevel ();
+  EU4Country* getEU4Country () const {return eu4country;}
   CK2Title* getDeJureLiege () const {return deJureLiege;}
   CK2Title* getLiege ();
   CK2Ruler* getRuler () {return ruler;}
   CK2Ruler* getSovereign (); // Returns the liege that converts to an EU4 nation.
+  CK2Title* getSovereignTitle (); // The title that converts.
+  bool isDeJureOverlordOf (CK2Title* dat) const;
   void setRuler (CK2Ruler* r) {ruler = r;}
   void setDeJureLiege (CK2Title* djl);
+  void setEU4Country (EU4Country* eu4) {eu4country = eu4;}
   vector<CK2Character*>::iterator startClaimant () {return claimants.begin();}
   vector<CK2Character*>::iterator finalClaimant () {return claimants.end();}
-    
+
   static Iter startEmpire () {return empires.begin();}
   static Iter finalEmpire () {return empires.end();}
   static Iter startLevel (TitleLevel const* const level);
   static Iter finalLevel (TitleLevel const* const level);
 private:
   vector<CK2Character*> claimants;
+  EU4Country* eu4country;
   CK2Ruler* ruler;
   CK2Title* deJureLiege;
   CK2Title* liegeTitle;

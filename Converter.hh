@@ -11,6 +11,7 @@
 
 class CK2Province;
 class CK2Character;
+class CK2Ruler;
 class EU4Country;
 
 using namespace std;
@@ -77,7 +78,7 @@ private:
   Object* createUnitId (string unitType);
   Object* loadTextFile (string fname);
   void makeLeader (EU4Country* eu4country, const string& keyword, CK2Character* base, const objvec& generalSkills, const string& birthDate);
-  void makeMonarch (CK2Character* ruler, const string& keyword, EU4Country* country, Object* bonusTraits);
+  void makeMonarch (CK2Character* ruler, CK2Ruler* king, const string& keyword, Object* bonusTraits);
   bool swapKeys (Object* one, Object* two, string key);
 
   // Input info

@@ -19,6 +19,7 @@ CK2Title::Container CK2Title::baronies;
 CK2Title::CK2Title (Object* o)
   : Enumerable<CK2Title>(this, o->getKey(), false)
   , ObjectWrapper(o)
+  , eu4country(0)
   , ruler(0)
   , deJureLiege(0)
   , liegeTitle(0)
@@ -57,21 +58,49 @@ CK2Title* CK2Title::getLiege () {
 }
 
 CK2Ruler* CK2Title::getSovereign () {
+  CK2Title* currTitle = getSovereignTitle();
+  if (!currTitle) return 0;
+  return currTitle->getRuler();
+}
+
+CK2Title* CK2Title::getSovereignTitle () {
   CK2Title* currTitle = this;
+  // Straightforward liege chain.
   while (currTitle) {
-    CK2Ruler* ruler = currTitle->getRuler();
-    if (ruler->getEU4Country()) return ruler;
+    if (currTitle->getEU4Country()) return currTitle;
     currTitle = currTitle->getLiege();
   }
 
+  // De jure chain.
   currTitle = this;
   while (currTitle) {
-    CK2Ruler* ruler = currTitle->getRuler();
-    if (ruler->getEU4Country()) return ruler;
+    if (currTitle->getEU4Country()) return currTitle;
     currTitle = currTitle->getDeJureLiege();
   }
 
+  // Liege chain again - characters may have nations where their titles don't.
+  currTitle = this;
+  while (currTitle) {
+    if ((currTitle->getRuler()) && (currTitle->getRuler()->getEU4Country())) return currTitle;
+    currTitle = currTitle->getLiege();
+  }
+
+  // And de-jure again.
+  currTitle = this;
+  while (currTitle) {
+    if ((currTitle->getRuler()) && (currTitle->getRuler()->getEU4Country())) return currTitle;
+    currTitle = currTitle->getDeJureLiege();
+  }
+  
   return 0;
+}
+
+bool CK2Title::isDeJureOverlordOf (CK2Title* dat) const {
+  while (dat) {
+    if (this == dat) return true;
+    dat = dat->getDeJureLiege();
+  }
+  return false;
 }
 
 void CK2Title::setDeJureLiege (CK2Title* djl) {

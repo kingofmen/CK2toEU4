@@ -2,18 +2,18 @@ streams = {
   # NB, do not remove these lines, they are used to create
   # debug streams and the code relies on them being present.
   generic  = yes 
-  provinces = no
+  provinces = yes
   buildings = no
   characters = no
   cores = no
-  countries = no
+  countries = yes
   cultures = no # Also covers religion
   governments = no
   titles = no
   diplomacy = no
   armies = no
   navies = no
-  mana = yes
+  mana = no
   all = no
 }
 
