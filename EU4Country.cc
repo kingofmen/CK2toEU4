@@ -12,7 +12,7 @@ EU4Country::EU4Country (Object* o)
 
 void EU4Country::setRuler (CK2Ruler* ruler, CK2Title* title) {
   ckSovereign = ruler;
-  ckSovereign->setEU4Country(this);
+  if (title == ruler->getPrimaryTitle()) ruler->setEU4Country(this);
   ckTitle = title;
   title->setEU4Country(this);
 }

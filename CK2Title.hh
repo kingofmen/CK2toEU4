@@ -10,7 +10,8 @@ class EU4Country;
 class TitleLevel : public Enumerable<TitleLevel> {
 public:
   TitleLevel (string n, bool f) : Enumerable<TitleLevel>(this, n, f) {};
-
+  static TitleLevel const* const getLevel (const string& key);
+  
   static TitleLevel const* const Barony;
   static TitleLevel const* const County;
   static TitleLevel const* const Duchy;
@@ -23,12 +24,13 @@ public:
   CK2Title (Object* o);
 
   void addClaimant (CK2Character* claimant) {claimants.push_back(claimant);}
-  TitleLevel const* const getLevel ();
+  TitleLevel const* const getLevel () const;
   EU4Country* getEU4Country () const {return eu4country;}
   CK2Title* getDeJureLiege () const {return deJureLiege;}
+  CK2Title* getDeJureLevel (TitleLevel const* const level);
   CK2Title* getLiege ();
   CK2Ruler* getRuler () {return ruler;}
-  CK2Ruler* getSovereign (); // Returns the liege that converts to an EU4 nation.
+  CK2Ruler* getSovereign (); // Returns the first liege that converts to an EU4 nation.
   CK2Title* getSovereignTitle (); // The title that converts.
   bool isDeJureOverlordOf (CK2Title* dat) const;
   void setRuler (CK2Ruler* r) {ruler = r;}
@@ -47,7 +49,7 @@ private:
   CK2Ruler* ruler;
   CK2Title* deJureLiege;
   CK2Title* liegeTitle;
-  TitleLevel const* titleLevel;
+  TitleLevel const* const titleLevel;
 
   static Container empires;
   static Container kingdoms;

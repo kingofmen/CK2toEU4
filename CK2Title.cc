@@ -16,6 +16,21 @@ CK2Title::Container CK2Title::duchies;
 CK2Title::Container CK2Title::counties;
 CK2Title::Container CK2Title::baronies;
 
+TitleLevel const* const TitleLevel::getLevel (const string& key) {
+  switch (key[0]) {
+  case 'b': return TitleLevel::Barony;
+  case 'c': return TitleLevel::County;
+  case 'd': return TitleLevel::Duchy;
+  case 'k': return TitleLevel::Kingdom;
+  case 'e': return TitleLevel::Empire;
+  default:
+    // This should never happen...
+    Logger::logStream(LogStream::Error) << "Cannot determine level of title with key \"" << key << "\". Error? Returning barony.\n";
+    return TitleLevel::Barony;
+  }
+  return TitleLevel::Barony;
+}
+
 CK2Title::CK2Title (Object* o)
   : Enumerable<CK2Title>(this, o->getKey(), false)
   , ObjectWrapper(o)
@@ -23,29 +38,26 @@ CK2Title::CK2Title (Object* o)
   , ruler(0)
   , deJureLiege(0)
   , liegeTitle(0)
-  , titleLevel(0)
+  , titleLevel(TitleLevel::getLevel(o->getKey()))
 {
   if (TitleLevel::Empire  == getLevel()) empires.push_back(this);
-  if (TitleLevel::Kingdom == getLevel()) kingdoms.push_back(this);
-  if (TitleLevel::Duchy   == getLevel()) duchies.push_back(this);
-  if (TitleLevel::County  == getLevel()) counties.push_back(this);
-  baronies.push_back(this);
+  else if (TitleLevel::Kingdom == getLevel()) kingdoms.push_back(this);
+  else if (TitleLevel::Duchy   == getLevel()) duchies.push_back(this);
+  else if (TitleLevel::County  == getLevel()) counties.push_back(this);
+  else baronies.push_back(this);
 }
 
-TitleLevel const* const CK2Title::getLevel () {
-  if (titleLevel) return titleLevel;
-  switch (getName()[0]) {
-  case 'b': titleLevel = TitleLevel::Barony; break;
-  case 'c': titleLevel = TitleLevel::County; break;
-  case 'd': titleLevel = TitleLevel::Duchy; break;
-  case 'k': titleLevel = TitleLevel::Kingdom; break;
-  case 'e': titleLevel = TitleLevel::Empire; break;
-  default:
-    // This should never happen...
-    Logger::logStream(LogStream::Error) << "Cannot determine level of title with key \"" << getName() << "\". Error? Returning barony.\n";
-    titleLevel = TitleLevel::Barony;
-  }
+TitleLevel const* const CK2Title::getLevel () const {
   return titleLevel;
+}
+
+CK2Title* CK2Title::getDeJureLevel (TitleLevel const* const level) {
+  CK2Title* curr = this;
+  while (curr) {
+    if (curr->getLevel() == level) return curr;
+    curr = curr->getDeJureLiege();
+  }
+  return 0;
 }
 
 CK2Title* CK2Title::getLiege () {

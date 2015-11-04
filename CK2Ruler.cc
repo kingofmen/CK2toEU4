@@ -253,3 +253,9 @@ CK2Title* CK2Ruler::getPrimaryTitle () {
   }
   return best;
 }
+
+CK2Ruler* CK2Ruler::getSovereignLiege () {
+  CK2Ruler* cand = this;
+  while ((cand) && (!cand->isSovereign())) cand = cand->getLiege();
+  return cand;
+}

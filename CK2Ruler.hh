@@ -82,6 +82,7 @@ public:
   int getEnemies () const {return enemies.size();}
   virtual EU4Country* getEU4Country () const {return eu4Country;}
   CK2Ruler* getLiege () {return liege;}
+  CK2Ruler* getSovereignLiege ();
   CK2Title* getPrimaryTitle ();
   CK2Ruler* getSuzerain () {return suzerain;}
   bool hasTitle (CK2Title* title, bool includeVassals = false) const;

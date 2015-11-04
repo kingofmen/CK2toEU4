@@ -10,7 +10,7 @@ streams = {
   cultures = no # Also covers religion
   governments = no
   titles = no
-  diplomacy = no
+  diplomacy = yes
   armies = no
   navies = no
   mana = no
@@ -35,6 +35,10 @@ buildings = {
   trade_post    = { prod = 0.9 tax = 0.0 cost = 160 }
   family_palace = { prod = 0.4 tax = 0.6 cost = 1}
 }
+
+permit_subinfeudation = no
+max_unions = 2
+max_vassals_per_kingdom = 3
 
 governments = {
   feudal_government = {
