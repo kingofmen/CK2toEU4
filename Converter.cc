@@ -34,8 +34,6 @@ using namespace std;
  * Armies again
  * Mercenaries
  * Rebels
- * "No Ruler"?
- * Remove spurious truces
  * HRE
  */
 
@@ -1138,7 +1136,7 @@ bool Converter::createCharacters () {
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
     CK2Ruler* ruler = (*eu4country)->getRuler();
     if (!ruler) continue;
-    if (ruler->safeGetString("madeCharacters", PlainNone) == PlainNone) continue;
+    if (ruler->safeGetString("madeCharacters", PlainNone) == "yes") continue;
     ruler->setLeaf("madeCharacters", "yes");
     string eu4Tag = (*eu4country)->getKey();
     (*eu4country)->unsetValue("advisor");
@@ -2412,6 +2410,12 @@ bool Converter::setupDiplomacy () {
     (*eu4)->unsetValue("is_lesser_in_union");
     (*eu4)->unsetValue("overlord");
     (*eu4)->unsetValue("previous_monarch");
+
+    Object* active_relations = (*eu4)->getNeededObject("active_relations");
+    objvec relations = active_relations->getLeaves();
+    for (objiter relation = relations.begin(); relation != relations.end(); ++relation) {
+      (*relation)->clear();
+    }
   }
 
   string startDate = eu4Game->safeGetString("date", "1444.1.1");
