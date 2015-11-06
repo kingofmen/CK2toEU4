@@ -86,7 +86,8 @@ public:
   CK2Title* getPrimaryTitle ();
   CK2Ruler* getSuzerain () {return suzerain;}
   bool hasTitle (CK2Title* title, bool includeVassals = false) const;
-  bool isSovereign () const {return (0 == liege);}
+  bool isHuman () const {return (safeGetString("player", "no") == "yes");}
+  bool isSovereign () const {return (0 == liege || (humansSovereign && isHuman()));}
   void personOfInterest (CK2Character* person);
   void setEU4Country (EU4Country* eu4) {eu4Country = eu4;}
 
@@ -100,7 +101,9 @@ public:
   Iter startEnemy () {return enemies.begin();}
   Iter finalEnemy () {return enemies.end();}
   Iter startVassal () {return vassals.begin();}
-  Iter finalVassal () {return vassals.end();}  
+  Iter finalVassal () {return vassals.end();}
+
+  static bool humansSovereign;
 private:
   EU4Country* eu4Country;
   CK2Title::Container titles;

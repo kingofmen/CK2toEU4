@@ -20,6 +20,8 @@ CouncilTitle const* const CouncilTitle::Steward    = new CouncilTitle("job_treas
 CouncilTitle const* const CouncilTitle::Spymaster  = new CouncilTitle("job_spymaster",  false);
 CouncilTitle const* const CouncilTitle::Chaplain   = new CouncilTitle("job_spiritual",  true);
 
+bool CK2Ruler::humansSovereign = false;
+
 CK2Character::CK2Character (Object* obj, Object* dynasties)
   : ObjectWrapper(obj)
   , admiral(0)

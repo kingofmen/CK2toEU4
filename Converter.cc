@@ -151,6 +151,8 @@ void Converter::configure () {
       }
     }
   }
+
+  CK2Ruler::humansSovereign = configObject->safeGetString("humans_always_independent", "no") == "yes";
 }
 
 void Converter::debugParser () {
@@ -508,7 +510,7 @@ bool Converter::createCountryMap () {
       candidateCountries.insert((*eu4).first);
     }
   }
-  
+
   Object* provsObject = customObject->safeGetObject("provinces_for_tags");
   EU4Province::Container provsToKnow;
   if (provsObject) {
@@ -563,6 +565,7 @@ bool Converter::createCountryMap () {
   int maxSmallVassals = configObject->safeGetInt("max_vassals_per_kingdom", 3);
   bool subInfeudate = (configObject->safeGetString("permit_subinfeudation") == "yes");
   map<CK2Ruler*, map<CK2Title*, int> > totalVassals;
+
   const unsigned int kSovereignOnly = 0;
   for (TitleLevel::rIter level = TitleLevel::rstart(); level != TitleLevel::rfinal(); ++level) {
     for (unsigned int doVassals = kSovereignOnly; doVassals < 2; ++doVassals) {
@@ -586,9 +589,7 @@ bool Converter::createCountryMap () {
 	  continue;
 	}
 
-	CK2Ruler* liege = (*ruler)->getLiege();
-	if (!liege) {
-	  // Sovereign ruler.
+	if ((*ruler)->isSovereign()) {
 	  if (candidateCountries.empty()) {
 	    if (!primary->getSovereignTitle()) {
 	      Logger::logStream(LogStream::Error) << "Ran out of EU4 countries and could not find de-jure to absorb "
@@ -605,7 +606,10 @@ bool Converter::createCountryMap () {
 	  else {
 	    for (CK2Title::Iter title = (*ruler)->startTitle(); title != (*ruler)->finalTitle(); ++title) {
 	      if (primary == (*title)) continue;
-	      if (*(primary->getLevel()) - 1 > *(*title)->getLevel()) continue;
+	      if (primary->getLevel() == TitleLevel::Empire) {
+		if (*primary->getLevel() < *TitleLevel::Kingdom) continue;
+	      }
+	      else if (primary->getLevel() != (*title)->getLevel()) continue;
 	      if ((*title)->getEU4Country()) continue;
 	      Logger::logStream("countries") << "Converting " << (*title)->getName() << " as union.\n";
 	      convertTitle((*title), (*ruler), initialProvincesMap, candidateCountries);
@@ -630,8 +634,9 @@ bool Converter::createCountryMap () {
 					   << "\n";
 	    continue;
 	  }
+
 	  CK2Ruler* immediateLiege = (*ruler)->getLiege();
-	  if ((immediateLiege != sovereign) && (!subInfeudate)) {
+	  if ((!immediateLiege->isSovereign()) && (!subInfeudate)) {
 	    Logger::logStream("countries") << "Skipping " << primary->getName() << " to avoid subinfeudation.\n";
 	    continue;
 	  }
@@ -1523,7 +1528,6 @@ void makeMap (map<string, map<string, int> >& cultures, map<string, vector<strin
     }
   }
 
-  
   while (!cultures.empty()) {
     pair<string, string> best = findBest(cultures);
     string ckCulture = best.first;
@@ -1615,9 +1619,17 @@ bool Converter::cultureAndReligion () {
 
   map<string, vector<string> > religionMap;
   makeMap(religions, religionMap);
-  map<string, vector<string> >cultureMap;
+  map<string, vector<string> > cultureMap;
   makeMap(cultures, cultureMap);
-  
+
+  string overrideCulture = configObject->safeGetString("overwrite_culture", PlainNone);
+  if (overrideCulture == "no") overrideCulture = PlainNone;
+  if (overrideCulture != PlainNone) {
+    for (map<string, vector<string> >::iterator cult = cultureMap.begin(); cult != cultureMap.end(); ++cult) {
+      cult->second.clear();
+      cult->second.push_back(overrideCulture);
+    }
+  }
   proselytise(religionMap, "religion");
   proselytise(cultureMap, "culture");
 
@@ -1667,6 +1679,7 @@ bool Converter::cultureAndReligion () {
 				    << " based on CK culture "
 				    << ckRulerCulture
 				    << ".\n";
+
       (*eu4country)->resetLeaf("primary_culture", euCulture);
       (*eu4country)->resetHistory("primary_culture", euCulture);
       (*eu4country)->unsetValue("accepted_culture");
@@ -1754,11 +1767,11 @@ bool Converter::modifyProvinces () {
     provTaxWeight *= totalBaseTax;
     provProWeight *= totalBasePro;
     provManWeight *= totalBaseMen;
-    double amount = max(1.0, floor(provTaxWeight + 0.5));
+    double amount = max(0.0, floor(provTaxWeight + 0.5));
     (*eu4prov)->resetLeaf("base_tax", amount); afterTax += amount;
-    amount = max(1.0, floor(provProWeight + 0.5));
+    amount = max(0.0, floor(provProWeight + 0.5));
     (*eu4prov)->resetLeaf("base_production", amount); afterPro += amount;
-    amount = max(1.0, floor(provManWeight + 0.5));
+    amount = max(0.0, floor(provManWeight + 0.5));
     (*eu4prov)->resetLeaf("base_manpower", amount); afterMen += amount;
   }
 
@@ -2429,6 +2442,7 @@ bool Converter::setupDiplomacy () {
   for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
     EU4Country* vassalCountry = (*ruler)->getEU4Country();
     if (!vassalCountry) continue;
+    if ((*ruler)->isSovereign()) continue;
     CK2Ruler* liege = (*ruler)->getSovereignLiege();
     if (!liege) continue;
     EU4Country* liegeCountry = liege->getEU4Country();

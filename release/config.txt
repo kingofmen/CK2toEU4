@@ -24,6 +24,11 @@ maps_dir = ".\maps\"
 
 accepted_culture_cutoff = 0.5
 
+humans_always_independent = yes
+
+# For debugging.
+#overwrite_culture = aleutian
+
 # The EU4 tags that know about these provinces will be used.
 provinces_for_tags = { 1 112 213 1315 }
 
