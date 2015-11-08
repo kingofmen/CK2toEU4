@@ -2515,10 +2515,12 @@ bool Converter::setupDiplomacy () {
 bool Converter::transferProvinces () {
   Logger::logStream(LogStream::Info) << "Beginning province transfer.\n" << LogOption::Indent;
 
+  bool debugNames = (configObject->safeGetString("debug_names", "no") == "yes");
   for (EU4Province::Iter eu4Prov = EU4Province::start(); eu4Prov != EU4Province::final(); ++eu4Prov) {
     if (0 == (*eu4Prov)->numCKProvinces()) continue; // ROTW or water.
     map<EU4Country*, double> weights;
     double rebelWeight = 0;
+    string debugName;
     for (CK2Province::Iter ck2Prov = (*eu4Prov)->startProv(); ck2Prov != (*eu4Prov)->finalProv(); ++ck2Prov) {
       CK2Title* countyTitle = (*ck2Prov)->getCountyTitle();
       if (!countyTitle) {
@@ -2551,122 +2553,66 @@ bool Converter::transferProvinces () {
 				       << eu4country->getName()
 				       << " due to " << (titleToUse == primary ? "regular liege chain to primary " : "being de-jure in union title ")
 				       << titleToUse->getName() << ".\n";
-	weights[eu4country] += (*ck2Prov)->getWeight(ProvinceWeight::Manpower);
-	continue;
+	//weights[eu4country] += (*ck2Prov)->getWeight(ProvinceWeight::Manpower);
+	//continue;
       }
-
-      // Look for tributary overlord.
-      CK2Ruler* suzerain = ruler->getSuzerain();
-      while (suzerain) {
-	if (suzerain->getEU4Country()) break;
-	suzerain = suzerain->getSuzerain();
-      }
-      if ((suzerain) && (suzerain->getEU4Country())) {
-	eu4country = suzerain->getEU4Country();
-	Logger::logStream("provinces") << countyTitle->getName()
-				       << " assigned to "
-				       << eu4country->getName()
-				       << " due to tributary overlordship.\n";
-	weights[eu4country] += (*ck2Prov)->getWeight(ProvinceWeight::Manpower);
-	continue;	
-      }
-
-      // A rebel?
-      for (CK2Ruler::Iter enemy = ruler->startEnemy(); enemy != ruler->finalEnemy(); ++enemy) {
-	eu4country = (*enemy)->getEU4Country();
-	if (eu4country) break;
-      }
-      if (eu4country) {
-	rebelWeight += (*ck2Prov)->getWeight(ProvinceWeight::Manpower);
-	weights[eu4country] += (*ck2Prov)->getWeight(ProvinceWeight::Manpower);
-	Logger::logStream("provinces") << countyTitle->getName()
-				       << " assigned "
-				       << eu4country->getName()
-				       << " from war - assumed rebel.\n";
-	
-	continue;
-      }
-
-      // Same dynasty.
-      CK2Ruler* biggest = 0;
-      string dynasty = ruler->safeGetString("dynasty", "dsa");
-      for (CK2Ruler::Iter cand = CK2Ruler::start(); cand != CK2Ruler::final(); ++cand) {
-	if (!(*cand)->getEU4Country()) continue;
-	if (dynasty != (*cand)->safeGetString("dynasty", "fds")) continue;
-	if ((*cand) == ruler) continue;
-	if ((biggest) && (biggest->countBaronies() > (*cand)->countBaronies())) continue;
-	biggest = (*cand);
-      }
-      if (biggest) {
-	eu4country = biggest->getEU4Country();
-	weights[eu4country] += (*ck2Prov)->getWeight(ProvinceWeight::Manpower);
-	Logger::logStream("provinces") << countyTitle->getName()
-				       << " assigned "
-				       << eu4country->getName()
-				       << " from same dynasty.\n";
-	continue;
-      }
-      
-#ifdef OLDCONVERSION
-      bool printed = false;
-      while (!ruler->getEU4Country()) {
-	ruler = ruler->getLiege();
-	if (!ruler) break;
-      }
-      if (ruler) {
-	Logger::logStream("provinces") << countyTitle->getName()
-				       << " assigned "
-				       << ruler->getEU4Country()->getName()
-				       << " from regular liege chain.\n";
-	printed = true;
-      }
-      else {
-	// We didn't find an EU4 nation in the
-	// chain of lieges. Possibly this is a
-	// rebel-controlled county.
-	ruler = countyTitle->getRuler();
-	CK2Ruler* cand = 0;
-	for (CK2Ruler::Iter enemy = ruler->startEnemy(); enemy != ruler->finalEnemy(); ++enemy) {
-	  if (!(*enemy)->getEU4Country()) continue;
-	  cand = (*enemy); // Intuitively would assign to ruler, but that breaks the iterator, despite the exit below.
-	  rebelWeight += (*ck2Prov)->getWeight(ProvinceWeight::Manpower);
-	  break;
+      if (!eu4country) {
+	// Look for tributary overlord.
+	CK2Ruler* suzerain = ruler->getSuzerain();
+	while (suzerain) {
+	  if (suzerain->getEU4Country()) break;
+	  suzerain = suzerain->getSuzerain();
 	}
-	ruler = cand;
+	if ((suzerain) && (suzerain->getEU4Country())) {
+	  eu4country = suzerain->getEU4Country();
+	  Logger::logStream("provinces") << countyTitle->getName()
+					 << " assigned to "
+					 << eu4country->getName()
+					 << " due to tributary overlordship.\n";
+	  //weights[eu4country] += (*ck2Prov)->getWeight(ProvinceWeight::Manpower);
+	  //continue;	
+	}
       }
-      if (ruler) {
-	if (!printed) Logger::logStream("provinces") << countyTitle->getName()
-						     << " assigned "
-						     << ruler->getEU4Country()->getName()
-						     << " from war - assumed rebel.\n";
-	printed = true;
+      if (!eu4country) {
+	// A rebel?
+	for (CK2Ruler::Iter enemy = ruler->startEnemy(); enemy != ruler->finalEnemy(); ++enemy) {
+	  eu4country = (*enemy)->getEU4Country();
+	  if (eu4country) break;
+	}
+	if (eu4country) {
+	  rebelWeight += (*ck2Prov)->getWeight(ProvinceWeight::Manpower);
+	  //weights[eu4country] += (*ck2Prov)->getWeight(ProvinceWeight::Manpower);
+	  Logger::logStream("provinces") << countyTitle->getName()
+					 << " assigned "
+					 << eu4country->getName()
+					 << " from war - assumed rebel.\n";
+	  //continue;
+	}
       }
-      else {
-	// Try for tribute overlord.
+      if (!eu4country) {
+	// Same dynasty.
+	CK2Ruler* biggest = 0;
+	string dynasty = ruler->safeGetString("dynasty", "dsa");
+	for (CK2Ruler::Iter cand = CK2Ruler::start(); cand != CK2Ruler::final(); ++cand) {
+	  if (!(*cand)->getEU4Country()) continue;
+	  if (dynasty != (*cand)->safeGetString("dynasty", "fds")) continue;
+	  if ((*cand) == ruler) continue;
+	  if ((biggest) && (biggest->countBaronies() > (*cand)->countBaronies())) continue;
+	  biggest = (*cand);
+	}
+	if (biggest) {
+	  eu4country = biggest->getEU4Country();
+	  //weights[eu4country] += (*ck2Prov)->getWeight(ProvinceWeight::Manpower);
+	  Logger::logStream("provinces") << countyTitle->getName()
+					 << " assigned "
+					 << eu4country->getName()
+					 << " from same dynasty.\n";
+	  //continue;
+	}
       }
-      if (ruler) {
-	if (!printed) Logger::logStream("provinces") << countyTitle->getName()
-						     << " assigned "
-						     << ruler->getEU4Country()->getName()
-						     << " from tributary chain.\n";
-	printed = true;
-      }
-      else {
-      }
-      if (ruler) {
-	if (!printed) Logger::logStream("provinces") << countyTitle->getName()
-						     << " assigned "
-						     << ruler->getEU4Country()->getName()
-						     << " from same dynasty.\n";
-	printed = true;
-      }
-      else {
-	Logger::logStream(LogStream::Warn) << "County " << countyTitle->getName()
-					   << " doesn't have an assigned EU4 nation; skipping.\n";
-	continue;
-      }
-      weights[ruler->getEU4Country()] += (*ck2Prov)->getWeight(ProvinceWeight::Manpower);
-#endif
+      if (!eu4country) continue;
+      weights[eu4country] += (*ck2Prov)->getWeight(ProvinceWeight::Manpower);
+      debugName += createString("%s (%.1f) ", countyTitle->getName().c_str(), (*ck2Prov)->getWeight(ProvinceWeight::Manpower));
     }
     if (0 == weights.size()) {
       string ownerTag = remQuotes((*eu4Prov)->safeGetString("owner"));
@@ -2687,7 +2633,9 @@ bool Converter::transferProvinces () {
       highest = cand->second;
     }
     Logger::logStream("provinces") << nameAndNumber(*eu4Prov) << " assigned to " << best->getName() << "\n";
+    Logger::logStream(LogStream::Debug) << "Province debug name: '" << debugName << "'\n";
     best->addProvince(*eu4Prov);
+    if (debugNames) (*eu4Prov)->resetLeaf("name", addQuotes(debugName));
     (*eu4Prov)->resetLeaf("owner", addQuotes(best->getName()));
     (*eu4Prov)->resetLeaf("controller", addQuotes(best->getName()));
     (*eu4Prov)->assignCountry(best);

@@ -218,6 +218,7 @@ string remQuotes (string tag) {
 
 string addQuotes (string tag) {
   // Add surrounding quotes to tag if it doesn't already have them.
+  if (tag.empty()) return "\"\"";
   string ret("\"");
   if (tag[0] == '"') ret = tag;
   else ret += tag;
