@@ -43,6 +43,7 @@ private:
   queue<ConverterJob const*> jobsToDo;
 
   // Conversion processes
+  bool adjustBalkanisation ();
   bool calculateProvinceWeights ();
   bool createArmies ();
   bool createCharacters ();

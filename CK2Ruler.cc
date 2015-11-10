@@ -159,8 +159,8 @@ void CK2Ruler::createLiege () {
   for (CK2Title::Iter title = titles.begin(); title != titles.end(); ++title) {
     CK2Title* bossTitle = (*title)->getLiege();
     if (!bossTitle) continue;
-    string liegeId = bossTitle->safeGetString("holder", "none");
-    if (liegeId == "none") continue;
+    string liegeId = bossTitle->safeGetString("holder", PlainNone);
+    if (liegeId == PlainNone) continue;
     if (liegeId == getName()) continue; // Eg a count who holds a barony is his own liege.
     CK2Ruler* boss = findByName(liegeId);
     if (!liegeCand) {
@@ -179,6 +179,21 @@ void CK2Ruler::createLiege () {
     }
   }
   if (!liegeCand) return;
+
+  // Iterating manually because we are still constructing the liege chain.
+  CK2Title* currTitle = liegeTitle;
+  while (currTitle) {
+    string holderId = currTitle->safeGetString("holder", PlainNone);
+    if (holderId == getName()) {
+      Logger::logStream("characters") << "Not making " << getName() << " vassal of "
+				      << liegeCand->getName() << " because of circularity with "
+				      << currTitle->getName() << "\n";
+      return;
+    }
+    currTitle = currTitle->getLiege();
+  }
+  
+  
   Logger::logStream("characters") << getName() << " is vassal of "
 				  << liegeCand->getName()
 				  << " because " << vassalTitle->getName()

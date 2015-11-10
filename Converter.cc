@@ -786,6 +786,118 @@ void Converter::loadFiles () {
 
 /******************************* Begin conversions ********************************/
 
+double getVassalPercentage (map<EU4Country*, vector<EU4Country*> >::iterator lord, map<EU4Country*, int>& ownerMap) {
+  double total = ownerMap[lord->first];
+  double vassals = 0;
+  for (vector<EU4Country*>::iterator subject = lord->second.begin(); subject != lord->second.end(); ++subject) {
+    double curr = ownerMap[*subject];
+    total += curr;
+    vassals += curr;
+  }
+  if (0 == total) return 0;
+  return vassals / total;
+}
+
+bool Converter::adjustBalkanisation () {
+  Logger::logStream(LogStream::Info) << "Adjusting balkanisation.\n" << LogOption::Indent;
+
+  map<EU4Country*, vector<EU4Country*> > subjectMap;
+  Object* diplomacy = eu4Game->getNeededObject("diplomacy");
+  objvec relations = diplomacy->getLeaves();
+  for (objiter relation = relations.begin(); relation != relations.end(); ++relation) {
+    string key = (*relation)->getKey();
+    if ((key != "vassal") && (key != "union")) continue;
+    EU4Country* overlord = EU4Country::getByName(remQuotes((*relation)->safeGetString("first", QuotedNone)));
+    if (!overlord) continue;
+    EU4Country* subject = EU4Country::getByName(remQuotes((*relation)->safeGetString("second", QuotedNone)));
+    if (!subject) continue;
+    subjectMap[overlord].push_back(subject);
+  }
+
+  map<EU4Country*, int> ownerMap;
+  for (EU4Province::Iter eu4prov = EU4Province::start(); eu4prov != EU4Province::final(); ++eu4prov) {
+    if (0 == (*eu4prov)->numCKProvinces()) continue;
+    EU4Country* owner = EU4Country::getByName(remQuotes((*eu4prov)->safeGetString("owner")));
+    if (!owner) continue;
+    ownerMap[owner]++;
+  }
+
+  double maxBalkan = configObject->safeGetFloat("max_balkanisation", 0.40);
+  double minBalkan = configObject->safeGetFloat("min_balkanisation", 0.30);
+  for (map<EU4Country*, vector<EU4Country*> >::iterator lord = subjectMap.begin(); lord != subjectMap.end(); ++lord) {
+    if (0 == lord->second.size()) continue;
+    EU4Country* overlord = lord->first;
+    double vassalPercentage = getVassalPercentage(lord, ownerMap);
+    while (vassalPercentage < minBalkan) {
+      set<EU4Country*> attempted;
+      bool success = false;
+      while (attempted.size() < lord->second.size()) {
+	EU4Country* target = lord->second[0];
+	for (vector<EU4Country*>::iterator subject = lord->second.begin(); subject != lord->second.end(); ++subject) {
+	  if (attempted.count(*subject)) continue;
+	  if (ownerMap[*subject] >= ownerMap[target]) continue;
+	  target = (*subject);
+	}
+	attempted.insert(target);
+	map<CK2Title*, int> kingdoms;
+	for (EU4Province::Iter eu4prov = target->startProvince(); eu4prov != target->finalProvince(); ++eu4prov) {
+	  for (CK2Province::Iter ck2prov = (*eu4prov)->startProv(); ck2prov != (*eu4prov)->finalProv(); ++ck2prov) {
+	    CK2Title* countyTitle = (*ck2prov)->getCountyTitle();
+	    if (!countyTitle) continue;
+	    CK2Title* kingdom = countyTitle->getDeJureLevel(TitleLevel::Kingdom);
+	    if (!kingdom) continue;
+	    kingdoms[kingdom]++;
+	  }
+	}
+	vector<CK2Title*> targetKingdoms;
+	for (map<CK2Title*, int>::iterator kingdom = kingdoms.begin(); kingdom != kingdoms.end(); ++kingdom) {
+	  kingdom->first->resetLeaf("vassal_provinces", kingdom->second);
+	  targetKingdoms.push_back(kingdom->first);
+	}
+	if (0 == targetKingdoms.size()) continue;
+	sort(targetKingdoms.begin(), targetKingdoms.end(), ObjectDescendingSorter("vassal_provinces"));
+	for (vector<CK2Title*>::iterator kingdom = targetKingdoms.begin(); kingdom != targetKingdoms.end(); ++kingdom) {
+	  for (EU4Province::Iter eu4prov = overlord->startProvince(); eu4prov != overlord->finalProvince(); ++eu4prov) {
+	    bool acceptable = false;
+	    for (CK2Province::Iter ck2prov = (*eu4prov)->startProv(); ck2prov != (*eu4prov)->finalProv(); ++ck2prov) {
+	      CK2Title* countyTitle = (*ck2prov)->getCountyTitle();
+	      if (!countyTitle) continue;
+	      CK2Title* curr = countyTitle->getDeJureLevel(TitleLevel::Kingdom);
+	      if (curr != (*kingdom)) continue;
+	      acceptable = true;
+	      break;
+	    }
+	    if (!acceptable) continue;
+	    (*eu4prov)->assignCountry(target);
+	    success = true;
+	    break;
+	  }
+	  if (success) break;
+	}
+	if (success) break;
+      }
+
+      if (!success) {
+	Logger::logStream("countries") << "Giving up on balkanising " << overlord->getKey() << "\n";
+	break;
+      }      
+      vassalPercentage = getVassalPercentage(lord, ownerMap);
+    }
+    while (vassalPercentage > maxBalkan) {
+      set<EU4Country*> attempted;
+      bool success = false;
+      vassalPercentage = getVassalPercentage(lord, ownerMap);
+      if (!success) {
+	Logger::logStream("countries") << "Giving up on unbalkanising " << overlord->getKey() << "\n";
+	break;
+      }      
+    }
+  }
+
+  Logger::logStream(LogStream::Info) << "Done with balkanisation.\n" << LogOption::Undent;
+  return true;
+}
+
 bool Converter::calculateProvinceWeights () {
   Logger::logStream(LogStream::Info) << "Beginning province weight calculations.\n" << LogOption::Indent;
 
@@ -2636,8 +2748,6 @@ bool Converter::transferProvinces () {
     Logger::logStream(LogStream::Debug) << "Province debug name: '" << debugName << "'\n";
     best->addProvince(*eu4Prov);
     if (debugNames) (*eu4Prov)->resetLeaf("name", addQuotes(debugName));
-    (*eu4Prov)->resetLeaf("owner", addQuotes(best->getName()));
-    (*eu4Prov)->resetLeaf("controller", addQuotes(best->getName()));
     (*eu4Prov)->assignCountry(best);
   }
 
@@ -2684,6 +2794,7 @@ void Converter::convert () {
   if (!createArmies()) return;
   if (!createNavies()) return;
   if (!setupDiplomacy()) return;
+  //if (!adjustBalkanisation()) return;
   if (!cultureAndReligion()) return;
   if (!createGovernments()) return;
   if (!createCharacters()) return;

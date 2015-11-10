@@ -12,6 +12,7 @@ public:
   EU4Country (Object* o);
 
   void addProvince (EU4Province* prov) {provinces.push_back(prov);}
+  void remProvince (EU4Province* prov) {REMOVE(provinces, prov);}
   void addBarony (Object* barony) {baronies.push_back(barony);}
   CK2Ruler* getRuler () const {return ckSovereign;}
   CK2Title* getTitle () const {return ckTitle;}
