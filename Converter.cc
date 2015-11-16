@@ -26,10 +26,8 @@ using namespace std;
  * Wars
  * Trade?
  * Heresies - must be rebel factions?
- * BRI in Nantes issue
  * Fix cores
- * Remove the cache stuff?
- * core_provinces?
+ * core_provinces? owned_provinces?
  * Troop types?
  * Armies again
  * Mercenaries
@@ -103,6 +101,7 @@ void Converter::cleanUp () {
 
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
     (*eu4country)->unsetValue("needs_heir");
+    (*eu4country)->unsetValue(EU4Country::kNoProvinceMarker);
     if (!(*eu4country)->getRuler()) continue;
     (*eu4country)->unsetValue("loan");
     (*eu4country)->unsetValue("rival");
@@ -121,6 +120,9 @@ void Converter::cleanUp () {
     (*eu4country)->resetLeaf("technology_group", "western");
     (*eu4country)->resetHistory("technology_group", "western");
   }
+
+  eu4Game->getNeededObject("combat")->clear();
+  eu4Game->unsetValue("previous_war");
 }
 
 void Converter::configure () {
@@ -798,6 +800,15 @@ double getVassalPercentage (map<EU4Country*, vector<EU4Country*> >::iterator lor
   return vassals / total;
 }
 
+void constructOwnerMap (map<EU4Country*, int>* ownerMap) {
+  for (EU4Province::Iter eu4prov = EU4Province::start(); eu4prov != EU4Province::final(); ++eu4prov) {
+    if (0 == (*eu4prov)->numCKProvinces()) continue;
+    EU4Country* owner = EU4Country::getByName(remQuotes((*eu4prov)->safeGetString("owner")));
+    if (!owner) continue;
+    (*ownerMap)[owner]++;
+  }
+}
+
 bool Converter::adjustBalkanisation () {
   Logger::logStream(LogStream::Info) << "Adjusting balkanisation.\n" << LogOption::Indent;
 
@@ -815,20 +826,29 @@ bool Converter::adjustBalkanisation () {
   }
 
   map<EU4Country*, int> ownerMap;
-  for (EU4Province::Iter eu4prov = EU4Province::start(); eu4prov != EU4Province::final(); ++eu4prov) {
-    if (0 == (*eu4prov)->numCKProvinces()) continue;
-    EU4Country* owner = EU4Country::getByName(remQuotes((*eu4prov)->safeGetString("owner")));
-    if (!owner) continue;
-    ownerMap[owner]++;
-  }
+  constructOwnerMap(&ownerMap);
 
   double maxBalkan = configObject->safeGetFloat("max_balkanisation", 0.40);
   double minBalkan = configObject->safeGetFloat("min_balkanisation", 0.30);
+  int balkanThreshold = configObject->safeGetInt("balkan_threshold");
   for (map<EU4Country*, vector<EU4Country*> >::iterator lord = subjectMap.begin(); lord != subjectMap.end(); ++lord) {
     if (0 == lord->second.size()) continue;
     EU4Country* overlord = lord->first;
     double vassalPercentage = getVassalPercentage(lord, ownerMap);
+    bool dent = false;
+    bool printed = false;
     while (vassalPercentage < minBalkan) {
+      if (ownerMap[overlord] <= balkanThreshold) {
+	Logger::logStream("countries") << ownerMap[overlord] << " provinces are too few to balkanise.\n";
+	break;
+      }
+      if (!printed) {
+	Logger::logStream("countries") << "Vassal percentage " << vassalPercentage << ", balkanising "
+				       << overlord->getKey() << ".\n" << LogOption::Indent;
+	printed = true;
+	dent = true;
+      }
+
       set<EU4Country*> attempted;
       bool success = false;
       while (attempted.size() < lord->second.size()) {
@@ -837,6 +857,10 @@ bool Converter::adjustBalkanisation () {
 	  if (attempted.count(*subject)) continue;
 	  if (ownerMap[*subject] >= ownerMap[target]) continue;
 	  target = (*subject);
+	}
+	if (attempted.count(target)) {
+	  Logger::logStream("countries") << "Could not find good target for balkanisation.\n";
+	  break;
 	}
 	attempted.insert(target);
 	map<CK2Title*, int> kingdoms;
@@ -854,7 +878,10 @@ bool Converter::adjustBalkanisation () {
 	  kingdom->first->resetLeaf("vassal_provinces", kingdom->second);
 	  targetKingdoms.push_back(kingdom->first);
 	}
-	if (0 == targetKingdoms.size()) continue;
+	if (0 == targetKingdoms.size()) {
+	  Logger::logStream("countries") << "No CK kingdoms for balkanisation.\n";
+	  break;
+	}
 	sort(targetKingdoms.begin(), targetKingdoms.end(), ObjectDescendingSorter("vassal_provinces"));
 	for (vector<CK2Title*>::iterator kingdom = targetKingdoms.begin(); kingdom != targetKingdoms.end(); ++kingdom) {
 	  for (EU4Province::Iter eu4prov = overlord->startProvince(); eu4prov != overlord->finalProvince(); ++eu4prov) {
@@ -868,7 +895,11 @@ bool Converter::adjustBalkanisation () {
 	      break;
 	    }
 	    if (!acceptable) continue;
+	    Logger::logStream("countries") << "Reassigned " << (*eu4prov)->getName() << " to "
+					   << target->getKey() << "\n";
 	    (*eu4prov)->assignCountry(target);
+	    ownerMap[target]++;
+	    ownerMap[overlord]--;
 	    success = true;
 	    break;
 	  }
@@ -884,13 +915,68 @@ bool Converter::adjustBalkanisation () {
       vassalPercentage = getVassalPercentage(lord, ownerMap);
     }
     while (vassalPercentage > maxBalkan) {
+      if (!printed) {
+	Logger::logStream("countries") << "Vassal percentage " << vassalPercentage << ", reblobbing "
+				       << overlord->getKey() << ".\n" << LogOption::Indent;
+	dent = true;
+	printed = true;
+      }
+
       set<EU4Country*> attempted;
       bool success = false;
-      vassalPercentage = getVassalPercentage(lord, ownerMap);
-      if (!success) {
-	Logger::logStream("countries") << "Giving up on unbalkanising " << overlord->getKey() << "\n";
+
+      while (attempted.size() < lord->second.size()) {
+	EU4Country* target = lord->second[0];
+	for (vector<EU4Country*>::iterator subject = lord->second.begin(); subject != lord->second.end(); ++subject) {
+	  if (attempted.count(*subject)) continue;
+	  if (0 == ownerMap[*subject]) {
+	    attempted.insert(*subject);
+	    continue;
+	  }
+	  if ((ownerMap[target] > 0) && (ownerMap[*subject] >= ownerMap[target])) continue;
+	  target = (*subject);
+	}
+	if (attempted.count(target)) break;
+	attempted.insert(target);
+	if (0 == ownerMap[target]) continue;
+	EU4Province::Iter iter = target->startProvince();
+	EU4Province* province = *iter;
+	if (province->getKey() == target->safeGetString("capital")) {
+	  ++iter;
+	  if (iter != target->finalProvince()) province = *iter;
+	}
+
+	Logger::logStream("countries") << "Reabsorbed " << province->getName()
+				       << " from " << target->getName()
+				       << ".\n";
+	province->assignCountry(overlord);
+	ownerMap[overlord]++;
+	ownerMap[target]--;
+	success = true;
 	break;
-      }      
+      }
+
+      if (!success) {
+	Logger::logStream("countries") << "Giving up on reblobbing " << overlord->getKey() << "\n";
+	break;
+      }
+      vassalPercentage = getVassalPercentage(lord, ownerMap);
+    }
+    if (dent) {
+      Logger::logStream("countries") << "Final vassal percentage " << vassalPercentage << ": (" << overlord->getName();
+      for (EU4Province::Iter prov = overlord->startProvince(); prov != overlord->finalProvince(); ++prov) {
+	Logger::logStream("countries") << " " << (*prov)->getName();
+      }
+      Logger::logStream("countries") << ") ";
+      for (vector<EU4Country*>::iterator subject = lord->second.begin(); subject != lord->second.end(); ++subject) {
+	Logger::logStream("countries") << "(" << (*subject)->getName();
+	for (EU4Province::Iter prov = (*subject)->startProvince(); prov != (*subject)->finalProvince(); ++prov) {
+	  Logger::logStream("countries") << " " << (*prov)->getName();
+	}
+	Logger::logStream("countries") << ") ";
+      }
+
+      Logger::logStream("countries") << "\n" << LogOption::Undent;
     }
   }
 
@@ -987,6 +1073,53 @@ bool Converter::calculateProvinceWeights () {
   }
   
   Logger::logStream(LogStream::Info) << "Done with province weight calculations.\n" << LogOption::Undent;
+  return true;
+}
+
+bool Converter::cleanEU4Nations () {
+  Logger::logStream(LogStream::Info) << "Beginning nation cleanup.\n" << LogOption::Indent;
+  Object* keysToClear = configObject->getNeededObject("keys_to_clear");
+  Object* keysToRemove = configObject->getNeededObject("keys_to_remove");
+  Object* zeroProvKeys = configObject->getNeededObject("keys_to_remove_on_zero_provs");
+
+  map<EU4Country*, int> ownerMap;
+  constructOwnerMap(&ownerMap);
+
+  Object* diplomacy = eu4Game->getNeededObject("diplomacy");
+  objvec dipObjects = diplomacy->getLeaves();
+  for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
+    if (!(*eu4country)->getRuler()) continue;
+    for (int i = 0; i < keysToClear->numTokens(); ++i) {
+      Object* toClear = (*eu4country)->getNeededObject(keysToClear->getToken(i));
+      toClear->clear();
+    }
+    for (int i = 0; i < keysToRemove->numTokens(); ++i) {
+      (*eu4country)->unsetValue(keysToRemove->getToken(i));
+    }
+
+    if (0 < ownerMap[*eu4country]) continue;
+    Logger::logStream("countries") << (*eu4country)->getKey() << " has no provinces, removing.\n";
+    (*eu4country)->resetLeaf(EU4Country::kNoProvinceMarker, "yes");
+    for (int i = 0; i < zeroProvKeys->numTokens(); ++i) {
+      (*eu4country)->unsetValue(zeroProvKeys->getToken(i));
+    }
+    objvec dipsToRemove;
+    for (objiter dip = dipObjects.begin(); dip != dipObjects.end(); ++dip) {
+      string first = remQuotes((*dip)->safeGetString("first"));
+      string second = (*dip)->safeGetString("second");
+      if ((first != (*eu4country)->getKey()) && (remQuotes(second) != (*eu4country)->getKey())) continue;
+      dipsToRemove.push_back(*dip);
+      EU4Country* overlord = EU4Country::getByName(first);
+      overlord->getNeededObject("friends")->remToken(second);
+      overlord->getNeededObject("vassals")->remToken(second);
+      overlord->getNeededObject("subjects")->remToken(second);
+      overlord->getNeededObject("lesser_union_partners")->remToken(second);
+    }
+    for (objiter rem = dipsToRemove.begin(); rem != dipsToRemove.end(); ++rem) {
+      diplomacy->removeObject(*rem);
+    }
+  }
+  Logger::logStream(LogStream::Info) << "Done with nation cleanup.\n" << LogOption::Undent;
   return true;
 }
 
@@ -1251,10 +1384,13 @@ bool Converter::createCharacters () {
   string birthDate = eu4Game->safeGetString("date", "1444.11.11");
 
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
+    if (!(*eu4country)->converts()) continue;
     CK2Ruler* ruler = (*eu4country)->getRuler();
-    if (!ruler) continue;
     if (ruler->safeGetString("madeCharacters", PlainNone) == "yes") continue;
     ruler->setLeaf("madeCharacters", "yes");
+    string capitalTag = (*eu4country)->safeGetString("capital");
+    EU4Province* capital = EU4Province::findByName(capitalTag);
+    if (!capital) continue;
     string eu4Tag = (*eu4country)->getKey();
     (*eu4country)->unsetValue("advisor");
     Logger::logStream("characters") << "Creating characters for " << eu4Tag << ":\n" << LogOption::Indent;
@@ -1268,9 +1404,6 @@ bool Converter::createCharacters () {
 
     Object* country_advisors = active_advisors->getNeededObject((*eu4country)->getKey());
     country_advisors->clear();
-    string capitalTag = (*eu4country)->safeGetString("capital");
-    EU4Province* capital = EU4Province::findByName(capitalTag);
-    if (!capital) continue;
     Object* history = capital->getNeededObject("history");
     for (CouncilTitle::Iter council = CouncilTitle::start(); council != CouncilTitle::final(); ++council) {
       CK2Character* councillor = ruler->getCouncillor(*council);
@@ -2080,8 +2213,8 @@ bool Converter::redistributeMana () {
 
   map<CK2Ruler*, int> counts;
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
+    if (!(*eu4country)->converts()) continue;
     CK2Ruler* ruler = (*eu4country)->getRuler();
-    if (!ruler) continue;
     counts[ruler]++;
     if (ruler->getPrimaryTitle() != (*eu4country)->getTitle()) continue;
     for (map<string, string>::iterator keyword = keywords.begin(); keyword != keywords.end(); ++keyword) {
@@ -2148,8 +2281,8 @@ bool Converter::redistributeMana () {
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
     int totalPower = (*eu4country)->safeGetFloat(kAwesomePower);
     (*eu4country)->unsetValue(kAwesomePower);
+    if (!(*eu4country)->converts()) continue;
     CK2Ruler* ruler = (*eu4country)->getRuler();
-    if (!ruler) continue;
     Object* powers = (*eu4country)->getNeededObject("powers");
     powers->clear();
     totalPower /= 3;
@@ -2285,8 +2418,8 @@ bool Converter::redistributeMana () {
     vector<int> eu4Values;
     CK2Ruler::Container rulers;
     for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
+      if (!(*eu4country)->converts()) continue;
       CK2Ruler* ruler = (*eu4country)->getRuler();
-      if (!ruler) continue;
       rulers.push_back(ruler);
       Object* tech = (*eu4country)->getNeededObject("technology");
       eu4Values.push_back(tech->safeGetInt(eu4tech, 3));
@@ -2373,18 +2506,6 @@ bool Converter::resetHistories () {
       for (vector<string>::iterator tag = extraTags.begin(); tag != extraTags.end(); ++tag) {
 	discovered->addToList(*tag);
       }
-    }
-  }
-
-  objectsToClear.push_back("flags");
-  objectsToClear.push_back("ruler_flags");
-  objectsToClear.push_back("hidden_flags");
-  objectsToClear.push_back("variables");
-  for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
-    if (!(*eu4country)->getRuler()) continue;
-    for (vector<string>::iterator tag = objectsToClear.begin(); tag != objectsToClear.end(); ++tag) {
-      Object* history = (*eu4country)->getNeededObject(*tag);
-      history->clear();
     }
   }
 
@@ -2607,6 +2728,7 @@ bool Converter::setupDiplomacy () {
       subject->resetLeaf("overlord", addQuotes(overlord->getKey()));
       subject->resetLeaf("liberty_desire", "0.000");
       Object* unionObject = new Object("union");
+      euDipObject->setValue(unionObject);
       unionObject->setLeaf("first", addQuotes(overlord->getKey()));
       unionObject->setLeaf("second", addQuotes(subject->getKey()));
       unionObject->setLeaf("end_date", createString("%i.1.1", startYear + 50));
@@ -2745,8 +2867,6 @@ bool Converter::transferProvinces () {
       highest = cand->second;
     }
     Logger::logStream("provinces") << nameAndNumber(*eu4Prov) << " assigned to " << best->getName() << "\n";
-    Logger::logStream(LogStream::Debug) << "Province debug name: '" << debugName << "'\n";
-    best->addProvince(*eu4Prov);
     if (debugNames) (*eu4Prov)->resetLeaf("name", addQuotes(debugName));
     (*eu4Prov)->assignCountry(best);
   }
@@ -2794,7 +2914,8 @@ void Converter::convert () {
   if (!createArmies()) return;
   if (!createNavies()) return;
   if (!setupDiplomacy()) return;
-  //if (!adjustBalkanisation()) return;
+  if (!adjustBalkanisation()) return;
+  if (!cleanEU4Nations()) return;
   if (!cultureAndReligion()) return;
   if (!createGovernments()) return;
   if (!createCharacters()) return;

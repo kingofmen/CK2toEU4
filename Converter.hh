@@ -45,6 +45,7 @@ private:
   // Conversion processes
   bool adjustBalkanisation ();
   bool calculateProvinceWeights ();
+  bool cleanEU4Nations ();
   bool createArmies ();
   bool createCharacters ();
   bool createGovernments ();
