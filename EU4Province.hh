@@ -13,6 +13,7 @@ public:
   void addCore (string countryTag);
   void assignCountry (EU4Country* eu4);
   void assignProvince (CK2Province* ck);
+  bool converts () const;
   EU4Country* getEU4Country () const {return eu4Country;}
   bool hasCore (string countryTag) const;
   int numCKProvinces () const {return ckProvinces.size();}

@@ -1079,6 +1079,8 @@ bool Converter::calculateProvinceWeights () {
 bool Converter::cleanEU4Nations () {
   Logger::logStream(LogStream::Info) << "Beginning nation cleanup.\n" << LogOption::Indent;
   Object* keysToClear = configObject->getNeededObject("keys_to_clear");
+  keysToClear->addToList("owned_provinces");
+  keysToClear->addToList("core_provinces");
   Object* keysToRemove = configObject->getNeededObject("keys_to_remove");
   Object* zeroProvKeys = configObject->getNeededObject("keys_to_remove_on_zero_provs");
 
@@ -1088,7 +1090,7 @@ bool Converter::cleanEU4Nations () {
   Object* diplomacy = eu4Game->getNeededObject("diplomacy");
   objvec dipObjects = diplomacy->getLeaves();
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
-    if (!(*eu4country)->getRuler()) continue;
+    if (!(*eu4country)->converts()) continue;
     for (int i = 0; i < keysToClear->numTokens(); ++i) {
       Object* toClear = (*eu4country)->getNeededObject(keysToClear->getToken(i));
       toClear->clear();
@@ -1119,6 +1121,13 @@ bool Converter::cleanEU4Nations () {
       diplomacy->removeObject(*rem);
     }
   }
+
+  for (EU4Province::Iter eu4prov = EU4Province::start(); eu4prov != EU4Province::final(); ++eu4prov) {
+    if (!(*eu4prov)->converts()) continue;
+    EU4Country* owner = EU4Country::getByName(remQuotes((*eu4prov)->safeGetString("owner")));
+    if (owner) owner->getNeededObject("owned_provinces")->addToList((*eu4prov)->getKey());
+  }
+
   Logger::logStream(LogStream::Info) << "Done with nation cleanup.\n" << LogOption::Undent;
   return true;
 }
@@ -2507,6 +2516,9 @@ bool Converter::resetHistories () {
 	discovered->addToList(*tag);
       }
     }
+  }
+
+  for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
   }
 
   Logger::logStream(LogStream::Info) << "Done with clearing.\n" << LogOption::Undent;

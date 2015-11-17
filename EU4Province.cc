@@ -29,6 +29,11 @@ void EU4Province::assignProvince (CK2Province* ck) {
   ckProvinces.push_back(ck);
 }
 
+bool EU4Province::converts () const {
+  if (0 == numCKProvinces()) return false;
+  return true;
+}
+
 bool EU4Province::hasCore (string countryTag) const {
   objvec cores = getValue("core");
   string quotedTag = addQuotes(countryTag);
