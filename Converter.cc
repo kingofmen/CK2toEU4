@@ -27,7 +27,6 @@ using namespace std;
  * Trade?
  * Heresies - must be rebel factions?
  * Fix cores
- * core_provinces? owned_provinces?
  * Troop types?
  * Armies again
  * Mercenaries
@@ -1126,6 +1125,11 @@ bool Converter::cleanEU4Nations () {
     if (!(*eu4prov)->converts()) continue;
     EU4Country* owner = EU4Country::getByName(remQuotes((*eu4prov)->safeGetString("owner")));
     if (owner) owner->getNeededObject("owned_provinces")->addToList((*eu4prov)->getKey());
+    objvec cores = (*eu4prov)->getValue("core");
+    for (objiter core = cores.begin(); core != cores.end(); ++core) {
+      EU4Country* coreHaver = EU4Country::getByName(remQuotes((*core)->getLeaf()));
+      if (coreHaver) coreHaver->getNeededObject("core_provinces")->addToList((*eu4prov)->getKey());
+    }
   }
 
   Logger::logStream(LogStream::Info) << "Done with nation cleanup.\n" << LogOption::Undent;
