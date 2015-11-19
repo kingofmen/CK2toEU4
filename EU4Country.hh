@@ -6,6 +6,7 @@
 #include "Logger.hh"
 class CK2Ruler;
 class CK2Title;
+class EU4Province;
 
 class EU4Country : public Enumerable<EU4Country>, public ObjectWrapper {
 public:
@@ -17,6 +18,8 @@ public:
   bool converts();
   CK2Ruler* getRuler () const {return ckSovereign;}
   CK2Title* getTitle () const {return ckTitle;}
+  void removeCore (EU4Province* prov);
+  void setAsCore (EU4Province* prov);
   void setRuler (CK2Ruler* ruler, CK2Title* title);
 
   EU4Province::Iter startProvince () {return provinces.begin();}

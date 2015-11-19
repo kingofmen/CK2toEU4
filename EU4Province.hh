@@ -17,6 +17,7 @@ public:
   EU4Country* getEU4Country () const {return eu4Country;}
   bool hasCore (string countryTag) const;
   int numCKProvinces () const {return ckProvinces.size();}
+  void remCore (string countryTag);
   CK2Province::Iter startProv () {return ckProvinces.begin();}
   CK2Province::Iter finalProv () {return ckProvinces.end();}
 private:

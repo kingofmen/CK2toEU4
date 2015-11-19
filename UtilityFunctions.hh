@@ -313,6 +313,7 @@ struct ObjectWrapper {
   void    setLeaf (string key, string value) {object->setLeaf(key, value);}
   void    setValue (Object* val, Object* beforeThis = 0) {object->setValue(val, beforeThis);}
   void    unsetValue (string val) {object->unsetValue(val);}
+  void    unsetKeyValue (string key, string val) {object->unsetKeyValue(key, val);}
   void    resetHistory (string k, string value) {object->getNeededObject("history")->resetLeaf(k, value);}
   
   Object* object;

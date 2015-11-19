@@ -26,7 +26,6 @@ using namespace std;
  * Wars
  * Trade?
  * Heresies - must be rebel factions?
- * Fix cores
  * Troop types?
  * Armies again
  * Mercenaries
@@ -897,6 +896,8 @@ bool Converter::adjustBalkanisation () {
 	    Logger::logStream("countries") << "Reassigned " << (*eu4prov)->getName() << " to "
 					   << target->getKey() << "\n";
 	    (*eu4prov)->assignCountry(target);
+	    target->setAsCore(*eu4prov);
+	    overlord->removeCore(*eu4prov);
 	    ownerMap[target]++;
 	    ownerMap[overlord]--;
 	    success = true;
@@ -949,6 +950,9 @@ bool Converter::adjustBalkanisation () {
 				       << " from " << target->getName()
 				       << ".\n";
 	province->assignCountry(overlord);
+	overlord->setAsCore(province);
+	target->removeCore(province);
+
 	ownerMap[overlord]++;
 	ownerMap[target]--;
 	success = true;
@@ -1080,6 +1084,7 @@ bool Converter::cleanEU4Nations () {
   Object* keysToClear = configObject->getNeededObject("keys_to_clear");
   keysToClear->addToList("owned_provinces");
   keysToClear->addToList("core_provinces");
+
   Object* keysToRemove = configObject->getNeededObject("keys_to_remove");
   Object* zeroProvKeys = configObject->getNeededObject("keys_to_remove_on_zero_provs");
 
@@ -1128,7 +1133,7 @@ bool Converter::cleanEU4Nations () {
     objvec cores = (*eu4prov)->getValue("core");
     for (objiter core = cores.begin(); core != cores.end(); ++core) {
       EU4Country* coreHaver = EU4Country::getByName(remQuotes((*core)->getLeaf()));
-      if (coreHaver) coreHaver->getNeededObject("core_provinces")->addToList((*eu4prov)->getKey());
+      if (coreHaver) coreHaver->setAsCore(*eu4prov);
     }
   }
 
@@ -2522,9 +2527,6 @@ bool Converter::resetHistories () {
     }
   }
 
-  for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
-  }
-
   Logger::logStream(LogStream::Info) << "Done with clearing.\n" << LogOption::Undent;
   return true;
 }
@@ -2535,10 +2537,12 @@ bool Converter::setCores () {
   // 2. You hold the de-jure duchy.
   // 3. The de-jure kingdom or empire is your primary title.
   // Claims on:
-  // 1. It is your vassal (including a baron), but you don't have a core.
-  // 2. You have a CK claim on its de-jure liege.
+  // 2. You have a CK claim on its de-jure liege, or hold the title.
 
+  // Cores on every owned province and on de-jure vassals.
+  
   Logger::logStream(LogStream::Info) << "Beginning cores and claims.\n" << LogOption::Indent;
+
   map<EU4Province*, map<EU4Country*, int> > claimsMap;
   for (CK2Province::Iter ck2prov = CK2Province::start(); ck2prov != CK2Province::final(); ++ck2prov) {
     Logger::logStream("cores") << "Seeking core for "
@@ -2556,18 +2560,21 @@ bool Converter::setCores () {
 	if (country) {
 	  Logger::logStream("cores") << " and country " << country->getKey();
 	  CK2Title* primary = ruler->getPrimaryTitle();
+
+	  // Claims due to holding de-jure liege title.
+	  for (EU4Province::Iter eu4prov = (*ck2prov)->startEU4Province(); eu4prov != (*ck2prov)->finalEU4Province(); ++eu4prov) {
+	    claimsMap[*eu4prov][country]++;
+	  }
 	  if ((primary == title) || (*(title->getLevel()) < *TitleLevel::Kingdom)) {
 	    Logger::logStream("cores") << ".\n" << LogOption::Indent;
-	    string quotedTag = addQuotes(country->getKey());
 	    for (EU4Province::Iter eu4prov = (*ck2prov)->startEU4Province(); eu4prov != (*ck2prov)->finalEU4Province(); ++eu4prov) {
-	      if ((*eu4prov)->hasCore(quotedTag)) continue;
 	      Logger::logStream("cores") << nameAndNumber(*eu4prov)
 					 << " is core of "
 					 << country->getKey()
 					 << " because of "
 					 << title->getKey()
 					 << ".\n";
-	      (*eu4prov)->addCore(quotedTag);
+	      country->setAsCore(*eu4prov);
 	    }
 	    Logger::logStream("cores") << LogOption::Undent;
 	  }
@@ -2593,7 +2600,7 @@ bool Converter::setCores () {
 	  claimsMap[*eu4prov][eu4country]++;
 	}
       }
-      
+
       title = title->getDeJureLiege();
     }
     for (objiter barony = (*ck2prov)->startBarony(); barony != (*ck2prov)->finalBarony(); ++barony) {
@@ -2604,14 +2611,13 @@ bool Converter::setCores () {
       EU4Country* eu4country = baron->getEU4Country();
       if (eu4country) {
 	for (EU4Province::Iter eu4prov = (*ck2prov)->startEU4Province(); eu4prov != (*ck2prov)->finalEU4Province(); ++eu4prov) {
-	  if ((*eu4prov)->hasCore(eu4country->getKey())) continue;
 	  Logger::logStream("cores") << nameAndNumber(*eu4prov)
 				     << " is core of "
 				     << eu4country->getKey()
 				     << " because of "
 				     << baronyTitle->getKey()
 				     << ".\n";
-	  (*eu4prov)->addCore(eu4country->getKey());
+	  eu4country->setAsCore(*eu4prov);
 	}
       }
       // Iterate up the liege list for claims.
@@ -2634,6 +2640,7 @@ bool Converter::setCores () {
     EU4Province* eu4prov = claim->first;
     for (map<EU4Country*, int>::iterator strength = claim->second.begin(); strength != claim->second.end(); ++strength) {
       EU4Country* eu4country = strength->first;
+      if (eu4prov->hasCore(eu4country->getKey())) continue;
       int numClaims = strength->second;
       if (1 > numClaims) continue;
       int startYear = year(eu4Game->safeGetString("date", "1444.1.1"));
@@ -2803,8 +2810,6 @@ bool Converter::transferProvinces () {
 				       << eu4country->getName()
 				       << " due to " << (titleToUse == primary ? "regular liege chain to primary " : "being de-jure in union title ")
 				       << titleToUse->getName() << ".\n";
-	//weights[eu4country] += (*ck2Prov)->getWeight(ProvinceWeight::Manpower);
-	//continue;
       }
       if (!eu4country) {
 	// Look for tributary overlord.
@@ -2819,8 +2824,6 @@ bool Converter::transferProvinces () {
 					 << " assigned to "
 					 << eu4country->getName()
 					 << " due to tributary overlordship.\n";
-	  //weights[eu4country] += (*ck2Prov)->getWeight(ProvinceWeight::Manpower);
-	  //continue;	
 	}
       }
       if (!eu4country) {
@@ -2831,12 +2834,10 @@ bool Converter::transferProvinces () {
 	}
 	if (eu4country) {
 	  rebelWeight += (*ck2Prov)->getWeight(ProvinceWeight::Manpower);
-	  //weights[eu4country] += (*ck2Prov)->getWeight(ProvinceWeight::Manpower);
 	  Logger::logStream("provinces") << countyTitle->getName()
 					 << " assigned "
 					 << eu4country->getName()
 					 << " from war - assumed rebel.\n";
-	  //continue;
 	}
       }
       if (!eu4country) {
@@ -2852,12 +2853,10 @@ bool Converter::transferProvinces () {
 	}
 	if (biggest) {
 	  eu4country = biggest->getEU4Country();
-	  //weights[eu4country] += (*ck2Prov)->getWeight(ProvinceWeight::Manpower);
 	  Logger::logStream("provinces") << countyTitle->getName()
 					 << " assigned "
 					 << eu4country->getName()
 					 << " from same dynasty.\n";
-	  //continue;
 	}
       }
       if (!eu4country) continue;
@@ -2885,6 +2884,7 @@ bool Converter::transferProvinces () {
     Logger::logStream("provinces") << nameAndNumber(*eu4Prov) << " assigned to " << best->getName() << "\n";
     if (debugNames) (*eu4Prov)->resetLeaf("name", addQuotes(debugName));
     (*eu4Prov)->assignCountry(best);
+    best->setAsCore(*eu4Prov);
   }
 
   Logger::logStream(LogStream::Info) << "Done with province transfer.\n" << LogOption::Undent;

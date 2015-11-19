@@ -43,3 +43,9 @@ bool EU4Province::hasCore (string countryTag) const {
   }
   return false;
 }
+
+void EU4Province::remCore (string countryTag) {
+  string quotedTag = addQuotes(countryTag);
+  unsetKeyValue("core", quotedTag);
+  getNeededObject("history")->unsetKeyValue("add_core", quotedTag);
+}
