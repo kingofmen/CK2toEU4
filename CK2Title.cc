@@ -51,6 +51,11 @@ TitleLevel const* const CK2Title::getLevel () const {
   return titleLevel;
 }
 
+void CK2Title::addClaimant (CK2Character* claimant) {
+  if (find(claimants.begin(), claimants.end(), claimant) != claimants.end()) return;
+  claimants.push_back(claimant);
+}
+
 CK2Title* CK2Title::getDeJureLevel (TitleLevel const* const level) {
   CK2Title* curr = this;
   while (curr) {

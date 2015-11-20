@@ -23,7 +23,7 @@ class CK2Title : public Enumerable<CK2Title>, public ObjectWrapper {
 public:
   CK2Title (Object* o);
 
-  void addClaimant (CK2Character* claimant) {claimants.push_back(claimant);}
+  void addClaimant (CK2Character* claimant);
   TitleLevel const* const getLevel () const;
   EU4Country* getEU4Country () const {return eu4country;}
   CK2Title* getDeJureLiege () const {return deJureLiege;}

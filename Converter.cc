@@ -2333,7 +2333,7 @@ bool Converter::redistributeMana () {
       for (CK2Character::CharacterIter claimant = primary->startClaimant(); claimant != primary->finalClaimant(); ++claimant) {
 	++claimants;
       }
-      double legitimacy = 1 - 0.05*claimants;
+      double legitimacy = 100 - 5*claimants;
       if (legitimacy < 0) legitimacy = 0;
       (*eu4country)->resetLeaf("legitimacy", legitimacy);
       Logger::logStream("mana") << claimants << " claims on " << primary->getKey() << ", hence "
