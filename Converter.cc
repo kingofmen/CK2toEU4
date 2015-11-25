@@ -1780,6 +1780,10 @@ pair<string, string> findBest (map<string, map<string, int> >& corrMap) {
       ret.second = curr->first;
     }
   }
+
+  Logger::logStream("cultures") << "Assigning " << ret.first << " to "
+				<< ret.second << " based on overlap " << highest << " ";
+
   return ret;
 }
 
@@ -1798,8 +1802,6 @@ void makeMap (map<string, map<string, int> >& cultures, map<string, vector<strin
     string euCulture = best.second;
     assigns[ckCulture].push_back(euCulture);
     double highestValue = cultures[ckCulture][euCulture];
-    Logger::logStream("cultures") << "Assigning " << ckCulture << " to "
-				  << euCulture << " based on overlap " << highestValue << " ";
     
     for (map<string, int>::iterator cand = cultures[ckCulture].begin(); cand != cultures[ckCulture].end(); ++cand) {
       if (cand->first == euCulture) continue;
@@ -1914,6 +1916,10 @@ bool Converter::cultureAndReligion () {
     }
     Logger::logStream("cultures") << (*eu4country)->getKey() << ":\n" << LogOption::Indent;
     if (ckRulerReligion != PlainNone) {
+      if (0 == religionMap[ckRulerReligion].size()) {
+	Logger::logStream("cultures") << "Emergency-assigning " << ckRulerReligion << " to catholic.\n";
+	religionMap[ckRulerReligion].push_back("catholic");
+      }
       string euReligion = religionMap[ckRulerReligion][0];
       Logger::logStream("cultures") << "Religion: " << euReligion << " based on CK religion " << ckRulerReligion << ".\n";
       (*eu4country)->resetLeaf("religion", euReligion);
