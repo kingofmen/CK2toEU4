@@ -47,6 +47,24 @@ CK2Title::CK2Title (Object* o)
   else baronies.push_back(this);
 }
 
+int CK2Title::distanceToSovereign () {
+  CK2Ruler* sovereign = getSovereign();
+  if (!sovereign) return 0;
+  CK2Ruler* ruler = getRuler();
+  if (!ruler) return 0;
+  if (ruler == sovereign) return 0;
+  int ret = 0;
+  CK2Title* current = this;
+  while (current) {
+    ++ret;
+    current = current->getLiege();
+    if (!current) break;
+    ruler = current->getRuler();
+    if (ruler == sovereign) return ret;
+  }
+  return ret;
+}
+
 TitleLevel const* const CK2Title::getLevel () const {
   return titleLevel;
 }

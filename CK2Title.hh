@@ -24,6 +24,7 @@ public:
   CK2Title (Object* o);
 
   void addClaimant (CK2Character* claimant);
+  int distanceToSovereign ();
   TitleLevel const* const getLevel () const;
   EU4Country* getEU4Country () const {return eu4country;}
   CK2Title* getDeJureLiege () const {return deJureLiege;}

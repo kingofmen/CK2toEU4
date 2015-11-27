@@ -300,6 +300,7 @@ struct ObjectWrapper {
   virtual ~ObjectWrapper () {}
 
   string  getKey () const {return object->getKey();}
+  objvec  getLeaves () {return object->getLeaves();}
   Object* getNeededObject (string key) {return object->getNeededObject(key);}
   objvec  getValue (string key) const {return object->getValue(key);}
   void    resetLeaf (string k, string value) {object->resetLeaf(k, value);}

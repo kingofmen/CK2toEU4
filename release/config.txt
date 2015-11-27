@@ -6,14 +6,14 @@ streams = {
   buildings = no
   characters = no
   cores = no
-  countries = yes
-  cultures = yes # Also covers religion
+  countries = no
+  cultures = no # Also covers religion
   governments = no
   titles = no
   diplomacy = no
-  armies = no
-  navies = no
-  mana = yes
+  armies = yes
+  navies = yes
+  mana = no
   all = no
 }
 
@@ -28,6 +28,12 @@ humans_always_independent = yes
 max_balkanisation = 0.40
 min_balkanisation = 0.30
 balkan_threshold = 8
+
+infantry_type = "western_medieval_infantry"
+cavalry_type = "western_medieval_knights"
+infantry_per_cavalry = 7
+retinue_weight = 3
+make_average = 1
 
 keys_to_clear = { ledger flags hidden_flags ruler_flags variables }
 keys_to_remove = { base_tax development raw_development enemy
@@ -130,12 +136,12 @@ generalSkills = {
 }
 
 troops = {
-  light_infantry_f = 1
+  light_infantry_f = 0.7
   heavy_infantry_f = 3
-  pikemen_f        = 3
-  light_cavalry_f  = 2
+  pikemen_f        = 2
+  light_cavalry_f  = 3
   archers_f        = 2
-  knights_f        = 4
+  knights_f        = 6
 }
 
 ships = {

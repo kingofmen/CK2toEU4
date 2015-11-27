@@ -25,9 +25,8 @@ using namespace std;
 /*
  * Wars
  * Trade?
+ * Opinions
  * Heresies - must be rebel factions?
- * Troop types?
- * Armies again
  * Mercenaries
  * Rebels
  * HRE
@@ -1148,10 +1147,16 @@ bool Converter::createArmies () {
   set<string> armyLocations;
   string armyType = "54";
   string regimentType = "54";
-  vector<string> regimentTypeStrings;
-  
+  Object* troopWeights = configObject->getNeededObject("troops");
+  objvec troopTypes = troopWeights->getLeaves();
+  double totalCkTroops = 0;
+  int countries = 0;
+
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
-    if (!(*eu4country)->getRuler()) continue;
+    if (!(*eu4country)->converts()) {
+      (*eu4country)->unsetValue("army");
+      continue;
+    }
     objvec armies = (*eu4country)->getValue("army");
     for (objiter army = armies.begin(); army != armies.end(); ++army) {
       Object* id = (*army)->safeGetObject("id");
@@ -1164,18 +1169,66 @@ bool Converter::createArmies () {
 	if (id) regimentIds.push_back(id);
 	location = (*regiment)->safeGetString("home", "-1");
 	if (location != "-1") armyLocations.insert(location);
-	regimentTypeStrings.push_back((*regiment)->safeGetString("type"));
       }
     }
     (*eu4country)->unsetValue("army");
-  }
 
+    Logger::logStream("armies") << (*eu4country)->getKey() << " levies: \n" << LogOption::Indent;
+    double ck2troops = 0;
+    for (EU4Province::Iter eu4prov = (*eu4country)->startProvince(); eu4prov != (*eu4country)->finalProvince(); ++eu4prov) {
+      Logger::logStream("armies") << (*eu4prov)->safeGetString("name") << ":\n" << LogOption::Indent;
+      double weighted = 0;
+      double unweighted = 0;
+      for (CK2Province::Iter ck2prov = (*eu4prov)->startProv(); ck2prov != (*eu4prov)->finalProv(); ++ck2prov) {
+	double weightFactor = 1.0 / (*ck2prov)->numEU4Provinces();
+	objvec leaves = (*ck2prov)->getLeaves();
+	for (objiter leaf = leaves.begin(); leaf != leaves.end(); ++leaf) {
+	  Object* levy = (*leaf)->safeGetObject("levy");
+	  if (!levy) continue;
+	  string baronyTag = (*leaf)->getKey();
+	  if (baronyTag == "tradepost") continue;
+	  CK2Title* baronyTitle = CK2Title::findByName(baronyTag);
+	  if (!baronyTitle) continue;
+	  CK2Ruler* sovereign = baronyTitle->getSovereign();
+	  Logger::logStream("armies") << baronyTag << ": ";
+	  if (sovereign != (*eu4country)->getRuler()) {
+	    if ((sovereign) && (sovereign->getEU4Country())) {
+	      Logger::logStream("armies") << "Ignoring, part of " << sovereign->getEU4Country()->getKey() << ".\n";
+	    }
+	    else {
+	      Logger::logStream("armies") << "Ignoring, no sovereign.\n";
+	    }
+	    continue;
+	  }
+	  double distanceFactor = 1.0 / (1 + baronyTitle->distanceToSovereign());
+	  Logger::logStream("armies") << "(" << distanceFactor << "):\n" << LogOption::Indent;
+	  for (objiter ttype = troopTypes.begin(); ttype != troopTypes.end(); ++ttype) {
+	    string key = (*ttype)->getKey();
+	    Object* strength = levy->safeGetObject(key);
+	    if (!strength) continue;
+	    double amount = strength->tokenAsFloat(1);
+	    Logger::logStream("armies") << key << ": " << amount << "\n";
+	    unweighted += amount;
+	    amount *= troopWeights->safeGetFloat(key);
+	    amount *= weightFactor;
+	    amount *= distanceFactor;
+	    ck2troops += amount;
+	    weighted += amount;
+	  }
+	  Logger::logStream("armies") << LogOption::Undent;
+	}
+      }
+      Logger::logStream("armies") << "Province totals: " << unweighted << " " << weighted << "\n" << LogOption::Undent;
+    }
+    Logger::logStream("armies") << (*eu4country)->getKey() << " has " << ck2troops << " weighted levies.\n" << LogOption::Undent;
+    (*eu4country)->resetLeaf("ck_troops", ck2troops);
+    totalCkTroops += ck2troops;
+    ++countries;
+  }
   if (0 < regimentIds.size()) regimentType = regimentIds.back()->safeGetString("type", regimentType);
   if (0 < armyIds.size()) armyType = armyIds.back()->safeGetString("type", armyType);
   
   double totalRetinues = 0;
-  Object* troopWeights = configObject->getNeededObject("troops");
-  objvec troopTypes = troopWeights->getLeaves();
   for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
     EU4Country* eu4country = (*ruler)->getEU4Country();
     if (!eu4country) continue;
@@ -1199,34 +1252,56 @@ bool Converter::createArmies () {
     }
     totalRetinues += currRetinue;
     (*ruler)->resetLeaf("retinueWeight", currRetinue);
+    Logger::logStream("armies") << nameAndNumber(*ruler)
+				<< " has retinue weight "
+				<< currRetinue
+				<< ".\n";
   }
 
-  if (0 == totalRetinues) {
-    Logger::logStream(LogStream::Warn) << "Warning: Found no retinue troops. No armies will be created.\n" << LogOption::Undent;
+  double retinueWeight = configObject->safeGetFloat("retinue_weight", 3);
+  totalCkTroops += retinueWeight * totalRetinues;
+
+  if (0 == totalCkTroops) {
+    Logger::logStream(LogStream::Warn) << "Warning: Found no CK troops. No armies will be created.\n" << LogOption::Undent;
     return true;
   }
 
   int numRegiments = regimentIds.size();
-  Logger::logStream("armies") << "Total weighted retinue strength "
-			      << totalRetinues
+  double averageTroops = totalCkTroops / countries;
+  Logger::logStream("armies") << "Total weighted CK troop strength "
+			      << totalCkTroops
 			      << ", EU4 regiments "
 			      << numRegiments
 			      << ".\n";
-  for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
-    EU4Country* eu4country = (*ruler)->getEU4Country();
-    if (!eu4country) continue;
-    double currWeight = (*ruler)->safeGetFloat("retinueWeight");
-    Logger::logStream("armies") << nameAndNumber(*ruler)
-				<< " has retinue weight "
-				<< currWeight;
-    currWeight /= totalRetinues;
+
+  string infantryType = configObject->safeGetString("infantry_type", "\"western_medieval_infantry\"");
+  string cavalryType = configObject->safeGetString("cavalry_type", "\"western_medieval_knights\"");
+  int infantryRegiments = configObject->safeGetInt("infantry_per_cavalry", 7);
+  double makeAverage = max(0.0, configObject->safeGetFloat("make_average", 1));
+  
+  for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
+    if (!(*eu4country)->converts()) continue;
+    CK2Ruler* ruler = (*eu4country)->getRuler();
+
+    double currWeight = (*eu4country)->safeGetFloat("ck_troops");
+    Logger::logStream("armies") << (*eu4country)->getKey() << " levy strength " << currWeight;
+    if (ruler->getEU4Country() == (*eu4country)) {
+      double retinue = ruler->safeGetFloat("retinueWeight") * retinueWeight;
+      Logger::logStream("armies") << " plus retinue " << retinue;
+      currWeight += retinue;
+    }
+    currWeight += averageTroops * makeAverage;
+    currWeight /= (1 + makeAverage);
+    Logger::logStream("armies") << " gives adjusted weight " << currWeight;    
+    currWeight /= totalCkTroops;
     currWeight *= numRegiments;
     int regimentsToCreate = (int) floor(0.5 + currWeight);
-    Logger::logStream("armies") << " and gets "
+    Logger::logStream("armies") << " and "
 				<< regimentsToCreate
 				<< " regiments.\n";
+    (*eu4country)->unsetValue("ck_troops");
     if (0 == regimentsToCreate) continue;
-    Object* army = eu4country->getNeededObject("army");
+    Object* army = (*eu4country)->getNeededObject("army");
     Object* armyId = 0;
     if (!armyIds.empty()) {
       armyId = armyIds.back();
@@ -1236,12 +1311,12 @@ bool Converter::createArmies () {
       armyId = createUnitId(armyType);
     }
     army->setValue(armyId);
-    string name = remQuotes((*ruler)->safeGetString("birth_name", "\"Nemo\""));
+    string name = remQuotes(ruler->safeGetString("birth_name", "\"Nemo\""));
     army->setLeaf("name", addQuotes(string("Army of ") + name));
-    string capitalTag = eu4country->safeGetString("capital");
+    string capitalTag = (*eu4country)->safeGetString("capital");
     string location = capitalTag;
     if (0 == armyLocations.count(capitalTag)) {
-      for (EU4Province::Iter prov = eu4country->startProvince(); prov != eu4country->finalProvince(); ++prov) {
+      for (EU4Province::Iter prov = (*eu4country)->startProvince(); prov != (*eu4country)->finalProvince(); ++prov) {
 	string provTag = (*prov)->getKey();
 	if (0 == armyLocations.count(provTag)) continue;
 	location = provTag;
@@ -1268,8 +1343,7 @@ bool Converter::createArmies () {
       regiment->setValue(regimentId);
       regiment->setLeaf("home", location);
       regiment->setLeaf("name", createString("\"Retinue Regiment %i\"", i+1));
-      regiment->setLeaf("type", regimentTypeStrings.back());
-      if (1 < regimentTypeStrings.size()) regimentTypeStrings.pop_back();
+      regiment->setLeaf("type", ((i + 1) % (infantryRegiments + 1) == 0 ? cavalryType : infantryType));
       regiment->setLeaf("strength", "1.000");
     }
   }
@@ -1606,7 +1680,10 @@ bool Converter::createNavies () {
   string shipType = "54";
   
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
-    if (!(*eu4country)->getRuler()) continue;
+    if (!(*eu4country)->converts()) {
+      (*eu4country)->unsetValue("navy");
+      continue;
+    }
     objvec navies = (*eu4country)->getValue("navy");
     for (objiter navy = navies.begin(); navy != navies.end(); ++navy) {
       Object* id = (*navy)->safeGetObject("id");
@@ -1669,9 +1746,11 @@ bool Converter::createNavies () {
   for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
     EU4Country* eu4country = (*ruler)->getEU4Country();
     if (!eu4country) continue;
+    if (!eu4country->converts()) continue;
     string eu4Tag = eu4country->getKey();
     double currWeight = (*ruler)->safeGetFloat("shipWeight");
     Logger::logStream("navies") << nameAndNumber(*ruler)
+				<< " of " << eu4Tag
 				<< " has ship weight "
 				<< currWeight;
     currWeight /= totalShips;
@@ -2933,11 +3012,11 @@ void Converter::convert () {
   if (!moveCapitals()) return;
   if (!modifyProvinces()) return;
   if (!moveBuildings()) return;
-  if (!createArmies()) return;
-  if (!createNavies()) return;
   if (!setupDiplomacy()) return;
   if (!adjustBalkanisation()) return;
   if (!cleanEU4Nations()) return;
+  if (!createArmies()) return;
+  if (!createNavies()) return;  
   if (!cultureAndReligion()) return;
   if (!createGovernments()) return;
   if (!createCharacters()) return;
