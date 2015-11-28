@@ -100,9 +100,6 @@ void Converter::cleanUp () {
     (*eu4country)->unsetValue("needs_heir");
     (*eu4country)->unsetValue(EU4Country::kNoProvinceMarker);
     if (!(*eu4country)->getRuler()) continue;
-    (*eu4country)->unsetValue("loan");
-    (*eu4country)->unsetValue("rival");
-    (*eu4country)->unsetValue("guarantees");
     (*eu4country)->resetLeaf("army_tradition", "0.000");
     (*eu4country)->resetLeaf("navy_tradition", "0.000");
     (*eu4country)->resetLeaf("papal_influence", "0.000");
@@ -113,6 +110,7 @@ void Converter::cleanUp () {
     (*eu4country)->resetLeaf("last_sacrifice", "1.1.1");
     (*eu4country)->resetLeaf("last_debate", "1.1.1");
     (*eu4country)->resetLeaf("wartax", "1.1.1");
+    (*eu4country)->resetLeaf("update_opinion_cache", "yes");
     (*eu4country)->resetLeaf("manpower", "10.000");
     (*eu4country)->resetLeaf("technology_group", "western");
     (*eu4country)->resetHistory("technology_group", "western");
@@ -2764,6 +2762,7 @@ bool Converter::setupDiplomacy () {
     (*eu4)->unsetValue("is_lesser_in_union");
     (*eu4)->unsetValue("overlord");
     (*eu4)->unsetValue("previous_monarch");
+    (*eu4)->resetLeaf("num_of_unions", 0);
 
     Object* active_relations = (*eu4)->getNeededObject("active_relations");
     objvec relations = active_relations->getLeaves();
@@ -2835,6 +2834,8 @@ bool Converter::setupDiplomacy () {
       subject->resetLeaf("is_lesser_in_union", "yes");
       subject->resetLeaf("overlord", addQuotes(overlord->getKey()));
       subject->resetLeaf("liberty_desire", "0.000");
+      subject->resetLeaf("num_of_unions", 1);
+      overlord->resetLeaf("num_of_unions", 1 + overlord->safeGetInt("num_of_unions"));
       Object* unionObject = new Object("union");
       euDipObject->setValue(unionObject);
       unionObject->setLeaf("first", addQuotes(overlord->getKey()));
