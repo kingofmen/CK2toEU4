@@ -51,6 +51,7 @@ private:
   bool createGovernments ();
   bool createNavies ();  
   bool cultureAndReligion ();
+  bool hreAndPapacy ();
   bool modifyProvinces ();
   bool moveBuildings ();
   bool moveCapitals ();

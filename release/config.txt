@@ -14,6 +14,7 @@ streams = {
   armies = yes
   navies = yes
   mana = no
+  hre = yes # Also papacy
   all = no
 }
 
@@ -28,6 +29,9 @@ humans_always_independent = yes
 max_balkanisation = 0.40
 min_balkanisation = 0.30
 balkan_threshold = 8
+
+# Options are keep, remove
+hre = remove
 
 infantry_type = "western_medieval_infantry"
 cavalry_type = "western_medieval_knights"

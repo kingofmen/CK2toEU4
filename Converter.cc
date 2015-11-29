@@ -29,7 +29,6 @@ using namespace std;
  * Heresies - must be rebel factions?
  * Mercenaries
  * Rebels
- * HRE
  */
 
 ConverterJob const* const ConverterJob::Convert = new ConverterJob("convert", false);
@@ -2066,6 +2065,66 @@ Object* Converter::createMonarchId () {
   return createTypedId("monarch", "48");
 }
 
+bool Converter::hreAndPapacy () {
+  Logger::logStream(LogStream::Info) << "Beginning HRE and papacy.\n" << LogOption::Indent;
+  string hreOption = configObject->safeGetString("hre", "keep");
+  if (hreOption == "remove") {
+    Logger::logStream("hre") << "Removing bratwurst.\n";
+    for (EU4Province::Iter eu4prov = EU4Province::start(); eu4prov != EU4Province::final(); ++eu4prov) {
+      (*eu4prov)->unsetValue("hre");
+    }
+    for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
+      (*eu4country)->unsetValue("preferred_emperor");
+      (*eu4country)->unsetValue("is_elector");
+    }
+    eu4Game->unsetValue("emperor");
+    eu4Game->unsetValue("old_emperor");
+  }
+
+  Object* papacy = eu4Game->getNeededObject("religions");
+  papacy = papacy->getNeededObject("catholic");
+  papacy = papacy->getNeededObject("papacy");
+  papacy->resetLeaf("papal_state", addQuotes("PAP"));
+  papacy->resetLeaf("controller", addQuotes("PAP"));
+  papacy->resetLeaf("previous_controller", addQuotes("PAP"));
+  papacy->resetLeaf("crusade_target", "\"\"");
+  papacy->resetLeaf("crusade_start", "1.1.1");
+  papacy->resetLeaf("last_excom", "1.1.1");
+  papacy->resetLeaf("papacy_active", "yes");
+  papacy->resetLeaf("weighted_cardinal", "1");
+  papacy->resetLeaf("reform_desire", "0.000");
+  papacy->resetLeaf("papal_investment", "0.000");
+  papacy = papacy->getNeededObject("active_cardinals");
+  papacy->clear();
+
+  int createdCardinals = 0;
+  for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
+    CK2Ruler* sovereign = (*ruler)->getSovereignLiege();
+    if (!sovereign) continue;
+    EU4Country* eu4country = sovereign->getEU4Country();
+    if (!eu4country) continue;
+
+    objvec titles = (*ruler)->getValue("title");
+    bool isCardinal = false;
+    for (objiter title = titles.begin(); title != titles.end(); ++title) {
+      if ((*title)->getLeaf() != "\"title_cardinal\"") continue;
+      isCardinal = true;
+      break;
+    }
+
+    if (!isCardinal) continue;
+    Logger::logStream("hre") << nameAndNumber(*ruler) << " is cardinal in "
+			     << eu4country->getKey() << ".\n";
+    Object* cardinal = new Object("cardinal");
+    papacy->setValue(cardinal);
+    cardinal->setLeaf("location", eu4country->safeGetString("capital"));
+    if (++createdCardinals >= 7) break;
+  }
+
+  Logger::logStream(LogStream::Info) << "Done with HRE and papacy.\n" << LogOption::Undent;
+  return true;
+}
+
 bool Converter::modifyProvinces () {
   Logger::logStream(LogStream::Info) << "Beginning province modifications.\n" << LogOption::Indent;
   double totalBaseTax = 0;
@@ -3022,6 +3081,7 @@ void Converter::convert () {
   if (!createGovernments()) return;
   if (!createCharacters()) return;
   if (!redistributeMana()) return;
+  if (!hreAndPapacy()) return;
   cleanUp();
   
   Logger::logStream(LogStream::Info) << "Done with conversion, writing to Output/converted.eu4.\n";
