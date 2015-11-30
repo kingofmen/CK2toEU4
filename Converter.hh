@@ -60,7 +60,8 @@ private:
   bool setCores ();
   bool setupDiplomacy ();
   bool transferProvinces ();
-  
+  bool warsAndRebels ();
+
   // Infrastructure
   void loadFile ();
   void convert ();

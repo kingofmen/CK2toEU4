@@ -23,7 +23,6 @@
 using namespace std;
 
 /*
- * Wars
  * Trade?
  * Opinions
  * Heresies - must be rebel factions?
@@ -3036,6 +3035,158 @@ bool Converter::transferProvinces () {
   return true;
 }
 
+bool Converter::warsAndRebels () {
+  Logger::logStream(LogStream::Info) << "Beginning wars.\n" << LogOption::Indent;
+  objvec euWars = eu4Game->getValue("active_war");
+  for (objiter euWar = euWars.begin(); euWar != euWars.end(); ++euWar) {
+    vector<string> convertingTags;
+    objvec attackers = (*euWar)->getValue("attacker");
+    for (objiter attacker = attackers.begin(); attacker != attackers.end(); ++attacker) {
+      string tag = remQuotes((*attacker)->getLeaf());
+      EU4Country* eu4country = EU4Country::findByName(tag);
+      if (!eu4country->converts()) continue;
+      convertingTags.push_back(tag);
+    }
+    objvec defenders = (*euWar)->getValue("defender");
+    for (objiter defender = defenders.begin(); defender != defenders.end(); ++defender) {
+      string tag = remQuotes((*defender)->getLeaf());
+      EU4Country* eu4country = EU4Country::findByName(tag);
+      if (!eu4country->converts()) continue;
+      convertingTags.push_back(tag);
+    }
+    if (convertingTags.empty()) continue;
+    Logger::logStream("war") << "Removing " << (*euWar)->safeGetString("name")
+			     << " because of participants";
+    for (vector<string>::iterator tag = convertingTags.begin(); tag != convertingTags.end(); ++tag) {
+      Logger::logStream("war") << (*tag) << " ";
+    }
+    Logger::logStream("war") << "\n";
+    eu4Game->removeObject(*euWar);
+  }
+
+  Object* before = eu4Game->getNeededObject("income_statistics");
+  for (CK2War::Iter ckWar = CK2War::start(); ckWar != CK2War::final(); ++ckWar) {
+    string warName = (*ckWar)->safeGetString("name", QuotedNone);
+    objvec ckAttackers = (*ckWar)->getValue("attacker");
+    EU4Country::Container euAttackers;
+    for (objiter ckAttacker = ckAttackers.begin(); ckAttacker != ckAttackers.end(); ++ckAttacker) {
+      string attackerId = (*ckAttacker)->getLeaf();
+      CK2Ruler* attacker = CK2Ruler::findByName(attackerId);
+      if (!attacker) continue;
+      EU4Country* eu4Attacker = attacker->getEU4Country();
+      if (!eu4Attacker) continue;
+      if (!eu4Attacker->converts()) continue;
+      euAttackers.push_back(eu4Attacker);
+    }
+    if (euAttackers.empty()) {
+      Logger::logStream("war") << "Skipping " << warName << " because no attackers converted.\n";
+      continue;
+    }
+    objvec ckDefenders = (*ckWar)->getValue("defender");
+    EU4Country::Container euDefenders;
+    for (objiter ckDefender = ckDefenders.begin(); ckDefender != ckDefenders.end(); ++ckDefender) {
+      string defenderId = (*ckDefender)->getLeaf();
+      CK2Ruler* defender = CK2Ruler::findByName(defenderId);
+      if (!defender) continue;
+      EU4Country* eu4Defender = defender->getEU4Country();
+      if (!eu4Defender) continue;
+      if (!eu4Defender->converts()) continue;
+      euDefenders.push_back(eu4Defender);
+    }
+    if (euDefenders.empty()) {
+      Logger::logStream("war") << "Skipping " << warName << " because no defenders converted.\n";
+      continue;
+    }
+
+    Object* ck2cb = (*ckWar)->safeGetObject("casus_belli");
+    if (!ck2cb) {
+      Logger::logStream("war") << "Skipping " << warName << " because no CB.\n";
+      continue;
+    }
+    Object* disputedTitle = ck2cb->safeGetObject("landed_title");
+    if (!disputedTitle) {
+      Logger::logStream("war") << "Skipping " << warName << " because no disputed title.\n";
+      continue;
+    }
+    string disputedTag = remQuotes(disputedTitle->safeGetString("title", QuotedNone));
+    CK2Title* title = CK2Title::findByName(disputedTag);
+    if (!title) {
+      Logger::logStream("war") << "Skipping " << warName << ", could not identify disputed title " << disputedTag << ".\n";
+      continue;
+    }
+
+    Object* euWar = new Object("active_war");
+    euWar->setLeaf("name", warName);
+    Object* history = euWar->getNeededObject("history");
+    history->setLeaf("name", warName);
+    Object* startDate = history->getNeededObject(eu4Game->safeGetString("date", "1444.1.1"));
+    for (EU4Country::Iter eu4attacker = euAttackers.begin(); eu4attacker != euAttackers.end(); ++eu4attacker) {
+      euWar->setLeaf("attacker", addQuotes((*eu4attacker)->getKey()));
+      euWar->setLeaf("joined_war", addQuotes((*eu4attacker)->getKey()));
+      euWar->setLeaf("original_attacker", addQuotes((*eu4attacker)->getKey()));
+      startDate->setLeaf("add_attacker", addQuotes((*eu4attacker)->getKey()));
+    }
+    string targetProvince = "";
+    CK2Province* fromBarony = 0;
+    if (TitleLevel::Barony == title->getLevel()) fromBarony = CK2Province::getFromBarony(disputedTag);
+    for (EU4Country::Iter eu4defender = euDefenders.begin(); eu4defender != euDefenders.end(); ++eu4defender) {
+      euWar->setLeaf("defender", addQuotes((*eu4defender)->getKey()));
+      euWar->setLeaf("joined_war", addQuotes((*eu4defender)->getKey()));
+      euWar->setLeaf("original_defender", addQuotes((*eu4defender)->getKey()));
+      startDate->setLeaf("add_defender", addQuotes((*eu4defender)->getKey()));
+
+      if (targetProvince != "") continue;
+      for (EU4Province::Iter eu4prov = (*eu4defender)->startProvince(); eu4prov != (*eu4defender)->finalProvince(); ++eu4prov) {
+	bool useThisProvince = false;
+	for (CK2Province::Iter ck2prov = (*eu4prov)->startProv(); ck2prov != (*eu4prov)->finalProv(); ++ck2prov) {
+	  if (fromBarony == (*ck2prov)) {
+	    useThisProvince = true;
+	    break;
+	  }
+	  CK2Title* countyTitle = (*ck2prov)->getCountyTitle();
+	  if (countyTitle == title) {
+	    useThisProvince = true;
+	    break;
+	  }
+	  if (countyTitle->getDeJureLevel(title->getLevel()) == title) {
+	    useThisProvince = true;
+	    break;
+	  }
+	  while (countyTitle) {
+	    countyTitle = countyTitle->getLiege();
+	    if (countyTitle == title) {
+	      useThisProvince = true;
+	      break;
+	    }
+	  }
+	  if (useThisProvince) break;
+	}
+	if (!useThisProvince) continue;
+	targetProvince = (*eu4prov)->getKey();
+	break;
+      }
+    }
+
+    if (targetProvince == "") {
+      Logger::logStream("war") << "Skipping " << warName << ", could not find province from " << disputedTag << ".\n";
+      continue;
+    }
+
+    Logger::logStream("war") << "Converting " << warName << " with target province " << targetProvince << ".\n";
+    eu4Game->setValue(euWar, before);
+    Object* wargoal = history->getNeededObject("war_goal");
+    wargoal->setLeaf("type", "\"take_claim\"");
+    wargoal->setLeaf("province", targetProvince);
+    wargoal->setLeaf("casus_belli", "\"cb_conquest\"");
+    Object* takeProvince = euWar->getNeededObject("take_province");
+    takeProvince->setLeaf("type", "\"take_claim\"");
+    takeProvince->setLeaf("province", targetProvince);
+    takeProvince->setLeaf("casus_belli", "\"cb_conquest\"");
+  }
+  Logger::logStream(LogStream::Info) << "Done with wars.\n" << LogOption::Undent;
+  return true;
+}
+
 /******************************* End conversions ********************************/
 
 /*******************************  Begin calculators ********************************/
@@ -3061,6 +3212,11 @@ void Converter::convert () {
   }
 
   loadFiles();
+  // Last leaf needs special treatment.
+  objvec leaves = eu4Game->getLeaves();
+  Object* final = leaves.back();
+  eu4Game->removeObject(final);
+
   if (!createCK2Objects()) return;
   if (!createEU4Objects()) return;
   if (!createProvinceMap()) return; 
@@ -3082,15 +3238,10 @@ void Converter::convert () {
   if (!createCharacters()) return;
   if (!redistributeMana()) return;
   if (!hreAndPapacy()) return;
+  if (!warsAndRebels()) return;
   cleanUp();
-  
-  Logger::logStream(LogStream::Info) << "Done with conversion, writing to Output/converted.eu4.\n";
 
-  // Last leaf needs special treatment.
-  objvec leaves = eu4Game->getLeaves();
-  Object* final = leaves.back();
-  eu4Game->removeObject(final);
-  
+  Logger::logStream(LogStream::Info) << "Done with conversion, writing to Output/converted.eu4.\n";
   Parser::EqualsSign = "="; // No whitespace around equals, thanks Paradox.
   ofstream writer;
   writer.open(".\\Output\\converted.eu4");

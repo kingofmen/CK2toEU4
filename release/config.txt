@@ -11,10 +11,11 @@ streams = {
   governments = no
   titles = no
   diplomacy = no
-  armies = yes
-  navies = yes
+  armies = no
+  navies = no
   mana = no
-  hre = yes # Also papacy
+  hre = no # Also papacy
+  war = yes
   all = no
 }
 
