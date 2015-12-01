@@ -75,6 +75,7 @@ is_lesser_in_union is_subject }
 # For debugging.
 #overwrite_culture = aleutian
 debug_names = yes
+float_dev_values = no
 
 # The EU4 tags that know about these provinces will be used.
 provinces_for_tags = { 1 112 213 1315 }

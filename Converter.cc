@@ -109,6 +109,7 @@ void Converter::cleanUp () {
     (*eu4country)->resetLeaf("last_debate", "1.1.1");
     (*eu4country)->resetLeaf("wartax", "1.1.1");
     (*eu4country)->resetLeaf("update_opinion_cache", "yes");
+    (*eu4country)->resetLeaf("needs_refresh", "yes");
     (*eu4country)->resetLeaf("manpower", "10.000");
     (*eu4country)->resetLeaf("technology_group", "western");
     (*eu4country)->resetHistory("technology_group", "western");
@@ -2157,6 +2158,7 @@ bool Converter::modifyProvinces () {
   double afterTax = 0;
   double afterPro = 0;
   double afterMen = 0;
+  bool useDoubles = (configObject->safeGetString("float_dev_values", "no") == "yes");
   for (EU4Province::Iter eu4prov = EU4Province::start(); eu4prov != EU4Province::final(); ++eu4prov) {
     if (0 == (*eu4prov)->numCKProvinces()) continue;
     double provTaxWeight = 0;
@@ -2172,10 +2174,13 @@ bool Converter::modifyProvinces () {
     provProWeight *= totalBasePro;
     provManWeight *= totalBaseMen;
     double amount = max(0.0, floor(provTaxWeight + 0.5));
+    if (useDoubles) amount = provTaxWeight;
     (*eu4prov)->resetLeaf("base_tax", amount); afterTax += amount;
     amount = max(0.0, floor(provProWeight + 0.5));
+    if (useDoubles) amount = provProWeight;
     (*eu4prov)->resetLeaf("base_production", amount); afterPro += amount;
     amount = max(0.0, floor(provManWeight + 0.5));
+    if (useDoubles) amount = provManWeight;
     (*eu4prov)->resetLeaf("base_manpower", amount); afterMen += amount;
   }
 
