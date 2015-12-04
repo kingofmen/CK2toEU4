@@ -40,6 +40,28 @@ infantry_per_cavalry = 7
 retinue_weight = 3
 make_average = 1
 
+rebel_faction_types = {
+  peasant_revolt = anti_tax_rebels
+  other_claim_on_liege = pretender_rebels
+  lower_crown_authority_law = particularist_rebels
+  religious_revolt = heretic_rebels
+  claim_on_liege = pretender_rebels
+  liberation_revolt = pretender_rebels
+}
+
+rebel_heresies = {
+  catholic = "Fraticelli"
+  orthodox = "Molokan"
+  sunni = "Ahmadi"
+  shiite = "Bektashi"
+  animism = "Snake Clan"
+  protestant = "Congregationalist"
+  hinduism = "Bhakti"
+  shamanism = "Goat Skull"
+  nahuatl = "Tenocelome"
+  buddhism = "Zen"
+}
+
 keys_to_clear = { ledger flags hidden_flags ruler_flags variables }
 keys_to_remove = { base_tax development raw_development enemy
 power_projection military_strength army_strength navy_strength

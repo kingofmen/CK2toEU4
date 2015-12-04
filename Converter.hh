@@ -13,6 +13,7 @@ class CK2Province;
 class CK2Character;
 class CK2Ruler;
 class EU4Country;
+class Logger;
 
 using namespace std;
 
@@ -76,12 +77,13 @@ private:
   void loadFiles ();
 
   // Helpers:
+  double calculateTroopWeight (Object* levy, Logger* logstream = 0);
   void cleanUp ();
   Object* createMonarchId ();
   Object* createTypedId (string keyword, string idType);
   Object* createUnitId (string unitType);
   Object* loadTextFile (string fname);
-  void makeLeader (EU4Country* eu4country, const string& keyword, CK2Character* base, const objvec& generalSkills, const string& birthDate);
+  void makeLeader (Object* eu4country, const string& keyword, CK2Character* base, const objvec& generalSkills, const string& birthDate);
   void makeMonarch (CK2Character* ruler, CK2Ruler* king, const string& keyword, Object* bonusTraits);
   bool swapKeys (Object* one, Object* two, string key);
 
