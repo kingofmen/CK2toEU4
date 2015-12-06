@@ -26,9 +26,7 @@ using namespace std;
  * Trade?
  * Heresies - must be rebel factions?
  * Mercenaries
- * Rebels
  * Troop types for countries
- * Redo government ranks
  */
 
 ConverterJob const* const ConverterJob::Convert = new ConverterJob("convert", false);
@@ -1630,16 +1628,21 @@ bool Converter::createCharacters () {
 bool Converter::createGovernments () {
   Logger::logStream(LogStream::Info) << "Beginning governments.\n" << LogOption::Indent;
   Object* govObject = configObject->getNeededObject("governments");
+  double empireThreshold = configObject->safeGetFloat("empire_threshold", 1000);
+  double kingdomThreshold = configObject->safeGetFloat("kingdom_threshold", 1000);
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
     CK2Ruler* ruler = (*eu4country)->getRuler();
     if (!ruler) continue;
     CK2Title* primary = ruler->getPrimaryTitle();
-    CK2Title* title = (*eu4country)->getTitle();
     string government_rank = "1";
-    if (title) {
-      if (title->getLevel() == TitleLevel::Empire) government_rank = "3";
-      else if (title->getLevel() == TitleLevel::Kingdom) government_rank = "2";
+    double totalDevelopment = 0;
+    for (EU4Province::Iter eu4prov = (*eu4country)->startProvince(); eu4prov != (*eu4country)->finalProvince(); ++eu4prov) {
+      totalDevelopment += (*eu4prov)->safeGetFloat("base_tax");
+      totalDevelopment += (*eu4prov)->safeGetFloat("base_manpower");
+      totalDevelopment += (*eu4prov)->safeGetFloat("base_production");
     }
+    if (totalDevelopment > empireThreshold) government_rank = "3";
+    else if (totalDevelopment > kingdomThreshold) government_rank = "2";
     (*eu4country)->resetLeaf("government_rank", government_rank);
     (*eu4country)->resetHistory("government_rank", government_rank);
     string ckGovernment = ruler->safeGetString("government", "feudal_government");
@@ -1657,7 +1660,10 @@ bool Converter::createGovernments () {
 	}
       }
       euGovernment = govInfo->safeGetString("eugov");
-      Logger::logStream("governments") << " giving EU government " << euGovernment << ".\n";
+      Logger::logStream("governments") << " giving EU government " << euGovernment
+				       << " of rank " << government_rank
+				       << " based on total development " << totalDevelopment
+				       << ".\n";
       (*eu4country)->resetLeaf("needs_heir", govInfo->safeGetString("heir", "no"));
     }
     else {

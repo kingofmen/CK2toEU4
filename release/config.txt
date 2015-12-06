@@ -8,7 +8,7 @@ streams = {
   cores = no
   countries = no
   cultures = no # Also covers religion
-  governments = no
+  governments = yes
   titles = no
   diplomacy = no
   armies = no
@@ -40,6 +40,9 @@ infantry_per_cavalry = 7
 retinue_weight = 3
 make_average = 1
 
+empire_threshold = 1000
+kingdom_threshold = 300
+
 rebel_faction_types = {
   peasant_revolt = anti_tax_rebels
   other_claim_on_liege = pretender_rebels
@@ -47,6 +50,7 @@ rebel_faction_types = {
   religious_revolt = heretic_rebels
   claim_on_liege = pretender_rebels
   liberation_revolt = pretender_rebels
+  overthrow_ruler = pretender_rebels
 }
 
 rebel_heresies = {
