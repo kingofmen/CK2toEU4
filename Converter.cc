@@ -24,7 +24,6 @@ using namespace std;
 
 /*
  * Trade?
- * Heresies - must be rebel factions?
  * Mercenaries
  * Troop types for countries
  */
@@ -1878,7 +1877,7 @@ pair<string, string> findBest (map<string, map<string, int> >& corrMap) {
   return ret;
 }
 
-void makeMap (map<string, map<string, int> >& cultures, map<string, vector<string> >& assigns) {
+void makeMap (map<string, map<string, int> >& cultures, map<string, vector<string> >& assigns, Object* storage = 0) {
   map<string, map<string, int> > reverseMap;
   for (map<string, map<string, int> >::iterator cult = cultures.begin(); cult != cultures.end(); ++cult) {
     for (map<string, int>::iterator look = cult->second.begin(); look != cult->second.end(); ++look) {
@@ -1890,6 +1889,7 @@ void makeMap (map<string, map<string, int> >& cultures, map<string, vector<strin
     pair<string, string> best = findBest(cultures);
     string ckCulture = best.first;
     if (ckCulture == PlainNone) break;
+    if (storage) storage->setLeaf(best.first, best.second);
     string euCulture = best.second;
     assigns[ckCulture].push_back(euCulture);
     double highestValue = cultures[ckCulture][euCulture];
@@ -1974,7 +1974,8 @@ bool Converter::cultureAndReligion () {
   }
 
   map<string, vector<string> > religionMap;
-  makeMap(religions, religionMap);
+  Object* dynamicReligion = configObject->getNeededObject("dynamicReligions");
+  makeMap(religions, religionMap, dynamicReligion);
   map<string, vector<string> > cultureMap;
   makeMap(cultures, cultureMap);
 
@@ -3268,7 +3269,7 @@ bool Converter::warsAndRebels () {
     faction->setLeaf("name", warName);
     faction->setLeaf("progress", "0.000");
     string euReligion = target->safeGetString("religion");
-    faction->setLeaf("heretic", configObject->getNeededObject("rebel_heresies")->safeGetString(euReligion, "Lollar"));
+    faction->setLeaf("heretic", configObject->getNeededObject("rebel_heresies")->safeGetString(euReligion, "Lollard"));
     faction->setLeaf("country", addQuotes(target->getKey()));
     faction->setLeaf("independence", "\"\"");
     faction->setLeaf("sponsor", "\"---\"");
@@ -3348,13 +3349,62 @@ bool Converter::warsAndRebels () {
     }
   }
 
-  for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
-    if (!(*eu4country)->converts()) continue;
-    
+  Object* religions = configObject->safeGetObject("dynamicReligions");
+  if (!religions) {
+    Logger::logStream(LogStream::Warn) << "Could not find dynamic religions, skipping heretic rebels.\n";
+  }
+  else {
+    for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
+      if (!(*eu4country)->converts()) continue;
+      Logger::logStream("war") << "Searching for heresies in " << (*eu4country)->getKey() << ":\n" << LogOption::Indent;
+      CK2Ruler* ruler = (*eu4country)->getRuler();
+      string ckReligion = ruler->getBelief("religion");
+      string euReligion = religions->safeGetString(ckReligion);
+      set<EU4Province*> eu4Provinces;
+      for (EU4Province::Iter eu4prov = (*eu4country)->startProvince(); eu4prov != (*eu4country)->finalProvince(); ++eu4prov) {
+	for (CK2Province::Iter ck2prov = (*eu4prov)->startProv(); ck2prov != (*eu4prov)->finalProv(); ++ck2prov) {
+	  string provCkReligion = (*ck2prov)->safeGetString("religion");
+	  string provEuReligion = religions->safeGetString(provCkReligion);
+	  if ((provEuReligion == euReligion) && (provCkReligion != ckReligion)) {
+	    Logger::logStream("war") << nameAndNumber(*eu4prov) << " based on " << provCkReligion
+				     << " in " << nameAndNumber(*ck2prov) << ".\n";
+	    eu4Provinces.insert(*eu4prov);
+	  }
+	}
+      }
+      Logger::logStream("war") << LogOption::Undent;
+      if (eu4Provinces.empty()) continue;
+      Object* faction = new Object("rebel_faction");
+      Object* factionId = createTypedId("rebel", "50");
+      faction->setValue(factionId);
+      faction->setLeaf("fraction", "0.000");
+      faction->setLeaf("type", "heretic_rebels");
+      string heresy = configObject->getNeededObject("rebel_heresies")->safeGetString(euReligion, "Lollard");
+      faction->setLeaf("name", addQuotes(remQuotes(heresy) + " Rebels"));
+      faction->setLeaf("progress", "0.000");
+      faction->setLeaf("heretic", heresy);
+      faction->setLeaf("country", addQuotes((*eu4country)->getKey()));
+      faction->setLeaf("independence", "\"\"");
+      faction->setLeaf("sponsor", "\"---\"");
+      faction->setLeaf("religion", addQuotes(euReligion));
+      faction->setLeaf("government", addQuotes((*eu4country)->safeGetString("government")));
+      faction->setLeaf("province", (*(eu4Provinces.begin()))->getKey());
+      faction->setLeaf("seed", "931983089");
+      Object* provinces = faction->getNeededObject("provinces");
+      Object* possibles = faction->getNeededObject("possible_provinces");
+      provinces->setObjList();
+      possibles->setObjList();
+      Object* provinceFactionId = new Object(factionId);
+      provinceFactionId->setKey("rebel_faction");
+      for (set<EU4Province*>::iterator eu4prov = eu4Provinces.begin(); eu4prov != eu4Provinces.end(); ++eu4prov) {
+	provinces->addToList((*eu4prov)->getKey());
+	possibles->addToList((*eu4prov)->getKey());
+	(*eu4prov)->setValue(provinceFactionId);
+      }
+      faction->setLeaf("active", "no");
+    }
   }
 
-
-  
   Logger::logStream(LogStream::Info) << "Done with wars.\n" << LogOption::Undent;
   return true;
 }
