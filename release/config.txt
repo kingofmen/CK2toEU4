@@ -51,6 +51,7 @@ rebel_faction_types = {
   claim_on_liege = pretender_rebels
   liberation_revolt = pretender_rebels
   overthrow_ruler = pretender_rebels
+  overthrow_ruler_no_calls = pretender_rebels
 }
 
 rebel_heresies = {

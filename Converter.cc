@@ -3138,6 +3138,16 @@ bool Converter::warsAndRebels () {
       continue;
     }
 
+    CK2Ruler* attackedRuler = title->getSovereign();
+    if (attackedRuler) {
+      EU4Country* attackedCountry = attackedRuler->getEU4Country();
+      if ((attackedCountry) &&
+	  (find(euAttackers.begin(), euAttackers.end(), attackedCountry) == euAttackers.end()) &&
+	  (find(euDefenders.begin(), euDefenders.end(), attackedCountry) == euDefenders.end())) {
+	euDefenders.push_back(attackedCountry);
+      }
+    }
+
     Object* euWar = new Object("active_war");
     euWar->setLeaf("name", warName);
     Object* history = euWar->getNeededObject("history");
@@ -3337,6 +3347,13 @@ bool Converter::warsAndRebels () {
       (*eu4prov)->setValue(provinceFactionId);
     }
   }
+
+  for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
+    if (!(*eu4country)->converts()) continue;
+    
+  }
+
+
   
   Logger::logStream(LogStream::Info) << "Done with wars.\n" << LogOption::Undent;
   return true;
