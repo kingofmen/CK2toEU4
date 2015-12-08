@@ -8,14 +8,14 @@ streams = {
   cores = no
   countries = no
   cultures = no # Also covers religion
-  governments = yes
+  governments = no
   titles = no
   diplomacy = no
   armies = no
   navies = no
-  mana = no
+  mana = yes
   hre = no # Also papacy
-  war = yes
+  war = no
   all = no
 }
 
@@ -30,6 +30,7 @@ humans_always_independent = yes
 max_balkanisation = 0.40
 min_balkanisation = 0.30
 balkan_threshold = 8
+minimum_legitimacy = 0.25
 
 # Options are keep, remove
 hre = remove

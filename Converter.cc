@@ -23,8 +23,6 @@
 using namespace std;
 
 /*
- * Trade?
- * Mercenaries
  * Recent DLCs
  */
 
@@ -2461,10 +2459,26 @@ bool Converter::redistributeMana () {
       if (rebel) factionMap[target].push_back(rebel);
     }
   }
-  
+
+  double maxClaimants = 0;
+  for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
+    if (!(*eu4country)->converts()) continue;
+    CK2Ruler* ruler = (*eu4country)->getRuler();
+    CK2Title* primary = ruler->getPrimaryTitle();
+    double claimants = 0;
+    for (CK2Character::CharacterIter claimant = primary->startClaimant(); claimant != primary->finalClaimant(); ++claimant) {
+      ++claimants;
+    }
+    if (claimants > maxClaimants) maxClaimants = claimants;
+    (*eu4country)->resetLeaf("claimants", claimants);
+  }
+
+  double minimumLegitimacy = configObject->safeGetFloat("minimum_legitimacy", 0.25);
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
     int totalPower = (*eu4country)->safeGetFloat(kAwesomePower);
     (*eu4country)->unsetValue(kAwesomePower);
+    double claimants = (*eu4country)->safeGetFloat("claimants");
+    (*eu4country)->unsetValue("claimants");
     if (!(*eu4country)->converts()) continue;
     CK2Ruler* ruler = (*eu4country)->getRuler();
     Object* powers = (*eu4country)->getNeededObject("powers");
@@ -2493,17 +2507,12 @@ bool Converter::redistributeMana () {
       (*eu4country)->resetLeaf("republican_tradition", "1.000");
     }
     else {
-      CK2Title* primary = ruler->getPrimaryTitle();
-      if (!primary) continue;
-      int claimants = 0;
-      for (CK2Character::CharacterIter claimant = primary->startClaimant(); claimant != primary->finalClaimant(); ++claimant) {
-	++claimants;
-      }
-      double legitimacy = 100 - 5*claimants;
-      if (legitimacy < 0) legitimacy = 0;
+      Logger::logStream("mana") << claimants << " claims on " << ruler->getPrimaryTitle()->getKey() << ", hence ";
+      claimants /= maxClaimants;
+      //double legitimacy = minimumLegitimacy + (1.0 - claimants) * (1.0 - minimumLegitimacy);
+      double legitimacy = 1.0 - claimants + minimumLegitimacy * claimants;
       (*eu4country)->resetLeaf("legitimacy", legitimacy);
-      Logger::logStream("mana") << claimants << " claims on " << primary->getKey() << ", hence "
-				<< (*eu4country)->getKey() << " has legitimacy " << legitimacy << ".\n";
+      Logger::logStream("mana") << (*eu4country)->getKey() << " has legitimacy " << legitimacy << ".\n";
     }
   }
 
