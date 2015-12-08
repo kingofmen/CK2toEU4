@@ -25,7 +25,7 @@ using namespace std;
 /*
  * Trade?
  * Mercenaries
- * Troop types for countries
+ * Recent DLCs
  */
 
 ConverterJob const* const ConverterJob::Convert = new ConverterJob("convert", false);
@@ -92,10 +92,14 @@ void Converter::cleanUp () {
     (*prov)->unsetValue("fort_influencing");
   }
 
+  string infantryType = configObject->safeGetString("infantry_type", "\"western_medieval_infantry\"");
+  string cavalryType = configObject->safeGetString("cavalry_type", "\"western_medieval_knights\"");
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
     (*eu4country)->unsetValue("needs_heir");
     (*eu4country)->unsetValue(EU4Country::kNoProvinceMarker);
     if (!(*eu4country)->getRuler()) continue;
+    (*eu4country)->resetLeaf("infantry", infantryType);
+    (*eu4country)->resetLeaf("cavalry", cavalryType);
     (*eu4country)->resetLeaf("army_tradition", "0.000");
     (*eu4country)->resetLeaf("navy_tradition", "0.000");
     (*eu4country)->resetLeaf("papal_influence", "0.000");
