@@ -15,7 +15,7 @@ streams = {
   navies = no
   mana = yes
   hre = no # Also papacy
-  war = no
+  war = yes
   all = no
 }
 

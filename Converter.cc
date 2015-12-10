@@ -3098,6 +3098,14 @@ bool Converter::warsAndRebels () {
     eu4Game->removeObject(*euWar);
   }
 
+  bool addParticipants = false;
+  Object* dlcs = eu4Game->getNeededObject("dlc_enabled");
+  for (int i = 0; i < dlcs->numTokens(); ++i) {
+    string dlc = remQuotes(dlcs->getToken(i));
+    if ((dlc =="Art of War") || (dlc == "Common Sense") || (dlc == "Conquest of Paradise")) {
+      addParticipants = true;
+    }
+  }
   Object* before = eu4Game->getNeededObject("income_statistics");
   CK2War::Container rebelCandidates;
   for (CK2War::Iter ckWar = CK2War::start(); ckWar != CK2War::final(); ++ckWar) {
@@ -3172,6 +3180,12 @@ bool Converter::warsAndRebels () {
       euWar->setLeaf("joined_war", addQuotes((*eu4attacker)->getKey()));
       euWar->setLeaf("original_attacker", addQuotes((*eu4attacker)->getKey()));
       startDate->setLeaf("add_attacker", addQuotes((*eu4attacker)->getKey()));
+      if (addParticipants) {
+	Object* participant = new Object("participants");
+	euWar->setValue(participant);
+	participant->setLeaf("value", "1.000");
+	participant->setLeaf("tag", addQuotes((*eu4attacker)->getKey()));
+      }
     }
     string targetProvince = "";
     CK2Province* fromBarony = 0;
@@ -3181,6 +3195,12 @@ bool Converter::warsAndRebels () {
       euWar->setLeaf("joined_war", addQuotes((*eu4defender)->getKey()));
       euWar->setLeaf("original_defender", addQuotes((*eu4defender)->getKey()));
       startDate->setLeaf("add_defender", addQuotes((*eu4defender)->getKey()));
+      if (addParticipants) {
+	Object* participant = new Object("participants");
+	euWar->setValue(participant);
+	participant->setLeaf("value", "1.000");
+	participant->setLeaf("tag", addQuotes((*eu4defender)->getKey()));
+      }
 
       if (targetProvince != "") continue;
       for (EU4Province::Iter eu4prov = (*eu4defender)->startProvince(); eu4prov != (*eu4defender)->finalProvince(); ++eu4prov) {
