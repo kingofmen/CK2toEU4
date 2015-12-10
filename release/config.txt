@@ -94,6 +94,7 @@ is_core_neighbour refresh_modifier needs_rebel_unit_refresh
 needs_refresh update_opinion_cache update_border_distance
 update_supply_range update_overseas_cores estimated_monthly_income
 mercenary overextension_percentage opinion_cache max_manpower
+parliament_issues modifier
 }
 
 keys_to_remove_on_zero_provs = { army navy monarch heir leader advisor
