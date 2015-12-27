@@ -22,10 +22,6 @@
 
 using namespace std;
 
-/*
- * Recent DLCs
- */
-
 ConverterJob const* const ConverterJob::Convert = new ConverterJob("convert", false);
 ConverterJob const* const ConverterJob::DebugParser = new ConverterJob("debug", false);
 ConverterJob const* const ConverterJob::LoadFile = new ConverterJob("loadfile", true);
@@ -3102,7 +3098,7 @@ bool Converter::warsAndRebels () {
   Object* dlcs = eu4Game->getNeededObject("dlc_enabled");
   for (int i = 0; i < dlcs->numTokens(); ++i) {
     string dlc = remQuotes(dlcs->getToken(i));
-    if ((dlc =="Art of War") || (dlc == "Common Sense") || (dlc == "Conquest of Paradise")) {
+    if ((dlc =="Art of War") || (dlc == "Common Sense") || (dlc == "Conquest of Paradise") || (dlc == "The Cossacks")) {
       addParticipants = true;
     }
   }
