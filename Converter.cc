@@ -448,7 +448,7 @@ bool Converter::createCountryMap () {
     string cktag = (*override)->getKey();
     string eutag = (*override)->getLeaf();
     CK2Title* ckCountry = CK2Title::findByName(cktag);
-    if (!ckCountry) {
+    if ((!ckCountry) || (!ckCountry->getRuler())) {
       Logger::logStream(LogStream::Warn) << "Attempted override "
 					 << cktag << " -> "
 					 << eutag << ", but could not find CK title. Ignoring.\n";
@@ -1925,6 +1925,10 @@ void proselytise (map<string, vector<string> >& religionMap, string key) {
       if (weights[ckReligion] <= weightiest) continue;
       weightiest = weights[ckReligion];
       ckBest = ckReligion;
+    }
+    if (ckBest.empty()) {
+      Logger::logStream("cultures") << "No culture found for " << nameAndNumber(*eu4prov) << ", probably nomad fief. Ignoring.\n";
+      continue;
     }
     string euBest = religionMap[ckBest][0];
     if (key == "culture") {
