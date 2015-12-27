@@ -3,3 +3,7 @@ country_overrides = {
   k_byzantium = BYZ
 }
 
+religion_overrides = {
+  norse_pagan_reformed = norse_pagan_reformed
+  norse_pagan = norse_pagan_reformed
+}

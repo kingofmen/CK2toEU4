@@ -7,7 +7,7 @@ streams = {
   characters = no
   cores = no
   countries = no
-  cultures = no # Also covers religion
+  cultures = yes # Also covers religion
   governments = no
   titles = no
   diplomacy = no
@@ -15,7 +15,7 @@ streams = {
   navies = no
   mana = yes
   hre = no # Also papacy
-  war = yes
+  war = no
   all = no
 }
 
@@ -103,7 +103,7 @@ is_lesser_in_union is_subject }
 
 # For debugging.
 #overwrite_culture = aleutian
-debug_names = yes
+#debug_names = yes
 float_dev_values = no
 
 # The EU4 tags that know about these provinces will be used.

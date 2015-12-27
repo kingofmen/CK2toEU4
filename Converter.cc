@@ -766,7 +766,7 @@ void Converter::loadFiles () {
   }
   
   string overrideFileName = remQuotes(configObject->safeGetString("custom", QuotedNone));
-  if (PlainNone != overrideFileName) customObject = loadTextFile(dirToUse + overrideFileName);
+  if ((PlainNone != overrideFileName) && (overrideFileName != "NOCUSTOM")) customObject = loadTextFile(dirToUse + overrideFileName);
   else customObject = new Object("custom");
   countryMapObject = customObject->getNeededObject("country_overrides");
   
@@ -1974,10 +1974,21 @@ bool Converter::cultureAndReligion () {
       findCorrespondence((*ck2prov), (*eu4prov), cultures, "culture");
     }
   }
-
+  
   map<string, vector<string> > religionMap;
   Object* dynamicReligion = configObject->getNeededObject("dynamicReligions");
   makeMap(religions, religionMap, dynamicReligion);
+  Object* overrideObject = customObject->getNeededObject("religion_overrides");
+  objvec overrides = overrideObject->getLeaves();
+  for (objiter override = overrides.begin(); override != overrides.end(); ++override) {
+    string ckReligion = (*override)->getKey();
+    string euReligion = (*override)->getLeaf();
+    Logger::logStream("cultures") << "Override: " << ckReligion << " assigned to " << euReligion << ".\n";
+    religionMap[ckReligion].clear();
+    religionMap[ckReligion].push_back(euReligion);
+    dynamicReligion->resetLeaf(ckReligion, euReligion);
+  }
+
   map<string, vector<string> > cultureMap;
   makeMap(cultures, cultureMap);
 
