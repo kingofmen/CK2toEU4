@@ -10,11 +10,11 @@
 \section{How to use the converter}
 
 \begin{itemize}
-\item Download the zip file: \url{https://github.com/kingofmen/VickyToHoI3/archive/master.zip}.
+\item Download the zip file: \url{https://github.com/kingofmen/CK2toEU4/archive/master.zip}.
 \item Unpack it. 
 \item Ignore the source code unless you intend to modify it. 
 \item Copy the CK2 savegame you intend to convert into the release
-  directory. 
+  directory. NB! The save must not be compressed!
 \item Start the CK2toEU4 executable. 
 \item Go to File->Load file and select your savegame. 
 \item Wait for it to load - it will take a minute or two. If it takes
@@ -35,31 +35,78 @@
 \item Conquer \emph{All} the Pixels! 
 \end{itemize}
 
+\section{Mods and DLCs}
+
+The converter has not been tested with all possible combinations of
+DLCs. It is intended to work with fully-updated CK2 and EU4 games;
+that is, your CK2 savegame should be from a game with Charlemagne,
+Legacy of Rome, Rajas of India, Sons of Abraham, Sunset Invasion, The
+Old Gods, The Republic, and Sword of Islam. It \emph{may or may not}
+work if you're missing any of these. If it does not, send me the save
+as described in the section on troubleshooting, below, and if it's an
+\emph{easy} fix I'll fix it. If it's a lot of work I won't.
+
+Similarly, the target EU4 install has Art of War, Common Sense,
+Conquest of Paradise, El Dorado, Res Publica, The Cossacks, and Wealth
+of Nations. If you're missing one or more, the converter \emph{may or
+  may not} work. However, it certainly will \emph{not} work unless you
+provide your own input save from your EU4 install. To do this, start a
+fresh game in 1444. Save on the first day, calling the save `input';
+do \emph{not} compress. Copy this new save to the release\\maps
+directory in your converter install.
+
+Finally, mods: The converter \emph{may or may not} work with modded
+savegames. Generally, map mods are going to be a problem, though you
+can try to supply your own province mapping by editing
+release\\maps\\provinces.txt. If you want to target an EU4 mod, you
+should probably provide an input save from that mod, as described
+above.
+
 \section{Troubleshooting}
 
-These are the most common issues people have had:
+This is not my day job, but in my copious free time I do try to
+support my converters. If you have a problem, first go through this
+checklist:
+
 \begin{itemize}
-\item EU4 crashes on loading the converted save. This is very often a
-  bug, which I'll try to fix (see below). However, there are two
-  causes that you can fix yourself: One, your Crusader Kings savegame
-  has names containing a hashtag, `\#'. This confuses the
-  parser. In that case just remove the hashtag. (Removing other
-  unusual characters may also be worth a try.) Two, do note that the
-  converted savegame is meant for EU4 with all four expansions, and
-  that if you don't have all three the game will choke.
-\item No converted save file. This is often caused by
-  impatience. Don't click ``convert'' immediately after ``load file'',
-  it takes some time to parse forty megabytes of savegame.
+\item Is your CK2 savegame compressed? If so, unzip it.
+\item Is your converted save invisible in EU4? Two things:
+\begin{itemize}
+\item Did you move it to your EU4 savegame folder?
+\item Did you click ``Show incompatible saves''? I've had many
+  ``incompatible'' converted savegames work perfectly well.
+\end{itemize}
+\item Targeting a mod or a non-complete DLC collection? Did you
+  provide your own input save?
 \end{itemize}
 
-If none of the above is your problem: Upload your (zipped) Crusader Kings
-savegame somewhere, then send me (``King of Men'') a PM on Paradox,
-Ederon, or (``King\_of\_Men'') reddit with a link to the upload. Try to be as
-specific as possible about what the problem is - I cannot debug
+Upload your (zipped) Crusader Kings
+savegame and the converter logfile somewhere, then send me (``King of Men'') a PM on Paradox,
+Ederon, or (``King\_of\_Men'') reddit with a link to the upload. In
+your PM, say which steps of the checklist above you went through. This
+will assure me that you read the documentation. If your PM is missing the
+logfile or checklist, or the save is uncompressed or not present, will give
+me the strong impression that you didn't do much to help yourself
+before asking me. This will have a bad effect on my eagerness to help
+you out.
+
+Try to be as specific as possible about what the problem is - I cannot debug
 ``things look weird''. Screenshots and province IDs are often
-helpful. I'll run the
-debugging version of the converter and try to fix the
+helpful. I'll run the debugging version of the converter and try to fix the
 problem. If you are skilled at C++ development in Windows you can also
 try to compile in debug mode and run gdb on it. 
+
+\section{Encouragement}
+
+If you'd like to encourage me to work on this sort of thing in the
+future, you can:
+\begin{itemize}
+\item Send me a PM saying ``Hey, your converter is great!'' 
+\item Comment on my AARs, either at Ederon, at the Paradox forums, on
+  my blog ynglingasaga.wordpress.com, or on reddit.
+\item Donate! The aforementioned blog, and my converter site
+  sites.google.com/site/komskustomkonverters, both have donation
+  buttons.
+\end{itemize}
 
 \end{document}
