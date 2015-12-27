@@ -349,7 +349,6 @@ c_auxerre = 191 # Auxerre - Nevers
 c_dijon = 192 # Dijon - Bourgogne
 
 c_charolais = 1877 # Charolais - Charolais
-c_charolais = 1877 # Duplicate to increase weight
 c_macon = 1877 # Macon - Charolais
 c_chalons = 1877 # Chalons - Charolais
 
@@ -534,8 +533,6 @@ c_aprutium = 120 # Aprutium - Abruzzi
 c_spoleto = 2976 # County Spoleto - Umbria
 
 c_roma = 118 # Roma - Roma
-c_roma = 118 # Duplicate to increase weight
-c_roma = 118 # Duplicate to increase weight
 d_latium = 118 # Duchy Latium - Roma
 c_orvieto = 118 # Orvieto - Roma
 c_orbetello = 118 # Orbetello - Roma
@@ -1009,7 +1006,6 @@ c_kaneia = 163 # Kaneia - Crete
 # Levant
 
 c_aleppo = 377 # Aleppo - Aleppo
-c_aleppo = 377 # Duplicate to increase weight
 c_edessa = 377 # Edessa - Aleppo
 c_tell_bashir = 377 # Tell Bashir - Aleppo
 c_aintab = 377 # Aintab - Aleppo
@@ -1040,13 +1036,11 @@ c_acre = 1855 # Acre - Sidon
 
 d_jerusalem = 379 # Duchy Jerusalem - Judea
 c_jerusalem = 379 # County Jerusalem - Judea
-c_jerusalem = 379 # Duplicate to increase weight
 c_hebron = 379 # Hebron - Judea
 c_beersheb = 379 # Beersheb - Judea
 
 d_damascus = 382 # Duchy Damascus - Damascus
 c_damascus = 382 # County Damascus - Damascus
-c_damascus = 382 # Duplicate to increase weight
 c_irbid = 382 # Irbid - Damascus
 c_al_mafraq = 382 # Al Mafraq - Damascus
 
@@ -1346,7 +1340,6 @@ c_annaba = 1882 # Annaba - Annaba
 
 
 c_tunis = 341 # Tunis - Tunis
-c_tunis = 341 # Duplicate to increase weight
 c_medjerda = 2454 # Medjerda - Kef
 
 c_bizerte = 2455 # Bizerte - Bizerte
