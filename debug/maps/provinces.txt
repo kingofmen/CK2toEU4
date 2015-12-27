@@ -575,9 +575,9 @@ c_padova = 108 # Padova - Verona
 c_brescia = 107 # Brescia - Brescia
 
 c_cremona = 1862 # Cremona - Cremona
+c_cremona = 2979 # Cremona - Novara
 
 c_lombardia = 104 # Lombardia - Lombardia
-c_lombardia = 104 # Lombardia - Lombardia #Tiebreaker
 c_pavia = 104 # Pavia - Lombardia
 
 c_lombardia = 2971 # Lombardia - Novarra
