@@ -575,13 +575,12 @@ c_padova = 108 # Padova - Verona
 c_brescia = 107 # Brescia - Brescia
 
 c_cremona = 1862 # Cremona - Cremona
-c_cremona = 2979 # Cremona - Novara
 
 c_lombardia = 104 # Lombardia - Lombardia
 c_pavia = 104 # Pavia - Lombardia
 
-c_lombardia = 2971 # Lombardia - Novarra
-c_pavia = 2971 # Pavia - Novarra
+c_lombardia = 2979 # Lombardia - Novara
+c_pavia = 2979 # Pavia - Novara
 
 c_monferrato = 2981 # Monferrato - Montferrat
 
@@ -2317,7 +2316,6 @@ d_ajmer = 519 # Duchy Ajmer - Dhundar
 c_ajayameru = 519 # Ajayameru - Dhundar
 c_ranthambore = 519 # Ranthambore - Dhundar
 c_vairata = 519 # Vairata - Dhundar
-c_vairata = 519 # Vairata - Dhundar #Added weight
 
 c_gwalior = 525 # Gwalior - Gird
 
