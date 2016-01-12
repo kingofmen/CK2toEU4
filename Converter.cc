@@ -1412,6 +1412,7 @@ void Converter::makeMonarch (CK2Character* ruler, CK2Ruler* king, const string& 
     monarchDef->setLeaf(area->first, amount);
   }
   Logger::logStream("characters") << LogOption::Undent;
+  if (ruler->safeGetString("female", "no") == "yes") monarchDef->setLeaf("female", "yes");
   Object* monarchId = createMonarchId();
   monarchDef->setValue(monarchId);
   monarchDef->setLeaf("dynasty", getDynastyName(ruler));
