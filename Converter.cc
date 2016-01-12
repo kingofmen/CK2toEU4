@@ -137,9 +137,8 @@ void Converter::configure () {
 
     bool activateAll = (debug->safeGetString("all", "no") == "yes");
     if (activateAll) {
-      for (objiter str = streams.begin(); str != streams.end(); ++str) {
-	string str_name = (*str)->getKey();
-	Logger::logStream(LogStream::findByName(str_name)).setActive(true);
+      for (LogStream::Iter stream = LogStream::start(); stream != LogStream::final(); ++stream) {
+	Logger::logStream(*stream).setActive(true);
       }
     }
   }
@@ -3110,11 +3109,15 @@ bool Converter::warsAndRebels () {
   }
 
   bool addParticipants = false;
+  bool joined_war = true;
   Object* dlcs = eu4Game->getNeededObject("dlc_enabled");
   for (int i = 0; i < dlcs->numTokens(); ++i) {
     string dlc = remQuotes(dlcs->getToken(i));
     if ((dlc =="Art of War") || (dlc == "Common Sense") || (dlc == "Conquest of Paradise") || (dlc == "The Cossacks")) {
       addParticipants = true;
+    }
+    if (dlc == "The Cossacks") {
+      joined_war = false;
     }
   }
   Object* before = eu4Game->getNeededObject("income_statistics");
@@ -3188,7 +3191,7 @@ bool Converter::warsAndRebels () {
     Object* startDate = history->getNeededObject(eu4Game->safeGetString("date", "1444.1.1"));
     for (EU4Country::Iter eu4attacker = euAttackers.begin(); eu4attacker != euAttackers.end(); ++eu4attacker) {
       euWar->setLeaf("attacker", addQuotes((*eu4attacker)->getKey()));
-      euWar->setLeaf("joined_war", addQuotes((*eu4attacker)->getKey()));
+      if (joined_war) euWar->setLeaf("joined_war", addQuotes((*eu4attacker)->getKey()));
       euWar->setLeaf("original_attacker", addQuotes((*eu4attacker)->getKey()));
       startDate->setLeaf("add_attacker", addQuotes((*eu4attacker)->getKey()));
       if (addParticipants) {
@@ -3203,7 +3206,7 @@ bool Converter::warsAndRebels () {
     if (TitleLevel::Barony == title->getLevel()) fromBarony = CK2Province::getFromBarony(disputedTag);
     for (EU4Country::Iter eu4defender = euDefenders.begin(); eu4defender != euDefenders.end(); ++eu4defender) {
       euWar->setLeaf("defender", addQuotes((*eu4defender)->getKey()));
-      euWar->setLeaf("joined_war", addQuotes((*eu4defender)->getKey()));
+      if (joined_war) euWar->setLeaf("joined_war", addQuotes((*eu4defender)->getKey()));
       euWar->setLeaf("original_defender", addQuotes((*eu4defender)->getKey()));
       startDate->setLeaf("add_defender", addQuotes((*eu4defender)->getKey()));
       if (addParticipants) {
