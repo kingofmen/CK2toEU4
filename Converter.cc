@@ -84,6 +84,7 @@ void Converter::cleanUp () {
     (*prov)->unsetValue("base_fort_level");
     (*prov)->unsetValue("influencing_fort");
     (*prov)->unsetValue("fort_influencing");
+    (*prov)->unsetValue("estate");
   }
 
   string infantryType = configObject->safeGetString("infantry_type", "\"western_medieval_infantry\"");
@@ -109,6 +110,14 @@ void Converter::cleanUp () {
     (*eu4country)->resetLeaf("manpower", "10.000");
     (*eu4country)->resetLeaf("technology_group", "western");
     (*eu4country)->resetHistory("technology_group", "western");
+    objvec estates = (*eu4country)->getValue("estate");
+    for (objiter estate = estates.begin(); estate != estates.end(); ++estate) {
+      (*estate)->unsetValue("province");
+      (*estate)->resetLeaf("loyalty", "40.000");
+      (*estate)->resetLeaf("total_loyalty", "40.000");
+      (*estate)->resetLeaf("influence", "40.000");
+      (*estate)->resetLeaf("province_influence", "0.000");
+    }
   }
 
   eu4Game->getNeededObject("combat")->clear();
