@@ -1472,12 +1472,15 @@ bool Converter::createCharacters () {
   Object* active_advisors = eu4Game->getNeededObject("active_advisors");
   map<string, objvec> allAdvisors;
   objvec advisorTypes = advisorTypesObject->getLeaves();
-  map<string, objvec> countryAdvisors;
   objvec generalSkills = configObject->getNeededObject("generalSkills")->getLeaves();
   string birthDate = eu4Game->safeGetString("date", "1444.11.11");
 
+  int numAdvisors = 0;
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
     if (!(*eu4country)->converts()) continue;
+    Object* country_advisors = active_advisors->getNeededObject((*eu4country)->getKey());
+    country_advisors->clear();
+
     CK2Ruler* ruler = (*eu4country)->getRuler();
     if (ruler->safeGetString("madeCharacters", PlainNone) == "yes") continue;
     ruler->setLeaf("madeCharacters", "yes");
@@ -1495,8 +1498,6 @@ bool Converter::createCharacters () {
       if (ckHeir) makeMonarch(ckHeir, ruler, "heir", bonusTraits);
     }
 
-    Object* country_advisors = active_advisors->getNeededObject((*eu4country)->getKey());
-    country_advisors->clear();
     Object* history = capital->getNeededObject("history");
     for (CouncilTitle::Iter council = CouncilTitle::start(); council != CouncilTitle::final(); ++council) {
       CK2Character* councillor = ruler->getCouncillor(*council);
@@ -1552,7 +1553,7 @@ bool Converter::createCharacters () {
       Object* active = new Object(id);
       active->setKey("advisor");
       country_advisors->setValue(active);
-      countryAdvisors[eu4Tag].push_back(advisor);
+      ++numAdvisors;
     }
 
     CK2Character* bestGeneral = 0;
@@ -1600,24 +1601,9 @@ bool Converter::createCharacters () {
       adv->second[i]->resetLeaf("skill", actualSkill);
     }
   }
-  for (map<string, objvec>::iterator adv = countryAdvisors.begin(); adv != countryAdvisors.end(); ++adv) {
-    EU4Country* eu4country = EU4Country::findByName(adv->first);
-    sort(adv->second.begin(), adv->second.end(), skillSorter);
-    set<string> advisorSlots;
-    for (objiter cand = adv->second.begin(); cand != adv->second.end(); ++cand) {
-      Object* advisorType = advisorTypesObject->safeGetObject((*cand)->safeGetString("type"));
-      if (!advisorType) continue; // This should never happen.
-      string slot = advisorType->safeGetString("monarch_power", PlainNone);
-      if (slot == PlainNone) continue;
-      if (advisorSlots.count(slot)) continue;
-      Object* advisorId = new Object((*cand)->safeGetObject("id"));
-      advisorId->setKey("advisor");
-      eu4country->setValue(advisorId);
-      advisorSlots.insert(slot);
-    }
-  }
-  
-  Logger::logStream("characters") << LogOption::Undent;
+
+  Logger::logStream("characters") << "Total advisors created: " << numAdvisors << ".\n"
+				  << LogOption::Undent;
   Logger::logStream(LogStream::Info) << "Done with character creation.\n" << LogOption::Undent;
   return true;
 }
