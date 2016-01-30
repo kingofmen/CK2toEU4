@@ -795,6 +795,7 @@ c_domazlice = 2968 # Domazlice - Budejovice
 c_litomerice = 1771 # Litomerice - Erz
 
 c_praha = 266 # Praha - Bohemia
+c_boleslav = 266 # Boleslav - Bohemia
 
 c_brno = 265 # Brno - Moravia
 c_olomouc = 265 # Olomouc - Moravia
@@ -982,6 +983,7 @@ c_vaspurakan = 2307 # Vaspurakan - Van # 2307
 c_vaspurakan = 2306 # Vaspurakan - Mush # 2306
 
 c_dwin = 419 # Dwin - Armenia
+c_lori = 419 # Lori - Armenia
 
 c_kartli = 423 # Kartli - Kartli
 c_kahketi = 423 # Kahketi - Kartli
@@ -1428,9 +1430,11 @@ c_mali = 2253 # Mali - Gwiriko
 # Arabia
 
 c_hijaz = 383 # Hijaz - Tabouk
+c_tabuk = 383 # Al Aqabah - Tabouk
 
 c_al_aqabah = 2327 # Al Aqabah - Maan
-c_tabuk = 2327 # Al Aqabah - Maan
+c_ar_ar = 2327 # Shaka - Maan
+c_maan = 2327 # Maan - Maan
 
 c_medina = 384 # Medina - Medina
 c_medina = 2329 # Medina - Yanbu
@@ -1515,6 +1519,7 @@ c_al_amarah = 2311 # Al Amarah - Samawah
 c_al_nasiryah = 2311 # Al Nasiryah - Samawah
 
 c_deir = 2310 # Deir - Tikrit
+c_euphrates = 2310 # Samarra - Tikrit
 
 c_kabul = 451 # Kabul - Kabul
 
@@ -1611,7 +1616,7 @@ c_shirvan = 421 # Shirvan - Shirvan
 
 c_suenik = 2205 # Suenik - Nakhchivan
 
-c_azerbaijan = 420 # Azerbaijan - Gaja
+c_shemakha = 420 # Shemakha - Gaja
 c_azerbaijan = 2202 # Azerbaijan - Melikates
 
 c_kurdistan = 2206 # Kurdistan - Urmia
@@ -1702,6 +1707,7 @@ c_turkestan = 2351 # Turkestan - Shekty
 c_kirghiz = 480 # Kirghiz - Pegaya Orda
 
 c_ket = 2433 # Ket - Vah
+c_erchis = 2433 # Erchis - Vah
 
 c_urzhar = 2118 # Urzhar - Urzhar
 c_urzhar = 2119 # Urzhar - Chuguchak
@@ -1855,7 +1861,7 @@ c_gnieznienskie = 43 # Gnieznienskie - Danzig
 
 c_marienburg = 1841 # Marienburg - Marienburg
 c_marienburg = 42 # Marienburg - Warmia
-c_marienburg = 2958 # Marienburg - Osterode
+c_galindia = 2958 # Galindia - Osterode
 
 c_sambia = 41 # Sambia - Ostpreussen
 c_scalovia = 41 # Scalovia - Ostpreussen
@@ -1866,7 +1872,7 @@ c_memel = 40 # Memel - Memel
 
 c_kurs = 39 # Kurs - Kurland
 
-c_zemigalians = 38 # Zemigalians - Riga
+c_lettigalians = 38 # Lettigalians - Riga
 
 c_zemigalians = 1935 # Zemigalians - Semigallia
 
@@ -1993,6 +1999,7 @@ c_trans-portage = 1955 # Trans-Portage - Kholmogory
 
 c_samoyeds = 313 # Samoyeds - Arkhangelsk
 c_bjarmia = 313 # Bjarmie - Arkhangelsk
+c_ugra = 313 # Ugra - Arkhangelsk
 
 c_beloozero = 2749 # Beloozero - Tikhvin
 
@@ -2018,7 +2025,7 @@ c_suzdal = 1956 # Suzdal - Suzdal
 c_suzdal = 1754 # Suzdal - Murom
 
 c_vladimir = 307 # Vladimir - Vladimir
-c_pereyaslavl = 307 # Pereyaslavl - Vladimir
+c_pereyaslavl_zalessky = 307 # Pereyaslavl - Vladimir
 
 d_moskva = 295 # Duchy Moskva - Moskva
 c_moskva = 295 # County Moskva - Moskva
@@ -2086,8 +2093,7 @@ c_oleshye = 283 # Oleshye - Zaporozhia
 
 c_alania = 2197 # Alania - Kabardia
 c_alania = 2201 # Alania - Alania
-c_alania = 463 # Alania - Circassia
-# c_kasogia = 463 # Kasogia - Circassia
+c_kasogs = 463 # Kasogia - Circassia
 
 c_manych = 468 # Manych - Manych
 
@@ -2138,6 +2144,7 @@ c_ranikot = 504 # Ranikot - Lower Sind
 
 d_sauvira = 2088 # Duchy Sauvira - Umarkot
 c_sonda = 2088 # Sonda - Umarkot
+c_satyapura = 2088 # Satyapura - Umarkot
 c_mansura = 2088 # Mansura - Umarkot
 
 c_bhakkar = 2072 # Bhakkar - Bhakkar
@@ -2247,6 +2254,7 @@ c_sarasvata_mandala = 2053 # Sarasvata Mandala - Patan
 d_gurjara_mandala = 521 # Duchy Gurjara Mandala - Patan
 
 c_dvaraka = 515 # Dvaraka - Kathiawar
+c_bhumilka = 515 # Bhumilka - Kathiawar
 d_saurashtra = 515 # Duchy Saurashtra - Kathiawar
 c_somnath = 515 # Somnath - Kathiawar
 
@@ -2599,7 +2607,7 @@ c_potapi = 1947 # Potapi - Carnatic
 d_pandya_nadu = 536 # Duchy Pandya Nadu - Madurai
 c_madurai = 536 # Madurai - Madurai
 
-#c_tenkasi = 536 # Tenkasi - Madurai
+c_tenkasi = 536 # Tenkasi - Madurai
 
 c_tirunelveli = 2101 # Tirunelveli - Tirunelveli
 
@@ -2693,6 +2701,7 @@ c_dunhuang = 707 # Dunhuang - Yumen
 c_anxi = 2122 # Anxi - Hami
 
 c_kara_khoja = 713 # Kara Khoja - Bechbaliq
+c_kumul = 713 # Qamil - Bechbaliq
 
 c_luntai = 715 # Luntai - Urumqi
 
@@ -2701,6 +2710,7 @@ c_luntai = 715 # Luntai - Urumqi
 c_altay = 714 # Altay - Hoboksar
 
 c_muztau = 1066 # Muztau - Altai Uriankhai
+c_gorgol = 1066 # Gorgol - Altai Uriankhai
 
 c_dunkheger = 718 # Dunkheger - Kobdo
 c_tsagaannuur = 718 #  Tsagaannuur - Kobdo

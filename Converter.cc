@@ -69,7 +69,7 @@ void Converter::run () {
 
 void Converter::loadFile () {
   if (ck2FileName == "") return;
-  Parser::ignoreString = "CK2text";
+  Parser::ignoreString = "CK2txt";
   ck2Game = loadTextFile(ck2FileName);
   Parser::ignoreString = "";
   Logger::logStream(LogStream::Info) << "Ready to convert.\n";
@@ -1986,6 +1986,15 @@ bool Converter::cultureAndReligion () {
 
   map<string, vector<string> > cultureMap;
   makeMap(cultures, cultureMap);
+  overrideObject = customObject->getNeededObject("culture_overrides");
+  overrides = overrideObject->getLeaves();
+  for (objiter override = overrides.begin(); override != overrides.end(); ++override) {
+    string ckCulture = (*override)->getKey();
+    string euCulture = (*override)->getLeaf();
+    Logger::logStream("cultures") << "Override: " << ckCulture << " assigned to " << euCulture << ".\n";
+    cultureMap[ckCulture].clear();
+    cultureMap[ckCulture].push_back(euCulture);
+  }
 
   string overrideCulture = configObject->safeGetString("overwrite_culture", PlainNone);
   if (overrideCulture == "no") overrideCulture = PlainNone;
@@ -2032,8 +2041,14 @@ bool Converter::cultureAndReligion () {
     }
 
     if (ckRulerCulture != PlainNone) {
+      if (0 == cultureMap[ckRulerCulture].size()) {
+	Logger::logStream("cultures") << "Emergency-assigning " << ckRulerCulture
+				     << " to norwegian.";
+	cultureMap[ckRulerCulture].push_back("norwegian");
+      }
       string euCulture = cultureMap[ckRulerCulture][0];
       if (1 < cultureMap[ckRulerCulture].size()) {
+	// If there are multiple candidates, pick the one from the EU4 capital province.
 	string capitalTag = (*eu4country)->safeGetString("capital");
 	EU4Province* capital = EU4Province::findByName(capitalTag);
 	if (capital) {
