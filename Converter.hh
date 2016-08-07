@@ -75,6 +75,7 @@ private:
   bool createCountryMap ();
   bool createProvinceMap ();
   void loadFiles ();
+  void setDynastyNames (Object* dynastyNames);
 
   // Helpers:
   double calculateTroopWeight (Object* levy, Logger* logstream = 0);

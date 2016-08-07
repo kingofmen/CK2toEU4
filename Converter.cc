@@ -777,8 +777,34 @@ void Converter::loadFiles () {
   if ((PlainNone != overrideFileName) && (overrideFileName != "NOCUSTOM")) customObject = loadTextFile(dirToUse + overrideFileName);
   else customObject = new Object("custom");
   countryMapObject = customObject->getNeededObject("country_overrides");
-  
+  setDynastyNames(loadTextFile(dirToUse + "dynasties.txt"));
+
   Logger::logStream(LogStream::Info) << "Done loading input files\n" << LogOption::Undent;
+}
+
+void Converter::setDynastyNames (Object* dynastyNames) {
+  if (!dynastyNames) {
+    Logger::logStream(LogStream::Warn) << "Warning: Did not find dynasties.txt. Many famous dynasties will be nameless.\n";
+    return;
+  }
+
+  Object* gameDynasties = ck2Game->safeGetObject("dynasties");
+  if (!gameDynasties) {
+    Logger::logStream(LogStream::Warn) << "Warning: Could not find dynasties object. Proceeding with foreboding.\n";
+    return;
+  }
+
+  objvec dynasties = gameDynasties->getLeaves();
+  for (objiter dyn = dynasties.begin(); dyn != dynasties.end(); ++dyn) {
+    if ((*dyn)->safeGetString("name", PlainNone) != PlainNone) continue;
+    Object* outsideDynasty = dynastyNames->safeGetObject((*dyn)->getKey());
+    if (!outsideDynasty) {
+      Logger::logStream(LogStream::Warn) << "Could not find dynasty information for nameless dynasty " << (*dyn)->getKey() << ".\n";
+      continue;
+    }
+
+    (*dyn)->setLeaf("name", outsideDynasty->safeGetString("name"));
+  }
 }
 
 /******************************* End initialisers *******************************/ 
@@ -1355,11 +1381,12 @@ bool Converter::createArmies () {
 string getDynastyName (CK2Character* ruler) {
   static const string defaultDynasty = "\"Generic Dynasty\"";
   Object* ckDynasty = ruler->getDynasty();
+  string dynastyNumber = ruler->safeGetString("dynasty", PlainNone);
   if (!ckDynasty) {
-    string dynastyNumber = ruler->safeGetString("dynasty", PlainNone);
     if (dynastyNumber != PlainNone) return dynastyNumber;
+    return defaultDynasty;
   }
-  return ckDynasty ? ckDynasty->safeGetString("name", defaultDynasty) : defaultDynasty;
+  return ckDynasty->safeGetString("name", dynastyNumber);
 }
 
 string getFullName (CK2Character* character) {
@@ -1541,7 +1568,7 @@ bool Converter::createCharacters () {
       for (CKAttribute::Iter att = CKAttribute::start(); att != CKAttribute::final(); ++att) {
 	int mult = 1;
 	if ((*att)->getName() == advObject->safeGetString("main_attribute")) mult = 2;
-	skill += councillor->getAttribute(*att);
+	skill += councillor->getAttribute(*att) * mult;
       }
       advisor->setLeaf("skill", skill);
       Logger::logStream("characters") << " " << advisorType << " based on traits ";

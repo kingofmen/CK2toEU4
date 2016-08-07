@@ -1,20 +1,26 @@
 #include "Window.hh"
-#include <QPainter>
-#include "Parser.hh"
-#include <cstdio>
-#include <QtGui>
-#include <QDesktopWidget>
-#include <QRect>
-#include <iostream>
-#include <string>
-#include "Logger.hh"
-#include <set>
+
 #include <algorithm>
+#include <cstdio>
+#include <direct.h>
+#include <iostream>
+#include <set>
+#include <string>
+#include <windows.h>
+
+#include <QApplication>
+#include <QDesktopWidget>
+#include <QFileDialog>
+#include <QMenuBar>
+#include <QPainter>
+#include <QRect>
+#include <QtGui>
+
+#include "Logger.hh"
+#include "Parser.hh"
 #include "StructUtils.hh"
 #include "StringManips.hh"
 #include "UtilityFunctions.hh"
-#include <direct.h>
-#include <windows.h>
 
 using namespace std;
 
@@ -36,7 +42,6 @@ int main (int argc, char** argv) {
   QMenuBar* menuBar = parentWindow->menuBar();
   QMenu* fileMenu = menuBar->addMenu("File");
   QAction* newGame = fileMenu->addAction("Load file");
-  //QAction* newGame = fileMenu->addAction("Load-and-convert file");
   QAction* quit    = fileMenu->addAction("Quit");
   QObject::connect(quit, SIGNAL(triggered()), parentWindow, SLOT(close()));
   QObject::connect(newGame, SIGNAL(triggered()), parentWindow, SLOT(loadFile()));
@@ -91,14 +96,13 @@ Window::~Window () {
 
 void Window::message (QString m) {
   textWindow->appendPlainText(m);
-  if (debugFile) (*debugFile) << m.toAscii().data() << std::endl;
+  if (debugFile) (*debugFile) << m.toStdString() << std::endl;
 }
 
 void Window::loadFile () {
   QString filename = QFileDialog::getOpenFileName(this, tr("Select file"), QString(""), QString("*.ck2"));
-  string fn(filename.toAscii().data());
-  if (fn == "") return;
-  loadFile(fn);
+  if (filename.isEmpty()) return;
+  loadFile(filename.toStdString());
 }
 
 void Window::loadFile (string fname) {

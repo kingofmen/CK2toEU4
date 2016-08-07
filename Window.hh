@@ -2,7 +2,9 @@
 #define WINDOW_HH
 
 #include <QtGui>
+#include <QMainWindow>
 #include <QObject>
+#include <QPlainTextEdit>
 #include "Object.hh"
 #include <map>
 #include <fstream>
