@@ -42,12 +42,17 @@ CK2Character::CK2Character (Object* obj, Object* dynasties)
       attributes[i] = attribs->tokenAsInt(i);
     }
   }
+  static set<int> unknownTraits;
   Object* traitList = safeGetObject("traits");
   if (traitList) {
     for (int i = 0; i < traitList->numTokens(); ++i) {
       int index = traitList->tokenAsInt(i) - 1;
       if (index >= (int) ckTraits.size()) {
-	Logger::logStream(LogStream::Warn) << getKey() << " has unknown trait " << index << ", skipping.\n";
+        if (!unknownTraits.count(index)) {
+          Logger::logStream(LogStream::Warn)
+              << "Trait " << index << " is unknown and will be ignored.";
+          unknownTraits.insert(index);
+        }
 	continue;
       }
       Object* traitObject = ckTraits[index];

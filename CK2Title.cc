@@ -83,11 +83,21 @@ CK2Title* CK2Title::getDeJureLevel (TitleLevel const* const level) {
   return 0;
 }
 
+// Must handle both old format, liege = { title = c_whatever }, and new format,
+// liege = c_whatever.
 CK2Title* CK2Title::getLiege () {
   if (liegeTitle) return liegeTitle;
+  string liegeTitleKey = object->safeGetString("liege", "nonesuch");
+  if (liegeTitleKey != "nonesuch") {
+    liegeTitle = findByName(liegeTitleKey);
+    if (liegeTitle) {
+      return liegeTitle;
+    }
+  }
+
   Object* liegeObject = object->getNeededObject("liege");
   if (!liegeObject) return 0;
-  string liegeTitleKey = remQuotes(liegeObject->safeGetString("title", "nonesuch"));
+  liegeTitleKey = remQuotes(liegeObject->safeGetString("title", "nonesuch"));
   liegeTitle = findByName(liegeTitleKey);
   return liegeTitle;
 }
