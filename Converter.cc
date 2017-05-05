@@ -249,9 +249,11 @@ bool Converter::createCK2Objects () {
     (*ckCountry)->setDeJureLiege(CK2Title::findByName(deJureTag));
   }
 
-  Object* characters = ck2Game->safeGetObject("character");
+  Object *characters = ck2Game->safeGetObject("character");
   if (!characters) {
-    Logger::logStream(LogStream::Error) << "Could not find character object, cannot continue.\n" << LogOption::Undent;
+    Logger::logStream(LogStream::Error)
+        << "Could not find character object, cannot continue.\n"
+        << LogOption::Undent;
     return false;
   }
 
@@ -2457,32 +2459,43 @@ bool Converter::redistributeMana () {
     }
   }
 
-  for (map<string, string>::iterator keyword = keywords.begin(); keyword != keywords.end(); ++keyword) {
-    string ck2word = keyword->first;
-    string eu4word = keyword->second;
-    Logger::logStream("mana") << "Redistributing " << globalAmounts[ck2word].y() << " EU4 " << eu4word
-			      << " to " << globalAmounts[ck2word].x() << " CK2 " << ck2word << ".\n" << LogOption::Indent;
+  for (const auto &keyword : keywords) {
+    string ck2word = keyword.first;
+    string eu4word = keyword.second;
+    Logger::logStream("mana")
+        << "Redistributing " << globalAmounts[ck2word].y() << " EU4 " << eu4word
+        << " to " << globalAmounts[ck2word].x() << " CK2 " << ck2word << ".\n"
+        << LogOption::Indent;
 
-    double ratio = globalAmounts[ck2word].y() / (1 + globalAmounts[ck2word].x());
-    for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
-      CK2Ruler* ruler = (*eu4country)->getRuler();
-      if (!ruler) continue;
+    double ratio =
+        globalAmounts[ck2word].y() / (1 + globalAmounts[ck2word].x());
+    for (EU4Country::Iter eu4country = EU4Country::start();
+         eu4country != EU4Country::final(); ++eu4country) {
+      CK2Ruler *ruler = (*eu4country)->getRuler();
+      if (!ruler)
+        continue;
       double ck2Amount = ruler->safeGetFloat(ck2word);
-      if (ck2Amount <= 0) continue;
+      if (ck2Amount <= 0)
+        continue;
 
       double distribution = 1;
       if (counts[ruler] > 1) {
-	if (ruler->getPrimaryTitle() == (*eu4country)->getTitle()) distribution = 0.666;
-	else distribution = 0.333 / (counts[ruler] - 1);
+        if (ruler->getPrimaryTitle() == (*eu4country)->getTitle())
+          distribution = 0.666;
+        else
+          distribution = 0.333 / (counts[ruler] - 1);
       }
       double eu4Amount = ck2Amount * ratio * distribution;
-      Logger::logStream("mana") << nameAndNumber(ruler) << " has " << ck2Amount << " " << ck2word << ", so "
-				<< (*eu4country)->getKey() << " gets " << eu4Amount << " " << eu4word << ".\n";
+      Logger::logStream("mana")
+          << nameAndNumber(ruler) << " has " << ck2Amount << " " << ck2word
+          << ", so " << (*eu4country)->getKey() << " gets " << eu4Amount << " "
+          << eu4word << ".\n";
       (*eu4country)->resetLeaf(eu4word, eu4Amount);
     }
 
     Logger::logStream("mana") << LogOption::Undent;
   }
+
 
   objvec factions = ck2Game->getValue("active_faction");
   map<CK2Ruler*, vector<CK2Ruler*> > factionMap;
@@ -2493,9 +2506,17 @@ bool Converter::redistributeMana () {
     CK2Ruler* target = 0;
     Object* targetTitle = scope->safeGetObject("title");
     if (targetTitle) {
-      string titleTag = remQuotes(targetTitle->safeGetString("title"));
+      string titleTag;
+      // Handle both "title = whatever" and "title = { title = whatever }" cases.
+      if (targetTitle->isLeaf()) {
+        titleTag = remQuotes(targetTitle->getLeaf());
+      } else {
+        titleTag = remQuotes(targetTitle->safeGetString("title"));
+      }
       CK2Title* title = CK2Title::findByName(titleTag);
-      target = title->getRuler();
+      if (title) {
+        target = title->getRuler();
+      }
     }
     if ((!target) && (creator)) target = creator->getLiege();
     if (!target) continue;
@@ -2514,10 +2535,13 @@ bool Converter::redistributeMana () {
     CK2Ruler* ruler = (*eu4country)->getRuler();
     CK2Title* primary = ruler->getPrimaryTitle();
     double claimants = 0;
-    for (CK2Character::CharacterIter claimant = primary->startClaimant(); claimant != primary->finalClaimant(); ++claimant) {
+    for (CK2Character::CharacterIter claimant = primary->startClaimant();
+         claimant != primary->finalClaimant(); ++claimant) {
       ++claimants;
     }
-    if (claimants > maxClaimants) maxClaimants = claimants;
+    if (claimants > maxClaimants) {
+      maxClaimants = claimants;
+    }
     (*eu4country)->resetLeaf("claimants", claimants);
   }
 
@@ -2703,7 +2727,7 @@ bool Converter::redistributeMana () {
       tech->resetLeaf(eu4tech, curr);
     }
   }
-  
+
   Logger::logStream(LogStream::Info) << "Done with mana.\n" << LogOption::Undent;
   return true;
 }
@@ -3526,7 +3550,7 @@ void Converter::convert () {
 
   if (!createCK2Objects()) return;
   if (!createEU4Objects()) return;
-  if (!createProvinceMap()) return; 
+  if (!createProvinceMap()) return;
   if (!createCountryMap()) return;
   if (!resetHistories()) return;
   if (!calculateProvinceWeights()) return;
