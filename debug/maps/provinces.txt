@@ -134,12 +134,13 @@ c_shetland = 1978 # Shetland - The Shetlands
 c_orkney = 369 # Orkney - Orkney
 
 c_bergenshus = 23 # Bergenhus - Bergenhus
-c_rogaland = 23 # Rogaland - Bergenhus
+c_rogaland = 24 # Rogaland - Stavanger
 
-c_agder = 24 # Agder - Agder
-c_telemark = 24 # Telemark - Agder
+c_agder = 4145 # Agder - Agdesiden
+c_telemark = 4144 # Telemark - Bratsberg
 
 c_akershus = 17 # Akershus - Akershus
+c_akershus = 4143 # Akershus - Smalena
 c_vestfold = 17 # Vestfold - Akershus
 
 c_hedmark = 22 # Hedmark - Eidsiva
@@ -160,14 +161,16 @@ c_jamtland = 10 # County Jämtland - Jämtland
 c_herjedalen = 10 # Herjedalen - Jämtland
 
 c_viken = 16 # Viken - Bohuslän
+c_viken = 4143 # Viken - Smalena
 
 # Sweden & Finland
 
 c_vastergotland = 7 # Västergötland - Västergötland
+c_vastergotland = 4163 # Västergötland - Elfsborg
 
 d_smaland = 3 # Duchy Småland - Småland
 c_smaland = 3 # County Småland - Småland
-c_more = 3 # Möre - Småland
+c_more = 4166 # Möre - Tioharad
 c_oland = 3 # Öland - Småland
 
 c_ostergotland = 2 # Östergötland - Östergötland
@@ -183,7 +186,7 @@ c_uppland = 1 # Uppland - Stockholm
 c_aland = 1930 # Åland - Åland
 
 c_varmland = 5 # Värmland - Värmland
-c_dal = 5 # Dal - Värmland
+c_dal = 4164 # Dal - Dal
 
 c_vastmanland = 4 # Västmanland - Bergslagen
 
@@ -212,7 +215,9 @@ c_kexholm = 30 # Kexholm - Viborg
 c_kexholm = 32 # Kexholm - Kexholm
 
 c_osterbotten = 19 # Österbotten - Österbotten
-c_kemi = 4113 # Kemi - Österbotten
+c_osterbotten = 4152 # Österbotten - Kajaani
+c_kemi = 4113 # Kemi - Rovaniemi
+c_kemi = 4151 # Kemi - Inari
 
 c_kola = 1777 # Kola - Kola
 
@@ -232,6 +237,7 @@ c_reval = 36 # Reval - Reval
 # Denmark
 
 c_skane = 6 # Skåne - Skåne
+c_skane = 4165 # Skåne - Goinge
 
 c_halland = 26 # Halland - Halland
 
@@ -246,10 +252,13 @@ c_fyn = 14 # Fyn - Fyn
 
 c_jylland = 1984 # Jylland - Nordjylland
 c_jylland = 15 # Jylland - Midtjylland
+c_jylland = 4141 # Jylland - Aarhus
 
 c_slesvig = 13 # Slesvig - Slesvig
+c_slesvig = 4149 # Slesvig - Kolding
 
 c_holstein = 1775 # Holstein - Holstein
+c_holstein = 4141 # Holstein - Ditmarschen
 
 # Francia
 
@@ -394,7 +403,7 @@ c_coimbra = 1851 # Coimbra - Ribatejo
 
 c_lisboa = 227 # Lisboa - Lisboa
 
-c_evora = 229 # Evora - Alentejo
+c_evora = 4150 # Evora - Evora
 c_alcacer_do_sal = 229 # Alcacer do Sal - Alentejo
 c_mertola = 229 # Mertola - Alentejo
 
@@ -720,9 +729,8 @@ c_anhalt = 52 # Anhalt - Magdeburg
 c_anhalt = 58 # Anhalt - Anhalt
 
 d_mecklemburg = 46 # Mecklemburg - Mecklenburg
-c_mecklemburg = 46 # Mecklemburg - Mecklenburg
+c_mecklemburg = 2993 # Mecklemburg - Uckermark
 c_rostock = 46 # Rostock - Mecklenburg
-c_werle = 46 # Werle - Mecklenburg
 
 c_werle = 2996 # Werle - Wismar
 
@@ -730,17 +738,12 @@ c_wolgast = 2994 # Wolgast - Greifswald
 
 c_rugen = 47 # Rugen - Vorpommern
 
-c_plauen = 62 # Plauen - Leipzig
-
-c_meissen = 59 # Meissen - Meissen
-
 c_plauen = 2965 # Plauen - Vogtland
-c_meissen = 2965 # Meissen - Vogtland
 
 c_meissen = 61 # Meissen - Dresden
 
 c_thuringen = 63 # Thuringen - Thuringen
-c_weimar = 63 # Weimar - Thuringen
+c_weimar = 62 # Weimar - Leipzig
 
 c_furstenberg = 69 # Furstenberg - Konstanz
 
@@ -801,24 +804,25 @@ c_litomerice = 1771 # Litomerice - Erz
 c_praha = 266 # Praha - Bohemia
 c_boleslav = 266 # Boleslav - Bohemia
 
-c_brno = 265 # Brno - Moravia
-c_olomouc = 265 # Olomouc - Moravia
+c_brno = 265 # Brno - Brno
+c_olomouc = 4237 # Olomouc - Olomouc
 
 c_hradec = 2970 # Hradec - Hradeco
 
 c_lower_silesia = 2966 # Lower Silesia - Glogow
+c_lower_silesia = 4238 # Lower Silesia - Leignitz
 
-c_lubusz = 1763 # Lubusz - Niederlausitz
+c_lubusz = 2969 # Lubusz - Sternberg
+c_lubusz = 49 # Lubusz - Neumark
 
 c_upper_silesia = 60 # Upper Silesia - Oberlausitz
+c_upper_silesia = 1763 # Upper Silesia - Niederlausitz
 
-c_lausitz = 61 # Lausitz - Dresden
+c_lausitz = 59 # Lausitz - Meissen
+c_lausitz = 1759 # Lausitz - Potsdam
 
 c_brandenburg = 50 # Brandenburg - Berlin
 c_brandenburg = 51 # Brandenburg - Ruppin
-c_brandenburg = 1759 # Brandenburg - Potsdam
-c_brandenburg = 2969 # Brandenburg - Sternberg
-c_brandenburg = 2993 # Brandenburg - Uckermark
 
 # Balkans
 
@@ -828,14 +832,13 @@ c_senj = 1826 # Senj - Lika
 d_dalmatia = 136 # Duchy Dalmatia - Dalmatia
 c_zadar = 136 # Zadar - Dalmatia
 c_split = 136 # Split - Dalmatia
-c_zachlumia = 136 # Zachlumia - Dalmatia
+c_zachlumia = 139 # Zachlumia - Hum
 
 c_zagreb = 131 # Zagreb - Croatia
 
 c_varadzin = 152 # Varadzin - Belovar
 
 c_ragusa = 137 # Ragusa - Ragusa
-c_ragusa = 1831 # Ragusa - Travunia
 
 c_zeta = 138 # Zeta - Zeta
 
@@ -843,14 +846,18 @@ c_rashka = 1827 # Rashka - Raska
 c_rashka = 1766 # Rashka - Kosovo
 
 c_belgrade = 141 # Belgrade - Serbia
+c_belgrade = 4239 # Belgrade - Belgrade
 
 c_vidin = 2746 # Vidin - Vidin
+c_vidin = 4176 # Vidin - Branicevo
 
 c_krizevci = 1767 # Krizevci - Veroce
+c_krizevci = 4173 # Krizevci - Syrmia
 
 c_usora = 1828 # Usora - Soli
 
-c_hum = 139 # Hum - 139
+c_hum = 1831 # Hum - Travunia
+c_hum = 1827 # Hum - Raska
 
 c_rama = 140 # Rama - Bosnia
 c_rama = 3002 # Rama - Visoki
@@ -858,7 +865,8 @@ c_rama = 3002 # Rama - Visoki
 # Byzantine Empire
 
 c_dyrrachion = 143 # Dyrrachion - Albania
-c_ochrid = 143 # Ochrid - Albania
+c_dyrrachion = 4174 # Dyrrachion - Durres
+c_ochrid = 4175 # Ochrid - Lezhe
 
 c_epeiros = 144 # Epeiros - Janina
 c_arta = 144 # Arta - Janina
@@ -1572,6 +1580,7 @@ c_ladistan = 2219 # Ladistan - Bandar Langeh
 c_sirjan = 2223 # Sirjan - Larestan
 
 c_shiraz = 2218 # Shiraz - Sarvestan
+c_shiraz = 4171 # Shiraz - Aborquh
 
 d_fars = 430 # Duchy Fars - Fars
 c_fars = 430 # Fars - Fars
@@ -1594,6 +1603,7 @@ c_qazwin = 2215 # Qazqin - Qazvin
 c_khozistan = 412 # Khozistan - Khuzestan
 
 c_esfahan = 429 # Esfahan - Esfahan
+c_esfahan = 4171 # Esfahan - Aborquh
 
 c_yazd = 433 # Yazd - Yazd
 c_yazd = 2222 # Yazd - Ardakan
@@ -1695,6 +1705,7 @@ c_chuy = 2126 # Chuy - Chuy
 c_chuy = 2125 # Chuy - Kochkor
 
 c_ili = 2120 # Ili - Ili
+c_ili = 4208 # Ili - Qurqara-Usu
 
 c_zhetysu = 461 # Zhetysu - Almaty
 c_zhetysu = 2368 # Zhetysu - Karamegdan
@@ -1798,8 +1809,8 @@ c_lower_volga = 2419 # Lower Volga - Kanadey
 # Southeastern Europe
 
 c_sopron = 135 # Sopron - Sopron
-c_vas = 135 # Vas - Sopron
-c_fejer = 1864 # Fejer - Sopron
+c_vas = 1864 # Vas - Somogy
+c_fejer = 4240 # Fejer - Fejer
 
 c_szekezfehervar = 1864 # Szekezfehervar - Pozsony
 c_pecs = 4126 # Pecs - Pozsony
@@ -1813,17 +1824,14 @@ c_pest = 4125 # Pest - Pest
 c_esztergom = 153 # Esztergom - Pest
 c_pest = 155 # Pest - Bekes
 
-c_trencin = 1772 # Trencin - Pozsony
+c_trencin = 4236 # Trencin -Trencin
 c_pressburg = 1772 # Pressburg - Pozsony
-c_nitra = 1772 # Nitra - Pozsony
+c_nitra = 154 # Nitra - Hont
 
-c_orava = 154 # Orava - Ersekujvar
-c_saris = 154 # Saris - Ersekujvar
-c_gemer = 154 # Gemer - Ersekujvar
+c_gemer = 154 # Gemer - Hont
 
 c_orava = 1318 # Orava - Szepes
 c_saris = 1318 # Saris - Szepes
-c_gemer = 1318 # Gemer - Szepes
 
 c_bereg = 162 # Bereg - Zemplen
 
@@ -1893,7 +1901,6 @@ c_zhmud = 271 # Zhmud - Samogitia
 
 c_poznanskie = 2963 # Poznanskie - Notec
 c_poznanskie = 254 # Poznanskie - Poznan
-c_poznanskie = 49 # Poznanskie - Neumark
 
 c_kaliskie = 255 # Kaliskie - Kalisz
 
@@ -1997,6 +2004,7 @@ c_novgorod = 310 # Novgorod - Novgorod
 c_torzhok = 1959 # Torzhok - Torzhok
 
 c_velikiye_luki = 311 # Velikiye Luki - Kholm
+c_velikiye_luki = 4148 # Velikiye Luki - Luki
 
 c_romny = 1958 # Romny - Kargopol
 
@@ -2021,14 +2029,12 @@ c_kostroma = 1753 # Kostroma - Kostroma
 
 c_galich_mersky = 1957 # Galich Mersky - Galich
 
-c_yaroslavl = 4117 # Yaroslavl - Yaroslavl
 c_yaroslavl = 308 # Yaroslavl - Yaroslavl
-c_rostov = 308 # Rostov - Yaroslavl
+c_rostov = 4147 # Rostov - Rostov
 
 c_tver = 294 # Tver - Tver
-c_uglich = 294 # Uglich - Tver
 
-c_uglich = 4117 # Uglich - Tver
+c_uglich = 4117 # Uglich - Bezhetsk
 
 c_suzdal = 1956 # Suzdal - Suzdal
 c_suzdal = 1754 # Suzdal - Murom
@@ -2686,19 +2692,18 @@ b_kathmandu = 557 # Barony Kathmandu - Katmandu
 
 # Tarim Basim
 
+c_kashgar = 4209 # Kashgar - Moralbexi
 c_kashgar = 739 # Kashgar - Kashgar
-c_kashgar = 2124 # Kashgar - Yarkand
-
+c_yarkand = 4210 # Yarkand - Yangi Hissar
 c_yarkand = 2124 # Yarkand - Yarkand
-c_aksu = 2124 # Aksu - Yarkand
-
-c_khotan = 710 # Khotan - Hotan
 
 c_aksu = 712 # Aksu - Aksu
 
+c_khotan = 2124 # Khotan - Yarkand
+
 c_kucha = 2121 # Kucha - Kuqa
 
-c_cherchen = 711 # Cherchen - Qarqan
+c_cherchen = 710 # Cherchen - Hotan
 c_charkliq = 711 # Charkliq - Qarqan
 
 c_karashar = 2192 # Karashar - Korla
@@ -2709,7 +2714,7 @@ c_dunhuang = 707 # Dunhuang - Yumen
 
 c_anxi = 2122 # Anxi - Hami
 
-c_kara_khoja = 713 # Kara Khoja - Bechbaliq
+c_kara_khoja = 4207 # Kara Khoja - Turpan
 c_kumul = 713 # Qamil - Bechbaliq
 
 c_luntai = 715 # Luntai - Urumqi
@@ -2724,12 +2729,12 @@ c_gorgol = 1066 # Gorgol - Altai Uriankhai
 c_dunkheger = 718 # Dunkheger - Kobdo
 c_tsagaannuur = 718 #  Tsagaannuur - Kobdo
 
-c_kyzyl = 716 # Kyzyl - Tannu Uriankhai
+c_kyzyl = 4222 # Kyzyl - Ulaangom
 c_otuken = 716 # Otuken - Tannu Uriankhai
 
 c_khangai = 719 # Khangai - Uliastai
 
-c_aj_bogd = 2117 # Aj Bogd - Zasagt
+c_aj_bogd = 4206 # Aj Bogd - Balikul
 c_ikh_bogd = 2117 # Ikh Bogd - Zasagt
 
 c_ikh_bogd = 2193 # Ikh Bogd - Govi
