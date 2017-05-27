@@ -22,6 +22,7 @@ public:
   ConverterJob (string n, bool final) : Enumerable<const ConverterJob>(this, n, final) {}
   static ConverterJob const* const Convert;
   static ConverterJob const* const DebugParser;
+  static ConverterJob const* const CheckProvinces;
   static ConverterJob const* const LoadFile;
 };
 
@@ -65,6 +66,7 @@ private:
 
   // Infrastructure
   void loadFile ();
+  void checkProvinces ();
   void convert ();
   void debugParser ();
   void configure ();

@@ -24,6 +24,7 @@ public:
 
 public slots:
   void loadFile ();
+  void checkProvinces ();
   void convert ();
   void debugParser ();
   void message (QString m);

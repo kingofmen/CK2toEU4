@@ -5,6 +5,7 @@
 #include <iostream> 
 #include <string>
 #include <set>
+#include <unordered_map>
 
 #include "Converter.hh"
 #include "CK2Province.hh"
@@ -22,9 +23,14 @@
 
 using namespace std;
 
-ConverterJob const* const ConverterJob::Convert = new ConverterJob("convert", false);
-ConverterJob const* const ConverterJob::DebugParser = new ConverterJob("debug", false);
-ConverterJob const* const ConverterJob::LoadFile = new ConverterJob("loadfile", true);
+ConverterJob const *const ConverterJob::Convert =
+    new ConverterJob("convert", false);
+ConverterJob const *const ConverterJob::DebugParser =
+    new ConverterJob("debug", false);
+ConverterJob const *const ConverterJob::CheckProvinces =
+    new ConverterJob("check_provinces", false);
+ConverterJob const *const ConverterJob::LoadFile =
+    new ConverterJob("loadfile", true);
 
 const string kDynastyPower = "dynasty_power";
 const string kAwesomePower = "awesome_power";
@@ -61,9 +67,10 @@ void Converter::run () {
 
     ConverterJob const* const job = jobsToDo.front();
     jobsToDo.pop();
-    if (ConverterJob::Convert     == job) convert();
-    if (ConverterJob::DebugParser == job) debugParser();
-    if (ConverterJob::LoadFile    == job) loadFile();
+    if (ConverterJob::Convert        == job) convert();
+    if (ConverterJob::DebugParser    == job) debugParser();
+    if (ConverterJob::LoadFile       == job) loadFile();
+    if (ConverterJob::CheckProvinces == job) checkProvinces();
   }
 }
 
@@ -155,10 +162,10 @@ void Converter::configure () {
   CK2Ruler::humansSovereign = configObject->safeGetString("humans_always_independent", "no") == "yes";
 }
 
-void Converter::debugParser () {
+void Converter::debugParser() {
   objvec parsed = ck2Game->getLeaves();
   Logger::logStream(LogStream::Info) << "Last parsed object:\n"
-				     << parsed.back();
+                                     << parsed.back();
 }
 
 Object* Converter::loadTextFile (string fname) {
@@ -197,6 +204,52 @@ bool Converter::swapKeys (Object* one, Object* two, string key) {
   return true; 
 }
 
+void Converter::checkProvinces () {
+  Logger::logStream(LogStream::Info) << "Checking provinces.\n";
+  if (!createCK2Objects())
+    return;
+  for (CK2Province::Iter ckprov = CK2Province::start();
+       ckprov != CK2Province::final(); ++ckprov) {
+    string baronytag =
+        remQuotes((*ckprov)->safeGetString("primary_settlement", QuotedNone));
+    if (baronytag == "---") {
+      continue; // Indicates wasteland.
+    }
+
+    if (QuotedNone == baronytag) {
+      Logger::logStream(LogStream::Warn)
+          << "Could not find primary settlement of " << nameAndNumber(*ckprov)
+          << ", ignoring.\n";
+      continue;
+    }
+
+    std::unordered_map<string, int> baronies;
+    objvec leaves = (*ckprov)->getLeaves();
+    for (auto* leaf : leaves) {
+      if (leaf->isLeaf()) {
+        continue;
+      }
+      string baronyType = leaf->safeGetString("type", PlainNone);
+      if (PlainNone == baronyType) {
+        continue;
+      }
+      baronies[baronyType]++;
+      if (leaf->getKey() == baronytag && baronyType != "castle") {
+        Logger::logStream(LogStream::Info)
+            << "Province " << nameAndNumber(*ckprov)
+            << " has primary settlement of type " << baronyType << "\n";
+      }
+    }
+    if (baronies["castle"] != 1 || baronies["temple"] != 1 || baronies["city"] != 1) {
+      Logger::logStream(LogStream::Info)
+          << "Province " << nameAndNumber(*ckprov) << " has settlements ";
+      for (const auto &barony : baronies) {
+        Logger::logStream(LogStream::Info) << barony.first << "=" << barony.second << " ";
+      }
+      Logger::logStream(LogStream::Info) << "\n";
+    }
+  }
+}
 
 /********************************  End helpers  **********************/
 

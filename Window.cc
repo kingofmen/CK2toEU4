@@ -49,8 +49,10 @@ int main (int argc, char** argv) {
   QMenu* actionMenu = menuBar->addMenu("Actions");
   QAction* convert = actionMenu->addAction("Convert to EU4");
   QAction* debugParser = actionMenu->addAction("Debug parser");
+  QAction* checkProvinces = actionMenu->addAction("Check provinces");
   QObject::connect(convert, SIGNAL(triggered()), parentWindow, SLOT(convert()));
   QObject::connect(debugParser, SIGNAL(triggered()), parentWindow, SLOT(debugParser()));
+  QObject::connect(checkProvinces, SIGNAL(triggered()), parentWindow, SLOT(checkProvinces()));
 
   parentWindow->textWindow = new QPlainTextEdit(parentWindow);
   parentWindow->textWindow->setFixedSize(3*scr.width()/5 - 10, scr.height()/2-40);
@@ -129,6 +131,15 @@ void Window::debugParser () {
   }
   Logger::logStream(LogStream::Info) << "Debug.\n";
   worker->scheduleJob(ConverterJob::DebugParser);
+}
+
+void Window::checkProvinces () {
+  if (!worker) {
+    Logger::logStream(LogStream::Info) << "No file loaded.\n";
+    return;
+  }
+  Logger::logStream(LogStream::Info) << "Province check.\n";
+  worker->scheduleJob(ConverterJob::CheckProvinces);
 }
 
 void Window::closeDebugLog () {
