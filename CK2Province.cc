@@ -1,5 +1,6 @@
 #include "CK2Province.hh"
 #include "EU4Province.hh"
+#include "Logger.hh"
 
 ProvinceWeight const* const ProvinceWeight::Manpower      = new ProvinceWeight("pw_manpower", false);
 ProvinceWeight const* const ProvinceWeight::Production    = new ProvinceWeight("pw_production", false);
@@ -50,8 +51,10 @@ void CK2Province::calculateWeights (Object* weightObject, Object* troops, objvec
       buildingWeight += (*building)->safeGetFloat("weight");
       forts += (*building)->safeGetFloat("fort_level");
     }
-    (*barony)->setLeaf(ProvinceWeight::Production->getName(), buildingWeight * typeWeight->safeGetFloat("prod", 0.5));
-    (*barony)->setLeaf(ProvinceWeight::Taxation->getName(), buildingWeight * typeWeight->safeGetFloat("tax", 0.5));
+    (*barony)->setLeaf(ProvinceWeight::Production->getName(),
+                       buildingWeight * typeWeight->safeGetFloat("prod", 0.5));
+    (*barony)->setLeaf(ProvinceWeight::Taxation->getName(),
+                       buildingWeight * typeWeight->safeGetFloat("tax", 0.5));
     (*barony)->setLeaf(ProvinceWeight::Fortification->getName(), forts);
 
     Object* levyObject = (*barony)->safeGetObject("levy");
@@ -72,9 +75,18 @@ void CK2Province::calculateWeights (Object* weightObject, Object* troops, objvec
     }
     (*barony)->setLeaf(ProvinceWeight::Manpower->getName(), mpWeight);
     (*barony)->setLeaf(ProvinceWeight::Galleys->getName(), galleys);
-    for (ProvinceWeight::Iter p = ProvinceWeight::start(); p != ProvinceWeight::final(); ++p) {
+    Logger::logStream("buildings")
+        << (*barony)->getKey() << " in " << getKey() << " ("
+        << safeGetString("name", "name_not_found") << ") has weights:\n"
+        << LogOption::Indent;
+    for (ProvinceWeight::Iter p = ProvinceWeight::start();
+         p != ProvinceWeight::final(); ++p) {
       weights[**p] += (*barony)->safeGetFloat((*p)->getName());
+      Logger::logStream("buildings")
+          << (*p)->getName() << " : "
+          << (*barony)->safeGetFloat((*p)->getName()) << "\n";
     }
+    Logger::logStream("buildings") << LogOption::Undent;
   }
   weights[*ProvinceWeight::Trade] = safeGetInt("realm_tradeposts");
 }

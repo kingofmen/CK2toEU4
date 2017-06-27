@@ -116,6 +116,7 @@ buildings = {
   fort          = { prod = 0.0 tax = 0.0 cost = 21 }
   trade_post    = { prod = 0.9 tax = 0.0 cost = 160 }
   family_palace = { prod = 0.4 tax = 0.6 cost = 1}
+  hospital      = { prod = 0.5 tax = 0.5 cost = 110 }
 }
 
 permit_subinfeudation = no
