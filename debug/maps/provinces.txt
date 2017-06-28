@@ -1288,16 +1288,12 @@ c_zeila = 1208 # Zeila - Haud
 
 c_canarias = 366 # Canarias - The Canarias
 
-c_anti-atlas = 348 # Anti-Atlas - Sus
 c_anti-atlas = 2470 # Anti-Atlas - Haha
 c_anti-atlas = 1110 # Anti-Atlas - Agadir
-c_anti-atlas = 2464 # Anti-Atlas -Quarzazate
+c_ifni = 2464 # Ifni -Quarzazate
 c_ifni = 348 # Ifni - Sus
-c_ifni = 2470 # Ifni - Haha
-c_ifni = 1110 # Ifni - Agadir
-c_ifni = 347 # Ifni - Ifni
 c_tharasset = 347 # Marrakech - Ifni
-c_marrakech = 2467 # Marrakech - Meknes
+c_marrakech = 344 # Marrakech - Marrakech
 c_marrakech = 2468 # Marrakech - Tadla
 
 c_sijilmasa = 346 # Sijilmasa - Figuig
@@ -1313,6 +1309,7 @@ c_tangiers = 334 # Tangiers - Tangiers
 c_cebta = 1751 # Cebta - Ceuta
 
 c_fes = 343 # Fes - Fez
+c_fes = 2467 # Fes - Meknes
 c_figuig = 349 # Figuig - Fez
 c_el_rif = 335 # El Rif - Fez
 
@@ -1785,11 +1782,12 @@ c_komi = 1964 # Komi - Ust-Sysolsk
 
 d_bulgar = 1082 # Duchy Bulgar - Kazan
 c_qazan = 1082 # Kazan - Kazan
-c_grassland_cheremisa = 1082 # Grassland Cheremisa - Kazan
+c_grassland_cheremisa = 4264 # Grassland Cheremisa - Tetyushi
 
 d_bulgar = 2421 # Duchy Bulgar - Ar-Chally
-c_bilyar = 2421 # Bilyar - Ar-Chally
-c_bulgar = 2421 # Bulgar - Ar-Chally
+c_bilyar = 2421 # Bilyar - Juketau
+c_bilyar = 4265 # Bilyar - Ar-Chally
+c_bulgar = 4267 # Bulgar - Bulgar
 
 c_syrt = 1081 # Syrt - Simbirsk
 
@@ -1882,6 +1880,7 @@ c_memel = 40 # Memel - Memel
 c_kurs = 39 # Kurs - Kurland
 
 c_lettigalians = 38 # Lettigalians - Riga
+c_lettigalians = 4241 # Lettigalians - Wenden
 
 c_zemigalians = 1935 # Zemigalians - Semigallia
 
@@ -1926,6 +1925,7 @@ c_galich = 2961 # Galich - Lwow
 c_peremyshl = 2424 # Peremyshl - Peremyshl
 
 c_terebovl = 281 # Terebovl - Podolia
+c_terebovl = 2962 # Terebovl - Rowne
 
 c_sandomierskie = 259 # Sandomierskie - Sandomierz
 
@@ -1943,13 +1943,14 @@ c_pinsk = 279 # Pinsk - Volhynia
 
 c_turov = 1941 # Turov - Turov
 c_turov = 1942 # Turov - Zhytomyr
-c_turov = 2962 # Turov - Rowne
+c_turov = 4247 # Turov - Owrucz
 
 c_minsk = 276 # Minsk - Minsk
-c_lyubech = 276 # Lyubech - Minsk
-c_lyubech = 4115 # Lyubech - Minsk
 
-c_kiev = 280 # Kiev - Kiev
+c_lyubech = 292 # Lyubech - Mogilev
+c_lyubech = 4244 # Lyubech - Mazyr
+
+c_kiev = 4115 # Kiev - Mazyr
 c_kiev = 280 # Kiev - Kiev
 
 c_jacwiez = 1937 # Jacwiez - Grodno
@@ -1971,20 +1972,19 @@ c_pereyaslavl = 290 # Pereyaslavl - Poltava
 c_pereyaslavl = 2407 # Pereyaslavl - Pereyaslavl
 
 c_polotsk = 275 # Polotsk - Polotsk
-c_lepiel = 275 # Lepiel - Polotsk
 
 c_lepiel = 770 # Lepiel - Braslaw
 
 
 c_smolensk = 293 # Smolensk - Smolensk
-c_smolensk = 293 # Smolensk - Smolensk
-c_roslavl = 293 # Roslavl - Smolensk
+
+c_roslavl = 4245 # Roslavl - Vyazma
 
 c_vitebsk = 771 # Vitebsk - Vitebsk
 
-c_mstislavl = 292 # Mstislavl - Mogilev
-c_mstislavl = 4115 # Mstislavl - Mogilev
-c_orsha = 292 # Orsha - Mogilev
+c_mstislavl = 4246 # Mstislavl - Mstislavl
+
+c_orsha = 4242 # Orsha - Ula
 
 c_chernigov = 289 # Chernigov - Chernigov
 
@@ -2004,21 +2004,27 @@ c_velikiye_luki = 4148 # Velikiye Luki - Luki
 
 c_romny = 1958 # Romny - Kargopol
 
-c_north_dvina = 313 # North Dvina - Kholmogory
+c_north_dvina = 4258 # North Dvina - Onega
 c_trans-portage = 313 # Trans-Portage - Kholmogory
 
-c_samoyeds = 1955 # Samoyeds - Arkhangelsk
+c_samoyeds = 4257 # Samoyeds - Mezen
 c_bjarmia = 1955 # Bjarmie - Arkhangelsk
-c_ugra = 4122 # Ugra - Arkhangelsk
+c_ugra = 4122 # Ugra - Shenkursk
+c_ugra = 4256 # Ugra - Solvychegodsk
 
 c_beloozero = 2749 # Beloozero - Tikhvin
+c_beloozero = 4260 # Beloozero - Vyshny Volochyok
 
 c_vologda = 312 # Vologda - Beloozero
+c_vologda = 4261 # Vologda - Ustyuzhna
 
 c_chud = 314 # Chud - Vologda
+c_chud = 4259 # Chud - Velsk
 
 c_veliky_ustug = 1755 # Veliky Ustug - Ustyug
 c_syrj = 1755 # Syrj - Ustyug
+c_veliky_ustug = 4263 # Veliky Ustug - Sol Galitskaya
+c_syrj = 4262 # Syrj - Totma
 c_zyriane = 4129 # Zyriane - Ustyug
 
 c_kostroma = 1753 # Kostroma - Kostroma
@@ -2026,21 +2032,25 @@ c_kostroma = 1753 # Kostroma - Kostroma
 c_galich_mersky = 1957 # Galich Mersky - Galich
 
 c_yaroslavl = 308 # Yaroslavl - Yaroslavl
+c_yaroslavl = 4250 # Yaroslavl - Mologa
 c_rostov = 4147 # Rostov - Rostov
 
 c_tver = 294 # Tver - Tver
+c_tver = 4249 # Tver - Zubtsov
 
 c_uglich = 4117 # Uglich - Bezhetsk
+c_uglich = 4248 # Uglich - Kashin
 
 c_suzdal = 1956 # Suzdal - Suzdal
 c_suzdal = 1754 # Suzdal - Murom
 
 c_vladimir = 307 # Vladimir - Vladimir
-c_pereyaslavl_zalessky = 307 # Pereyaslavl - Vladimir
+c_pereyaslavl_zalessky = 4253 # Pereyaslavl - Yuriev
 
 d_moskva = 295 # Duchy Moskva - Moskva
 c_moskva = 295 # County Moskva - Moskva
-c_mozhaysk = 295 # Mozhaysk - Moskva
+c_moskva = 4252 # County Moskva - Kolomna
+c_mozhaysk = 4251 # Mozhaysk - Mozhaysk
 
 c_vyazma = 296 # Vyazma - Kaluga
 
@@ -2048,16 +2058,18 @@ c_ryazan = 301 # Ryazan - Ryazan
 
 c_murom = 1778 # Murom - Kasimov
 
-c_kolomna = 300 # Kolomna - Tula
-c_pronsk = 4116 # Pronsk - Tula
+c_kolomna = 4116 # Kolomna - Oka
+c_pronsk = 300 # Pronsk - Tula
+c_pronsk = 4255 # Pronsk - Pronsk
 
 c_nizhny_novgorod = 306 # Nizhny Novgorod - Nizhny Novgorod
-c_gorodez = 306 # Gorodez - Nizhny Novgorod
+c_gorodez = 4254 # Gorodez - Starodub
 
 c_merya = 1083 # Merya - Vetluga
 c_hlynov = 1083 # Hlynov - Vetluga
 
 c_votyaki = 1079 # Votyaki - Viatka
+c_votyaki = 4266 # Votyaki - Izhkar
 
 c_itil = 464 # Itil - Astrakhan
 
@@ -2144,6 +2156,7 @@ c_mountain_cheremisa = 304 # Mountain Cheremisa - Penza
 c_chuvash = 2423 # Chuvash - Alatyr
 
 c_toropets = 1752 # Toropets - Rzhev
+c_toropets = 4243 # Toropets - Toropets
 
 c_chortitza = 2411 # Chortitza - Mansur
 
@@ -2734,3 +2747,4 @@ c_ikh_bogd = 2193 # Ikh Bogd - Govi
 c_kara_khorum = 2190 # Kara Khorum - Qaraqorum
 
 c_baygal = 2189 # Baygal - Tsetserleg
+
