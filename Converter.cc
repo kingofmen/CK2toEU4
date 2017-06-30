@@ -35,6 +35,10 @@ ConverterJob const *const ConverterJob::LoadFile =
 const string kDynastyPower = "dynasty_power";
 const string kAwesomePower = "awesome_power";
 
+const string kOldDemesne = "demesne";
+const string kNewDemesne = "dmn";
+string demesneString;
+
 Converter::Converter (Window* ow, string fn)
   : ck2FileName(fn)
   , ck2Game(0)
@@ -77,8 +81,10 @@ void Converter::run () {
 void Converter::loadFile () {
   if (ck2FileName == "") return;
   Parser::ignoreString = "CK2txt";
+  Parser::specialCases["de_jure_liege=}"] = "";
   ck2Game = loadTextFile(ck2FileName);
   Parser::ignoreString = "";
+  Parser::specialCases.clear();
   Logger::logStream(LogStream::Info) << "Ready to convert.\n";
 }
 
@@ -259,19 +265,25 @@ bool Converter::createCK2Objects () {
   Logger::logStream(LogStream::Info) << "Creating CK2 objects\n" << LogOption::Indent;
   Object* wrapperObject = ck2Game->safeGetObject("provinces");
   if (!wrapperObject) {
-    Logger::logStream(LogStream::Error) << "Could not find provinces object, cannot continue.\n" << LogOption::Undent;
+    Logger::logStream(LogStream::Error)
+        << "Could not find provinces object, cannot continue.\n"
+        << LogOption::Undent;
     return false;
   }
 
   objvec provinces = wrapperObject->getLeaves();
-  for (objiter province = provinces.begin(); province != provinces.end(); ++province) {
+  for (objiter province = provinces.begin(); province != provinces.end();
+       ++province) {
     new CK2Province(*province);
   }
-  Logger::logStream(LogStream::Info) << "Created " << CK2Province::totalAmount() << " CK2 provinces.\n";
+  Logger::logStream(LogStream::Info)
+      << "Created " << CK2Province::totalAmount() << " CK2 provinces.\n";
 
   wrapperObject = ck2Game->safeGetObject("title");
   if (!wrapperObject) {
-    Logger::logStream(LogStream::Error) << "Could not find title object, cannot continue.\n" << LogOption::Undent;
+    Logger::logStream(LogStream::Error)
+        << "Could not find title object, cannot continue.\n"
+        << LogOption::Undent;
     return false;
   }
   objvec titles = wrapperObject->getLeaves();
@@ -302,12 +314,29 @@ bool Converter::createCK2Objects () {
     (*ckCountry)->setDeJureLiege(CK2Title::findByName(deJureTag));
   }
 
-  Object *characters = ck2Game->safeGetObject("character");
+  Object* characters = ck2Game->safeGetObject("character");
   if (!characters) {
     Logger::logStream(LogStream::Error)
         << "Could not find character object, cannot continue.\n"
         << LogOption::Undent;
     return false;
+  }
+  demesneString = kNewDemesne;
+  objvec charObjs = characters->getLeaves();
+  for (auto* character : charObjs) {
+    Object* newDemesne = character->safeGetObject(kNewDemesne);
+    Object* oldDemesne = character->safeGetObject(kOldDemesne);
+    if (!newDemesne && !oldDemesne)
+      continue;
+    if (oldDemesne) {
+      Logger::logStream(LogStream::Info)
+          << "Detected old keyword 'demesne', proceeding with that.\n";
+      demesneString = kOldDemesne;
+      break;
+    }
+    if (newDemesne) {
+      break;
+    }
   }
 
   Object* dynasties = ck2Game->safeGetObject("dynasties");
@@ -754,7 +783,7 @@ bool Converter::createProvinceMap () {
   for (CK2Province::Iter ckprov = CK2Province::start(); ckprov != CK2Province::final(); ++ckprov) {
     string baronytag = remQuotes((*ckprov)->safeGetString("primary_settlement", QuotedNone));
     if (baronytag == "---") continue; // Indicates wasteland.
-    if (QuotedNone == baronytag) {
+    if (PlainNone == baronytag) {
       Logger::logStream(LogStream::Warn) << "Could not find primary settlement of "
 					 << nameAndNumber(*ckprov)
 					 << ", ignoring.\n";
@@ -854,7 +883,9 @@ void Converter::setDynastyNames (Object* dynastyNames) {
     if ((*dyn)->safeGetString("name", PlainNone) != PlainNone) continue;
     Object* outsideDynasty = dynastyNames->safeGetObject((*dyn)->getKey());
     if (!outsideDynasty) {
-      Logger::logStream(LogStream::Warn) << "Could not find dynasty information for nameless dynasty " << (*dyn)->getKey() << ".\n";
+      Logger::logStream("characters")
+          << "Could not find dynasty information for nameless dynasty "
+          << (*dyn)->getKey() << ".\n";
       continue;
     }
 
@@ -1079,9 +1110,11 @@ bool Converter::calculateProvinceWeights () {
     if (!settlement) continue;
     if (settlement->safeGetString("type") != "family_palace") continue;
     CK2Title* liegeTitle = (*title)->getLiege();
-    if (!liegeTitle) continue;
+    if (!liegeTitle) {
+      continue;
+    }
     CK2Ruler* liege = liegeTitle->getRuler();
-    Object* demesne = liege->safeGetObject("demesne");
+    Object* demesne = liege->safeGetObject(demesneString);
     if (!demesne) continue;
     string capTag = remQuotes(demesne->safeGetString("capital", QuotedNone));
     CK2Province* capital = CK2Province::getFromBarony(capTag);
@@ -1319,7 +1352,7 @@ bool Converter::createArmies () {
   for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
     EU4Country* eu4country = (*ruler)->getEU4Country();
     if (!eu4country) continue;
-    Object* demesne = (*ruler)->getNeededObject("demesne");
+    Object* demesne = (*ruler)->getNeededObject(demesneString);
     objvec armies = demesne->getValue("army");
     double currRetinue = 0;
     for (objiter army = armies.begin(); army != armies.end(); ++army) {
@@ -2437,7 +2470,7 @@ bool Converter::moveCapitals () {
     CK2Ruler* ruler = (*eu4country)->getRuler();
     if (!ruler) continue;
     string eu4Tag = (*eu4country)->getKey();
-    Object* demesne = ruler->getNeededObject("demesne");
+    Object* demesne = ruler->getNeededObject(demesneString);
     string capitalTag = remQuotes(demesne->safeGetString("capital", QuotedNone));
     CK2Province* ckCapital = CK2Province::getFromBarony(capitalTag);
     if (ckCapital) {
@@ -3466,7 +3499,7 @@ bool Converter::warsAndRebels () {
     army->setLeaf("name", warName);
     army->setValue(leader);
     string rebelLocation = target->safeGetString("capital");
-    Object* rebelDemesne = ckRebel->safeGetObject("demesne");
+    Object* rebelDemesne = ckRebel->safeGetObject(demesneString);
     set<EU4Province*> eu4Provinces;
     double rebelTroops = 0;
     if (rebelDemesne) {
