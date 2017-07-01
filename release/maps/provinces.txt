@@ -213,7 +213,6 @@ c_tavasts = 29 # Tavasts - Tavastland
 c_savolaks = 31 # Savolaks - Savolax
 
 c_kexholm = 30 # Kexholm - Viborg
-c_kexholm = 32 # Kexholm - Kexholm
 
 c_osterbotten = 19 # Österbotten - Österbotten
 c_osterbotten = 4152 # Österbotten - Kajaani
@@ -225,7 +224,7 @@ c_kola = 1777 # Kola - Kola
 c_karelen = 4124 # Karelen - Karelia
 c_kandalax = 1776 # Kandalax - Karelia
 
-c_onega = 309 # Onega - Olonets
+c_onega = 32 # Onega - Kexholm
 c_zaozerye = 309 # Zaozerye - Olonets
 
 c_vodi = 33 # Vodi - Neva
@@ -981,8 +980,6 @@ c_kaisereia = 1846 # Kaisereia - Amasya
 
 c_koloneia = 329 # Koloneia - Sivas
 
-c_koloneia = 2305 # Karin - Erzincan
-
 c_lykandos = 332 # Lykandos - Kayseri
 
 c_melitene = 2303 # Melitene - Malatya
@@ -1352,10 +1349,8 @@ c_medjerda = 2454 # Medjerda - Kef
 c_bizerte = 2455 # Bizerte - Bizerte
 
 c_kairwan = 352 # Kairwan - Gafsa
-c_gabes = 352 # Gabes - Gafsa
 
 c_gabes = 2453 # Gabes - Sfax
-c_mahdia = 2453 # Mahdia - Sfax
 
 c_mahdia = 2473 # Mahdia - Sousse
 
@@ -1376,62 +1371,6 @@ c_senoussi = 356 # Senoussi - Cyrenaica
 c_tobruk = 357 # Tobruk - Darnah
 c_cyrenaica = 357 # County Cyrenaica - Darnah
 
-
-
-# Mali
-
-c_ouadane = 1127 # Ouadane - Tuat
-c_idjil = 1127 # Idjil - Tuat
-
-c_taghaza = 1128 # Taghaza - Taodeni
-c_araouane = 1128 # Araouane - Taodeni
-
-c_timbuktu = 1132 # Timbuktu - Timbuktu
-
-c_gao = 1133 # Gao - Gao
-c_gao = 2262 # Gao - Karabara
-c_gao = 2264 # Gao - Hombori
-c_gao = 2271 # Gao - Azawagh
-c_gao = 2269 # Gao - Zarmaganda
-
-c_tadmekka = 1130 # Tadmekka - Tadimekket
-
-c_aoudaghost = 1129 # Aoudaghost - Azawadd
-
-c_zarma = 1142 # Zarma - Dendi
-c_zarma = 2268 # Zarma - Aribanda
-c_zarma = 2270 # Zarma - Dallol
-c_zarma = 2278 # Zarma - Kebbi
-
-c_gurma = 1136 # Gurma - Gurma
-c_gurma = 2266 # Gurma - Bilanga
-c_gurma = 2265 # Gurma - Liptako
-c_gurma = 1137 # Gurma - Wagadugu
-
-c_djenne = 1134 # Djenne - Jenne
-c_djenne = 1135 # Djenne - Jenne
-c_djenne = 2261 # Djenne - Kala
-c_djenne = 2259 # Djenne - Bara
-c_djenne = 2263 # Djenne - Haayre
-
-c_bambuk = 1120 # Bambuk - Bambuk
-c_bambuk = 1121 # Bambuk - Bure
-c_bambuk = 1117 # Bambuk - Futa Jallon
-c_bambuk = 2248 # Bambuk - Do
-
-c_oualata = 2247 # Oualata - Hodh
-
-c_ghana = 1131 # Ghana - Massina
-c_ghana = 1123 # Ghana - Segu
-c_ghana = 2246 # Ghana - Baghena
-c_ghana = 2260 # Ghana -Mema
-
-
-c_mali = 1124 # Mali - Wasuju
-c_mali = 2249 # Mali - Sibiridugu
-c_mali = 1122 # Mali - Bagoe
-c_mali = 2250 # Mali - Bendugu
-c_mali = 2253 # Mali - Gwiriko
 
 # Arabia
 
@@ -2021,8 +1960,6 @@ c_vologda = 4261 # Vologda - Ustyuzhna
 c_chud = 314 # Chud - Vologda
 c_chud = 4259 # Chud - Velsk
 
-c_veliky_ustug = 1755 # Veliky Ustug - Ustyug
-c_syrj = 1755 # Syrj - Ustyug
 c_veliky_ustug = 4263 # Veliky Ustug - Sol Galitskaya
 c_syrj = 4262 # Syrj - Totma
 c_zyriane = 4129 # Zyriane - Ustyug
@@ -2066,7 +2003,7 @@ c_nizhny_novgorod = 306 # Nizhny Novgorod - Nizhny Novgorod
 c_gorodez = 4254 # Gorodez - Starodub
 
 c_merya = 1083 # Merya - Vetluga
-c_hlynov = 1083 # Hlynov - Vetluga
+c_hlynov = 1755 # Hlynov - Ustyug
 
 c_votyaki = 1079 # Votyaki - Viatka
 c_votyaki = 4266 # Votyaki - Izhkar
@@ -2091,8 +2028,6 @@ c_abkhazia = 1856 # Abkhazia - Abkhazia
 
 c_kuban = 287 # Kuban - Kuban
 
-c_tmutarakan = 2447 # Tmutarakan - Mantrega
-
 c_tmutarakan = 2195 # Tmutarakan - Adyghe
 
 c_yegorlyk = 2416 # Yegorlyk - Majar
@@ -2109,7 +2044,7 @@ c_crimea = 284 # Crimea - Crimea
 c_theodosia = 2410 # Theodosia - Theodoro
 
 c_cherson = 285 # Cherson - Kaffa
-c_korchev = 285 # Korchev - Kaffa
+c_korchev = 2447 # Korchev - Mantrega
 
 c_oleshye = 2406 # Oleshye - Ingil
 c_oleshye = 283 # Oleshye - Zaporozhia
@@ -2159,6 +2094,61 @@ c_toropets = 1752 # Toropets - Rzhev
 c_toropets = 4243 # Toropets - Toropets
 
 c_chortitza = 2411 # Chortitza - Mansur
+
+# Mali
+
+c_ouadane = 1127 # Ouadane - Tuat
+c_idjil = 1127 # Idjil - Tuat
+
+c_taghaza = 1128 # Taghaza - Taodeni
+c_araouane = 1128 # Araouane - Taodeni
+
+c_timbuktu = 1132 # Timbuktu - Timbuktu
+
+c_gao = 1133 # Gao - Gao
+c_gao = 2262 # Gao - Karabara
+c_gao = 2264 # Gao - Hombori
+c_gao = 2271 # Gao - Azawagh
+c_gao = 2269 # Gao - Zarmaganda
+
+c_tadmekka = 1130 # Tadmekka - Tadimekket
+
+c_aoudaghost = 1129 # Aoudaghost - Azawadd
+
+c_zarma = 1142 # Zarma - Dendi
+c_zarma = 2268 # Zarma - Aribanda
+c_zarma = 2270 # Zarma - Dallol
+c_zarma = 2278 # Zarma - Kebbi
+
+c_gurma = 1136 # Gurma - Gurma
+c_gurma = 2266 # Gurma - Bilanga
+c_gurma = 2265 # Gurma - Liptako
+c_gurma = 1137 # Gurma - Wagadugu
+
+c_djenne = 1134 # Djenne - Jenne
+c_djenne = 1135 # Djenne - Jenne
+c_djenne = 2261 # Djenne - Kala
+c_djenne = 2259 # Djenne - Bara
+c_djenne = 2263 # Djenne - Haayre
+
+c_bambuk = 1120 # Bambuk - Bambuk
+c_bambuk = 1121 # Bambuk - Bure
+c_bambuk = 1117 # Bambuk - Futa Jallon
+c_bambuk = 2248 # Bambuk - Do
+
+c_oualata = 2247 # Oualata - Hodh
+
+c_ghana = 1131 # Ghana - Massina
+c_ghana = 1123 # Ghana - Segu
+c_ghana = 2246 # Ghana - Baghena
+c_ghana = 2260 # Ghana -Mema
+
+
+c_mali = 1124 # Mali - Wasuju
+c_mali = 2249 # Mali - Sibiridugu
+c_mali = 1122 # Mali - Bagoe
+c_mali = 2250 # Mali - Bendugu
+c_mali = 2253 # Mali - Gwiriko
 
 #India and Baluchistan:
 
