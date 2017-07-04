@@ -39,6 +39,10 @@ const string kOldDemesne = "demesne";
 const string kNewDemesne = "dmn";
 string demesneString;
 
+const string kOldTradePost = "tradepost";
+const string kNewTradePost = "trade_post";
+string tradePostString;
+
 Converter::Converter (Window* ow, string fn)
   : ck2FileName(fn)
   , ck2Game(0)
@@ -272,9 +276,17 @@ bool Converter::createCK2Objects () {
   }
 
   objvec provinces = wrapperObject->getLeaves();
+  tradePostString = kNewTradePost;
   for (objiter province = provinces.begin(); province != provinces.end();
        ++province) {
     new CK2Province(*province);
+    if (tradePostString == kNewTradePost &&
+        (*province)->safeGetObject(kOldTradePost) != nullptr) {
+      Logger::logStream(LogStream::Info)
+          << "Detected old trade-post string " << kOldTradePost
+          << ". Proceeding with that.\n";
+      tradePostString = kOldTradePost;
+    }
   }
   Logger::logStream(LogStream::Info)
       << "Created " << CK2Province::totalAmount() << " CK2 provinces.\n";
@@ -1130,7 +1142,7 @@ bool Converter::calculateProvinceWeights () {
   }
 
   for (CK2Province::Iter ck2prov = CK2Province::start(); ck2prov != CK2Province::final(); ++ck2prov) {
-    Object* tradepost = (*ck2prov)->safeGetObject("tradepost");
+    Object* tradepost = (*ck2prov)->safeGetObject(tradePostString);
     if (!tradepost) continue;
     string owner = tradepost->safeGetString("owner", PlainNone);
     if (owner == PlainNone) continue;
@@ -1314,7 +1326,7 @@ bool Converter::createArmies () {
 	  Object* levy = (*leaf)->safeGetObject("levy");
 	  if (!levy) continue;
 	  string baronyTag = (*leaf)->getKey();
-	  if (baronyTag == "tradepost") continue;
+	  if (baronyTag == tradePostString) continue;
 	  CK2Title* baronyTitle = CK2Title::findByName(baronyTag);
 	  if (!baronyTitle) continue;
 	  CK2Ruler* sovereign = baronyTitle->getSovereign();
