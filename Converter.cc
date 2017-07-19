@@ -43,6 +43,10 @@ const string kOldTradePost = "tradepost";
 const string kNewTradePost = "trade_post";
 string tradePostString;
 
+const string kOldBirthName = "birth_name";
+const string kNewBirthName = "bn";
+string birthNameString;
+
 Converter::Converter (Window* ow, string fn)
   : ck2FileName(fn)
   , ck2Game(0)
@@ -197,7 +201,7 @@ string nameAndNumber (ObjectWrapper* prov) {
 }
 
 string nameAndNumber (CK2Character* ruler) {
-  return ruler->safeGetString("birth_name") + " (" + ruler->getKey() + ")";
+  return ruler->safeGetString(birthNameString) + " (" + ruler->getKey() + ")";
 }
 
 bool Converter::swapKeys (Object* one, Object* two, string key) {
@@ -257,6 +261,27 @@ void Converter::checkProvinces () {
         Logger::logStream(LogStream::Info) << barony.first << "=" << barony.second << " ";
       }
       Logger::logStream(LogStream::Info) << "\n";
+    }
+  }
+}
+
+void detectChangedString(const string& old_string, const string& new_string,
+                         const objvec& objects, string* target) {
+  *target = new_string;
+  for (auto* obj : objects) {
+    Object* newObject = obj->safeGetObject(new_string);
+    Object* oldObject = obj->safeGetObject(old_string);
+    if (!newObject && !oldObject)
+      continue;
+    if (oldObject) {
+      Logger::logStream(LogStream::Info)
+          << "Detected old keyword '" << old_string
+          << "', proceeding with that.\n";
+      *target = old_string;
+      break;
+    }
+    if (newObject) {
+      break;
     }
   }
 }
@@ -333,23 +358,10 @@ bool Converter::createCK2Objects () {
         << LogOption::Undent;
     return false;
   }
-  demesneString = kNewDemesne;
+
   objvec charObjs = characters->getLeaves();
-  for (auto* character : charObjs) {
-    Object* newDemesne = character->safeGetObject(kNewDemesne);
-    Object* oldDemesne = character->safeGetObject(kOldDemesne);
-    if (!newDemesne && !oldDemesne)
-      continue;
-    if (oldDemesne) {
-      Logger::logStream(LogStream::Info)
-          << "Detected old keyword 'demesne', proceeding with that.\n";
-      demesneString = kOldDemesne;
-      break;
-    }
-    if (newDemesne) {
-      break;
-    }
-  }
+  detectChangedString(kOldDemesne, kNewDemesne, charObjs, &demesneString);
+  detectChangedString(kOldBirthName, kNewBirthName, charObjs, &birthNameString);
 
   Object* dynasties = ck2Game->safeGetObject("dynasties");
   for (CK2Title::Iter ckCountry = CK2Title::start(); ckCountry != CK2Title::final(); ++ckCountry) {
@@ -1437,7 +1449,7 @@ bool Converter::createArmies () {
       armyId = createUnitId(armyType);
     }
     army->setValue(armyId);
-    string name = remQuotes(ruler->safeGetString("birth_name", "\"Nemo\""));
+    string name = remQuotes(ruler->safeGetString(birthNameString, "\"Nemo\""));
     army->setLeaf("name", addQuotes(string("Army of ") + name));
     string capitalTag = (*eu4country)->safeGetString("capital");
     string location = capitalTag;
@@ -1490,7 +1502,7 @@ string getDynastyName (CK2Character* ruler) {
 }
 
 string getFullName (CK2Character* character) {
-  string name = remQuotes(character->safeGetString("birth_name", "Someone"));
+  string name = remQuotes(character->safeGetString(birthNameString, "Someone"));
   name += " ";
   name += remQuotes(getDynastyName(character));
   return addQuotes(name);
@@ -1498,7 +1510,7 @@ string getFullName (CK2Character* character) {
 
 void Converter::makeMonarch (CK2Character* ruler, CK2Ruler* king, const string& keyword, Object* bonusTraits) {
   Object* monarchDef = new Object(keyword);
-  monarchDef->setLeaf("name", ruler->safeGetString("birth_name", "\"Some Guy\""));
+  monarchDef->setLeaf("name", ruler->safeGetString(birthNameString, "\"Some Guy\""));
   CK2Title* primary = king->getPrimaryTitle();
   monarchDef->setLeaf("country", addQuotes(primary->getEU4Country()->getKey()));
 
@@ -1901,7 +1913,7 @@ bool Converter::createNavies () {
       navyId = createUnitId(navyType);
     }
     navy->setValue(navyId);
-    string name = remQuotes((*ruler)->safeGetString("birth_name", "\"Nemo\""));
+    string name = remQuotes((*ruler)->safeGetString(birthNameString, "\"Nemo\""));
     navy->setLeaf("name", addQuotes(string("Navy of ") + name));
     string capitalTag = eu4country->safeGetString("capital");
     string location = capitalTag;
