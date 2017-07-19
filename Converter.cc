@@ -47,6 +47,10 @@ const string kOldBirthName = "birth_name";
 const string kNewBirthName = "bn";
 string birthNameString;
 
+const string kOldBirthDate = "birth_date";
+const string kNewBirthDate = "b_d";
+string birthDateString;
+
 Converter::Converter (Window* ow, string fn)
   : ck2FileName(fn)
   , ck2Game(0)
@@ -362,6 +366,7 @@ bool Converter::createCK2Objects () {
   objvec charObjs = characters->getLeaves();
   detectChangedString(kOldDemesne, kNewDemesne, charObjs, &demesneString);
   detectChangedString(kOldBirthName, kNewBirthName, charObjs, &birthNameString);
+  detectChangedString(kOldBirthDate, kNewBirthDate, charObjs, &birthDateString);
 
   Object* dynasties = ck2Game->safeGetObject("dynasties");
   for (CK2Title::Iter ckCountry = CK2Title::start(); ckCountry != CK2Title::final(); ++ckCountry) {
@@ -1564,7 +1569,7 @@ void Converter::makeMonarch (CK2Character* ruler, CK2Ruler* king, const string& 
   Object* monarchId = createMonarchId();
   monarchDef->setValue(monarchId);
   monarchDef->setLeaf("dynasty", getDynastyName(ruler));
-  monarchDef->setLeaf("birth_date", remQuotes(ruler->safeGetString("birth_date", addQuotes(gameDate))));
+  monarchDef->setLeaf(birthDateString, remQuotes(ruler->safeGetString(birthDateString, addQuotes(gameDate))));
 
   Object* coronation = new Object(eu4Game->safeGetString("date", "1444.1.1"));
   coronation->setValue(monarchDef);
@@ -3067,7 +3072,7 @@ bool Converter::setupDiplomacy () {
     vassal->setLeaf("second", addQuotes(vassalCountry->getName()));
     vassal->setLeaf("end_date", "1836.1.1");
     vassal->setLeaf("cancel", "no");
-    vassal->setLeaf("start_date", remQuotes((*ruler)->safeGetString("birth_date", addQuotes(startDate))));
+    vassal->setLeaf("start_date", remQuotes((*ruler)->safeGetString(birthDateString, addQuotes(startDate))));
     vassalCountry->resetLeaf("liberty_desire", "0.000");
 
     for (vector<string>::iterator key = keyWords.begin(); key != keyWords.end(); ++key) {
@@ -3116,7 +3121,9 @@ bool Converter::setupDiplomacy () {
       unionObject->setLeaf("second", addQuotes(subject->getKey()));
       unionObject->setLeaf("end_date", createString("%i.1.1", startYear + 50));
       unionObject->setLeaf("cancel", "no");
-      unionObject->setLeaf("start_date", remQuotes((*ruler)->safeGetString("birth_date", addQuotes(startDate))));
+      unionObject->setLeaf("start_date",
+                           remQuotes((*ruler)->safeGetString(
+                               birthDateString, addQuotes(startDate))));
 
       for (vector<string>::iterator key = keyWords.begin(); key != keyWords.end(); ++key) {
 	Object* toAdd = overlord->getNeededObject(*key);
