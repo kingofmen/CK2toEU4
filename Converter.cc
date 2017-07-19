@@ -7,6 +7,7 @@
 #include <set>
 #include <unordered_map>
 
+#include "constants.hh"
 #include "Converter.hh"
 #include "CK2Province.hh"
 #include "CK2Ruler.hh"
@@ -31,25 +32,6 @@ ConverterJob const *const ConverterJob::CheckProvinces =
     new ConverterJob("check_provinces", false);
 ConverterJob const *const ConverterJob::LoadFile =
     new ConverterJob("loadfile", true);
-
-const string kDynastyPower = "dynasty_power";
-const string kAwesomePower = "awesome_power";
-
-const string kOldDemesne = "demesne";
-const string kNewDemesne = "dmn";
-string demesneString;
-
-const string kOldTradePost = "tradepost";
-const string kNewTradePost = "trade_post";
-string tradePostString;
-
-const string kOldBirthName = "birth_name";
-const string kNewBirthName = "bn";
-string birthNameString;
-
-const string kOldBirthDate = "birth_date";
-const string kNewBirthDate = "b_d";
-string birthDateString;
 
 Converter::Converter (Window* ow, string fn)
   : ck2FileName(fn)
@@ -305,17 +287,10 @@ bool Converter::createCK2Objects () {
   }
 
   objvec provinces = wrapperObject->getLeaves();
-  tradePostString = kNewTradePost;
+  detectChangedString(kOldTradePost, kNewTradePost, provinces, &tradePostString);
   for (objiter province = provinces.begin(); province != provinces.end();
        ++province) {
     new CK2Province(*province);
-    if (tradePostString == kNewTradePost &&
-        (*province)->safeGetObject(kOldTradePost) != nullptr) {
-      Logger::logStream(LogStream::Info)
-          << "Detected old trade-post string " << kOldTradePost
-          << ". Proceeding with that.\n";
-      tradePostString = kOldTradePost;
-    }
   }
   Logger::logStream(LogStream::Info)
       << "Created " << CK2Province::totalAmount() << " CK2 provinces.\n";
@@ -367,6 +342,8 @@ bool Converter::createCK2Objects () {
   detectChangedString(kOldDemesne, kNewDemesne, charObjs, &demesneString);
   detectChangedString(kOldBirthName, kNewBirthName, charObjs, &birthNameString);
   detectChangedString(kOldBirthDate, kNewBirthDate, charObjs, &birthDateString);
+  detectChangedString(kOldDynasty, kNewDynasty, charObjs, &dynastyString);
+  detectChangedString(kOldPrestige, kNewPrestige, charObjs, &prestigeString);
 
   Object* dynasties = ck2Game->safeGetObject("dynasties");
   for (CK2Title::Iter ckCountry = CK2Title::start(); ckCountry != CK2Title::final(); ++ckCountry) {
@@ -402,7 +379,7 @@ bool Converter::createCK2Objects () {
   for (objiter ch = allChars.begin(); ch != allChars.end(); ++ch) {
     if ((*ch)->safeGetString("d_d", PlainNone) != PlainNone) {
       // Dead character, check for dynasty power.
-      string dynastyId = (*ch)->safeGetString("dynasty", PlainNone);
+      string dynastyId = (*ch)->safeGetString(dynastyString, PlainNone);
       if (PlainNone == dynastyId) continue;
       objvec holdings = (*ch)->getValue("old_holding");
       for (objiter holding = holdings.begin(); holding != holdings.end(); ++holding) {
@@ -431,7 +408,7 @@ bool Converter::createCK2Objects () {
   }
 
   for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
-    string dynastyId = (*ruler)->safeGetString("dynasty", PlainNone);
+    string dynastyId = (*ruler)->safeGetString(dynastyString, PlainNone);
     if (PlainNone == dynastyId) continue;
     (*ruler)->resetLeaf(kDynastyPower, dynastyPower[dynastyId]);
   }
@@ -1498,7 +1475,7 @@ bool Converter::createArmies () {
 string getDynastyName (CK2Character* ruler) {
   static const string defaultDynasty = "\"Generic Dynasty\"";
   Object* ckDynasty = ruler->getDynasty();
-  string dynastyNumber = ruler->safeGetString("dynasty", PlainNone);
+  string dynastyNumber = ruler->safeGetString(dynastyString, PlainNone);
   if (!ckDynasty) {
     if (dynastyNumber != PlainNone) return dynastyNumber;
     return defaultDynasty;
@@ -1568,7 +1545,7 @@ void Converter::makeMonarch (CK2Character* ruler, CK2Ruler* king, const string& 
   if (ruler->safeGetString("female", "no") == "yes") monarchDef->setLeaf("female", "yes");
   Object* monarchId = createMonarchId();
   monarchDef->setValue(monarchId);
-  monarchDef->setLeaf("dynasty", getDynastyName(ruler));
+  monarchDef->setLeaf(dynastyString, getDynastyName(ruler));
   monarchDef->setLeaf(birthDateString, remQuotes(ruler->safeGetString(birthDateString, addQuotes(gameDate))));
 
   Object* coronation = new Object(eu4Game->safeGetString("date", "1444.1.1"));
@@ -2554,7 +2531,7 @@ bool Converter::redistributeMana () {
   Logger::logStream(LogStream::Info) << "Redistributing mana.\n" << LogOption::Indent;
   map<string, string> keywords;
   keywords["wealth"] = "treasury";
-  keywords["prestige"] = "prestige";
+  keywords[prestigeString] = "prestige";
   keywords[kDynastyPower] = kAwesomePower;
   map<string, doublet> globalAmounts;
 
@@ -3210,10 +3187,10 @@ bool Converter::transferProvinces () {
       if (!eu4country) {
 	// Same dynasty.
 	CK2Ruler* biggest = 0;
-	string dynasty = ruler->safeGetString("dynasty", "dsa");
+	string dynasty = ruler->safeGetString(dynastyString, "dsa");
 	for (CK2Ruler::Iter cand = CK2Ruler::start(); cand != CK2Ruler::final(); ++cand) {
 	  if (!(*cand)->getEU4Country()) continue;
-	  if (dynasty != (*cand)->safeGetString("dynasty", "fds")) continue;
+	  if (dynasty != (*cand)->safeGetString(dynastyString, "fds")) continue;
 	  if ((*cand) == ruler) continue;
 	  if ((biggest) && (biggest->countBaronies() > (*cand)->countBaronies())) continue;
 	  biggest = (*cand);

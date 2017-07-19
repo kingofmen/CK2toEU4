@@ -1,6 +1,8 @@
 #include "CK2Ruler.hh"
 
 #include <algorithm>
+
+#include "constants.hh"
 #include "CK2Province.hh"
 #include "CK2Title.hh"
 #include "Logger.hh"
@@ -30,7 +32,7 @@ CK2Character::CK2Character (Object* obj, Object* dynasties)
   , dynasty(0)
   , oldestChild(0)
 {
-  string dynastyNum = safeGetString("dynasty", PlainNone);
+  string dynastyNum = safeGetString(dynastyString, PlainNone);
   if (dynastyNum != PlainNone) {
     dynasty = dynasties->safeGetObject(dynastyNum);
   }
@@ -71,10 +73,10 @@ double CK2Character::getAge (string date) const {
     return 16;
   }
   int charYear, charMonth, charDay;
-  string birthday = remQuotes(safeGetString("birth_date", QuotedNone));
+  string birthday = remQuotes(safeGetString(birthDateString, QuotedNone));
   if (!yearMonthDay(birthday, charYear, charMonth, charDay)) {
     Logger::logStream(LogStream::Warn) << "Could not get year, month, day from ("
-				       << getKey() << " " << safeGetString("birth_name") << ") '"
+				       << getKey() << " " << safeGetString(birthNameString) << ") '"
 				       << birthday << "'\n";
     return 16;
   }
@@ -101,7 +103,7 @@ void CK2Ruler::personOfInterest (CK2Character* person) {
   if ((person->safeGetString("father") == myId) ||
       (person->safeGetString("mother") == myId)) {
     children.push_back(person);
-    if ((!oldestChild) || (oldestChild->getAge(remQuotes(person->safeGetString("birth_date"))) < 0)) {
+    if ((!oldestChild) || (oldestChild->getAge(remQuotes(person->safeGetString(birthDateString))) < 0)) {
       oldestChild = person;
     }
   }
@@ -226,8 +228,10 @@ int CK2Ruler::countBaronies () {
   return totalRealmBaronies;
 }
 
-bool CK2Ruler::hasTitle (CK2Title* title, bool includeVassals) const {
-  if (includeVassals) return (find(titlesWithVassals.begin(), titlesWithVassals.end(), title) != titlesWithVassals.end());
+bool CK2Ruler::hasTitle(CK2Title* title, bool includeVassals) const {
+  if (includeVassals)
+    return (find(titlesWithVassals.begin(), titlesWithVassals.end(), title) !=
+            titlesWithVassals.end());
   return (find(titles.begin(), titles.end(), title) != titles.end());
 }
 
@@ -258,11 +262,16 @@ string CK2Ruler::getBelief (string keyword) const {
 
 CK2Title* CK2Ruler::getPrimaryTitle () {
   if (0 == titles.size()) return 0;
-  Object* demesne = safeGetObject("demesne");
+  Object* demesne = safeGetObject(demesneString);
   if (demesne) {
     Object* primary = demesne->safeGetObject("primary");
     if (primary) {
-      string tag = remQuotes(primary->safeGetString("title"));
+      string tag;
+      if (primary->isLeaf()) {
+        tag = demesne->safeGetString("primary");
+      } else {
+        tag = remQuotes(primary->safeGetString("title"));
+      }
       return CK2Title::findByName(tag);
     }
   }
