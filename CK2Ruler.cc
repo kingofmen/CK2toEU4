@@ -238,6 +238,14 @@ bool CK2Ruler::hasTitle(CK2Title* title, bool includeVassals) const {
 string CK2Ruler::getBelief (string keyword) const {
   string ret = remQuotes(safeGetString(keyword, QuotedNone));
   if (ret != PlainNone) return ret;
+  // Try the new keywords - don't use new/old constant here because it is
+  // 'culture' and 'religion' everywhere *except* the character object.
+  if (keyword == "culture") {
+    ret = remQuotes(safeGetString("cul", QuotedNone));
+  } else if (keyword == "religion") {
+    ret = remQuotes(safeGetString("rel", QuotedNone));
+  }
+  if (ret != PlainNone) return ret;
   Object* myDynasty = getDynasty();
   if (myDynasty) {
     ret = remQuotes(myDynasty->safeGetString(keyword, QuotedNone));

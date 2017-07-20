@@ -450,7 +450,9 @@ bool Converter::createEU4Objects () {
   Logger::logStream(LogStream::Info) << "Creating EU4 objects\n" << LogOption::Indent;
   Object* wrapperObject = eu4Game->safeGetObject("provinces");
   if (!wrapperObject) {
-    Logger::logStream(LogStream::Error) << "Could not find provinces object, cannot continue.\n" << LogOption::Undent;
+    Logger::logStream(LogStream::Error)
+        << "Could not find EU4 provinces object, cannot continue.\n"
+        << LogOption::Undent;
     return false;
   }
 
@@ -465,7 +467,9 @@ bool Converter::createEU4Objects () {
 
   wrapperObject = eu4Game->safeGetObject("countries");
   if (!wrapperObject) {
-    Logger::logStream(LogStream::Error) << "Could not find countries object, cannot continue.\n" << LogOption::Undent;
+    Logger::logStream(LogStream::Error)
+        << "Could not find EU4 countries object, cannot continue.\n"
+        << LogOption::Undent;
     return false;
   }
 
@@ -1254,6 +1258,44 @@ bool Converter::cleanEU4Nations () {
     for (objiter core = cores.begin(); core != cores.end(); ++core) {
       EU4Country* coreHaver = EU4Country::getByName(remQuotes((*core)->getLeaf()));
       if (coreHaver) coreHaver->setAsCore(*eu4prov);
+    }
+  }
+
+  // Ensure that nations such as Portugal which own both converting and
+  // non-converting provinces have their lists set correctly.
+  unordered_map<string, vector<string>> provinceOwnership;
+  for (EU4Province::Iter eu4prov = EU4Province::start(); eu4prov != EU4Province::final(); ++eu4prov) {
+    if ((*eu4prov)->converts()) continue;
+    string eu4Tag = remQuotes((*eu4prov)->safeGetString("owner", QuotedNone));
+    if (eu4Tag == PlainNone) continue;
+    provinceOwnership[eu4Tag].push_back((*eu4prov)->getKey());
+  }
+
+  for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
+    if ((*eu4country)->converts()) continue;
+    Object* owned_provs = (*eu4country)->safeGetObject("owned_provinces");
+    if (owned_provs == nullptr) continue;
+    string eu4tag = (*eu4country)->getKey();
+    if (owned_provs->numTokens() == (int)provinceOwnership[eu4tag].size()) {
+      continue;
+    }
+    Logger::logStream("countries") << "Nonconverted country " << eu4tag
+                                   << " had " << owned_provs->toString();
+    owned_provs->clear();
+    for (const auto& prov : provinceOwnership[eu4tag]) {
+      owned_provs->addToList(prov);
+    }
+    Logger::logStream("countries")
+        << "  changed to " << owned_provs->toString();
+    string capital = (*eu4country)->safeGetString("capital");
+    if (find(provinceOwnership[eu4tag].begin(), provinceOwnership[eu4tag].end(),
+             capital) == provinceOwnership[eu4tag].end()) {
+      string newCapital = provinceOwnership[eu4tag][0];
+      (*eu4country)->resetLeaf("capital", newCapital);
+      (*eu4country)->resetLeaf("original_capital", newCapital);
+      (*eu4country)->resetLeaf("trade_port", newCapital);
+      Logger::logStream("countries")
+          << "  moved capital from " << capital << " to " << newCapital << "\n";
     }
   }
 
