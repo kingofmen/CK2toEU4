@@ -19,6 +19,10 @@ bool EU4Country::converts () {
   return true;
 }
 
+bool EU4Country::isROTW() const {
+  return getRuler() == nullptr;
+}
+
 void EU4Country::setAsCore (EU4Province* prov) {
   Object* coreList = getNeededObject("core_provinces");
   bool listed = false;

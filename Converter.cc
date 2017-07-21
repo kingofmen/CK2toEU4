@@ -1218,6 +1218,7 @@ bool Converter::cleanEU4Nations () {
   Object* diplomacy = eu4Game->getNeededObject("diplomacy");
   Object* active_advisors = eu4Game->getNeededObject("active_advisors");
   objvec dipObjects = diplomacy->getLeaves();
+  vector<string> tags_to_clean;
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
     if (!(*eu4country)->converts()) continue;
     for (int i = 0; i < keysToClear->numTokens(); ++i) {
@@ -1231,6 +1232,7 @@ bool Converter::cleanEU4Nations () {
     if (0 < ownerMap[*eu4country]) continue;
     string eu4tag = (*eu4country)->getKey();
     Logger::logStream("countries") << eu4tag << " has no provinces, removing.\n";
+    tags_to_clean.push_back(eu4tag);
     (*eu4country)->resetLeaf(EU4Country::kNoProvinceMarker, "yes");
     active_advisors->unsetValue(eu4tag);
     for (int i = 0; i < zeroProvKeys->numTokens(); ++i) {
@@ -1261,6 +1263,27 @@ bool Converter::cleanEU4Nations () {
     for (objiter core = cores.begin(); core != cores.end(); ++core) {
       EU4Country* coreHaver = EU4Country::getByName(remQuotes((*core)->getLeaf()));
       if (coreHaver) coreHaver->setAsCore(*eu4prov);
+    }
+  }
+
+  Object* trade = eu4Game->getNeededObject("trade");
+  objvec nodes = trade->getValue("node");
+  for (auto* node : nodes) {
+    for (const auto& tag : tags_to_clean) {
+      node->unsetValue(tag);
+    }
+    node->unsetValue("top_provinces");
+    node->unsetValue("top_provinces_values");
+    node->unsetValue("top_power");
+    node->unsetValue("top_power_values");
+  }
+  for (EU4Country::Iter eu4country = EU4Country::start();
+       eu4country != EU4Country::final(); ++eu4country) {
+    Object* relations = (*eu4country)->safeGetObject("active_relations");
+    if (!relations)
+      continue;
+    for (const auto& tag : tags_to_clean) {
+      relations->unsetValue(tag);
     }
   }
 
@@ -3470,7 +3493,7 @@ bool Converter::warsAndRebels () {
   for (objiter faction = factions.begin(); faction != factions.end(); ++faction) {
     EU4Country* country = EU4Country::findByName(remQuotes((*faction)->safeGetString("country", QuotedNone)));
     if (!country) continue;
-    if (!country->converts()) continue;
+    if (country->isROTW()) continue;
     eu4Game->removeObject(*faction);
   }
 

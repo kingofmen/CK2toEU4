@@ -18,6 +18,7 @@ public:
   bool converts();
   CK2Ruler* getRuler () const {return ckSovereign;}
   CK2Title* getTitle () const {return ckTitle;}
+  bool isROTW () const;
   void removeCore (EU4Province* prov);
   void setAsCore (EU4Province* prov);
   void setRuler (CK2Ruler* ruler, CK2Title* title);
