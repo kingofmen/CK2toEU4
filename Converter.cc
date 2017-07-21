@@ -1216,6 +1216,7 @@ bool Converter::cleanEU4Nations () {
   constructOwnerMap(&ownerMap);
 
   Object* diplomacy = eu4Game->getNeededObject("diplomacy");
+  Object* active_advisors = eu4Game->getNeededObject("active_advisors");
   objvec dipObjects = diplomacy->getLeaves();
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
     if (!(*eu4country)->converts()) continue;
@@ -1228,8 +1229,10 @@ bool Converter::cleanEU4Nations () {
     }
 
     if (0 < ownerMap[*eu4country]) continue;
-    Logger::logStream("countries") << (*eu4country)->getKey() << " has no provinces, removing.\n";
+    string eu4tag = (*eu4country)->getKey();
+    Logger::logStream("countries") << eu4tag << " has no provinces, removing.\n";
     (*eu4country)->resetLeaf(EU4Country::kNoProvinceMarker, "yes");
+    active_advisors->unsetValue(eu4tag);
     for (int i = 0; i < zeroProvKeys->numTokens(); ++i) {
       (*eu4country)->unsetValue(zeroProvKeys->getToken(i));
     }
@@ -1237,7 +1240,7 @@ bool Converter::cleanEU4Nations () {
     for (objiter dip = dipObjects.begin(); dip != dipObjects.end(); ++dip) {
       string first = remQuotes((*dip)->safeGetString("first"));
       string second = (*dip)->safeGetString("second");
-      if ((first != (*eu4country)->getKey()) && (remQuotes(second) != (*eu4country)->getKey())) continue;
+      if ((first != eu4tag) && (remQuotes(second) != eu4tag)) continue;
       dipsToRemove.push_back(*dip);
       EU4Country* overlord = EU4Country::getByName(first);
       overlord->getNeededObject("friends")->remToken(second);
