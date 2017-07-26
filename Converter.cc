@@ -3325,7 +3325,8 @@ bool Converter::warsAndRebels () {
     if (convertingTags.empty()) continue;
     Logger::logStream("war") << "Removing " << (*euWar)->safeGetString("name")
 			     << " because of participants";
-    for (vector<string>::iterator tag = convertingTags.begin(); tag != convertingTags.end(); ++tag) {
+    for (vector<string>::iterator tag = convertingTags.begin();
+         tag != convertingTags.end(); ++tag) {
       Logger::logStream("war") << (*tag) << " ";
     }
     Logger::logStream("war") << "\n";
@@ -3337,13 +3338,15 @@ bool Converter::warsAndRebels () {
   Object* dlcs = eu4Game->getNeededObject("dlc_enabled");
   for (int i = 0; i < dlcs->numTokens(); ++i) {
     string dlc = remQuotes(dlcs->getToken(i));
-    if ((dlc =="Art of War") || (dlc == "Common Sense") || (dlc == "Conquest of Paradise") || (dlc == "The Cossacks")) {
+    if ((dlc == "Art of War") || (dlc == "Common Sense") ||
+        (dlc == "Conquest of Paradise") || (dlc == "The Cossacks")) {
       addParticipants = true;
     }
     if (dlc == "The Cossacks") {
       joined_war = false;
     }
   }
+
   Object* before = eu4Game->getNeededObject("income_statistics");
   CK2War::Container rebelCandidates;
   for (CK2War::Iter ckWar = CK2War::start(); ckWar != CK2War::final(); ++ckWar) {
@@ -3360,9 +3363,11 @@ bool Converter::warsAndRebels () {
       euDefenders.push_back(eu4Defender);
     }
     if (euDefenders.empty()) {
-      Logger::logStream("war") << "Skipping " << warName << " because no defenders converted.\n";
+      Logger::logStream("war")
+          << "Skipping " << warName << " because no defenders converted.\n";
       continue;
     }
+
     objvec ckAttackers = (*ckWar)->getValue("attacker");
     EU4Country::Container euAttackers;
     for (objiter ckAttacker = ckAttackers.begin(); ckAttacker != ckAttackers.end(); ++ckAttacker) {
@@ -3375,7 +3380,8 @@ bool Converter::warsAndRebels () {
       euAttackers.push_back(eu4Attacker);
     }
     if (euAttackers.empty()) {
-      Logger::logStream("war") << "Skipping " << warName << " because no attackers converted.\n";
+      Logger::logStream("war")
+          << "Skipping " << warName << " because no attackers converted.\n";
       rebelCandidates.push_back(*ckWar);
       continue;
     }
@@ -3385,16 +3391,22 @@ bool Converter::warsAndRebels () {
       Logger::logStream("war") << "Skipping " << warName << " because no CB.\n";
       continue;
     }
+
     Object* disputedTitle = ck2cb->safeGetObject("landed_title");
     if (!disputedTitle) {
-      Logger::logStream("war") << "Skipping " << warName << " because no disputed title.\n";
+      Logger::logStream("war")
+          << "Skipping " << warName << " because no disputed title.\n";
       rebelCandidates.push_back(*ckWar);
       continue;
     }
-    string disputedTag = remQuotes(disputedTitle->safeGetString("title", QuotedNone));
+
+    string disputedTag =
+        remQuotes(disputedTitle->safeGetString("title", QuotedNone));
     CK2Title* title = CK2Title::findByName(disputedTag);
     if (!title) {
-      Logger::logStream("war") << "Skipping " << warName << ", could not identify disputed title " << disputedTag << ".\n";
+      Logger::logStream("war")
+          << "Skipping " << warName << ", could not identify disputed title "
+          << disputedTag << ".\n";
       continue;
     }
 
@@ -3473,7 +3485,9 @@ bool Converter::warsAndRebels () {
     }
 
     if (targetProvince == "") {
-      Logger::logStream("war") << "Skipping " << warName << ", could not find province from " << disputedTag << ".\n";
+      Logger::logStream("war")
+          << "Skipping " << warName << ", could not find province from "
+          << disputedTag << ".\n";
       continue;
     }
 
@@ -3489,25 +3503,60 @@ bool Converter::warsAndRebels () {
     takeProvince->setLeaf("casus_belli", "\"cb_conquest\"");
   }
 
+  Object* rebelCountry = eu4Game->getNeededObject("countries")->safeGetObject("REB");
   objvec factions = eu4Game->getValue("rebel_faction");
-  for (objiter faction = factions.begin(); faction != factions.end(); ++faction) {
-    EU4Country* country = EU4Country::findByName(remQuotes((*faction)->safeGetString("country", QuotedNone)));
+  objvec rebel_leaders = rebelCountry->getValue("leader");
+  objvec rebel_armies = rebelCountry->getValue("army");
+  for (auto* faction : factions) {
+    EU4Country* country = EU4Country::findByName(
+        remQuotes(faction->safeGetString("country", QuotedNone)));
     if (!country) continue;
     if (country->isROTW()) continue;
-    eu4Game->removeObject(*faction);
+    Object* rebel_leader = faction->safeGetObject("leader");
+    if (rebel_leader) {
+      int rebel_leader_id = rebel_leader->safeGetInt("id");
+      for (auto* leader : rebel_leaders) {
+        if (rebel_leader_id != leader->safeGetInt("id")) continue;
+        rebelCountry->removeObject(leader);
+      }
+      for (auto* army : rebel_armies) {
+        Object* army_leader = army->safeGetObject("leader");
+        if (rebel_leader_id != army_leader->safeGetInt("id")) continue;
+        rebelCountry->removeObject(army);
+      }
+    }
+    auto provinces = faction->getNeededObject("possible_provinces");
+    int faction_id = faction->getNeededObject("id")->safeGetInt("id");
+    for (int i = 0; i < provinces->numTokens(); ++i) {
+      auto* province = EU4Province::findByName(provinces->getToken(i));
+      if (province == nullptr) continue;
+      auto prov_rebels = province->getValue("rebel_faction");
+      for (auto* rebel_id : prov_rebels) {
+        if (rebel_id->safeGetInt("id") != faction_id) continue;
+        province->removeObject(rebel_id);
+      }
+    }
+    eu4Game->removeObject(faction);
   }
 
   Object* cbConversion = configObject->getNeededObject("rebel_faction_types");
   before = eu4Game->safeGetObject("religions");
   string birthDate = eu4Game->safeGetString("date", "1444.11.11");
   objvec generalSkills = configObject->getNeededObject("generalSkills")->getLeaves();
-  Object* rebelCountry = eu4Game->getNeededObject("countries")->safeGetObject("REB");
   if (!rebelCountry) {
-    Logger::logStream(LogStream::Info) << "Could not find rebel country, no rebel factions created.\n" << LogOption::Undent;
+    Logger::logStream(LogStream::Info)
+        << "Could not find rebel country, no rebel factions created.\n"
+        << LogOption::Undent;
     return true;
   }
-  for (CK2War::Iter cand = rebelCandidates.begin(); cand != rebelCandidates.end(); ++cand) {
-    string ckCasusBelli = remQuotes((*cand)->getNeededObject("casus_belli")->safeGetString("casus_belli", QuotedNone));
+
+  /*
+  for (CK2War::Iter cand = rebelCandidates.begin();
+       cand != rebelCandidates.end(); ++cand) {
+    string ckCasusBelli =
+        remQuotes((*cand)
+                      ->getNeededObject("casus_belli")
+                      ->safeGetString("casus_belli", QuotedNone));
     string euRevoltType = cbConversion->safeGetString(ckCasusBelli, PlainNone);
     string warName = (*cand)->safeGetString("name");
     if (euRevoltType == PlainNone) {
@@ -3619,22 +3668,27 @@ bool Converter::warsAndRebels () {
       (*eu4prov)->setValue(provinceFactionId);
     }
   }
-
+  */
+  /*
   Object* religions = configObject->safeGetObject("dynamicReligions");
   if (!religions) {
-    Logger::logStream(LogStream::Warn) << "Could not find dynamic religions, skipping heretic rebels.\n";
-  }
-  else {
+    Logger::logStream(LogStream::Warn)
+        << "Could not find dynamic religions, skipping heretic rebels.\n";
+  } else {
     for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
       if (!(*eu4country)->converts()) continue;
-      Logger::logStream("war") << "Searching for heresies in " << (*eu4country)->getKey() << ":\n" << LogOption::Indent;
+      Logger::logStream("war")
+          << "Searching for heresies in " << (*eu4country)->getKey() << ":\n"
+          << LogOption::Indent;
       CK2Ruler* ruler = (*eu4country)->getRuler();
       string ckReligion = ruler->getBelief("religion");
       string euReligion = religions->safeGetString(ckReligion);
       set<EU4Province*> eu4Provinces;
-      for (EU4Province::Iter eu4prov = (*eu4country)->startProvince(); eu4prov != (*eu4country)->finalProvince(); ++eu4prov) {
-	for (CK2Province::Iter ck2prov = (*eu4prov)->startProv(); ck2prov != (*eu4prov)->finalProv(); ++ck2prov) {
-	  string provCkReligion = (*ck2prov)->safeGetString("religion");
+      for (EU4Province::Iter eu4prov = (*eu4country)->startProvince();
+           eu4prov != (*eu4country)->finalProvince(); ++eu4prov) {
+        for (CK2Province::Iter ck2prov = (*eu4prov)->startProv();
+             ck2prov != (*eu4prov)->finalProv(); ++ck2prov) {
+          string provCkReligion = (*ck2prov)->safeGetString("religion");
 	  string provEuReligion = religions->safeGetString(provCkReligion);
 	  if ((provEuReligion == euReligion) && (provCkReligion != ckReligion)) {
 	    Logger::logStream("war") << nameAndNumber(*eu4prov) << " based on " << provCkReligion
@@ -3675,7 +3729,7 @@ bool Converter::warsAndRebels () {
       faction->setLeaf("active", "no");
     }
   }
-
+  */
   Logger::logStream(LogStream::Info) << "Done with wars.\n" << LogOption::Undent;
   return true;
 }
