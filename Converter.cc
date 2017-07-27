@@ -3550,7 +3550,6 @@ bool Converter::warsAndRebels () {
     return true;
   }
 
-  /*
   for (CK2War::Iter cand = rebelCandidates.begin();
        cand != rebelCandidates.end(); ++cand) {
     string ckCasusBelli =
@@ -3668,8 +3667,7 @@ bool Converter::warsAndRebels () {
       (*eu4prov)->setValue(provinceFactionId);
     }
   }
-  */
-  /*
+
   Object* religions = configObject->safeGetObject("dynamicReligions");
   if (!religions) {
     Logger::logStream(LogStream::Warn)
@@ -3697,8 +3695,11 @@ bool Converter::warsAndRebels () {
 	  }
 	}
       }
-      Logger::logStream("war") << LogOption::Undent;
-      if (eu4Provinces.empty()) continue;
+
+      if (eu4Provinces.empty()) {
+        Logger::logStream("war") << LogOption::Undent;
+        continue;
+      }
       Object* faction = new Object("rebel_faction");
       Object* factionId = createTypedId("rebel", "50");
       faction->setValue(factionId);
@@ -3727,9 +3728,13 @@ bool Converter::warsAndRebels () {
 	(*eu4prov)->setValue(provinceFactionId);
       }
       faction->setLeaf("active", "no");
+      eu4Game->setValue(faction, before);
+      Logger::logStream("war")
+          << "Created heretic rebel faction " << faction->safeGetString("name") << "\n"
+          << LogOption::Undent;
     }
   }
-  */
+
   Logger::logStream(LogStream::Info) << "Done with wars.\n" << LogOption::Undent;
   return true;
 }
