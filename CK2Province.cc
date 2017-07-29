@@ -1,6 +1,7 @@
 #include "CK2Province.hh"
 #include "EU4Province.hh"
 #include "Logger.hh"
+#include "UtilityFunctions.hh"
 
 ProvinceWeight const* const ProvinceWeight::Manpower      = new ProvinceWeight("pw_manpower", false);
 ProvinceWeight const* const ProvinceWeight::Production    = new ProvinceWeight("pw_production", false);
@@ -62,15 +63,14 @@ void CK2Province::calculateWeights (Object* weightObject, Object* troops, objvec
     double galleys = 0;
     if (levyObject) {
       objvec levies = levyObject->getLeaves();
-      for (objiter levy = levies.begin(); levy != levies.end(); ++levy) {
-	string key = (*levy)->getKey();
-	double amount = (*levy)->tokenAsFloat(1);
-	if (key == "galleys_f") {
-	  galleys += amount;
-	}
-	else {
-	  mpWeight += amount * troops->safeGetFloat(key, 0.0001);
-	}
+      for (auto* levy : levies) {
+        string key = levy->getKey();
+        double amount = getLevyStrength(key, levyObject);
+        if (key == "galleys_f") {
+          galleys += amount;
+        } else {
+          mpWeight += amount * troops->safeGetFloat(key, 0.0001);
+        }
       }
     }
     (*barony)->setLeaf(ProvinceWeight::Manpower->getName(), mpWeight);

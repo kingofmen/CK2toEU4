@@ -1164,12 +1164,14 @@ bool Converter::calculateProvinceWeights () {
 				       << buildingTypes.size()
 				       << " types of buildings. Proceeding, but dubiously.\n";
   }
-  for (objiter bt = buildingTypes.begin(); bt != buildingTypes.end(); ++bt) {
-    double weight = (*bt)->safeGetFloat("gold_cost");
-    weight += (*bt)->safeGetFloat("build_time") / 36.5;
-    (*bt)->setLeaf("weight", weight);
+  for (auto* bt : buildingTypes) {
+    double weight = bt->safeGetFloat("gold_cost");
+    weight += bt->safeGetFloat("build_time") / 36.5;
+    bt->setLeaf("weight", weight);
+    Logger::logStream("buildings")
+        << "Set weight of " << bt->getKey() << " to " << weight << "\n";
   }
-    
+
   Object* weightObject = configObject->getNeededObject("buildings");
   Object* troops = configObject->getNeededObject("troops");
   for (CK2Province::Iter ck2prov = CK2Province::start(); ck2prov != CK2Province::final(); ++ck2prov) {
@@ -1335,9 +1337,7 @@ double Converter::calculateTroopWeight (Object* levy, Logger* logstream) {
   double ret = 0;
   for (objiter ttype = troopTypes.begin(); ttype != troopTypes.end(); ++ttype) {
     string key = (*ttype)->getKey();
-    Object* strength = levy->safeGetObject(key);
-    if (!strength) continue;
-    double amount = strength->tokenAsFloat(1);
+    double amount = getLevyStrength(key, levy);
     if (logstream) (*logstream) << key << ": " << amount << "\n";
     amount *= troopWeights->safeGetFloat(key);
     ret += amount;
@@ -1910,9 +1910,7 @@ bool Converter::createNavies () {
       Object* baronyLevy = (*barony)->getNeededObject("levy");
       for (objiter ttype = shipTypes.begin(); ttype != shipTypes.end(); ++ttype) {
 	string key = (*ttype)->getKey();
-	Object* strength = baronyLevy->safeGetObject(key);
-	if (!strength) continue;
-	double amount = strength->tokenAsFloat(1);
+	double amount = getLevyStrength(key, baronyLevy);
 	amount *= shipWeights->safeGetFloat(key);
 	currShip += amount;
       }
@@ -1922,7 +1920,9 @@ bool Converter::createNavies () {
   }
 
   if (0 == totalShips) {
-    Logger::logStream(LogStream::Warn) << "Warning: Found no liege-levy ships. No navies will be created.\n" << LogOption::Undent;
+    Logger::logStream(LogStream::Warn)
+        << "Warning: Found no liege-levy ships. No navies will be created.\n"
+        << LogOption::Undent;
     return true;
   }
 
@@ -2379,6 +2379,11 @@ bool Converter::modifyProvinces () {
     totalCKmen += (*ck2prov)->getWeight(ProvinceWeight::Manpower);
   }
 
+  Logger::logStream("provinces") << "CK totals "
+				 << totalCKtax << " base tax, "
+				 << totalCKpro << " base production, "
+				 << totalCKmen << " base manpower.\n";
+
   totalBaseTax /= totalCKtax;
   totalBasePro /= totalCKpro;
   totalBaseMen /= totalCKmen;
@@ -2392,12 +2397,25 @@ bool Converter::modifyProvinces () {
     double provTaxWeight = 0;
     double provProWeight = 0;
     double provManWeight = 0;
-    for (CK2Province::Iter ck2prov = (*eu4prov)->startProv(); ck2prov != (*eu4prov)->finalProv(); ++ck2prov) {
+    Logger::logStream("provinces")
+        << "Province " << nameAndNumber(*eu4prov) << "\n"
+        << LogOption::Indent;
+    for (CK2Province::Iter ck2prov = (*eu4prov)->startProv();
+         ck2prov != (*eu4prov)->finalProv(); ++ck2prov) {
       double fraction = 1.0 / (*ck2prov)->numEU4Provinces();
-      provTaxWeight += fraction * (*ck2prov)->getWeight(ProvinceWeight::Taxation);
-      provProWeight += fraction * (*ck2prov)->getWeight(ProvinceWeight::Production);
-      provManWeight += fraction * (*ck2prov)->getWeight(ProvinceWeight::Manpower);
+      provTaxWeight +=
+          fraction * (*ck2prov)->getWeight(ProvinceWeight::Taxation);
+      provProWeight +=
+          fraction * (*ck2prov)->getWeight(ProvinceWeight::Production);
+      provManWeight +=
+          fraction * (*ck2prov)->getWeight(ProvinceWeight::Manpower);
+      Logger::logStream("provinces")
+          << nameAndNumber(*ck2prov) << ": " << fraction << ", "
+          << (*ck2prov)->getWeight(ProvinceWeight::Taxation) << ", "
+          << (*ck2prov)->getWeight(ProvinceWeight::Production) << ", "
+          << (*ck2prov)->getWeight(ProvinceWeight::Manpower) << "\n";
     }
+
     provTaxWeight *= totalBaseTax;
     provProWeight *= totalBasePro;
     provManWeight *= totalBaseMen;
@@ -2410,6 +2428,13 @@ bool Converter::modifyProvinces () {
     amount = max(0.0, floor(provManWeight + 0.5));
     if (useDoubles) amount = provManWeight;
     (*eu4prov)->resetLeaf("base_manpower", amount); afterMen += amount;
+    Logger::logStream("provinces") << provTaxWeight << ", " << provProWeight
+                                   << ", " << provManWeight << "\n";
+    Logger::logStream("provinces")
+        << (*eu4prov)->safeGetFloat("base_tax") << ", "
+        << (*eu4prov)->safeGetFloat("base_production") << ", "
+        << (*eu4prov)->safeGetFloat("base_manpower") << "\n"
+        << LogOption::Undent;
   }
 
   Logger::logStream("provinces") << "After distribution: "

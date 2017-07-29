@@ -361,4 +361,6 @@ private:
 bool hasPrefix (string prefix, string candidate);
 double calcAvg (Object* ofthis);
 
+double getLevyStrength(const string& key, Object* levyObject);
+
 #endif

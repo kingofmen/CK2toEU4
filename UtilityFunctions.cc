@@ -384,3 +384,14 @@ bool yearMonthDay (const string& date, int& year, int& month, int& day) {
   day = atoi(date.substr(secondDotIdx).c_str());
   return true;
 }
+
+double getLevyStrength(const string& key, Object* levyObject) {
+  auto* levy = levyObject->safeGetObject(key);
+  if (!levy) {
+    return 0;
+  }
+  if (levy->numTokens() == 0) {
+    return levyObject->safeGetFloat(key);
+  }
+  return levy->tokenAsFloat(1);
+}
