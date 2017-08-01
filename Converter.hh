@@ -88,6 +88,8 @@ private:
   Object* loadTextFile (string fname);
   void makeLeader (Object* eu4country, const string& keyword, CK2Character* base, const objvec& generalSkills, const string& birthDate);
   void makeMonarch (CK2Character* ruler, CK2Ruler* king, const string& keyword, Object* bonusTraits);
+  bool rankProvinceDevelopment ();
+  bool redistributeDevelopment();
   bool swapKeys (Object* one, Object* two, string key);
 
   // Input info

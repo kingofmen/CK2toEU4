@@ -47,10 +47,14 @@ void CK2Province::calculateWeights (Object* weightObject, Object* troops, objvec
     Object* typeWeight = weightObject->getNeededObject(baronyType);
     double buildingWeight = typeWeight->safeGetFloat("cost");
     double forts = 0;
-    for (objiter building = buildings.begin(); building != buildings.end(); ++building) {
-      if ((*barony)->safeGetString((*building)->getKey(), "no") != "yes") continue;
-      buildingWeight += (*building)->safeGetFloat("weight");
-      forts += (*building)->safeGetFloat("fort_level");
+    vector<pair<string, double>> province_buildings;
+    for (auto* building : buildings) {
+      string key = building->getKey();
+      if ((*barony)->safeGetString(key, "no") != "yes") continue;
+      double weight = building->safeGetFloat("weight");
+      buildingWeight += weight;
+      province_buildings.emplace_back(key, weight);
+      forts += building->safeGetFloat("fort_level");
     }
     (*barony)->setLeaf(ProvinceWeight::Production->getName(),
                        buildingWeight * typeWeight->safeGetFloat("prod", 0.5));
@@ -86,7 +90,13 @@ void CK2Province::calculateWeights (Object* weightObject, Object* troops, objvec
           << (*p)->getName() << " : "
           << (*barony)->safeGetFloat((*p)->getName()) << "\n";
     }
-    Logger::logStream("buildings") << LogOption::Undent;
+    Logger::logStream("buildings")
+        << "from " << province_buildings.size() << " buildings: ";
+    for (const auto& building : province_buildings) {
+      Logger::logStream("buildings")
+          << "(" << building.first << " " << building.second << ") ";
+    }
+    Logger::logStream("buildings") << "\n" << LogOption::Undent;
   }
   weights[*ProvinceWeight::Trade] = safeGetInt("realm_tradeposts");
 }

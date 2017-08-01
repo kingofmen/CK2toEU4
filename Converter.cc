@@ -6,6 +6,7 @@
 #include <string>
 #include <set>
 #include <unordered_map>
+#include <unordered_set>
 
 #include "constants.hh"
 #include "Converter.hh"
@@ -182,8 +183,16 @@ Object* Converter::loadTextFile (string fname) {
   return ret; 
 }
 
-string nameAndNumber (ObjectWrapper* prov) {
-  return prov->getKey() + " (" + remQuotes(prov->safeGetString("name", "\"could not find name\"")) + ")";
+string nameAndNumber(ObjectWrapper* prov) {
+  return prov->getKey() + " (" +
+         remQuotes(prov->safeGetString("name", "\"could not find name\"")) +
+         ")";
+}
+
+string nameAndNumber(Object* prov) {
+  return prov->getKey() + " (" +
+         remQuotes(prov->safeGetString("name", "\"could not find name\"")) +
+         ")";
 }
 
 string nameAndNumber (CK2Character* ruler) {
@@ -2353,8 +2362,7 @@ bool Converter::hreAndPapacy () {
   return true;
 }
 
-bool Converter::modifyProvinces () {
-  Logger::logStream(LogStream::Info) << "Beginning province modifications.\n" << LogOption::Indent;
+bool Converter::redistributeDevelopment () {
   double totalBaseTax = 0;
   double totalBasePro = 0;
   double totalBaseMen = 0;
@@ -2442,8 +2450,116 @@ bool Converter::modifyProvinces () {
 				 << afterPro << " base production, "
 				 << afterMen << " base manpower.\n";
 
-  Logger::logStream(LogStream::Info) << "Done modifying provinces.\n" << LogOption::Undent;
   return true;
+}
+
+bool Converter::rankProvinceDevelopment () {
+  static const string kDevSortKey = "development_weight";
+  unordered_set<EU4Province*> unassignedEu4Provs;
+  objvec sorted_eu4_devs;
+  for (EU4Province::Iter eu4prov = EU4Province::start();
+       eu4prov != EU4Province::final(); ++eu4prov) {
+    if (0 == (*eu4prov)->numCKProvinces()) {
+      continue;
+    }
+    unassignedEu4Provs.insert(*eu4prov);
+    sorted_eu4_devs.emplace_back(new Object((*eu4prov)->getKey()));
+    double dev = 0;
+    for (const auto& key : {"base_tax", "base_production", "base_manpower"}) {
+      double val = (*eu4prov)->safeGetFloat(key);
+      dev += val;
+      sorted_eu4_devs.back()->resetLeaf(key, val);
+    }
+    sorted_eu4_devs.back()->resetLeaf(kDevSortKey, dev);
+    sorted_eu4_devs.back()->resetLeaf("name",
+                                      (*eu4prov)->safeGetString("name"));
+  }
+
+  vector<CK2Province*> sorted_ck2_provs;
+  for (CK2Province::Iter ck2prov = CK2Province::start();
+       ck2prov != CK2Province::final(); ++ck2prov) {
+    if (0 == (*ck2prov)->numEU4Provinces()) continue;
+    double dev = (*ck2prov)->getWeight(ProvinceWeight::Taxation);
+    dev += (*ck2prov)->getWeight(ProvinceWeight::Production);
+    dev += (*ck2prov)->getWeight(ProvinceWeight::Manpower);
+    (*ck2prov)->resetLeaf(kDevSortKey, dev);
+    sorted_ck2_provs.push_back(*ck2prov);
+  }
+
+  ObjectDescendingSorter sorter(kDevSortKey);
+  sort(sorted_ck2_provs.begin(), sorted_ck2_provs.end(), sorter);
+  sort(sorted_eu4_devs.begin(), sorted_eu4_devs.end(), sorter);
+
+  vector<CK2Province*> backup_ck2_provs;
+  int counter = 0;
+  int eu4Index = 0;
+  static const string kNumProvsUsed("used_for_eu_provs");
+  while (!unassignedEu4Provs.empty()) {
+    for (auto* ck2prov : sorted_ck2_provs) {
+      int index = ck2prov->safeGetInt(kNumProvsUsed, 0);
+      if (index >= ck2prov->numEU4Provinces()) {
+        continue;
+      }
+      ck2prov->resetLeaf(kNumProvsUsed, 1 + index);
+      double ck2Weight = ck2prov->safeGetFloat(kDevSortKey);
+      if (index + 1 < ck2prov->numEU4Provinces()) {
+        ck2prov->resetLeaf(kDevSortKey, 0.5 * ck2Weight);
+        backup_ck2_provs.push_back(ck2prov);
+      }
+      EU4Province* eu4prov = ck2prov->eu4Province(index);
+      if (unassignedEu4Provs.count(eu4prov) == 0) {
+        // Already assigned.
+        continue;
+      }
+      if (eu4Index >= (int) sorted_eu4_devs.size()) {
+        Logger::logStream(LogStream::Warn) << "Exiting devs " << eu4Index << "\n";
+        break;
+      }
+      Object* eu4dev = sorted_eu4_devs[eu4Index++];
+      if (!eu4dev) {
+        Logger::logStream(LogStream::Warn) << "Null dev " << eu4Index << "\n";
+        break;
+      }
+      Logger::logStream("provinces")
+          << "Assigning " << nameAndNumber(eu4prov) << " development ("
+          << eu4dev->safeGetString("base_tax") << ", "
+          << eu4dev->safeGetString("base_production") << ", "
+          << eu4dev->safeGetString("base_manpower") << ") from "
+          << nameAndNumber(eu4dev) << " based on conversion from "
+          << nameAndNumber(ck2prov) << " with weight "
+          << ck2Weight << "\n";
+      for (const auto& key : {"base_tax", "base_production", "base_manpower"}) {
+        eu4prov->resetLeaf(key, eu4dev->safeGetFloat(key));
+      }
+      unassignedEu4Provs.erase(eu4prov);
+    }
+    if (++counter > 100) {
+      Logger::logStream(LogStream::Warn)
+          << "Still trying to assign development to "
+          << unassignedEu4Provs.size()
+          << " provinces. Breaking out of the loop.\n";
+      break;
+    }
+    sorted_ck2_provs = backup_ck2_provs;
+    backup_ck2_provs.clear();
+    sort(sorted_ck2_provs.begin(), sorted_ck2_provs.end(), sorter);
+  }
+
+  return true;
+}
+
+bool Converter::modifyProvinces () {
+  Logger::logStream(LogStream::Info) << "Beginning province modifications.\n" << LogOption::Indent;
+  bool success = false;
+  if (configObject->safeGetString("redistribute_dev", "no") == "yes") {
+    Logger::logStream(LogStream::Info) << "Using province weight.\n";
+    success = redistributeDevelopment();
+  } else {
+    Logger::logStream(LogStream::Info) << "Using province rank.\n";
+    success = rankProvinceDevelopment();
+  }
+  Logger::logStream(LogStream::Info) << "Done modifying provinces.\n" << LogOption::Undent;
+  return success;
 }
 
 // Apparently making this definition local to the function confuses the compiler.

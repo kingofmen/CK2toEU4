@@ -26,6 +26,10 @@ maps_dir = ".\maps\"
 
 accepted_culture_cutoff = 0.5
 
+# If true, development will be redistributed. Otherwise it will be
+# given by province rank.
+redistribute_dev = no
+
 humans_always_independent = yes
 max_balkanisation = 0.40
 min_balkanisation = 0.30
