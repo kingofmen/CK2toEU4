@@ -116,4 +116,6 @@ private:
   int totalRealmBaronies;
 };
 
+string nameAndNumber (CK2Character* ruler);
+
 #endif

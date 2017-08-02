@@ -183,22 +183,6 @@ Object* Converter::loadTextFile (string fname) {
   return ret; 
 }
 
-string nameAndNumber(ObjectWrapper* prov) {
-  return prov->getKey() + " (" +
-         remQuotes(prov->safeGetString("name", "\"could not find name\"")) +
-         ")";
-}
-
-string nameAndNumber(Object* prov) {
-  return prov->getKey() + " (" +
-         remQuotes(prov->safeGetString("name", "\"could not find name\"")) +
-         ")";
-}
-
-string nameAndNumber (CK2Character* ruler) {
-  return ruler->safeGetString(birthNameString) + " (" + ruler->getKey() + ")";
-}
-
 bool Converter::swapKeys (Object* one, Object* two, string key) {
   if (one == two) return true; 
   Object* valOne = one->safeGetObject(key);
@@ -1575,14 +1559,25 @@ void Converter::makeMonarch (CK2Character* ruler, CK2Ruler* king, const string& 
 
   map<string, map<string, double> > sources;
   sources["MIL"]["ck_martial"] = max(0, ruler->getAttribute(CKAttribute::Martial) / 5);
-  sources["DIP"]["ck_diplomacy"] = max(0, ruler->getAttribute(CKAttribute::Diplomacy) / 5);
-  sources["ADM"]["ck_stewardship"] = max(0, ruler->getAttribute(CKAttribute::Stewardship) / 5);
-  for (map<string, map<string, double> >::iterator area = sources.begin(); area != sources.end(); ++area) {
+  sources["DIP"]["ck_diplomacy"] =
+      max(0,
+          (ruler->getAttribute(CKAttribute::Diplomacy) +
+           ruler->getAttribute(CKAttribute::Intrigue)) /
+              5);
+  sources["ADM"]["ck_stewardship"] =
+      max(0,
+          (ruler->getAttribute(CKAttribute::Stewardship) +
+           ruler->getAttribute(CKAttribute::Learning)) /
+              5);
+  for (map<string, map<string, double>>::iterator area = sources.begin();
+       area != sources.end(); ++area) {
     Object* bonus = bonusTraits->getNeededObject(area->first);
     objvec bonoi = bonus->getLeaves();
-    for (objiter bon = bonoi.begin(); bon != bonoi.end(); ++bon) {
-      string desc = (*bon)->getKey();
-      if (!ruler->hasTrait(desc)) continue;
+    for (auto* bon : bonus->getLeaves()) {
+      string desc = bon->getKey();
+      if (!ruler->hasTrait(desc)) {
+        continue;
+      }
       area->second[desc] = bonus->safeGetInt(desc);
     }
   }
@@ -1675,6 +1670,8 @@ void Converter::makeLeader (Object* eu4country, const string& leaderType, CK2Cha
 
 bool Converter::createCharacters () {
   Logger::logStream(LogStream::Info) << "Beginning character creation.\n" << LogOption::Indent;
+  Logger::logStream(LogStream::Info)
+      << "Found " << CK2Character::ckTraits.size() << " CK traits.\n";
   Object* bonusTraits = configObject->getNeededObject("bonusTraits");
   Object* active_advisors = eu4Game->getNeededObject("active_advisors");
   map<string, objvec> allAdvisors;
@@ -1696,7 +1693,9 @@ bool Converter::createCharacters () {
     if (!capital) continue;
     string eu4Tag = (*eu4country)->getKey();
     (*eu4country)->unsetValue("advisor");
-    Logger::logStream("characters") << "Creating characters for " << eu4Tag << ":\n" << LogOption::Indent;
+    Logger::logStream("characters")
+        << "Creating characters for " << eu4Tag << ":\n"
+        << LogOption::Indent;
     makeMonarch(ruler, ruler, "monarch", bonusTraits);
 
     (*eu4country)->unsetValue("heir");

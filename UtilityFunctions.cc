@@ -395,3 +395,16 @@ double getLevyStrength(const string& key, Object* levyObject) {
   }
   return levy->tokenAsFloat(1);
 }
+
+string nameAndNumber(ObjectWrapper* prov) {
+  return prov->getKey() + " (" +
+         remQuotes(prov->safeGetString("name", "\"could not find name\"")) +
+         ")";
+}
+
+string nameAndNumber(Object* prov) {
+  return prov->getKey() + " (" +
+         remQuotes(prov->safeGetString("name", "\"could not find name\"")) +
+         ")";
+}
+

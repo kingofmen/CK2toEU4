@@ -38,11 +38,22 @@ CK2Character::CK2Character (Object* obj, Object* dynasties)
   }
   
   Object* attribs = safeGetObject("attributes");
+  if (!attribs) {
+    attribs = safeGetObject("att");
+  }
   if (attribs) {
     for (int i = 0; i < (int) attributes.size(); ++i) {
       if (i >= attribs->numTokens()) break;
       attributes[i] = attribs->tokenAsInt(i);
     }
+  }
+  bool debug = false;
+  if (safeGetString("player", "no") == "yes") {
+    Logger::logStream("characters")
+        << "Starting traits for " << nameAndNumber(this) << ", played by "
+        << safeGetString("player_name") << "\n"
+        << LogOption::Indent;
+    debug = true;
   }
   static set<int> unknownTraits;
   Object* traitList = safeGetObject("traits");
@@ -58,11 +69,27 @@ CK2Character::CK2Character (Object* obj, Object* dynasties)
 	continue;
       }
       Object* traitObject = ckTraits[index];
+      if (debug) Logger::logStream("characters") << traitObject->getKey() << " ";
       traits.insert(traitObject->getKey());
       for (CKAttribute::Iter att = CKAttribute::start(); att != CKAttribute::final(); ++att) {
 	attributes[**att] += traitObject->safeGetInt((*att)->getName());
       }
+      if (traitObject->safeGetString("leader", "no") == "yes") {
+        attributes[*CKAttribute::Martial]++;
+      }
     }
+  } else if (debug) {
+    Logger::logStream("characters")
+        << "Could not find traits for " << nameAndNumber(this) << "\n";
+  }
+  if (debug) {
+    Logger::logStream("characters") << "\n";
+    for (CKAttribute::Iter att = CKAttribute::start();
+         att != CKAttribute::final(); ++att) {
+      Logger::logStream("characters")
+          << (*att)->getName() << ": " << attributes[**att] << " ";
+    }
+    Logger::logStream("characters") << "\n" << LogOption::Undent;
   }
 }
 
@@ -297,4 +324,8 @@ CK2Ruler* CK2Ruler::getSovereignLiege () {
   CK2Ruler* cand = this;
   while ((cand) && (!cand->isSovereign())) cand = cand->getLiege();
   return cand;
+}
+
+string nameAndNumber(CK2Character* ruler) {
+  return ruler->safeGetString(birthNameString) + " (" + ruler->getKey() + ")";
 }
