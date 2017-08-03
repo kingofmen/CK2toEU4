@@ -1,0 +1,244 @@
+just_personality = {
+  just = 10
+  honest = 3
+}
+
+righteous_personality = {
+  zealous
+}
+
+tolerant_personality = {
+  sympathy_christendom = 10
+  sympathy_islam = 10
+  sympathy_pagans = 10
+  sympathy_zoroastrianism = 10
+  sympathy_judaism = 10
+  sympathy_indian = 10
+}
+
+kind_hearted_personality = {
+  kind = 10
+} 
+
+free_thinker_personality = {
+  cynical = 10
+  quick = 5
+  genius = 20
+  heresiarch = 12
+} 
+
+well_connected_personality = {
+  socializer = 12
+} 
+
+calm_personality = {
+  content = 10
+  diligent = 10
+} 
+
+careful_personality = {
+} 
+
+secretive_personality = {
+  deceitful = 8
+  schemer = 8
+}
+
+intricate_web_weaver_personality = {
+  intricate_webweaver = 10
+  elusive_shadow = 20
+  deceitful = 3
+} 
+fertile_personality = {
+  lustful = 10
+}
+
+well_advised_personality = {
+} 
+
+benevolent_personality = {
+  charitable = 10
+}
+
+zealot_personality = {
+}
+
+pious_personality = {
+  scholarly_theologian = 10
+  mastermind_theologian = 25
+  hajjaj = 12
+  pilgrim = 12
+  monk = 12
+  nun = 12
+} 
+
+lawgiver_personality = {
+} 
+
+midas_touched_personality = {
+  midas_touched = 25
+} 
+
+incorruptible_personality = {
+  honest = 10
+} 
+
+architectural_visionary_personality = {
+  gardener = 10
+  administrator = 12
+  architect = 15
+}
+
+scholar_personality = {
+  scholar = 10
+  faqih = 10
+  hafiz = 10
+} 
+
+entrepreneur_personality = {
+  fortune_builder = 10
+} 
+
+industrious_personality = {
+  diligent = 12
+} 
+
+expansionist_personality = {
+} 
+
+charismatic_negotiator_personality = {
+  charismatic_negotiator = 10
+  grey_eminence = 20
+  gregarious = 3
+} 
+
+silver_tongue_personality = {
+} 
+
+conqueror_personality = {
+  crusader = 25
+  mujahid = 25
+  eagle_warrior = 25
+  sun_warrior = 25
+  ukkos_shield = 25
+  nyames_shield = 25
+  peruns_chosen = 25
+  romuvas_own = 25
+  ares_own = 25
+  tengri_warrior = 25
+  shaddai = 25
+  gondi_shahansha = 25
+}
+
+tactical_genius_personality = {
+  skilled_tactician = 12
+  cavalry_leader = 12
+  flanker = 12
+  trickster = 12
+  war_elephant_leader = 12
+} 
+
+bold_fighter_personality = {
+  brilliant_strategist = 25
+  aggressive_leader = 15
+  experimenter = 12
+  heavy_infantry_leader = 12
+  light_foot_leader = 12
+  flat_terrain_leader = 9
+  rough_terrain_leader = 9
+  mountain_terrain_leader = 9
+  desert_terrain_leader = 9
+  jungle_terrain_leader = 9
+  brave = 5
+} 
+
+strict_personality = {
+} 
+
+inspiring_leader_personality = {
+  inspiring_leader = 20
+  holy_warrior = 20
+  unyielding_leader = 15
+  defensive_leader = 8
+} 
+martial_educator_personality = {
+  organizer = 15
+  siege_leader = 12
+} 
+navigator_personality = {
+  viking = 10
+  ravager = 12
+  sea_king = 15
+  sea_queen = 15
+} 
+
+fierce_negotiator_personality = {
+} 
+
+babbling_buffoon_personality = {
+} 
+
+embezzler_personality = {
+} 
+infertile_personality = {
+  celibate = 10
+  incapable = 25
+  leper = 25
+  pneumonic = 25
+  syphilitic = 25
+  ill = 5
+  stressed = 5
+  depressed = 10
+  infirm = 30
+  homosexual = 5
+}
+drunkard_personality = {
+  drunkard = 10
+} 
+sinner_personality =  {
+  greedy = 4
+  lustful = 4
+  gluttonous = 4
+  slothful = 4
+  envious = 4
+  wroth = 4
+  proud = 4
+  charitable = -2
+  chaste = -2
+  temperate = -2
+  diligent = -2
+  humble = -2
+  kind = -2
+  patient = -2
+} 
+
+greedy_personality = {
+  greedy = 10
+} 
+cruel_personality = {
+  cruel = 10
+} 
+naive_personality = {
+  imbecile = 20
+  slow = 20
+  dull = 20
+  naive_appeaser = 6
+  inbred = 24
+} 
+
+craven_personality = {
+  craven = 10
+}
+loose_lips_personality = {
+}
+obsessive_perfectionist_personality = {
+} 
+malevolent_personality = {
+  berserker = 8
+  cruel = 8
+  kinslayer = 8
+} 
+
+immortal_personality = {
+  immortal = 1000
+}
