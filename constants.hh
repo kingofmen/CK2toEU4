@@ -26,3 +26,7 @@ extern std::string prestigeString;
 const std::string kOldDynasty = "dynasty";
 const std::string kNewDynasty = "dnt";
 extern std::string dynastyString;
+
+const std::string kOldAttributes = "attributes";
+const std::string kNewAttributes = "att";
+extern std::string attributesString;

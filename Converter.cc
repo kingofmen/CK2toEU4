@@ -336,6 +336,7 @@ bool Converter::createCK2Objects () {
   detectChangedString(kOldBirthName, kNewBirthName, charObjs, &birthNameString);
   detectChangedString(kOldBirthDate, kNewBirthDate, charObjs, &birthDateString);
   detectChangedString(kOldDynasty, kNewDynasty, charObjs, &dynastyString);
+  detectChangedString(kOldAttributes, kNewAttributes, charObjs, &attributesString);
   detectChangedString(kOldPrestige, kNewPrestige, charObjs, &prestigeString);
 
   Object* dynasties = ck2Game->safeGetObject("dynasties");
@@ -854,12 +855,16 @@ void Converter::loadFiles () {
   euBuildingObject = loadTextFile(dirToUse + "eu_buildings.txt");
   Object* ckTraitObject = loadTextFile(dirToUse + "ck_traits.txt");
   CK2Character::ckTraits = ckTraitObject->getLeaves();
+  Object* euTraitObject = loadTextFile(dirToUse + "eu_ruler_traits.txt");
+  CK2Character::euRulerTraits = euTraitObject->getLeaves();
   advisorTypesObject = loadTextFile(dirToUse + "advisors.txt");
   if (!advisorTypesObject) {
-    Logger::logStream(LogStream::Warn) << "Warning: Did not find advisors.txt. Proceeding without advisor types info. No advisors will be created.\n";
+    Logger::logStream(LogStream::Warn)
+        << "Warning: Did not find advisors.txt. Proceeding without advisor "
+           "types info. No advisors will be created.\n";
     advisorTypesObject = new Object("dummy_advisors");
   }
-  
+
   string overrideFileName = remQuotes(configObject->safeGetString("custom", QuotedNone));
   if ((PlainNone != overrideFileName) && (overrideFileName != "NOCUSTOM")) customObject = loadTextFile(dirToUse + overrideFileName);
   else customObject = new Object("custom");
@@ -1551,7 +1556,8 @@ string getFullName (CK2Character* character) {
   return addQuotes(name);
 }
 
-void Converter::makeMonarch (CK2Character* ruler, CK2Ruler* king, const string& keyword, Object* bonusTraits) {
+void Converter::makeMonarch(CK2Character* ruler, CK2Ruler* king,
+                            const string& keyword, Object* bonusTraits) {
   Object* monarchDef = new Object(keyword);
   monarchDef->setLeaf("name", ruler->safeGetString(birthNameString, "\"Some Guy\""));
   CK2Title* primary = king->getPrimaryTitle();
@@ -1591,9 +1597,11 @@ void Converter::makeMonarch (CK2Character* ruler, CK2Ruler* king, const string& 
       area->second["ck_stewardship"] *= age;
     }
   }
-  Logger::logStream("characters") << keyword << " " << nameAndNumber(ruler)
-				  << " with " << "\n" << LogOption::Indent;
-  for (map<string, map<string, double> >::iterator area = sources.begin(); area != sources.end(); ++area) {
+  Logger::logStream("characters")
+      << keyword << " " << nameAndNumber(ruler) << " with\n"
+      << LogOption::Indent;
+  for (map<string, map<string, double>>::iterator area = sources.begin();
+       area != sources.end(); ++area) {
     Logger::logStream("characters") << area->first << " : ";
     int amount = 0;
     for (map<string, double>::iterator source = area->second.begin(); source != area->second.end(); ++source) {
@@ -1613,13 +1621,44 @@ void Converter::makeMonarch (CK2Character* ruler, CK2Ruler* king, const string& 
     Logger::logStream("characters") << "total: " << amount << "\n";
     monarchDef->setLeaf(area->first, amount);
   }
-  Logger::logStream("characters") << LogOption::Undent;
+
   if (ruler->safeGetString("female", "no") == "yes") monarchDef->setLeaf("female", "yes");
   Object* monarchId = createMonarchId();
   monarchDef->setValue(monarchId);
   monarchDef->setLeaf(dynastyString, getDynastyName(ruler));
   monarchDef->setLeaf(birthDateString, remQuotes(ruler->safeGetString(birthDateString, addQuotes(gameDate))));
-
+  Object* best_personality = nullptr;
+  int best_score = 0;
+  map<string, int> points;
+  for (auto* eu_personality : CK2Character::euRulerTraits) {
+    objvec ck_traits = eu_personality->getLeaves();
+    int curr_score = 0;
+    map<string, int> curr_points;
+    for (auto* ck_trait : ck_traits) {
+      string key = ck_trait->getKey();
+      if (!ruler->hasTrait(key)) {
+        continue;
+      }
+      int score = eu_personality->safeGetInt(key);
+      curr_score += score;
+      curr_points[key] = score;
+    }
+    if (curr_score <= best_score) {
+      continue;
+    }
+    best_personality = eu_personality;
+    best_score = curr_score;
+    points = curr_points;
+  }
+  if (best_personality != nullptr) {
+    monarchDef->setLeaf(best_personality->getKey(), "yes");
+    Logger::logStream("characters") << "Personality " << best_personality->getKey() << " from ";
+    for (const auto& point : points) {
+      Logger::logStream("characters") << "(" << point.first << ", " << point.second << ") ";
+    }
+    Logger::logStream("characters") << "\n";
+  }
+  Logger::logStream("characters") << LogOption::Undent;
   Object* coronation = new Object(eu4Game->safeGetString("date", "1444.1.1"));
   coronation->setValue(monarchDef);
   Object* monarch = new Object(monarchId);
@@ -3074,6 +3113,13 @@ bool Converter::resetHistories () {
     }
   }
 
+  for (auto* eu4country : EU4Country::getAll()) {
+    if (!eu4country->converts()) {
+      continue;
+    }
+    eu4country->getNeededObject("history")->clear();
+  }
+  
   Logger::logStream(LogStream::Info) << "Done with clearing.\n" << LogOption::Undent;
   return true;
 }

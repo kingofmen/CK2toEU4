@@ -6,3 +6,4 @@ std::string birthNameString;
 std::string birthDateString;
 std::string prestigeString;
 std::string dynastyString;
+std::string attributesString;

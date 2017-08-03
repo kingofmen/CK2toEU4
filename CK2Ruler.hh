@@ -57,6 +57,7 @@ public:
   CharacterIter finalCouncillor () const {return council.end();}
 
   static objvec ckTraits;
+  static objvec euRulerTraits;
 protected:
   CK2Character* admiral;
   vector<int> attributes;

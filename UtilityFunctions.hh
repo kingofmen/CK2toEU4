@@ -172,6 +172,7 @@ template <class T> class Iterable {
     return ret;
   }
 
+  static Container& getAll () {return allThings;}
   static Iter start () {return allThings.begin();}
   static Iter final () {return allThings.end();}
   static rIter rstart () {return allThings.rbegin();}

@@ -9,6 +9,7 @@
 #include "UtilityFunctions.hh"
 
 objvec CK2Character::ckTraits;
+objvec CK2Character::euRulerTraits;
 
 CKAttribute const* const CKAttribute::Diplomacy    = new CKAttribute("diplomacy",   false);
 CKAttribute const* const CKAttribute::Martial      = new CKAttribute("martial",     false);
@@ -37,10 +38,7 @@ CK2Character::CK2Character (Object* obj, Object* dynasties)
     dynasty = dynasties->safeGetObject(dynastyNum);
   }
   
-  Object* attribs = safeGetObject("attributes");
-  if (!attribs) {
-    attribs = safeGetObject("att");
-  }
+  Object* attribs = safeGetObject(attributesString);
   if (attribs) {
     for (int i = 0; i < (int) attributes.size(); ++i) {
       if (i >= attribs->numTokens()) break;
