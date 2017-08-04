@@ -2256,7 +2256,7 @@ bool Converter::cultureAndReligion () {
     for (map<string, double>::iterator cand = cultureWeights.begin(); cand != cultureWeights.end(); ++cand) {
       if (cand->first == ckRulerCulture) continue;
       if (cand->second > acceptedCutoff * cultureWeights[ckRulerCulture]) {
-	acceptedCultures.push_back(cand->first);
+	acceptedCultures.push_back(cultureMap[cand->first][0]);
       }
     }
     Logger::logStream("cultures") << (*eu4country)->getKey() << ":\n" << LogOption::Indent;
