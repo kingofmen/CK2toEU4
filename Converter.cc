@@ -1625,7 +1625,7 @@ void Converter::makeMonarch(CK2Character* ruler, CK2Ruler* king,
   if (ruler->safeGetString("female", "no") == "yes") monarchDef->setLeaf("female", "yes");
   Object* monarchId = createMonarchId();
   monarchDef->setValue(monarchId);
-  monarchDef->setLeaf(dynastyString, getDynastyName(ruler));
+  monarchDef->setLeaf("dynasty", getDynastyName(ruler));
   monarchDef->setLeaf(birthDateString, remQuotes(ruler->safeGetString(birthDateString, addQuotes(gameDate))));
   Object* best_personality = nullptr;
   int best_score = 0;
@@ -2884,7 +2884,7 @@ bool Converter::redistributeMana () {
     (*eu4country)->resetLeaf("claimants", claimants);
   }
 
-  double minimumLegitimacy = configObject->safeGetFloat("minimum_legitimacy", 0.25);
+  double minimumLegitimacy = configObject->safeGetFloat("minimum_legitimacy", 25);
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
     int totalPower = (*eu4country)->safeGetFloat(kAwesomePower);
     (*eu4country)->unsetValue(kAwesomePower);
@@ -2921,7 +2921,7 @@ bool Converter::redistributeMana () {
       Logger::logStream("mana") << claimants << " claims on " << ruler->getPrimaryTitle()->getKey() << ", hence ";
       claimants /= maxClaimants;
       //double legitimacy = minimumLegitimacy + (1.0 - claimants) * (1.0 - minimumLegitimacy);
-      double legitimacy = 1.0 - claimants + minimumLegitimacy * claimants;
+      double legitimacy = 100 * (1.0 - claimants + minimumLegitimacy * claimants);
       (*eu4country)->resetLeaf("legitimacy", legitimacy);
       Logger::logStream("mana") << (*eu4country)->getKey() << " has legitimacy " << legitimacy << ".\n";
     }

@@ -34,7 +34,7 @@ humans_always_independent = yes
 max_balkanisation = 0.40
 min_balkanisation = 0.30
 balkan_threshold = 8
-minimum_legitimacy = 0.25
+minimum_legitimacy = 25
 
 # Options are keep, remove
 hre = remove
