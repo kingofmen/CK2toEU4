@@ -364,7 +364,7 @@ double calcAvg (Object* ofthis);
 
 double getLevyStrength(const string& key, Object* levyObject);
 
-string nameAndNumber(ObjectWrapper* prov);
-string nameAndNumber(Object* prov);
+string nameAndNumber(ObjectWrapper* prov, string key = "name");
+string nameAndNumber(Object* prov, string key = "name");
 
 #endif

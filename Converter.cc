@@ -7,6 +7,7 @@
 #include <set>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 
 #include "constants.hh"
 #include "Converter.hh"
@@ -32,7 +33,12 @@ ConverterJob const *const ConverterJob::DebugParser =
 ConverterJob const *const ConverterJob::CheckProvinces =
     new ConverterJob("check_provinces", false);
 ConverterJob const *const ConverterJob::LoadFile =
-    new ConverterJob("loadfile", true);
+    new ConverterJob("loadfile", false);
+ConverterJob const *const ConverterJob::DynastyScores = 
+    new ConverterJob("dynasty_scores", true);
+
+namespace {
+}
 
 Converter::Converter (Window* ow, string fn)
   : ck2FileName(fn)
@@ -70,6 +76,7 @@ void Converter::run () {
     if (ConverterJob::DebugParser    == job) debugParser();
     if (ConverterJob::LoadFile       == job) loadFile();
     if (ConverterJob::CheckProvinces == job) checkProvinces();
+    if (ConverterJob::DynastyScores  == job) dynastyScores();
   }
 }
 
@@ -167,6 +174,14 @@ void Converter::debugParser() {
   objvec parsed = ck2Game->getLeaves();
   Logger::logStream(LogStream::Info) << "Last parsed object:\n"
                                      << parsed.back();
+}
+
+void Converter::dynastyScores () {
+  Logger::logStream(LogStream::Info) << "Dynastic scores.\n";
+  if (!createCK2Objects()) {
+    return;
+  }
+  calculateDynasticScores();
 }
 
 Object* Converter::loadTextFile (string fname) {
@@ -1105,6 +1120,261 @@ bool Converter::adjustBalkanisation () {
 
   Logger::logStream(LogStream::Info) << "Done with balkanisation.\n" << LogOption::Undent;
   return true;
+}
+
+struct DynastyScore {
+  DynastyScore() = default;
+  explicit DynastyScore(string n) : name(n), members(0), cached_score(-1) {}
+  DynastyScore(const DynastyScore& other) = default;
+  string name;
+  int members;
+  int cached_score;
+  map<string, int> trait_counts;
+  vector<pair<CK2Title*, int> > title_days;
+
+  void score () {
+    cached_score = 0;
+    for (const auto& held : title_days) {
+      CK2Title* title = held.first;
+      int days = held.second;
+      int mult = 0;
+      if (title->getLevel() == TitleLevel::County) {
+        mult = 1;
+      } else if (title->getLevel() == TitleLevel::Duchy) {
+        mult = 3;
+      } else if (title->getLevel() == TitleLevel::Kingdom) {
+        mult = 5;
+      } else if (title->getLevel() == TitleLevel::Empire) {
+        mult = 7;
+      }
+      cached_score += days * mult;
+    }
+  }
+
+  string score_string (Object* custom_score_traits, double median) const {
+    string ret;
+    struct levelInfo {
+      string titles;
+      double total_days = 0;
+    };
+    levelInfo counties;
+    levelInfo duchies;
+    levelInfo kingdoms;
+    levelInfo empires;
+    unordered_map<CK2Title*, int> total_days;
+    for (const auto& held : title_days) {
+      total_days[held.first] += held.second;
+    }
+    for (const auto& held : total_days) {
+      CK2Title* title = held.first;
+      int days = held.second;
+      levelInfo* target = nullptr;
+      if (title->getLevel() == TitleLevel::County) {
+        target = &counties;
+      } else if (title->getLevel() == TitleLevel::Duchy) {
+        target = &duchies;
+      } else if (title->getLevel() == TitleLevel::Kingdom) {
+        target = &kingdoms;
+      } else if (title->getLevel() == TitleLevel::Empire) {
+        target = &empires;
+      }
+      if (target) {
+        sprintf(strbuffer, "%s %i ", title->getKey().c_str(), days);
+        target->titles += strbuffer;
+        target->total_days += days;
+      }
+    }
+    for (const auto& level : {counties, duchies, kingdoms, empires}) {
+      if (level.titles.empty()) {
+        continue;
+      }
+      sprintf(strbuffer, "%sTotal years: %.2f\n", level.titles.c_str(),
+              level.total_days / 365);
+      ret += strbuffer;
+    }
+    string trait_line;
+    double total_trait_bonus = 0;
+    for (const auto& trait : trait_counts) {
+      string trait_name = trait.first;
+      double bonus = custom_score_traits->safeGetFloat(trait_name);
+      if (abs(bonus) < 0.001) {
+        continue;
+      }
+      int number = trait.second;
+      double fraction = number;
+      fraction /= members;
+      double trait_bonus = fraction * bonus * median;
+      sprintf(strbuffer, "%s: %i (%.2f) -> %.1f ", trait_name.c_str(), number,
+              fraction, trait_bonus);
+      total_trait_bonus += trait_bonus;
+      trait_line += strbuffer;
+    }
+    sprintf(strbuffer, "Total from traits: %.1f\n", total_trait_bonus);
+    trait_line += strbuffer;
+    ret += trait_line;
+    sprintf(strbuffer, "Adjusted total: %.1f\n", cached_score + total_trait_bonus);
+    ret += strbuffer;
+    return ret;
+  }
+};
+
+bool operator<(const DynastyScore& left, const DynastyScore& right) {
+  return left.cached_score < right.cached_score;
+}
+
+void handleEvent(Object* event, CK2Title* title, int startDays, int endDays,
+                 unordered_map<string, Object*>& characters,
+                 unordered_map<string, DynastyScore>& dynasties) {
+  if (!event) {
+    return;
+  }
+  Object* holder = event->safeGetObject("holder");
+  if (!holder) {
+    return;
+  }
+  string characterId = holder->safeGetString("who", PlainNone);
+  Object* character = characters[characterId];
+  if (!character) {
+    return;
+  }
+  string dynastyKey = character->safeGetString(dynastyString, PlainNone);
+  if (dynastyKey == PlainNone ||
+      dynasties.find(dynastyKey) == dynasties.end()) {
+    return;
+  }
+  int titleDays = endDays - startDays;
+  if (holder->safeGetString("type") == "created") {
+    Logger::logStream("characters")
+        << nameAndNumber(character, birthNameString) << " of dynasty "
+        << dynasties[dynastyKey].name << " created " << title->getKey()
+        << ".\n";
+    titleDays += 3650;
+  }
+  double years = titleDays;
+  years /= 365;
+  Logger::logStream("characters")
+      << nameAndNumber(character, birthNameString) << " of dynasty "
+      << dynasties[dynastyKey].name << " held " << title->getKey()
+      << " for " << years << " years.\n";
+  dynasties[dynastyKey].title_days.push_back(make_pair(title, titleDays));
+}
+
+void Converter::calculateDynasticScores() {
+  Object* customs = configObject->getNeededObject("custom_score");
+  if (customs->numTokens() == 0) {
+    return;
+  }
+  Logger::logStream(LogStream::Info) << "Beginning dynasty score calculation.\n"
+                                     << LogOption::Indent;
+  if (CK2Character::ckTraits.empty()) {
+    string dirToUse = remQuotes(configObject->safeGetString("maps_dir", ".\\maps\\"));
+    Object* ckTraitObject = loadTextFile(dirToUse + "ck_traits.txt");
+    CK2Character::ckTraits = ckTraitObject->getLeaves();
+  }
+  unordered_map<int, string> trait_number_to_name;
+  for (int idx = 0; idx < (int) CK2Character::ckTraits.size(); ++idx) {
+    trait_number_to_name[idx+1] = CK2Character::ckTraits[idx]->getKey();
+  }
+
+  unordered_map<string, DynastyScore> dynasties;
+  auto* dynastyObject = ck2Game->getNeededObject("dynasties");
+  for (int i = 0; i < customs->numTokens(); ++i) {
+    string index = customs->getToken(i);
+    Object* ckDynasty = dynastyObject->safeGetObject(index);
+    if (!ckDynasty) {
+      Logger::logStream(LogStream::Warn)
+          << "Could not find dynasty " << index << "\n";
+      continue;
+    }
+    dynasties.emplace(piecewise_construct, forward_as_tuple(index),
+                      forward_as_tuple(ckDynasty->safeGetString("name")));
+  }
+
+  Logger::logStream("characters") << "Starting character iteration.\n";
+  unordered_map<string, Object*> characters;
+  Object* score_traits = configObject->getNeededObject("custom_score_traits");
+  for (auto* character : ck2Game->getNeededObject("character")->getLeaves()) {
+    string dIndex = character->safeGetString(dynastyString, PlainNone);
+    if (dIndex == PlainNone || dynasties.find(dIndex) == dynasties.end()) {
+      continue;
+    }
+    dynasties[dIndex].members++;
+    characters[character->getKey()] = character;
+    Object* traits = character->safeGetObject("traits");
+    if (traits) {
+      for (int i = 0; i < traits->numTokens(); ++i) {
+        int trait_number = traits->tokenAsInt(i);
+        string trait_name = trait_number_to_name[trait_number];
+        double bonus = score_traits->safeGetFloat(trait_name);
+        if (abs(bonus) < 0.001) {
+          continue;
+        }
+        dynasties[dIndex].trait_counts[trait_name]++;
+      }
+    }
+  }
+  Logger::logStream("characters")
+      << "Found " << characters.size() << " characters of interest.\n";
+
+  string gameDate = remQuotes(ck2Game->safeGetString("date", "\"1444.11.10\""));
+  int gameDays = days(gameDate);
+  if (gameDays == 0) {
+    Logger::logStream(LogStream::Warn)
+        << "Problem with game date: \"" << gameDate << "\".\n";
+  }
+  string startDate = remQuotes(ck2Game->safeGetString("start_date", "\"769.1.1\""));
+  int startDays = days(startDate);
+  if (startDays == 0) {
+    Logger::logStream(LogStream::Warn)
+        << "Problem with start date: \"" << startDate << "\".\n";
+  }
+
+  for (auto* title : CK2Title::getAll()) {
+    if (title->safeGetString("landless") == "yes") {
+      continue;
+    }
+    auto history = title->getNeededObject("history")->getLeaves();
+    int previousDays = startDays;
+    Object* previousEvent = nullptr;
+    for (auto* event : history) {
+      int start = days(event->getKey());
+      if (start == 0) {
+        Logger::logStream(LogStream::Warn)
+            << "Problem with date " << event->getKey()
+            << ", ignoring event in history of title " << title->getKey()
+            << "\n";
+        continue;
+      }
+      if (start < startDays) {
+        continue;
+      }
+      handleEvent(previousEvent, title, previousDays, start, characters, dynasties);
+      previousEvent = event;
+      previousDays = start;
+    }
+    handleEvent(previousEvent, title, previousDays, gameDays, characters, dynasties);
+  }
+  vector<DynastyScore> sorted_dynasties;
+  for (auto& dynasty : dynasties) {
+    dynasty.second.score();
+    sorted_dynasties.emplace_back(dynasty.second);
+  }
+  sort(sorted_dynasties.begin(), sorted_dynasties.end());
+  if (sorted_dynasties.empty()) {
+    return;
+  }
+  int size = sorted_dynasties.size();
+  double median = 0.5 *
+                  (sorted_dynasties[size / 2].cached_score +
+                   sorted_dynasties[(size - 1) / 2].cached_score);
+  for (const auto& score : sorted_dynasties) {
+    Logger::logStream(LogStream::Info)
+        << score.name << " : " << score.cached_score << "\n"
+        << LogOption::Indent << score.score_string(score_traits, median) << "\n"
+        << LogOption::Undent;
+  }
+
+  Logger::logStream(LogStream::Info) << "Done with dynasty scores.\n" << LogOption::Undent;
 }
 
 bool Converter::calculateProvinceWeights () {
@@ -3977,6 +4247,7 @@ void Converter::convert () {
   if (!redistributeMana()) return;
   if (!hreAndPapacy()) return;
   if (!warsAndRebels()) return;
+  calculateDynasticScores();
   cleanUp();
 
   Logger::logStream(LogStream::Info) << "Done with conversion, writing to Output/converted.eu4.\n";

@@ -27,6 +27,7 @@ public slots:
   void checkProvinces ();
   void convert ();
   void debugParser ();
+  void dynasticScore ();
   void message (QString m);
 
 private:

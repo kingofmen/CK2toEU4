@@ -24,6 +24,7 @@ public:
   static ConverterJob const* const DebugParser;
   static ConverterJob const* const CheckProvinces;
   static ConverterJob const* const LoadFile;
+  static ConverterJob const* const DynastyScores;
 };
 
 class Object;
@@ -46,6 +47,7 @@ private:
 
   // Conversion processes
   bool adjustBalkanisation ();
+  void calculateDynasticScores ();
   bool calculateProvinceWeights ();
   bool cleanEU4Nations ();
   bool createArmies ();
@@ -69,6 +71,7 @@ private:
   void checkProvinces ();
   void convert ();
   void debugParser ();
+  void dynastyScores ();
   void configure ();
 
   // Initialisers

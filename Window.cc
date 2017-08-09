@@ -49,9 +49,11 @@ int main (int argc, char** argv) {
   QMenu* actionMenu = menuBar->addMenu("Actions");
   QAction* convert = actionMenu->addAction("Convert to EU4");
   QAction* debugParser = actionMenu->addAction("Debug parser");
+  QAction* dynastyScore = actionMenu->addAction("Dynastic scores");
   QAction* checkProvinces = actionMenu->addAction("Check provinces");
   QObject::connect(convert, SIGNAL(triggered()), parentWindow, SLOT(convert()));
   QObject::connect(debugParser, SIGNAL(triggered()), parentWindow, SLOT(debugParser()));
+  QObject::connect(dynastyScore, SIGNAL(triggered()), parentWindow, SLOT(dynasticScore()));
   QObject::connect(checkProvinces, SIGNAL(triggered()), parentWindow, SLOT(checkProvinces()));
 
   parentWindow->textWindow = new QPlainTextEdit(parentWindow);
@@ -131,6 +133,15 @@ void Window::debugParser () {
   }
   Logger::logStream(LogStream::Info) << "Debug.\n";
   worker->scheduleJob(ConverterJob::DebugParser);
+}
+
+void Window::dynasticScore () {
+  if (!worker) {
+    Logger::logStream(LogStream::Info) << "No file loaded.\n";
+    return;
+  }
+  Logger::logStream(LogStream::Info) << "Dynasty scores.\n";
+  worker->scheduleJob(ConverterJob::DynastyScores);
 }
 
 void Window::checkProvinces () {
