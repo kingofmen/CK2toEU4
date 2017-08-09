@@ -192,3 +192,31 @@ ships = {
 # locations. This is a patched-up workaround for not having a good way
 # to identify coastal provinces.
 forbidNavies = { 134 }
+
+# Dynasties to calculate custom score for.
+custom_score = {
+  10293657 10293658 1040150 10293656 10293649 10293660 10293939
+  10293663 10293938 10293654 10293652 10293661 10293650
+}
+
+custom_score_traits = {
+  inbred = 1
+  kinslayer = 1
+  sea_king = 1
+  sea_queen = 1
+  genius = 1
+  berserker = 1
+  crusader = 1
+  mujahid = 1
+  eagle_warrior = 1
+  sun_warrior = 1
+  ukkos_shield = 1
+  nyames_shield = 1
+  peruns_chosen = 1
+  romuvas_own = 1
+  ares_own = 1
+  tengri_warrior = 1
+  shaddai = 1
+  gondi_shahansha = 1
+}
+
