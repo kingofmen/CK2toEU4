@@ -1124,9 +1124,11 @@ bool Converter::adjustBalkanisation () {
 
 struct DynastyScore {
   DynastyScore() = default;
-  explicit DynastyScore(string n) : name(n), members(0), cached_score(-1) {}
+  explicit DynastyScore(string n, int cheevos)
+      : name(n), achievements(cheevos), members(0), cached_score(-1) {}
   DynastyScore(const DynastyScore& other) = default;
   string name;
+  int achievements;
   int members;
   int cached_score;
   map<string, int> trait_counts;
@@ -1212,7 +1214,15 @@ struct DynastyScore {
     sprintf(strbuffer, "Total from traits: %.1f\n", total_trait_bonus);
     trait_line += strbuffer;
     ret += trait_line;
-    sprintf(strbuffer, "Adjusted total: %.1f\n", cached_score + total_trait_bonus);
+
+    double achievement_bonus =
+        median * achievements *
+        custom_score_traits->safeGetFloat("achievements", 0.01);
+    sprintf(strbuffer, "Achievement bonus: %.1f\n", achievement_bonus);
+    ret += strbuffer;
+
+    sprintf(strbuffer, "Adjusted total: %.1f\n",
+            cached_score + total_trait_bonus + achievement_bonus);
     ret += strbuffer;
     return ret;
   }
@@ -1260,8 +1270,8 @@ void handleEvent(Object* event, CK2Title* title, int startDays, int endDays,
 }
 
 void Converter::calculateDynasticScores() {
-  Object* customs = configObject->getNeededObject("custom_score");
-  if (customs->numTokens() == 0) {
+  auto customs = configObject->getNeededObject("custom_score")->getLeaves();
+  if (customs.size() == 0) {
     return;
   }
   Logger::logStream(LogStream::Info) << "Beginning dynasty score calculation.\n"
@@ -1278,8 +1288,8 @@ void Converter::calculateDynasticScores() {
 
   unordered_map<string, DynastyScore> dynasties;
   auto* dynastyObject = ck2Game->getNeededObject("dynasties");
-  for (int i = 0; i < customs->numTokens(); ++i) {
-    string index = customs->getToken(i);
+  for (auto* custom : customs) {
+    string index = custom->getKey();
     Object* ckDynasty = dynastyObject->safeGetObject(index);
     if (!ckDynasty) {
       Logger::logStream(LogStream::Warn)
@@ -1287,7 +1297,8 @@ void Converter::calculateDynasticScores() {
       continue;
     }
     dynasties.emplace(piecewise_construct, forward_as_tuple(index),
-                      forward_as_tuple(ckDynasty->safeGetString("name")));
+                      forward_as_tuple(ckDynasty->safeGetString("name"),
+                                       atoi(custom->getLeaf().c_str())));
   }
 
   Logger::logStream("characters") << "Starting character iteration.\n";

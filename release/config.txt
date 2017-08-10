@@ -193,10 +193,9 @@ ships = {
 # to identify coastal provinces.
 forbidNavies = { 134 }
 
-# Dynasties to calculate custom score for.
+# Dynasties to calculate custom score for, and their achievements.
 custom_score = {
-  10293657 10293658 1040150 10293656 10293649 10293660 10293939
-  10293663 10293938 10293654 10293652 10293661 10293650
+  # 1000 = 4
 }
 
 custom_score_traits = {
@@ -218,5 +217,7 @@ custom_score_traits = {
   tengri_warrior = 1
   shaddai = 1
   gondi_shahansha = 1
+  # Weighting for achievement points.
+  achievements = 0.01
 }
 
