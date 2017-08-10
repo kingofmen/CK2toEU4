@@ -1595,6 +1595,7 @@ bool Converter::cleanEU4Nations () {
     }
   }
 
+  eu4Game->unsetValue("trade_league");
   Logger::logStream(LogStream::Info) << "Done with nation cleanup.\n" << LogOption::Undent;
   return true;
 }
