@@ -2,6 +2,7 @@
 #define CK2RULER_HH
 
 #include <map>
+#include <unordered_map>
 #include <set>
 #include <string>
 
@@ -55,15 +56,20 @@ public:
   CharacterIter finalCommander () const {return commanders.end();}  
   CharacterIter startCouncillor () const {return council.begin();}
   CharacterIter finalCouncillor () const {return council.end();}
+  unordered_map<string, vector<CK2Character*>>& getAdvisors() {
+    return advisors;
+  }
 
   static objvec ckTraits;
   static objvec euRulerTraits;
+
 protected:
   CK2Character* admiral;
   vector<int> attributes;
   vector<CK2Character*> children;
   vector<CK2Character*> commanders;
-  vector<CK2Character*> council; 
+  vector<CK2Character*> council;
+  unordered_map<string, vector<CK2Character*> > advisors;
   Object* dynasty;
   CK2Character* oldestChild;  
   set<string> traits;

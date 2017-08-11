@@ -30,3 +30,23 @@ extern std::string dynastyString;
 const std::string kOldAttributes = "attributes";
 const std::string kNewAttributes = "att";
 extern std::string attributesString;
+
+const std::string kOldJobTitle = "job_title";
+const std::string kNewJobTitle = "job";
+extern std::string jobTitleString;
+
+const std::string kOldEmployer = "employer";
+const std::string kNewEmployer = "emp";
+extern std::string employerString;
+
+const std::string kOldFather = "father";
+const std::string kNewFather = "fat";
+extern std::string fatherString;
+
+const std::string kOldMother = "mother";
+const std::string kNewMother = "fat";
+extern std::string motherString;
+
+const std::string kOldFemale = "female";
+const std::string kNewFemale = "fem";
+extern std::string femaleString;

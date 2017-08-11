@@ -125,8 +125,8 @@ bool CK2Character::hasModifier (const string& mod) {
 
 void CK2Ruler::personOfInterest (CK2Character* person) {
   string myId = getKey();
-  if ((person->safeGetString("father") == myId) ||
-      (person->safeGetString("mother") == myId)) {
+  if ((person->safeGetString(fatherString) == myId) ||
+      (person->safeGetString(motherString) == myId)) {
     children.push_back(person);
     if ((!oldestChild) || (oldestChild->getAge(remQuotes(person->safeGetString(birthDateString))) < 0)) {
       oldestChild = person;
@@ -142,8 +142,9 @@ void CK2Ruler::personOfInterest (CK2Character* person) {
       string job = remQuotes((*title)->getLeaf());
       if (job == "title_commander") commanders.push_back(person);
       else if (job == "title_high_admiral") admiral = person;
+      else advisors[job].push_back(person);
     }
-    string job = remQuotes(person->safeGetString("job_title", QuotedNone));
+    string job = remQuotes(person->safeGetString(jobTitleString, QuotedNone));
     for (CouncilTitle::Iter con = CouncilTitle::start(); con != CouncilTitle::final(); ++con) {
       if (job != (*con)->getName()) continue;
       council[**con] = person;
@@ -232,6 +233,7 @@ void CK2Ruler::createLiege () {
 				  << " is vassal of " << liegeTitle->getName()
 				  << ".\n";
   liege = liegeCand;
+  liege->personOfInterest(this);
   liege->vassals.push_back(this);
   for (CK2Title::Iter title = startTitle(); title != finalTitle(); ++title) {
     liege->titlesWithVassals.push_back(*title);

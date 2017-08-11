@@ -353,6 +353,11 @@ bool Converter::createCK2Objects () {
   detectChangedString(kOldDynasty, kNewDynasty, charObjs, &dynastyString);
   detectChangedString(kOldAttributes, kNewAttributes, charObjs, &attributesString);
   detectChangedString(kOldPrestige, kNewPrestige, charObjs, &prestigeString);
+  detectChangedString(kOldJobTitle, kNewJobTitle, charObjs, &jobTitleString);
+  detectChangedString(kOldEmployer, kNewEmployer, charObjs, &employerString);
+  detectChangedString(kOldFather, kNewFather, charObjs, &fatherString);
+  detectChangedString(kOldMother, kNewMother, charObjs, &motherString);
+  detectChangedString(kOldFemale, kNewFemale, charObjs, &femaleString);
 
   Object* dynasties = ck2Game->safeGetObject("dynasties");
   for (CK2Title::Iter ckCountry = CK2Title::start(); ckCountry != CK2Title::final(); ++ckCountry) {
@@ -400,13 +405,13 @@ bool Converter::createCK2Objects () {
     }
 
     objvec claims = (*ch)->getValue("claim");    
-    CK2Ruler* father = CK2Ruler::findByName((*ch)->safeGetString("father"));
-    CK2Ruler* mother = CK2Ruler::findByName((*ch)->safeGetString("mother"));
-    CK2Ruler* employer = 0;
-    if (((*ch)->safeGetString("job_title", PlainNone) != PlainNone) ||
+    CK2Ruler* father = CK2Ruler::findByName((*ch)->safeGetString(fatherString));
+    CK2Ruler* mother = CK2Ruler::findByName((*ch)->safeGetString(motherString));
+    CK2Ruler* employer = nullptr;
+    if (((*ch)->safeGetString(jobTitleString, PlainNone) != PlainNone) ||
 	((*ch)->safeGetString("title", PlainNone) == "\"title_commander\"") ||
 	((*ch)->safeGetString("title", PlainNone) == "\"title_high_admiral\"")) {
-      employer = CK2Ruler::findByName((*ch)->safeGetString("host"));
+      employer = CK2Ruler::findByName((*ch)->safeGetString(employerString));
     }
     if ((!father) && (!mother) && (!employer) && (0 == claims.size())) continue;
     CK2Character* current = new CK2Character((*ch), dynasties);
@@ -1904,7 +1909,7 @@ void Converter::makeMonarch(CK2Character* ruler, CK2Ruler* king,
     monarchDef->setLeaf(area->first, amount);
   }
 
-  if (ruler->safeGetString("female", "no") == "yes") monarchDef->setLeaf("female", "yes");
+  if (ruler->safeGetString(femaleString, "no") == "yes") monarchDef->setLeaf("female", "yes");
   Object* monarchId = createMonarchId();
   monarchDef->setValue(monarchId);
   monarchDef->setLeaf("dynasty", getDynastyName(ruler));
@@ -1977,7 +1982,79 @@ Object* createLeader (CK2Character* base, const string& leaderType, const objvec
   return leader;
 }
 
-void Converter::makeLeader (Object* eu4country, const string& leaderType, CK2Character* base, const objvec& generalSkills, const string& birthDate) {
+bool Converter::makeAdvisor(CK2Character* councillor, Object* country_advisors,
+                            objvec& advisorTypes, string& birthDate,
+                            Object* history, string capitalTag,
+                            map<string, objvec>& allAdvisors) {
+  static unordered_set<string> existing_advisors;
+  if (existing_advisors.find(councillor->getKey()) != existing_advisors.end()) {
+    return false;
+  }
+  existing_advisors.insert(councillor->getKey());
+
+  Object* advisor = new Object("advisor");
+  advisor->setLeaf("name", getFullName(councillor));
+  int points = -1;
+  Object* advObject = 0;
+  set<string> decisionTraits;
+  for (objiter advType = advisorTypes.begin(); advType != advisorTypes.end();
+       ++advType) {
+    Object* mods = (*advType)->getNeededObject("traits");
+    objvec traits = mods->getLeaves();
+    int currPoints = 0;
+    set<string> yesTraits;
+    for (objiter trait = traits.begin(); trait != traits.end(); ++trait) {
+      string traitName = (*trait)->getKey();
+      if ((!councillor->hasTrait(traitName)) &&
+          (!councillor->hasModifier(traitName)))
+        continue;
+      currPoints += mods->safeGetInt(traitName);
+      yesTraits.insert(traitName);
+    }
+    if (currPoints < points)
+      continue;
+    points = currPoints;
+    advObject = (*advType);
+    decisionTraits = yesTraits;
+  }
+  string advisorType = advObject->getKey();
+  advisor->setLeaf("type", advisorType);
+  allAdvisors[advisorType].push_back(advisor);
+  int skill = 0;
+  for (CKAttribute::Iter att = CKAttribute::start();
+       att != CKAttribute::final(); ++att) {
+    int mult = 1;
+    if ((*att)->getName() == advObject->safeGetString("main_attribute")) {
+      mult = 2;
+    }
+    skill += councillor->getAttribute(*att) * mult;
+  }
+  advisor->setLeaf("skill", skill);
+  Logger::logStream("characters") << " " << advisorType << " based on traits ";
+  for (set<string>::iterator t = decisionTraits.begin();
+       t != decisionTraits.end(); ++t) {
+    Logger::logStream("characters") << (*t) << " ";
+  }
+  Logger::logStream("characters") << "\n";
+  advisor->setLeaf("location", capitalTag);
+  advisor->setLeaf("date", "1444.1.1");
+  advisor->setLeaf("hire_date", "1.1.1");
+  advisor->setLeaf("death_date", "9999.1.1");
+  advisor->setLeaf("female", councillor->safeGetString(femaleString, "no"));
+  Object* id = createTypedId("advisor", "51");
+  advisor->setValue(id);
+  Object* birth = new Object(birthDate);
+  birth->setValue(advisor);
+  history->setValue(birth);
+  Object* active = new Object(id);
+  active->setKey("advisor");
+  country_advisors->setValue(active);
+  return true;
+}
+
+void Converter::makeLeader(Object* eu4country, const string& leaderType,
+                           CK2Character* base, const objvec& generalSkills,
+                           const string& birthDate) {
   Object* leader = createLeader(base, leaderType, generalSkills, birthDate);
   Object* id = createTypedId("leader", "49");
   leader->setValue(id);
@@ -2028,64 +2105,33 @@ bool Converter::createCharacters () {
     Object* history = capital->getNeededObject("history");
     for (CouncilTitle::Iter council = CouncilTitle::start(); council != CouncilTitle::final(); ++council) {
       CK2Character* councillor = ruler->getCouncillor(*council);
-      Logger::logStream("characters") << (*council)->getName() << ": " << (councillor ? nameAndNumber(councillor) : "None\n");
-      if (!councillor) continue;
-
-      Object* advisor = new Object("advisor");
-      advisor->setLeaf("name", getFullName(councillor));
-      int points = -1;
-      Object* advObject = 0;
-      set<string> decisionTraits;
-      for (objiter advType = advisorTypes.begin(); advType != advisorTypes.end(); ++advType) {
-	Object* mods = (*advType)->getNeededObject("traits");
-	objvec traits = mods->getLeaves();
-	int currPoints = 0;
-	set<string> yesTraits;
-	for (objiter trait = traits.begin(); trait != traits.end(); ++trait) {
-	  string traitName = (*trait)->getKey();
-	  if ((!councillor->hasTrait(traitName)) && (!councillor->hasModifier(traitName))) continue;
-	  currPoints += mods->safeGetInt(traitName);
-	  yesTraits.insert(traitName);
-	}
-	if (currPoints < points) continue;
-	points = currPoints;
-	advObject = (*advType);
-	decisionTraits = yesTraits;
+      Logger::logStream("characters")
+          << (*council)->getName() << ": "
+          << (councillor ? nameAndNumber(councillor) : "None\n");
+      if (!councillor) {
+        continue;
       }
-      string advisorType = advObject->getKey();
-      advisor->setLeaf("type", advisorType);
-      allAdvisors[advisorType].push_back(advisor);
-      int skill = 0;
-      for (CKAttribute::Iter att = CKAttribute::start(); att != CKAttribute::final(); ++att) {
-	int mult = 1;
-	if ((*att)->getName() == advObject->safeGetString("main_attribute")) mult = 2;
-	skill += councillor->getAttribute(*att) * mult;
+      if (makeAdvisor(councillor, country_advisors, advisorTypes, birthDate,
+                      history, capitalTag, allAdvisors)) {
+        ++numAdvisors;
       }
-      advisor->setLeaf("skill", skill);
-      Logger::logStream("characters") << " " << advisorType << " based on traits ";
-      for (set<string>::iterator t = decisionTraits.begin(); t != decisionTraits.end(); ++t) {
-	Logger::logStream("characters") << (*t) << " ";
+    }
+    for (const auto& advisor : ruler->getAdvisors()) {
+      string key = advisor.first;
+      for (auto* courtier : advisor.second) {
+        Logger::logStream("characters")
+            << key << ": " << nameAndNumber(courtier);
+        if (makeAdvisor(courtier, country_advisors, advisorTypes, birthDate,
+                        history, capitalTag, allAdvisors)) {
+          numAdvisors++;
+        }
       }
-      Logger::logStream("characters") << "\n";
-      advisor->setLeaf("location", capitalTag);
-      advisor->setLeaf("date", "1444.1.1");
-      advisor->setLeaf("hire_date", "1.1.1");
-      advisor->setLeaf("death_date", "9999.1.1");
-      advisor->setLeaf("female", councillor->safeGetString("female", "no"));
-      Object* id = createTypedId("advisor", "51");
-      advisor->setValue(id);
-      Object* birth = new Object(birthDate);
-      birth->setValue(advisor);
-      history->setValue(birth);
-      Object* active = new Object(id);
-      active->setKey("advisor");
-      country_advisors->setValue(active);
-      ++numAdvisors;
     }
 
     CK2Character* bestGeneral = 0;
     int highestSkill = -1;
-    for (CK2Character::CharacterIter commander = ruler->startCommander(); commander != ruler->finalCommander(); ++commander) {
+    for (CK2Character::CharacterIter commander = ruler->startCommander();
+         commander != ruler->finalCommander(); ++commander) {
       int currSkill = 0;
       for (objiter skill = generalSkills.begin(); skill != generalSkills.end(); ++skill) {
 	string keyword = (*skill)->getKey();

@@ -89,11 +89,16 @@ private:
   Object* createTypedId (string keyword, string idType);
   Object* createUnitId (string unitType);
   Object* loadTextFile (string fname);
-  void makeLeader (Object* eu4country, const string& keyword, CK2Character* base, const objvec& generalSkills, const string& birthDate);
-  void makeMonarch (CK2Character* ruler, CK2Ruler* king, const string& keyword, Object* bonusTraits);
-  bool rankProvinceDevelopment ();
+  bool makeAdvisor(CK2Character* councillor, Object* country_advisors,
+                   objvec& advisorTypes, string& birthDate, Object* history,
+                   string capitalTag, map<string, objvec>& allAdvisors);
+  void makeLeader(Object* eu4country, const string& keyword, CK2Character* base,
+                  const objvec& generalSkills, const string& birthDate);
+  void makeMonarch(CK2Character* ruler, CK2Ruler* king, const string& keyword,
+                   Object* bonusTraits);
+  bool rankProvinceDevelopment();
   bool redistributeDevelopment();
-  bool swapKeys (Object* one, Object* two, string key);
+  bool swapKeys(Object* one, Object* two, string key);
 
   // Input info
   Object* advisorTypesObject;

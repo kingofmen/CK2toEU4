@@ -21,7 +21,6 @@
 # greedy
 # slothful
 # envious
-# wroth
 # proud
 # deceitful
 # craven
@@ -31,14 +30,9 @@
 # cynical
 # trusting
 # trickster
-# flanker
-# mujahid
 # sayyid
 # mirza
-# rough_terrain_leader
-# mountain_terrain_leader
 # desert_terrain_leader
-# unyielding_leader
 # viking
 # ashari
 # narrow_flank_leader
@@ -46,7 +40,6 @@
 # jungle_terrain_leader
 # seducer
 # seductress
-# adventurer
 
 philosopher = {
   monarch_power = ADM
@@ -90,7 +83,6 @@ artist = {
   traits = {
     poet = 5
     content = 5
-    hafiz = 3
   }
   main_attribute = learning
 }
@@ -121,9 +113,19 @@ theologian = {
     scholarly_theologian = 2
     mystic = 1
     brahmin = 2
+    indian_pilgrim = 1
+    pilgrim = 1
+    hajjaj = 1
     mutazilite = 2
     monk = 1
     nun = 1
+    hafiz = 3
+    muni = 1
+    aryika = 1
+    bhikkhu = 1
+    bhikkhuni = 1
+    sanyasi = 1
+    sanyasini = 1
   }
   main_attribute = learning
 }
@@ -152,6 +154,7 @@ inquisitor = {
     zealous = 7
     paranoid = 3
     holy_warrior = 4
+    wroth = 2
   }
   main_attribute = intrigue
 }
@@ -168,6 +171,26 @@ statesman = {
     charitable = 1
   }
   main_attribute = diplomacy
+}
+
+naval_reformer = {
+  monarch_power = DIP
+  traits = {
+    viking = 5
+    ravager = 8
+    seaking = 12
+    sea_queen = 12
+  }
+  main_attribute = martial
+}
+
+navigator = {
+  monarch_power = DIP
+  traits = {
+    adventurer = 6
+    varangian = 8
+  }
+  main_attribute = learning
 }
 
 trader = {
@@ -192,6 +215,55 @@ spymaster = {
   traits = {
     schemer = 4
     flamboyant_schemer = 4
+    secretly_catholic = 2
+    secretly_cathar = 2
+    secretly_fraticelli = 2
+    secretly_waldensian = 2
+    secretly_lollard = 2
+    secretly_orthodox = 2
+    secretly_bogomilist = 2
+    secretly_monothelite = 2
+    secretly_iconoclast = 2
+    secretly_paulician = 2
+    secretly_miaphysite = 2
+    secretly_monophysite = 2
+    secretly_nestorian = 2
+    secretly_messalian = 2
+    secretly_sunni = 2
+    secretly_zikri = 2
+    secretly_yazidi = 2
+    secretly_shiite = 2
+    secretly_druze = 2
+    secretly_hurufi = 2
+    secretly_ibadi = 2
+    secretly_kharijite = 2
+    secretly_jewish = 2
+    secretly_samaritan = 2
+    secretly_karaite = 2
+    secretly_zoroastrian = 2
+    secretly_mazdaki = 2
+    secretly_manichean = 2
+    secretly_hinduism = 2
+    secretly_buddhism = 2
+    secretly_jain = 2
+    secretly_norse_pagan = 2
+    secretly_norse_pagan_reformed = 2
+    secretly_baltic_pagan = 2
+    secretly_baltic_pagan_reformed = 2
+    secretly_finnish_pagan = 2
+    secretly_finnish_pagan_reformed = 2
+    secretly_slavic_pagan = 2
+    secretly_slavic_pagan_reformed = 2
+    secretly_tengri_pagan = 2
+    secretly_tengri_pagan_reformed = 2
+    secretly_aztec = 2
+    secretly_aztec_reformed = 2
+    secretly_west_african_pagan = 2
+    secretly_west_african_pagan_reformed = 2
+    secretly_zun_pagan = 2
+    secretly_zun_pagan_reformed = 2
+    secretly_hellenic_pagan = 2
+    secretly_pagan = 2
   }
   main_attribute = intrigue
 }
@@ -281,6 +353,18 @@ recruitmaster = {
     light_foot_leader = 8
     peasant_leader = 7
     crusader = 3
+    valhalla_bound = 3
+    mujahid = 3
+    eagle_warrior = 3
+    sun_warrior = 3
+    ukkos_shield = 3
+    nyames_shield = 3
+    peruns_chosen = 3
+    romuvas_own = 3
+    ares_own = 3
+    tengri_warrior = 3
+    shaddai = 3
+    gondi_shahansha = 3
     varangian = 2
     war_elephant_leader = 3 # Because really, who wouldn't want to join an army with elephants?
     kind = 4
@@ -297,6 +381,7 @@ fortification_expert = {
   traits = {
     siege_leader = 6
     defensive_leader = 8
+    unyielding_leader = 7
   }
   main_attribute = martial
 }
@@ -309,9 +394,12 @@ grand_captain = {
   }
   traits = {
     flat_terrain_leader = 7
+    rough_terrain_leader = 7
+    mountain_terrain_leader = 7
     aggressive_leader = 5
     kshatriya = 3  
     strategist = 4
+    flanker = 2
   }
   main_attribute = martial
 }
