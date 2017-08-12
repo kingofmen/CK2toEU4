@@ -181,6 +181,16 @@ void Converter::dynastyScores () {
   if (!createCK2Objects()) {
     return;
   }
+  string dirToUse = remQuotes(configObject->safeGetString("maps_dir", ".\\maps\\"));
+  string overrideFileName =
+      remQuotes(configObject->safeGetString("custom", QuotedNone));
+  customObject = loadTextFile(dirToUse + overrideFileName);
+  if (!customObject) {
+    Logger::logStream(LogStream::Warn)
+        << "Couldn't find custom object, no dynastic scores.\n";
+    return;
+  }
+
   calculateDynasticScores();
 }
 
@@ -886,8 +896,11 @@ void Converter::loadFiles () {
   }
 
   string overrideFileName = remQuotes(configObject->safeGetString("custom", QuotedNone));
-  if ((PlainNone != overrideFileName) && (overrideFileName != "NOCUSTOM")) customObject = loadTextFile(dirToUse + overrideFileName);
-  else customObject = new Object("custom");
+  if ((PlainNone != overrideFileName) && (overrideFileName != "NOCUSTOM")) {
+    customObject = loadTextFile(dirToUse + overrideFileName);
+  } else {
+    customObject = new Object("custom");
+  }
   countryMapObject = customObject->getNeededObject("country_overrides");
   setDynastyNames(loadTextFile(dirToUse + "dynasties.txt"));
 
@@ -896,7 +909,9 @@ void Converter::loadFiles () {
 
 void Converter::setDynastyNames (Object* dynastyNames) {
   if (!dynastyNames) {
-    Logger::logStream(LogStream::Warn) << "Warning: Did not find dynasties.txt. Many famous dynasties will be nameless.\n";
+    Logger::logStream(LogStream::Warn) << "Warning: Did not find "
+                                          "dynasties.txt. Many famous "
+                                          "dynasties will be nameless.\n";
     return;
   }
 
@@ -1275,7 +1290,7 @@ void handleEvent(Object* event, CK2Title* title, int startDays, int endDays,
 }
 
 void Converter::calculateDynasticScores() {
-  auto customs = configObject->getNeededObject("custom_score")->getLeaves();
+  auto customs = customObject->getNeededObject("custom_score")->getLeaves();
   if (customs.size() == 0) {
     return;
   }
@@ -1308,7 +1323,7 @@ void Converter::calculateDynasticScores() {
 
   Logger::logStream("characters") << "Starting character iteration.\n";
   unordered_map<string, Object*> characters;
-  Object* score_traits = configObject->getNeededObject("custom_score_traits");
+  Object* score_traits = customObject->getNeededObject("custom_score_traits");
   for (auto* character : ck2Game->getNeededObject("character")->getLeaves()) {
     string dIndex = character->safeGetString(dynastyString, PlainNone);
     if (dIndex == PlainNone || dynasties.find(dIndex) == dynasties.end()) {

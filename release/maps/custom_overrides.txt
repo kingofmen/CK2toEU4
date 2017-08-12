@@ -1,9 +1,10 @@
 country_overrides = {
   k_papal_state = PAP
-  k_byzantium = BYZ
-  e_dyn_252411 = PER
-  e_dyn_1142720 = GER
   k_venice = VEN
+  k_ireland = Z00
+  k_sapmi = Z10
+  k_byzantium = Z40
+  k_finland = Z21
 }
 
 religion_overrides = {
@@ -14,4 +15,45 @@ religion_overrides = {
 culture_overrides = {
   khazar = khazak
   turkish = turkish
+  castillan = castillian
 }
+
+# Dynasties to calculate custom score for.
+custom_score = {
+  10293657 = 11  # Craig
+  10293658 = 13  # Yngling
+  1040150  = 5   # Mordorite
+  10293656 = 0  # Borghest
+  10293649 = 8  # Lazuli
+  10293660 = 8  # Murayev
+  10293939 = 16  # von Britannia
+  10293663 = 0  # Le Saeva
+  10293938 = 23  # Saar
+  10293654 = 5  # Hedareb
+  10293661 = 18  # Hrothgar
+  10293650 = 11  # Boyardee
+}
+
+custom_score_traits = {
+  inbred = 1
+  kinslayer = 1
+  seaking = 1
+  sea_queen = 1
+  genius = 1
+  berserker = 1
+  crusader = 1
+  valhalla_bound = 1
+  mujahid = 1
+  eagle_warrior = 1
+  sun_warrior = 1
+  ukkos_shield = 1
+  nyames_shield = 1
+  peruns_chosen = 1
+  romuvas_own = 1
+  ares_own = 1
+  tengri_warrior = 1
+  shaddai = 1
+  gondi_shahansha = 1
+  achievements = 0.01
+}
+
