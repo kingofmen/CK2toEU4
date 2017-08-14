@@ -4,16 +4,16 @@
 #include "EU4Province.hh"
 #include "UtilityFunctions.hh"
 #include "Logger.hh"
+
 class CK2Ruler;
 class CK2Title;
-class EU4Province;
 
 class EU4Country : public Enumerable<EU4Country>, public ObjectWrapper {
 public:
   EU4Country (Object* o);
 
-  void addProvince (EU4Province* prov) {if (find(provinces.begin(), provinces.end(), prov) == provinces.end()) provinces.push_back(prov);}
-  void remProvince (EU4Province* prov) {REMOVE(provinces, prov);}
+  void addProvince(EU4Province* prov);
+  void remProvince (EU4Province* prov);
   void addBarony (Object* barony) {baronies.push_back(barony);}
   bool converts();
   CK2Ruler* getRuler () const {return ckSovereign;}

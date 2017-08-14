@@ -25,7 +25,9 @@ TitleLevel const* const TitleLevel::getLevel (const string& key) {
   case 'e': return TitleLevel::Empire;
   default:
     // This should never happen...
-    Logger::logStream(LogStream::Error) << "Cannot determine level of title with key \"" << key << "\". Error? Returning barony.\n";
+    Logger::logStream(LogStream::Error)
+        << "Cannot determine level of title with key \"" << key
+        << "\". Error? Returning barony.\n";
     return TitleLevel::Barony;
   }
   return TitleLevel::Barony;
@@ -91,14 +93,30 @@ CK2Title* CK2Title::getLiege () {
   if (liegeTitleKey != "nonesuch") {
     liegeTitle = findByName(liegeTitleKey);
     if (liegeTitle) {
+      Logger::logStream("titles")
+          << getKey() << " has liege " << liegeTitleKey << ".\n";
       return liegeTitle;
     }
   }
 
   Object* liegeObject = object->getNeededObject("liege");
-  if (!liegeObject) return 0;
-  liegeTitleKey = remQuotes(liegeObject->safeGetString("title", "nonesuch"));
-  liegeTitle = findByName(liegeTitleKey);
+  if (liegeObject) {
+    liegeTitleKey = remQuotes(liegeObject->safeGetString("title", "nonesuch"));
+    liegeTitle = findByName(liegeTitleKey);
+    if (liegeTitle) {
+      Logger::logStream("titles")
+          << getKey() << " has liege " << liegeTitleKey << ".\n";
+      return liegeTitle;
+    }
+  }
+
+  // Try for base title.
+  string baseTag = object->safeGetString("base_title", "nonesuch");
+  liegeTitle = findByName(baseTag);
+  if (liegeTitle) {
+    Logger::logStream("titles")
+        << getKey() << " has base title " << baseTag << ".\n";
+  }
   return liegeTitle;
 }
 

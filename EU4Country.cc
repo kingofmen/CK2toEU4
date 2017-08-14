@@ -13,6 +13,13 @@ EU4Country::EU4Country (Object* o)
   , ckTitle(0)
 {}
 
+void EU4Country::addProvince(EU4Province* prov) {
+  if (find(provinces.begin(), provinces.end(), prov) == provinces.end()) {
+    Logger::logStream("countries") << "Adding " << prov->getName() << " to " << getKey() << "\n";
+    provinces.push_back(prov);
+  }
+}
+
 bool EU4Country::converts () {
   if (!getRuler()) return false;
   if (safeGetString(kNoProvinceMarker, PlainNone) == "yes") return false;
@@ -42,6 +49,14 @@ void EU4Country::setAsCore (EU4Province* prov) {
 void EU4Country::removeCore (EU4Province* prov) {
   getNeededObject("core_provinces")->remToken(prov->getKey());
   prov->remCore(getKey());
+}
+
+void EU4Country::remProvince(EU4Province* prov) {
+  if (find(provinces.begin(), provinces.end(), prov) != provinces.end()) {
+    Logger::logStream("countries")
+        << "Removing " << prov->getName() << " from " << getKey() << "\n";
+    REMOVE(provinces, prov);
+  }
 }
 
 void EU4Country::setRuler (CK2Ruler* ruler, CK2Title* title) {

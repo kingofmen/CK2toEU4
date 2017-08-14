@@ -3,8 +3,9 @@ country_overrides = {
   k_venice = VEN
   k_ireland = Z00
   k_sapmi = Z10
-  k_byzantium = Z40
   k_finland = Z21
+  k_byzantium = Z40
+  k_ruthenia = Z89
 }
 
 religion_overrides = {

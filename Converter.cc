@@ -519,11 +519,11 @@ void convertTitle (CK2Title* title, CK2Ruler* ruler, map<EU4Country*, vector<EU4
   for (set<EU4Country*>::iterator cand = candidateCountries.begin(); cand != candidateCountries.end(); ++cand) {
     vector<EU4Province*> eu4Provinces = initialProvincesMap[*cand];
     vector<pair<string, string> > currOverlapList;
-    for (vector<EU4Province*>::iterator eu4Province = eu4Provinces.begin(); eu4Province != eu4Provinces.end(); ++eu4Province) {
-      for (CK2Province::Iter ck2Prov = (*eu4Province)->startProv(); ck2Prov != (*eu4Province)->finalProv(); ++ck2Prov) {
+    for (auto* eu4Province : eu4Provinces) {
+      for (CK2Province::Iter ck2Prov = eu4Province->startProv(); ck2Prov != eu4Province->finalProv(); ++ck2Prov) {
 	CK2Title* countyTitle = (*ck2Prov)->getCountyTitle();
 	if (title->isDeJureOverlordOf(countyTitle)) {
-	  currOverlapList.push_back(pair<string, string>(countyTitle->getName(), nameAndNumber(*eu4Province)));
+	  currOverlapList.push_back(pair<string, string>(countyTitle->getName(), nameAndNumber(eu4Province)));
 	}
       }
     }
@@ -535,11 +535,11 @@ void convertTitle (CK2Title* title, CK2Ruler* ruler, map<EU4Country*, vector<EU4
     for (set<EU4Country*>::iterator cand = candidateCountries.begin(); cand != candidateCountries.end(); ++cand) {
       vector<EU4Province*> eu4Provinces = initialProvincesMap[*cand];
       vector<pair<string, string> > currOverlapList;
-      for (vector<EU4Province*>::iterator eu4Province = eu4Provinces.begin(); eu4Province != eu4Provinces.end(); ++eu4Province) {
-	for (CK2Province::Iter ck2Prov = (*eu4Province)->startProv(); ck2Prov != (*eu4Province)->finalProv(); ++ck2Prov) {
+      for (auto* eu4Province : eu4Provinces) {
+	for (CK2Province::Iter ck2Prov = eu4Province->startProv(); ck2Prov != eu4Province->finalProv(); ++ck2Prov) {
 	  CK2Title* countyTitle = (*ck2Prov)->getCountyTitle();
 	  if (ruler->hasTitle(countyTitle, true)) {
-	    currOverlapList.push_back(pair<string, string>(countyTitle->getName(), nameAndNumber(*eu4Province)));
+	    currOverlapList.push_back(pair<string, string>(countyTitle->getName(), nameAndNumber(eu4Province)));
 	  }
 	}
       }
@@ -553,8 +553,10 @@ void convertTitle (CK2Title* title, CK2Ruler* ruler, map<EU4Country*, vector<EU4
 				 << " converts to " << bestCandidate->getKey()
 				 << " based on overlap " << bestOverlapList.size()
 				 << " with these counties: ";
-  for (vector<pair<string, string> >::iterator overlap = bestOverlapList.begin(); overlap != bestOverlapList.end(); ++overlap) {
-    Logger::logStream("countries") << (*overlap).first << " -> " << (*overlap).second << " ";
+  for (vector<pair<string, string>>::iterator overlap = bestOverlapList.begin();
+       overlap != bestOverlapList.end(); ++overlap) {
+    Logger::logStream("countries")
+        << (*overlap).first << " -> " << (*overlap).second << " ";
   }
   Logger::logStream("countries") << "\n";
   bestCandidate->setRuler(ruler, title);
@@ -609,22 +611,28 @@ bool Converter::createCountryMap () {
     initialProvincesMap[owner].push_back(*eu4);
   }
 
-  for (map<EU4Country*, vector<EU4Province*> >::iterator eu4 = initialProvincesMap.begin(); eu4 != initialProvincesMap.end(); ++eu4) {
-    if (forbiddenCountries.count((*eu4).first)) continue;
+  for (map<EU4Country*, vector<EU4Province*>>::iterator eu4 =
+           initialProvincesMap.begin();
+       eu4 != initialProvincesMap.end(); ++eu4) {
+    if (forbiddenCountries.count((*eu4).first))
+      continue;
     string badProvinceTag = "";
     bool hasGoodProvince = false;
-    for (vector<EU4Province*>::iterator prov = (*eu4).second.begin(); prov != (*eu4).second.end(); ++prov) {
-      if (0 < (*prov)->numCKProvinces()) hasGoodProvince = true;
+    for (vector<EU4Province*>::iterator prov = (*eu4).second.begin();
+         prov != (*eu4).second.end(); ++prov) {
+      if (0 < (*prov)->numCKProvinces())
+        hasGoodProvince = true;
       else {
-	badProvinceTag = (*prov)->getKey();
-	break;
+        badProvinceTag = (*prov)->getKey();
+        break;
       }
     }
     if (badProvinceTag != "") {
-      Logger::logStream("countries") << "Disregarding " << (*eu4).first->getKey() << " because it owns " << badProvinceTag << "\n";
+      Logger::logStream("countries")
+          << "Disregarding " << (*eu4).first->getKey() << " because it owns "
+          << badProvinceTag << "\n";
       forbiddenCountries.insert((*eu4).first);
-    }
-    else if (hasGoodProvince) {
+    } else if (hasGoodProvince) {
       candidateCountries.insert((*eu4).first);
     }
   }
@@ -707,22 +715,27 @@ bool Converter::createCountryMap () {
 	  continue;
 	}
 
-	if ((*ruler)->isSovereign()) {
-	  if (candidateCountries.empty()) {
-	    if (!primary->getSovereignTitle()) {
-	      Logger::logStream(LogStream::Error) << "Ran out of EU4 countries and could not find de-jure to absorb "
-						  << primary->getName() << ".\n";
-	      return false;
-	    }
-	    continue;
-	  }
-	  if (sovereignsOnly) {
-	    if (primary->getEU4Country()) continue;
-	    Logger::logStream("countries") << "Converting " << primary->getName() << " because it is primary title of sovereign.\n";
-	    convertTitle(primary, (*ruler), initialProvincesMap, candidateCountries);
-	  }
-	  else {
-	    for (CK2Title::Iter title = (*ruler)->startTitle(); title != (*ruler)->finalTitle(); ++title) {
+        if ((*ruler)->isSovereign()) {
+          if (candidateCountries.empty()) {
+            if (!primary->getSovereignTitle()) {
+              Logger::logStream(LogStream::Error)
+                  << "Ran out of EU4 countries and could not find de-jure to "
+                     "absorb "
+                  << primary->getName() << ".\n";
+              return false;
+            }
+            continue;
+          }
+          if (sovereignsOnly) {
+            if (primary->getEU4Country())
+              continue;
+            Logger::logStream("countries")
+                << "Converting " << primary->getName()
+                << " because it is primary title of sovereign.\n";
+            convertTitle(primary, (*ruler), initialProvincesMap,
+                         candidateCountries);
+          } else {
+            for (CK2Title::Iter title = (*ruler)->startTitle(); title != (*ruler)->finalTitle(); ++title) {
 	      if (primary == (*title)) continue;
 	      if (primary->getLevel() == TitleLevel::Empire) {
 		if (*primary->getLevel() < *TitleLevel::Kingdom) continue;
@@ -754,22 +767,26 @@ bool Converter::createCountryMap () {
 	  }
 
 	  CK2Ruler* immediateLiege = (*ruler)->getLiege();
-	  if ((!immediateLiege->isSovereign()) && (!subInfeudate)) {
-	    Logger::logStream("countries") << "Skipping " << primary->getName() << " to avoid subinfeudation.\n";
-	    continue;
-	  }
-	  bool notTooMany = (totalVassals[sovereign][kingdom] < maxSmallVassals);
+          if ((!immediateLiege->isSovereign()) && (!subInfeudate)) {
+            Logger::logStream("countries") << "Skipping " << primary->getName()
+                                           << " to avoid subinfeudation.\n";
+            continue;
+          }
+          bool notTooMany = (totalVassals[sovereign][kingdom] < maxSmallVassals);
 	  bool important = *(primary->getLevel()) >= *(TitleLevel::Kingdom);
-	  if (notTooMany || important) {
-	    Logger::logStream("countries") << "Converting " << primary->getName() << " as vassal, "
-					   << (notTooMany ? (nameAndNumber(sovereign) + " not over limit in " + (kingdom ? kingdom->getName() : PlainNone)) :
-					       string("too big to ignore"))
-					   << ".\n";
-	    convertTitle(primary, (*ruler), initialProvincesMap, candidateCountries);
-	    totalVassals[sovereign][kingdom]++;
-	  }
-	  else {
-	    Logger::logStream("countries") << "Skipping " << primary->getName() << ", too small.\n";
+          if (notTooMany || important) {
+            Logger::logStream("countries")
+                << "Converting " << primary->getName() << " as vassal, "
+                << (notTooMany
+                        ? (nameAndNumber(sovereign) + " not over limit in " +
+                           (kingdom ? kingdom->getName() : PlainNone))
+                        : string("too big to ignore"))
+                << ".\n";
+            convertTitle(primary, (*ruler), initialProvincesMap,
+                         candidateCountries);
+            totalVassals[sovereign][kingdom]++;
+          } else {
+            Logger::logStream("countries") << "Skipping " << primary->getName() << ", too small.\n";
 	  }
 	}
 
@@ -941,15 +958,18 @@ void Converter::setDynastyNames (Object* dynastyNames) {
 
 /******************************* Begin conversions ********************************/
 
-double getVassalPercentage (map<EU4Country*, vector<EU4Country*> >::iterator lord, map<EU4Country*, int>& ownerMap) {
-  double total = ownerMap[lord->first];
+double getVassalPercentage(pair<EU4Country* const, vector<EU4Country*>>& lord,
+                           map<EU4Country*, int>& ownerMap) {
+  double total = ownerMap.at(lord.first);
   double vassals = 0;
-  for (vector<EU4Country*>::iterator subject = lord->second.begin(); subject != lord->second.end(); ++subject) {
-    double curr = ownerMap[*subject];
+  for (auto* subject : lord.second) {
+    double curr = ownerMap[subject];
     total += curr;
     vassals += curr;
   }
-  if (0 == total) return 0;
+  if (0 == total) {
+    return 0;
+  }
   return vassals / total;
 }
 
@@ -984,9 +1004,9 @@ bool Converter::adjustBalkanisation () {
   double maxBalkan = configObject->safeGetFloat("max_balkanisation", 0.40);
   double minBalkan = configObject->safeGetFloat("min_balkanisation", 0.30);
   int balkanThreshold = configObject->safeGetInt("balkan_threshold");
-  for (map<EU4Country*, vector<EU4Country*> >::iterator lord = subjectMap.begin(); lord != subjectMap.end(); ++lord) {
-    if (0 == lord->second.size()) continue;
-    EU4Country* overlord = lord->first;
+  for (auto& lord : subjectMap) {
+    if (lord.second.empty()) continue;
+    EU4Country* overlord = lord.first;
     double vassalPercentage = getVassalPercentage(lord, ownerMap);
     bool dent = false;
     bool printed = false;
@@ -1004,9 +1024,9 @@ bool Converter::adjustBalkanisation () {
 
       set<EU4Country*> attempted;
       bool success = false;
-      while (attempted.size() < lord->second.size()) {
-	EU4Country* target = lord->second[0];
-	for (vector<EU4Country*>::iterator subject = lord->second.begin(); subject != lord->second.end(); ++subject) {
+      while (attempted.size() < lord.second.size()) {
+	EU4Country* target = lord.second[0];
+	for (vector<EU4Country*>::iterator subject = lord.second.begin(); subject != lord.second.end(); ++subject) {
 	  if (attempted.count(*subject)) continue;
 	  if (ownerMap[*subject] >= ownerMap[target]) continue;
 	  target = (*subject);
@@ -1071,25 +1091,27 @@ bool Converter::adjustBalkanisation () {
     }
     while (vassalPercentage > maxBalkan) {
       if (!printed) {
-	Logger::logStream("countries") << "Vassal percentage " << vassalPercentage << ", reblobbing "
-				       << overlord->getKey() << ".\n" << LogOption::Indent;
-	dent = true;
-	printed = true;
+        Logger::logStream("countries")
+            << "Vassal percentage " << vassalPercentage << ", reblobbing "
+            << overlord->getKey() << ".\n"
+            << LogOption::Indent;
+        dent = true;
+        printed = true;
       }
 
       set<EU4Country*> attempted;
       bool success = false;
 
-      while (attempted.size() < lord->second.size()) {
-	EU4Country* target = lord->second[0];
-	for (vector<EU4Country*>::iterator subject = lord->second.begin(); subject != lord->second.end(); ++subject) {
-	  if (attempted.count(*subject)) continue;
-	  if (0 == ownerMap[*subject]) {
-	    attempted.insert(*subject);
+      while (attempted.size() < lord.second.size()) {
+	EU4Country* target = lord.second[0];
+	for (auto* subject : lord.second) {
+	  if (attempted.count(subject)) continue;
+	  if (0 == ownerMap[subject]) {
+	    attempted.insert(subject);
 	    continue;
 	  }
-	  if ((ownerMap[target] > 0) && (ownerMap[*subject] >= ownerMap[target])) continue;
-	  target = (*subject);
+	  if ((ownerMap[target] > 0) && (ownerMap[subject] >= ownerMap[target])) continue;
+	  target = subject;
 	}
 	if (attempted.count(target)) break;
 	attempted.insert(target);
@@ -1102,6 +1124,7 @@ bool Converter::adjustBalkanisation () {
 	}
 
 	Logger::logStream("countries") << "Reabsorbed " << province->getName()
+                                       << " " << (int) province
 				       << " from " << target->getName()
 				       << ".\n";
 	province->assignCountry(overlord);
@@ -1121,17 +1144,21 @@ bool Converter::adjustBalkanisation () {
       vassalPercentage = getVassalPercentage(lord, ownerMap);
     }
     if (dent) {
-      Logger::logStream("countries") << "Final vassal percentage " << vassalPercentage << ": (" << overlord->getName();
-      for (EU4Province::Iter prov = overlord->startProvince(); prov != overlord->finalProvince(); ++prov) {
-	Logger::logStream("countries") << " " << (*prov)->getName();
+      Logger::logStream("countries")
+          << "Final vassal percentage " << vassalPercentage << ": ("
+          << overlord->getName();
+      for (EU4Province::Iter prov = overlord->startProvince();
+           prov != overlord->finalProvince(); ++prov) {
+        Logger::logStream("countries") << " " << (*prov)->getName();
       }
       Logger::logStream("countries") << ") ";
-      for (vector<EU4Country*>::iterator subject = lord->second.begin(); subject != lord->second.end(); ++subject) {
-	Logger::logStream("countries") << "(" << (*subject)->getName();
-	for (EU4Province::Iter prov = (*subject)->startProvince(); prov != (*subject)->finalProvince(); ++prov) {
-	  Logger::logStream("countries") << " " << (*prov)->getName();
-	}
-	Logger::logStream("countries") << ") ";
+      for (auto* subject : lord.second) {
+        Logger::logStream("countries") << "(" << subject->getName();
+        for (EU4Province::Iter prov = subject->startProvince();
+             prov != subject->finalProvince(); ++prov) {
+          Logger::logStream("countries") << " " << (*prov)->getName();
+        }
+        Logger::logStream("countries") << ") ";
       }
 
       Logger::logStream("countries") << "\n" << LogOption::Undent;
@@ -3082,7 +3109,7 @@ bool Converter::moveCapitals () {
 				       << eu4Tag
 				       << " to "
 				       << nameAndNumber(newCapital)
-				       << "based on capital "
+				       << " based on capital "
 				       << capitalTag
 				       << " of "
 				       << nameAndNumber(ruler)
@@ -3649,8 +3676,8 @@ bool Converter::setupDiplomacy () {
     vassal->setLeaf("start_date", remQuotes((*ruler)->safeGetString(birthDateString, addQuotes(startDate))));
     vassalCountry->resetLeaf("liberty_desire", "0.000");
 
-    for (vector<string>::iterator key = keyWords.begin(); key != keyWords.end(); ++key) {
-      Object* toAdd = liegeCountry->getNeededObject(*key);
+    for (auto& key : keyWords) {
+      Object* toAdd = liegeCountry->getNeededObject(key);
       toAdd->addToList(addQuotes(vassalCountry->getName()));
     }
     
@@ -3812,7 +3839,10 @@ bool Converter::transferProvinces () {
 					 << ownerTag
 					 << "\n";
       EU4Country* inputOwner = EU4Country::findByName(ownerTag);
-      if (inputOwner) inputOwner->addProvince(*eu4Prov);
+      if (inputOwner) {
+        (*eu4Prov)->assignCountry(inputOwner);
+        inputOwner->setAsCore(*eu4Prov);
+      }
       continue;
     }
     EU4Country* best = 0;

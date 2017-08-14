@@ -189,8 +189,8 @@ void CK2Ruler::createLiege () {
   CK2Ruler* liegeCand = 0;
   CK2Title* liegeTitle = 0;
   CK2Title* vassalTitle = 0;
-  for (CK2Title::Iter title = titles.begin(); title != titles.end(); ++title) {
-    CK2Title* bossTitle = (*title)->getLiege();
+  for (auto* title : titles) {
+    CK2Title* bossTitle = title->getLiege();
     if (!bossTitle) continue;
     string liegeId = bossTitle->safeGetString("holder", PlainNone);
     if (liegeId == PlainNone) continue;
@@ -199,14 +199,14 @@ void CK2Ruler::createLiege () {
     if (!liegeCand) {
       liegeCand = boss;
       liegeTitle = bossTitle;
-      vassalTitle = (*title);
+      vassalTitle = title;
     }
     else if (boss != liegeCand) {
       Logger::logStream(LogStream::Warn) << getName() << " appears to have multiple lieges, "
 					 << liegeCand->getName() << " of " << liegeTitle->getName()
 					 << " through " << vassalTitle->getName() << " and "
 					 << boss->getName() << " of " << bossTitle->getName()
-					 << " through " << (*title)->getName()
+					 << " through " << title->getName()
 					 << ".\n";
       continue;
     }
