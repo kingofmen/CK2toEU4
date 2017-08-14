@@ -3961,6 +3961,9 @@ bool Converter::warsAndRebels () {
 
     string disputedTag =
         remQuotes(disputedTitle->safeGetString("title", QuotedNone));
+    if (disputedTag == PlainNone && disputedTitle->isLeaf()) {
+      disputedTag = disputedTitle->getLeaf();
+    }
     CK2Title* title = CK2Title::findByName(disputedTag);
     if (!title) {
       Logger::logStream("war")
