@@ -326,6 +326,14 @@ CK2Ruler* CK2Ruler::getSovereignLiege () {
   return cand;
 }
 
+bool CK2Ruler::isRebel () {
+  const auto* primary = getPrimaryTitle();
+  if (!primary) {
+    return false;
+  }
+  return primary->isRebelTitle();
+}
+
 string nameAndNumber(CK2Character* ruler) {
   return ruler->safeGetString(birthNameString) + " (" + ruler->getKey() + ")";
 }

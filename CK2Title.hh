@@ -34,6 +34,7 @@ public:
   CK2Ruler* getSovereign (); // Returns the first liege that converts to an EU4 nation.
   CK2Title* getSovereignTitle (); // The title that converts.
   bool isDeJureOverlordOf (CK2Title* dat) const;
+  bool isRebelTitle () const {return isRebel;}
   void setRuler (CK2Ruler* r) {ruler = r;}
   void setDeJureLiege (CK2Title* djl);
   void setEU4Country (EU4Country* eu4) {eu4country = eu4;}
@@ -51,6 +52,7 @@ private:
   CK2Title* deJureLiege;
   CK2Title* liegeTitle;
   TitleLevel const* const titleLevel;
+  bool isRebel;
 
   static Container empires;
   static Container kingdoms;

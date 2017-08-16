@@ -33,11 +33,13 @@ CK2War::CK2War (Object* obj)
     defenders.push_back(ruler);
   }
 
-  for (CK2Ruler::Iter attacker = attackers.begin(); attacker != attackers.end(); ++ attacker) {
-    for (CK2Ruler::Iter defender = defenders.begin(); defender != defenders.end(); ++ defender) {
-      Logger::logStream(LogStream::Info) << (*attacker)->getName() << " is now enemy of " << (*defender)->getName() << "\n";
-      (*attacker)->addEnemy(*defender);
-      (*defender)->addEnemy(*attacker);
+  for (auto* attacker : attackers) {
+    for (auto* defender : defenders) {
+      Logger::logStream(LogStream::Info)
+          << attacker->getName() << " is now enemy of " << defender->getName()
+          << "\n";
+      attacker->addEnemy(defender);
+      defender->addEnemy(attacker);
     }
   }
 }

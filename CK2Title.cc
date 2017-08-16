@@ -41,6 +41,7 @@ CK2Title::CK2Title (Object* o)
   , deJureLiege(0)
   , liegeTitle(0)
   , titleLevel(TitleLevel::getLevel(o->getKey()))
+  , isRebel(false)
 {
   if (TitleLevel::Empire  == getLevel()) empires.push_back(this);
   else if (TitleLevel::Kingdom == getLevel()) kingdoms.push_back(this);
@@ -116,6 +117,7 @@ CK2Title* CK2Title::getLiege () {
   if (liegeTitle) {
     Logger::logStream("titles")
         << getKey() << " has base title " << baseTag << ".\n";
+    isRebel = true;
   }
   return liegeTitle;
 }

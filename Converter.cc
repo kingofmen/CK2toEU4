@@ -38,6 +38,7 @@ ConverterJob const *const ConverterJob::DynastyScores =
     new ConverterJob("dynasty_scores", true);
 
 namespace {
+unordered_set<EU4Country*> independenceRevolts;
 }
 
 Converter::Converter (Window* ow, string fn)
@@ -1133,6 +1134,9 @@ bool Converter::adjustBalkanisation () {
 
 	ownerMap[overlord]++;
 	ownerMap[target]--;
+        if (ownerMap[target] == 0) {
+          independenceRevolts.insert(target);
+        }
 	success = true;
 	break;
       }
@@ -4053,16 +4057,32 @@ bool Converter::warsAndRebels () {
       continue;
     }
 
-    Logger::logStream("war") << "Converting " << warName << " with target province " << targetProvince << ".\n";
-    eu4Game->setValue(euWar, before);
+    string ckCasusBelli = remQuotes(
+        (*ckWar)->getNeededObject("casus_belli")->safeGetString("casus_belli"));
     Object* wargoal = history->getNeededObject("war_goal");
-    wargoal->setLeaf("type", "\"take_claim\"");
-    wargoal->setLeaf("province", targetProvince);
-    wargoal->setLeaf("casus_belli", "\"cb_conquest\"");
-    Object* takeProvince = euWar->getNeededObject("take_province");
-    takeProvince->setLeaf("type", "\"take_claim\"");
-    takeProvince->setLeaf("province", targetProvince);
-    takeProvince->setLeaf("casus_belli", "\"cb_conquest\"");
+
+    if (ckCasusBelli == "crusade") {
+      Logger::logStream("war")
+          << "Converting " << warName << " as crusade.\n";
+      wargoal->setLeaf("type", "\"superiority_crusade\"");
+      wargoal->setLeaf("casus_belli", "\"cb_crusade\"");
+      Object* superiority = euWar->getNeededObject("superiority");
+      superiority->setLeaf("type", "\"superiority_crusade\"");
+      superiority->setLeaf("casus_belli", "\"cb_crusade\"");
+    } else {
+      Logger::logStream("war")
+          << "Converting " << warName << " with target province "
+          << targetProvince << ".\n";
+      wargoal->setLeaf("type", "\"take_claim\"");
+      wargoal->setLeaf("province", targetProvince);
+      wargoal->setLeaf("casus_belli", "\"cb_conquest\"");
+      Object* takeProvince = euWar->getNeededObject("take_province");
+      takeProvince->setLeaf("type", "\"take_claim\"");
+      takeProvince->setLeaf("province", targetProvince);
+      takeProvince->setLeaf("casus_belli", "\"cb_conquest\"");
+    }
+
+    eu4Game->setValue(euWar, before);
   }
 
   Object* rebelCountry = eu4Game->getNeededObject("countries")->safeGetObject("REB");
@@ -4112,20 +4132,31 @@ bool Converter::warsAndRebels () {
     return true;
   }
 
-  for (CK2War::Iter cand = rebelCandidates.begin();
-       cand != rebelCandidates.end(); ++cand) {
+  for (auto* cand : rebelCandidates) {
     string ckCasusBelli =
-        remQuotes((*cand)
-                      ->getNeededObject("casus_belli")
+        remQuotes(cand->getNeededObject("casus_belli")
                       ->safeGetString("casus_belli", QuotedNone));
     string euRevoltType = cbConversion->safeGetString(ckCasusBelli, PlainNone);
-    string warName = (*cand)->safeGetString("name");
+    string warName = cand->safeGetString("name");
     if (euRevoltType == PlainNone) {
-      Logger::logStream("war") << "Not making " << warName << " a rebellion due to CB " << ckCasusBelli << ".\n";
+      Logger::logStream("war")
+          << "Not making " << warName << " a rebellion due to CB "
+          << ckCasusBelli << ".\n";
       continue;
     }
+    EU4Country* revolter = nullptr;
+    if (euRevoltType == "nationalist_rebels") {
+      if (independenceRevolts.empty()) {
+        Logger::logStream("war")
+            << "Skipping " << warName
+            << " as rebellion due to lack of revolter tags.\n";
+        continue;
+      }
+      revolter = *independenceRevolts.begin();
+      independenceRevolts.erase(revolter);
+    }
 
-    objvec ckDefenders = (*cand)->getValue("defender");
+    objvec ckDefenders = cand->getValue("defender");
     EU4Country* target = 0;
     for (objiter ckDefender = ckDefenders.begin(); ckDefender != ckDefenders.end(); ++ckDefender) {
       string defenderId = (*ckDefender)->getLeaf();
@@ -4138,7 +4169,9 @@ bool Converter::warsAndRebels () {
       break;
     }
     if (!target) {
-      Logger::logStream("war") << "Skipping " << warName << " because no defenders converted.\n";
+      Logger::logStream("war")
+          << "Skipping " << warName
+          << " as rebellion because no defenders converted.\n";
       continue;
     }
 
@@ -4150,20 +4183,27 @@ bool Converter::warsAndRebels () {
     faction->setLeaf("name", warName);
     faction->setLeaf("progress", "0.000");
     string euReligion = target->safeGetString("religion");
-    faction->setLeaf("heretic", configObject->getNeededObject("rebel_heresies")->safeGetString(euReligion, "Lollard"));
+    faction->setLeaf("heretic",
+                     configObject->getNeededObject("rebel_heresies")
+                         ->safeGetString(euReligion, "Lollard"));
     faction->setLeaf("country", addQuotes(target->getKey()));
-    faction->setLeaf("independence", "\"\"");
+    faction->setLeaf("independence", revolter ? addQuotes(revolter->getKey()) : "\"\"");
     faction->setLeaf("sponsor", "\"---\"");
     faction->setLeaf("religion", addQuotes(euReligion));
     faction->setLeaf("government", addQuotes(target->safeGetString("government")));
     faction->setLeaf("province", target->safeGetString("capital"));
     faction->setLeaf("seed", "931983089");
-    CK2Ruler* ckRebel = CK2Ruler::findByName((*cand)->safeGetString("attacker"));
+    CK2Ruler* ckRebel = CK2Ruler::findByName(cand->safeGetString("attacker"));
     if (!ckRebel) {
       Logger::logStream("war") << "Skipping " << warName << " for lack of a leader.\n";
       continue;
     }
-    Logger::logStream("war") << "Converting " << warName << " as rebel type " << euRevoltType << ".\n";
+    Logger::logStream("war") << "Converting " << warName << " as rebel type "
+                             << euRevoltType << ".\n";
+    if (revolter) {
+      Logger::logStream("war")
+          << "Independence target is " << revolter->getKey() << ".\n";
+    }
     eu4Game->setValue(faction, before);
     Object* general = createLeader(ckRebel, "general", generalSkills, birthDate);
     general->setKey("general");
@@ -4186,23 +4226,23 @@ bool Converter::warsAndRebels () {
     army->setValue(leader);
     string rebelLocation = target->safeGetString("capital");
     Object* rebelDemesne = ckRebel->safeGetObject(demesneString);
-    set<EU4Province*> eu4Provinces;
     double rebelTroops = 0;
     if (rebelDemesne) {
+      string capTag = remQuotes(rebelDemesne->safeGetString("capital", QuotedNone));
+      CK2Province* capital = CK2Province::getFromBarony(capTag);
+      if (capital && capital->numEU4Provinces() > 0) {
+        EU4Province* euCapital = capital->eu4Province(0);
+        rebelLocation = euCapital->getKey();
+      }
+
       objvec rebelArmies = rebelDemesne->getValue("army");
       for (objiter rebelArmy = rebelArmies.begin(); rebelArmy != rebelArmies.end(); ++rebelArmy) {
 	objvec units = (*rebelArmy)->getValue("sub_unit");
 	for (objiter unit = units.begin(); unit != units.end(); ++unit) {
 	  rebelTroops += calculateTroopWeight((*unit)->getNeededObject("troops"), 0);
 	}
-	CK2Province* ckLocation = CK2Province::findByName((*rebelArmy)->safeGetString("location", PlainNone));
-	if (!ckLocation) continue;
-	for (EU4Province::Iter eu4prov = ckLocation->startEU4Province(); eu4prov != ckLocation->finalEU4Province(); ++eu4prov) {
-	  eu4Provinces.insert(*eu4prov);
-	}
       }
     }
-    if (!eu4Provinces.empty()) rebelLocation = (*eu4Provinces.begin())->getKey();
     army->setLeaf("location", rebelLocation);
     int rebelRegiments = (int) floor(rebelTroops * configObject->safeGetFloat("regimentsPerTroop") + 0.5);
     if (rebelRegiments < 3) rebelRegiments = 3;
@@ -4223,10 +4263,43 @@ bool Converter::warsAndRebels () {
     possibles->setObjList();
     Object* provinceFactionId = new Object(factionId);
     provinceFactionId->setKey("rebel_faction");
-    for (set<EU4Province*>::iterator eu4prov = eu4Provinces.begin(); eu4prov != eu4Provinces.end(); ++eu4prov) {
-      provinces->addToList((*eu4prov)->getKey());
-      possibles->addToList((*eu4prov)->getKey());
-      (*eu4prov)->setValue(provinceFactionId);
+    Object* occupationId = new Object(factionId);
+    occupationId->setKey("occupying_rebel_faction");
+    if (revolter) {
+      revolter->unsetValue("core_provinces");
+    }
+    for (auto* eu4prov : target->getProvinces()) {
+      double occupation = 0;
+      double total = 0;
+      for (auto* ck2prov : eu4prov->ckProvs()) {
+        total++;
+        auto* title = ck2prov->getCountyTitle();
+        while (title) {
+          if (title->getRuler() == ckRebel) {
+            occupation++;
+            break;
+          }
+          title = title->getLiege();
+        }
+      }
+      if (occupation > 0) {
+        possibles->addToList(eu4prov->getKey());
+      }
+      if (occupation / total < 0.5) {
+        continue;
+      }
+      if (revolter) {
+        revolter->setAsCore(eu4prov);
+      }
+      provinces->addToList(eu4prov->getKey());
+      eu4prov->resetLeaf("controller", "\"REB\"");
+      eu4prov->setValue(provinceFactionId);
+      eu4prov->setValue(occupationId);
+      Object* occupation_date = new Object(eu4Game->safeGetString("date", "1444.1.1"));
+      eu4prov->getNeededObject("history")->setValue(occupation_date);
+      Object* controller = new Object("controller");
+      controller->setLeaf("tag", "\"REB\"");
+      occupation_date->setValue(controller);
     }
   }
 

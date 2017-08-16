@@ -94,9 +94,13 @@ public:
   CK2Ruler* getSuzerain () {return suzerain;}
   bool hasTitle (CK2Title* title, bool includeVassals = false) const;
   bool isHuman () const {return (safeGetString("player", "no") == "yes");}
+  bool isRebel ();
   bool isSovereign () const {return (0 == liege || (humansSovereign && isHuman()));}
   void personOfInterest (CK2Character* person);
   void setEU4Country (EU4Country* eu4) {eu4Country = eu4;}
+
+  Container& getVassals() { return vassals; }
+  CK2Title::Container& getTitles() { return titles; }
 
   CK2Title::Iter startTitle () {return titles.begin();}
   CK2Title::Iter finalTitle () {return titles.end();}

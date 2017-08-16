@@ -23,6 +23,7 @@ public:
   void setAsCore (EU4Province* prov);
   void setRuler (CK2Ruler* ruler, CK2Title* title);
 
+  EU4Province::Container& getProvinces() {return provinces;}
   EU4Province::Iter startProvince () {return provinces.begin();}
   EU4Province::Iter finalProvince () {return provinces.end();}
   objiter startBarony () {return baronies.begin();}
