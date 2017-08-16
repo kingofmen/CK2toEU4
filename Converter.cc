@@ -39,6 +39,7 @@ ConverterJob const *const ConverterJob::DynastyScores =
 
 namespace {
 unordered_set<EU4Country*> independenceRevolts;
+Object* euLeaderTraits;
 }
 
 Converter::Converter (Window* ow, string fn)
@@ -905,6 +906,7 @@ void Converter::loadFiles () {
   CK2Character::ckTraits = ckTraitObject->getLeaves();
   Object* euTraitObject = loadTextFile(dirToUse + "eu_ruler_traits.txt");
   CK2Character::euRulerTraits = euTraitObject->getLeaves();
+  euLeaderTraits = loadTextFile(dirToUse + "eu_leader_traits.txt");
   advisorTypesObject = loadTextFile(dirToUse + "advisors.txt");
   if (!advisorTypesObject) {
     Logger::logStream(LogStream::Warn)
@@ -1889,6 +1891,40 @@ string getFullName (CK2Character* character) {
   return addQuotes(name);
 }
 
+void addPersonality(objvec& personalities, CK2Character* ck2char, Object* eu4char) {
+  Object* best_personality = nullptr;
+  int best_score = 0;
+  map<string, int> points;
+  for (auto* eu_personality : personalities) {
+    objvec ck_traits = eu_personality->getLeaves();
+    int curr_score = 0;
+    map<string, int> curr_points;
+    for (auto* ck_trait : ck_traits) {
+      string key = ck_trait->getKey();
+      if (!ck2char->hasTrait(key)) {
+        continue;
+      }
+      int score = eu_personality->safeGetInt(key);
+      curr_score += score;
+      curr_points[key] = score;
+    }
+    if (curr_score <= best_score) {
+      continue;
+    }
+    best_personality = eu_personality;
+    best_score = curr_score;
+    points = curr_points;
+  }
+  if (best_personality != nullptr) {
+    eu4char->setLeaf(best_personality->getKey(), "yes");
+    Logger::logStream("characters") << "Personality " << best_personality->getKey() << " from ";
+    for (const auto& point : points) {
+      Logger::logStream("characters") << "(" << point.first << ", " << point.second << ") ";
+    }
+    Logger::logStream("characters") << "\n";
+  }
+}
+
 void Converter::makeMonarch(CK2Character* ruler, CK2Ruler* king,
                             const string& keyword, Object* bonusTraits) {
   Object* monarchDef = new Object(keyword);
@@ -1960,37 +1996,7 @@ void Converter::makeMonarch(CK2Character* ruler, CK2Ruler* king,
   monarchDef->setValue(monarchId);
   monarchDef->setLeaf("dynasty", getDynastyName(ruler));
   monarchDef->setLeaf(birthDateString, remQuotes(ruler->safeGetString(birthDateString, addQuotes(gameDate))));
-  Object* best_personality = nullptr;
-  int best_score = 0;
-  map<string, int> points;
-  for (auto* eu_personality : CK2Character::euRulerTraits) {
-    objvec ck_traits = eu_personality->getLeaves();
-    int curr_score = 0;
-    map<string, int> curr_points;
-    for (auto* ck_trait : ck_traits) {
-      string key = ck_trait->getKey();
-      if (!ruler->hasTrait(key)) {
-        continue;
-      }
-      int score = eu_personality->safeGetInt(key);
-      curr_score += score;
-      curr_points[key] = score;
-    }
-    if (curr_score <= best_score) {
-      continue;
-    }
-    best_personality = eu_personality;
-    best_score = curr_score;
-    points = curr_points;
-  }
-  if (best_personality != nullptr) {
-    monarchDef->setLeaf(best_personality->getKey(), "yes");
-    Logger::logStream("characters") << "Personality " << best_personality->getKey() << " from ";
-    for (const auto& point : points) {
-      Logger::logStream("characters") << "(" << point.first << ", " << point.second << ") ";
-    }
-    Logger::logStream("characters") << "\n";
-  }
+  addPersonality(CK2Character::euRulerTraits, ruler, monarchDef);
   Logger::logStream("characters") << LogOption::Undent;
   Object* coronation = new Object(eu4Game->safeGetString("date", "1444.1.1"));
   coronation->setValue(monarchDef);
@@ -2005,25 +2011,30 @@ void Converter::makeMonarch(CK2Character* ruler, CK2Ruler* king,
   }
 }
 
-Object* createLeader (CK2Character* base, const string& leaderType, const objvec& generalSkills, const string& birthDate) {
+Object* createLeader(CK2Character* base, const string& leaderType,
+                     const objvec& generalSkills, const string& birthDate) {
   Object* leader = new Object("leader");
   leader->setLeaf("name", getFullName(base));
   leader->setLeaf("type", leaderType);
-  for (vector<Object*>::const_iterator skill = generalSkills.begin(); skill != generalSkills.end(); ++skill) {
-    string keyword = (*skill)->getKey();
+  for (const auto* skill : generalSkills) {
+    string keyword = skill->getKey();
     int amount = 0;
-    for (int i = 0; i < (*skill)->numTokens(); ++i) {
-      if (!base->hasTrait((*skill)->getToken(i))) continue;
+    for (int i = 0; i < skill->numTokens(); ++i) {
+      if (!base->hasTrait(skill->getToken(i))) continue;
       ++amount;
     }
-    Logger::logStream("characters") << " " << keyword << ": " << amount << (amount > 0 ? " from " : "");
-    for (int i = 0; i < (*skill)->numTokens(); ++i) {
-      if (!base->hasTrait((*skill)->getToken(i))) continue;
-      Logger::logStream("characters") << (*skill)->getToken(i) << " ";
+    Logger::logStream("characters")
+        << " " << keyword << ": " << amount << (amount > 0 ? " from " : "");
+    for (int i = 0; i < skill->numTokens(); ++i) {
+      if (!base->hasTrait(skill->getToken(i)))
+        continue;
+      Logger::logStream("characters") << skill->getToken(i) << " ";
     }
     leader->setLeaf(keyword, amount);
     Logger::logStream("characters") << "\n";
   }
+  auto personalities = euLeaderTraits->getNeededObject(leaderType)->getLeaves();
+  addPersonality(personalities, base, leader);
   leader->setLeaf("activation", birthDate);
   return leader;
 }
@@ -2034,6 +2045,7 @@ bool Converter::makeAdvisor(CK2Character* councillor, Object* country_advisors,
                             map<string, objvec>& allAdvisors) {
   static unordered_set<string> existing_advisors;
   if (existing_advisors.find(councillor->getKey()) != existing_advisors.end()) {
+    Logger::logStream("characters") << "\n";
     return false;
   }
   existing_advisors.insert(councillor->getKey());
