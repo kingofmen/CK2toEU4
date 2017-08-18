@@ -2295,22 +2295,23 @@ bool Converter::createGovernments () {
   Logger::logStream(LogStream::Info) << "Done with governments.\n" << LogOption::Undent;
   return true;
 }
+
 bool Converter::createNavies () {
   Logger::logStream(LogStream::Info) << "Beginning navy creation.\n" << LogOption::Indent;
   objvec navyIds;
   objvec shipIds;
   set<string> navyLocations;
-  vector<string> shipTypeStrings;
   map<string, vector<string> > shipNames;
-  string navyType = "54";
-  string shipType = "54";
-  
-  for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
-    if (!(*eu4country)->converts()) {
-      (*eu4country)->unsetValue("navy");
+  string navyTypeNumber = "54";
+  string shipTypeNumber = "54";
+  std::map<string, int> shipTypes;
+
+  for (auto* eu4country : EU4Country::getAll()) {
+    if (!eu4country->converts()) {
+      eu4country->unsetValue("navy");
       continue;
     }
-    objvec navies = (*eu4country)->getValue("navy");
+    objvec navies = eu4country->getValue("navy");
     for (objiter navy = navies.begin(); navy != navies.end(); ++navy) {
       Object* id = (*navy)->safeGetObject("id");
       if (id) navyIds.push_back(id);
@@ -2322,127 +2323,142 @@ bool Converter::createNavies () {
 	if (id) shipIds.push_back(id);
 	location = (*ship)->safeGetString("home", "-1");
 	if (location != "-1") navyLocations.insert(location);
-	shipTypeStrings.push_back((*ship)->safeGetString("type"));
-	shipNames[(*eu4country)->getKey()].push_back((*ship)->safeGetString("name"));
+        shipTypes[(*ship)->safeGetString("type")]++;
+	shipNames[eu4country->getKey()].push_back((*ship)->safeGetString("name"));
       }
     }
-    (*eu4country)->unsetValue("navy");
+    eu4country->unsetValue("navy");
   }
 
-  if (0 < shipIds.size()) shipType = shipIds.back()->safeGetString("type", shipType);
-  if (0 < navyIds.size()) navyType = navyIds.back()->safeGetString("type", navyType);
-  
-  double totalShips = 0;
+  if (0 < shipIds.size()) shipTypeNumber = shipIds.back()->safeGetString("type", shipTypeNumber);
+  if (0 < navyIds.size()) navyTypeNumber = navyIds.back()->safeGetString("type", navyTypeNumber);
+
+  double ckShips = 0;
   Object* shipWeights = configObject->getNeededObject("ships");
-  objvec shipTypes = shipWeights->getLeaves();
-  for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
-    EU4Country* eu4country = (*ruler)->getEU4Country();
+  objvec ckShipTypes = shipWeights->getLeaves();
+  for (auto* ruler : CK2Ruler::getAll()) {
+    EU4Country* eu4country = ruler->getEU4Country();
     if (!eu4country) continue;
     double currShip = 0;
     for (objiter barony = eu4country->startBarony(); barony != eu4country->finalBarony(); ++barony) {
       Object* baronyLevy = (*barony)->getNeededObject("levy");
-      for (objiter ttype = shipTypes.begin(); ttype != shipTypes.end(); ++ttype) {
-	string key = (*ttype)->getKey();
+      for (auto* ttype : ckShipTypes) {
+	string key = ttype->getKey();
 	double amount = getLevyStrength(key, baronyLevy);
 	amount *= shipWeights->safeGetFloat(key);
 	currShip += amount;
       }
     }
-    totalShips += currShip;
-    (*ruler)->resetLeaf("shipWeight", currShip);    
+    ckShips += currShip;
+    ruler->resetLeaf("shipWeight", currShip);    
   }
 
-  if (0 == totalShips) {
+  if (0 == ckShips) {
     Logger::logStream(LogStream::Warn)
         << "Warning: Found no liege-levy ships. No navies will be created.\n"
         << LogOption::Undent;
     return true;
   }
-
+  
   Object* forbidden = configObject->getNeededObject("forbidNavies");
   set<string> forbid;
-  for (int i = 0; i < forbidden->numTokens(); ++i) forbid.insert(forbidden->getToken(i));
-  
-  int numShips = shipIds.size();
-  Logger::logStream("navies") << "Total weighted navy strength "
-			      << totalShips
-			      << ", EU4 ships "
-			      << numShips
-			      << ".\n";
-  for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
-    EU4Country* eu4country = (*ruler)->getEU4Country();
-    if (!eu4country) continue;
-    if (!eu4country->converts()) continue;
-    string eu4Tag = eu4country->getKey();
-    double currWeight = (*ruler)->safeGetFloat("shipWeight");
-    Logger::logStream("navies") << nameAndNumber(*ruler)
-				<< " of " << eu4Tag
-				<< " has ship weight "
-				<< currWeight;
-    currWeight /= totalShips;
-    currWeight *= numShips;
-    int shipsToCreate = (int) floor(0.5 + currWeight);
-    Logger::logStream("navies") << " and gets "
-				<< shipsToCreate
-				<< " ships.\n";
-    if (0 == shipsToCreate) continue;
-    Object* navy = eu4country->getNeededObject("navy");
-    Object* navyId = 0;
-    if (!navyIds.empty()) {
-      navyId = navyIds.back();
-      navyIds.pop_back();
-    }
-    else {
-      navyId = createUnitId(navyType);
-    }
-    navy->setValue(navyId);
-    string name = remQuotes((*ruler)->safeGetString(birthNameString, "\"Nemo\""));
-    navy->setLeaf("name", addQuotes(string("Navy of ") + name));
-    string capitalTag = eu4country->safeGetString("capital");
-    string location = capitalTag;
-    if ((0 == navyLocations.count(capitalTag)) || (forbid.count(capitalTag))) {
-      for (EU4Province::Iter prov = eu4country->startProvince(); prov != eu4country->finalProvince(); ++prov) {
-	string provTag = (*prov)->getKey();
-	if (forbid.count(provTag)) continue;
-	if ((0 == forbid.count(location)) && (0 == navyLocations.count(provTag))) continue;
-	location = provTag;
-	if (navyLocations.count(location)) break;
-      }
-    }
+  for (int i = 0; i < forbidden->numTokens(); ++i) {
+    forbid.insert(forbidden->getToken(i));
+  }
+  Logger::logStream("navies") << "Total weighted navy strength " << ckShips << "\n";
 
-    navy->setLeaf("location", location);
-    EU4Province* eu4prov = EU4Province::findByName(location);
-    Object* unit = new Object(navyId);
-    unit->setKey("unit");
-    eu4prov->setValue(unit);
-    int created = 0;
-    for (int i = 0; i < shipsToCreate; ++i) {
-      Object* ship = new Object("ship");
-      navy->setValue(ship);
-      Object* shipId = 0;
-      if (shipIds.empty()) {
-	shipId = createUnitId(shipType);
+  for (const auto& shipType : shipTypes) {
+    int numShips = shipType.second;
+    Logger::logStream("navies")
+        << "EU4 ships of type " << shipType.first << ": " << numShips << ".\n"
+        << LogOption::Indent;
+    for (auto* ruler : CK2Ruler::getAll()) {
+      EU4Country* eu4country = ruler->getEU4Country();
+      if (!eu4country || !eu4country->converts()) {
+        continue;
       }
-      else {
-	shipId = shipIds.back();
-	shipIds.pop_back();
+      string eu4Tag = eu4country->getKey();
+      double currWeight = ruler->safeGetFloat("shipWeight");
+
+      currWeight /= ckShips;
+      currWeight *= numShips;
+      int shipsToCreate = (int)floor(0.5 + currWeight);
+      Logger::logStream("navies")
+          << nameAndNumber(ruler) << " of " << eu4Tag << " has ship weight "
+          << currWeight << " and gets " << shipsToCreate << " ships of type "
+          << shipType.first << "\n";
+      if (0 == shipsToCreate) {
+        continue;
       }
-      ship->setValue(shipId);
-      ship->setLeaf("home", location);
-      string name;
-      if (!shipNames[eu4Tag].empty()) {
-	name = shipNames[eu4Tag].back();
-	shipNames[eu4Tag].pop_back();
+      Object* navy = eu4country->getNeededObject("navy");
+      Object* navyId = nullptr;
+      if (navy->safeGetObject("id") == nullptr) {
+        if (!navyIds.empty()) {
+          navyId = navyIds.back();
+          navyIds.pop_back();
+        } else {
+          navyId = createUnitId(navyTypeNumber);
+        }
+        navy->setValue(navyId);
       }
-      else {
-	name = createString("\"%s conversion ship %i\"", eu4Tag.c_str(), ++created);
+      string name =
+          remQuotes(ruler->safeGetString(birthNameString, "\"Nemo\""));
+      navy->setLeaf("name", addQuotes(string("Navy of ") + name));
+      string capitalTag = eu4country->safeGetString("capital");
+      string location = capitalTag;
+      if ((0 == navyLocations.count(capitalTag)) ||
+          (forbid.count(capitalTag))) {
+        for (EU4Province::Iter prov = eu4country->startProvince();
+             prov != eu4country->finalProvince(); ++prov) {
+          string provTag = (*prov)->getKey();
+          if (forbid.count(provTag)) {
+            continue;
+          }
+          if ((0 == forbid.count(location)) &&
+              (0 == navyLocations.count(provTag))) {
+            continue;
+          }
+          location = provTag;
+          if (navyLocations.count(location)) {
+            break;
+          }
+        }
       }
-      ship->setLeaf("name", name);
-      name = shipTypeStrings.back();
-      if (shipTypeStrings.size() > 1) shipTypeStrings.pop_back();
-      ship->setLeaf("type", name);
-      ship->setLeaf("strength", "1.000");
+
+      navy->setLeaf("location", location);
+      EU4Province* eu4prov = EU4Province::findByName(location);
+      if (navyId != nullptr) {
+        Object* unit = new Object(navyId);
+        unit->setKey("unit");
+        eu4prov->setValue(unit);
+      }
+      int created = 0;
+      for (int i = 0; i < shipsToCreate; ++i) {
+        Object* ship = new Object("ship");
+        navy->setValue(ship);
+        Object* shipId = 0;
+        if (shipIds.empty()) {
+          shipId = createUnitId(shipTypeNumber);
+        } else {
+          shipId = shipIds.back();
+          shipIds.pop_back();
+        }
+        ship->setValue(shipId);
+        ship->setLeaf("home", location);
+        string name;
+        if (!shipNames[eu4Tag].empty()) {
+          name = shipNames[eu4Tag].back();
+          shipNames[eu4Tag].pop_back();
+        } else {
+          name = createString("\"%s conversion ship %i\"", eu4Tag.c_str(),
+                              ++created);
+        }
+        ship->setLeaf("name", name);
+        ship->setLeaf("type", shipType.first);
+        ship->setLeaf("strength", "1.000");
+      }
     }
+    Logger::logStream("navies") << LogOption::Undent;
   }
   
   Logger::logStream(LogStream::Info) << "Done with navies.\n" << LogOption::Undent;
