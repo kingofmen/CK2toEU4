@@ -1711,10 +1711,10 @@ bool Converter::createArmies () {
 
     Logger::logStream("armies") << (*eu4country)->getKey() << " levies: \n" << LogOption::Indent;
     double ck2troops = 0;
-    for (EU4Province::Iter eu4prov = (*eu4country)->startProvince(); eu4prov != (*eu4country)->finalProvince(); ++eu4prov) {
-      Logger::logStream("armies") << (*eu4prov)->safeGetString("name") << ":\n" << LogOption::Indent;
+    for (auto* eu4prov : (*eu4country)->getProvinces()) {
+      Logger::logStream("armies") << eu4prov->safeGetString("name") << ":\n" << LogOption::Indent;
       double weighted = 0;
-      for (CK2Province::Iter ck2prov = (*eu4prov)->startProv(); ck2prov != (*eu4prov)->finalProv(); ++ck2prov) {
+      for (CK2Province::Iter ck2prov = eu4prov->startProv(); ck2prov != eu4prov->finalProv(); ++ck2prov) {
 	double weightFactor = 1.0 / (*ck2prov)->numEU4Provinces();
 	objvec leaves = (*ck2prov)->getLeaves();
 	for (objiter leaf = leaves.begin(); leaf != leaves.end(); ++leaf) {
@@ -1726,17 +1726,19 @@ bool Converter::createArmies () {
 	  if (!baronyTitle) continue;
 	  CK2Ruler* sovereign = baronyTitle->getSovereign();
 	  Logger::logStream("armies") << baronyTag << ": ";
-	  if (sovereign != (*eu4country)->getRuler()) {
-	    if ((sovereign) && (sovereign->getEU4Country())) {
-	      Logger::logStream("armies") << "Ignoring, part of " << sovereign->getEU4Country()->getKey() << ".\n";
-	    }
-	    else {
-	      Logger::logStream("armies") << "Ignoring, no sovereign.\n";
-	    }
-	    continue;
-	  }
-	  double distanceFactor = 1.0 / (1 + baronyTitle->distanceToSovereign());
-	  Logger::logStream("armies") << "(" << distanceFactor << "):\n" << LogOption::Indent;
+          if (sovereign != (*eu4country)->getRuler()) {
+            if ((sovereign) && (sovereign->getEU4Country())) {
+              Logger::logStream("armies")
+                  << "Ignoring, part of "
+                  << sovereign->getEU4Country()->getKey() << ".\n";
+            } else {
+              Logger::logStream("armies") << "Ignoring, no sovereign.\n";
+            }
+            continue;
+          }
+          double distanceFactor =
+              1.0 / (1 + baronyTitle->distanceToSovereign());
+          Logger::logStream("armies") << "(" << distanceFactor << "):\n" << LogOption::Indent;
 	  double amount = calculateTroopWeight(levy, &(Logger::logStream("armies")));
 	  Logger::logStream("armies") << LogOption::Undent;
 	  amount *= distanceFactor;
@@ -1747,7 +1749,9 @@ bool Converter::createArmies () {
       }
       Logger::logStream("armies") << "Province total: " << weighted << "\n" << LogOption::Undent;
     }
-    Logger::logStream("armies") << (*eu4country)->getKey() << " has " << ck2troops << " weighted levies.\n" << LogOption::Undent;
+    Logger::logStream("armies") << (*eu4country)->getKey() << " has "
+                                << ck2troops << " weighted levies.\n"
+                                << LogOption::Undent;
     (*eu4country)->resetLeaf("ck_troops", ck2troops);
     totalCkTroops += ck2troops;
     ++countries;
@@ -3302,8 +3306,8 @@ bool Converter::redistributeMana () {
     powers->addToList(totalPower);
 
     double totalFactionStrength = 0;
-    for (vector<CK2Ruler*>::iterator rebel = factionMap[ruler].begin(); rebel != factionMap[ruler].end(); ++rebel) {
-      totalFactionStrength += (*rebel)->countBaronies();
+    for (auto* rebel : factionMap[ruler]) {
+      totalFactionStrength += rebel->countBaronies();
     }
     totalFactionStrength /= (1 + ruler->countBaronies());
     int stability = 3;
@@ -4253,27 +4257,74 @@ bool Converter::warsAndRebels () {
     army->setLeaf("name", warName);
     army->setValue(leader);
     string rebelLocation = target->safeGetString("capital");
-    Object* rebelDemesne = ckRebel->safeGetObject(demesneString);
     double rebelTroops = 0;
-    if (rebelDemesne) {
-      string capTag = remQuotes(rebelDemesne->safeGetString("capital", QuotedNone));
-      CK2Province* capital = CK2Province::getFromBarony(capTag);
-      if (capital && capital->numEU4Provinces() > 0) {
-        EU4Province* euCapital = capital->eu4Province(0);
-        rebelLocation = euCapital->getKey();
+    Object* rebelDemesne = ckRebel->getNeededObject(demesneString);
+    string capTag =
+        remQuotes(rebelDemesne->safeGetString("capital", QuotedNone));
+    CK2Province* capital = CK2Province::getFromBarony(capTag);
+    if (capital && capital->numEU4Provinces() > 0) {
+      EU4Province* euCapital = capital->eu4Province(0);
+      rebelLocation = euCapital->getKey();
+    }
+    vector<CK2Ruler*> rebels = {ckRebel};
+    std::set<CK2Ruler*> safety;  // CK2 has weird edge cases.
+    Logger::logStream("war") << warName << " gets troops:\n" << LogOption::Indent;
+    while (!rebels.empty()) {
+      auto* currentRebel = rebels.back();
+      rebels.pop_back();
+      for (auto* vassal : currentRebel->getVassals()) {
+        if (safety.count(vassal)) {
+          continue;
+        }
+        safety.insert(vassal);
+        rebels.push_back(vassal);
       }
-
+      for (auto* title : currentRebel->getTitles()) {
+        auto* ck2prov = CK2Province::getFromBarony(title->getKey());
+        if (ck2prov == nullptr) {
+          continue;
+        }
+        Object* barony = ck2prov->safeGetObject(title->getKey());
+        if (!barony) {
+          continue;
+        }
+        Object* levy = barony->safeGetObject("levy");
+        if (!levy) {
+          continue;
+        }
+        double distanceFactor =
+            1.0 / (1 + title->distanceToSovereign());
+        double amount = calculateTroopWeight(levy, nullptr);
+        amount *= distanceFactor;
+        rebelTroops += amount;
+        Logger::logStream("war") << amount << " from " << title->getKey() << "\n";
+      }
+      rebelDemesne = currentRebel->safeGetObject(demesneString);
+      if (!rebelDemesne) {
+        continue;
+      }
       objvec rebelArmies = rebelDemesne->getValue("army");
-      for (objiter rebelArmy = rebelArmies.begin(); rebelArmy != rebelArmies.end(); ++rebelArmy) {
-	objvec units = (*rebelArmy)->getValue("sub_unit");
-	for (objiter unit = units.begin(); unit != units.end(); ++unit) {
-	  rebelTroops += calculateTroopWeight((*unit)->getNeededObject("troops"), 0);
-	}
+      for (auto* rebelArmy : rebelArmies) {
+        objvec units = rebelArmy->getValue("sub_unit");
+        double armyTroops = 0;
+        for (auto* unit : units) {
+          armyTroops +=
+              calculateTroopWeight(unit->getNeededObject("troops"), nullptr);
+        }
+        rebelTroops += armyTroops;
+        Logger::logStream("war")
+            << armyTroops << " from " << rebelArmy->safeGetString("name") << "\n";
       }
     }
     army->setLeaf("location", rebelLocation);
-    int rebelRegiments = (int) floor(rebelTroops * configObject->safeGetFloat("regimentsPerTroop") + 0.5);
-    if (rebelRegiments < 3) rebelRegiments = 3;
+    int rebelRegiments = (int)floor(
+        rebelTroops * configObject->safeGetFloat("regimentsPerTroop") + 0.5);
+    if (rebelRegiments < 3) {
+      rebelRegiments = 3;
+    }
+    Logger::logStream("war") << "Total " << rebelTroops << " giving "
+                             << rebelRegiments << " regiments.\n"
+                             << LogOption::Undent;
     for (int i = 0; i < rebelRegiments; ++i) {
       Object* regiment = new Object("regiment");
       army->setValue(regiment);
