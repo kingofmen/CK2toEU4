@@ -41,6 +41,7 @@ public:
 
   void createClaims ();
   CK2Character* getAdmiral () const {return admiral;}
+  CK2Character* getAdvisor (const string& title);
   double getAge (string date) const;
   int getAttribute (CKAttribute const* const att) const {return attributes[*att];}
   CK2Character* getCouncillor (CouncilTitle const* const con) const {return council[*con];}

@@ -1953,13 +1953,10 @@ void addPersonality(objvec& personalities, CK2Character* ck2char, Object* eu4cha
   }
 }
 
-void Converter::makeMonarch(CK2Character* ruler, CK2Ruler* king,
-                            const string& keyword, Object* bonusTraits) {
+Object* Converter::makeMonarchObject(CK2Character* ruler, const string& keyword,
+                                     Object* bonusTraits) {
   Object* monarchDef = new Object(keyword);
   monarchDef->setLeaf("name", ruler->safeGetString(birthNameString, "\"Some Guy\""));
-  CK2Title* primary = king->getPrimaryTitle();
-  monarchDef->setLeaf("country", addQuotes(primary->getEU4Country()->getKey()));
-
   map<string, map<string, double> > sources;
   sources["MIL"]["ck_martial"] = max(0, ruler->getAttribute(CKAttribute::Martial) / 5);
   sources["DIP"]["ck_diplomacy"] =
@@ -1972,27 +1969,27 @@ void Converter::makeMonarch(CK2Character* ruler, CK2Ruler* king,
           (ruler->getAttribute(CKAttribute::Stewardship) +
            ruler->getAttribute(CKAttribute::Learning)) /
               5);
-  for (map<string, map<string, double>>::iterator area = sources.begin();
-       area != sources.end(); ++area) {
-    Object* bonus = bonusTraits->getNeededObject(area->first);
-    objvec bonoi = bonus->getLeaves();
+  for (auto& area : sources) {
+    Object* bonus = bonusTraits->getNeededObject(area.first);
     for (auto* bon : bonus->getLeaves()) {
       string desc = bon->getKey();
       if (!ruler->hasTrait(desc)) {
         continue;
       }
-      area->second[desc] = bonus->safeGetInt(desc);
+      area.second[desc] = bonus->safeGetInt(desc);
     }
   }
-  string gameDate = eu4Game->safeGetString("date", "1444.1.1");
+  string gameDate = remQuotes(ck2Game->safeGetString("date", "\"1444.11.11\""));
   double age = ruler->getAge(gameDate);
   if (age < 16) {
-    age = 16 / max(1.0, age);
-    for (map<string, map<string, double> >::iterator area = sources.begin(); area != sources.end(); ++area) {
-      area->second["ck_martial"] *= age;
-      area->second["ck_diplomacy"] *= age;
-      area->second["ck_stewardship"] *= age;
-    }
+    int ageAdjust = (int) floor((16 - age) / 7 + 0.5);
+    constexpr int kEducation = 1;
+    sources["MIL"]["age adjust"] = ageAdjust;
+    sources["DIP"]["age adjust"] = ageAdjust;
+    sources["ADM"]["age adjust"] = ageAdjust;
+    sources["MIL"]["future education"] = kEducation;
+    sources["DIP"]["future education"] = kEducation;
+    sources["ADM"]["future education"] = kEducation;
   }
   Logger::logStream("characters")
       << keyword << " " << nameAndNumber(ruler) << " with\n"
@@ -2018,17 +2015,24 @@ void Converter::makeMonarch(CK2Character* ruler, CK2Ruler* king,
     Logger::logStream("characters") << "total: " << amount << "\n";
     monarchDef->setLeaf(area->first, amount);
   }
-
-  if (ruler->safeGetString(femaleString, "no") == "yes") monarchDef->setLeaf("female", "yes");
-  Object* monarchId = createMonarchId();
-  monarchDef->setValue(monarchId);
+  if (ruler->safeGetString(femaleString, "no") == "yes")
+    monarchDef->setLeaf("female", "yes");
+  addPersonality(CK2Character::euRulerTraits, ruler, monarchDef);
+  Logger::logStream("characters") << LogOption::Undent;
   monarchDef->setLeaf("dynasty", getDynastyName(ruler));
   monarchDef->setLeaf("birth_date",
                       getConversionDate(remQuotes(ruler->safeGetString(
                           birthDateString, addQuotes(gameDate)))));
+  return monarchDef;
+}
 
-  addPersonality(CK2Character::euRulerTraits, ruler, monarchDef);
-  Logger::logStream("characters") << LogOption::Undent;
+Object* Converter::makeMonarch(CK2Character* ruler, CK2Ruler* king,
+                            const string& keyword, Object* bonusTraits) {
+  auto* monarchDef = makeMonarchObject(ruler, keyword, bonusTraits);
+  CK2Title* primary = king->getPrimaryTitle();
+  monarchDef->setLeaf("country", addQuotes(primary->getEU4Country()->getKey()));
+  Object* monarchId = createMonarchId();
+  monarchDef->setValue(monarchId);
   Object* coronation = new Object(eu4Game->safeGetString("date", "1444.1.1"));
   coronation->setValue(monarchDef);
   Object* monarch = new Object(monarchId);
@@ -2040,6 +2044,7 @@ void Converter::makeMonarch(CK2Character* ruler, CK2Ruler* king,
     country->unsetValue(keyword);
     country->setValue(monarch);
   }
+  return monarchDef;
 }
 
 Object* createLeader(CK2Character* base, const string& leaderType,
@@ -2183,12 +2188,24 @@ bool Converter::createCharacters () {
     Logger::logStream("characters")
         << "Creating characters for " << eu4Tag << ":\n"
         << LogOption::Indent;
-    makeMonarch(ruler, ruler, "monarch", bonusTraits);
+    auto* ck2Regent = ruler->getAdvisor("title_regent");
+    if (ck2Regent != nullptr &&
+        ruler->getAge(
+            remQuotes(ck2Game->safeGetString("date", "\"1444.11.11\""))) < 16) {
+      auto* eu4Regent = makeMonarch(ck2Regent, ruler, "monarch", bonusTraits);
+      eu4Regent->setLeaf("regent", "yes");
+      if (eu4Regent->safeGetString("female", "no") == "yes") {
+        eu4Regent->setLeaf("queen_regent", "yes");
+      }
+      makeMonarch(ruler, ruler, "heir", bonusTraits);
+    } else {
+      makeMonarch(ruler, ruler, "monarch", bonusTraits);
 
-    (*eu4country)->unsetValue("heir");
-    if ((*eu4country)->safeGetString("needs_heir", "no") == "yes") {
-      CK2Character* ckHeir = ruler->getOldestChild();
-      if (ckHeir) makeMonarch(ckHeir, ruler, "heir", bonusTraits);
+      (*eu4country)->unsetValue("heir");
+      if ((*eu4country)->safeGetString("needs_heir", "no") == "yes") {
+        CK2Character* ckHeir = ruler->getOldestChild();
+        if (ckHeir) makeMonarch(ckHeir, ruler, "heir", bonusTraits);
+      }
     }
 
     Object* history = capital->getNeededObject("history");

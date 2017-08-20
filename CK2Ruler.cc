@@ -91,6 +91,13 @@ CK2Character::CK2Character (Object* obj, Object* dynasties)
   }
 }
 
+CK2Character* CK2Character::getAdvisor (const string& title) {
+  if (advisors.find(title) == advisors.end()) {
+    return nullptr;
+  }
+  return advisors[title][0];
+}
+
 double CK2Character::getAge (string date) const {
   int gameYear, gameMonth, gameDay;
   if (!yearMonthDay(date, gameYear, gameMonth, gameDay)) {
