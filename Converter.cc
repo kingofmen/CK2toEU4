@@ -4022,7 +4022,9 @@ bool Converter::warsAndRebels () {
     euWar->setLeaf("name", warName);
     Object* history = euWar->getNeededObject("history");
     history->setLeaf("name", warName);
-    Object* startDate = history->getNeededObject(eu4Game->safeGetString("date", "1444.1.1"));
+    string startDateString = eu4Game->safeGetString("date", "1444.1.1");
+    euWar->setLeaf("action", startDateString);
+    Object* startDate = history->getNeededObject(startDateString);
     for (EU4Country::Iter eu4attacker = euAttackers.begin(); eu4attacker != euAttackers.end(); ++eu4attacker) {
       euWar->setLeaf("attacker", addQuotes((*eu4attacker)->getKey()));
       if (joined_war) euWar->setLeaf("joined_war", addQuotes((*eu4attacker)->getKey()));
