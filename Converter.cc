@@ -1268,6 +1268,13 @@ struct DynastyScore {
     trait_line += strbuffer;
     ret += trait_line;
 
+    double actual_score = cached_score + total_trait_bonus;
+    if (actual_score < median) {
+      sprintf(strbuffer, "Adjust to median: %.2f\n", median);
+      ret += strbuffer;
+      actual_score = median;
+    }
+
     double achievement_bonus =
         median * achievements *
         custom_score_traits->safeGetFloat("achievements", 0.01);
@@ -1275,7 +1282,7 @@ struct DynastyScore {
     ret += strbuffer;
 
     sprintf(strbuffer, "Adjusted total: %.1f\n",
-            cached_score + total_trait_bonus + achievement_bonus);
+            actual_score + achievement_bonus);
     ret += strbuffer;
     return ret;
   }
