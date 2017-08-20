@@ -83,6 +83,7 @@ private:
   void setDynastyNames (Object* dynastyNames);
 
   // Helpers:
+  string getConversionDate(const string& ck2Date);
   double calculateTroopWeight (Object* levy, Logger* logstream = 0);
   void cleanUp ();
   Object* createMonarchId ();

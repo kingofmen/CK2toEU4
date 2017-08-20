@@ -1671,6 +1671,23 @@ bool Converter::cleanEU4Nations () {
   return true;
 }
 
+string Converter::getConversionDate(const string& ck2Date) {
+  string eu4Date = eu4Game->safeGetString("date", "1444.11.11");
+  int eu4Year = year(eu4Date);
+  string conversionDate =
+      remQuotes(ck2Game->safeGetString("date", "1444.11.11"));
+  int conversionYear = year(conversionDate);
+
+  int ck2Year = 0;
+  int ck2Month = 0;
+  int ck2Day = 0;
+  yearMonthDay(ck2Date, ck2Year, ck2Month, ck2Day);
+
+  ck2Year += (eu4Year - conversionYear);
+  sprintf(strbuffer, "%i.%i.%i", ck2Year, ck2Month, ck2Day);
+  return strbuffer;
+}
+
 double Converter::calculateTroopWeight (Object* levy, Logger* logstream) {
   static Object* troopWeights = configObject->getNeededObject("troops");
   static objvec troopTypes = troopWeights->getLeaves();
@@ -2006,7 +2023,10 @@ void Converter::makeMonarch(CK2Character* ruler, CK2Ruler* king,
   Object* monarchId = createMonarchId();
   monarchDef->setValue(monarchId);
   monarchDef->setLeaf("dynasty", getDynastyName(ruler));
-  monarchDef->setLeaf(birthDateString, remQuotes(ruler->safeGetString(birthDateString, addQuotes(gameDate))));
+  monarchDef->setLeaf("birth_date",
+                      getConversionDate(remQuotes(ruler->safeGetString(
+                          birthDateString, addQuotes(gameDate)))));
+
   addPersonality(CK2Character::euRulerTraits, ruler, monarchDef);
   Logger::logStream("characters") << LogOption::Undent;
   Object* coronation = new Object(eu4Game->safeGetString("date", "1444.1.1"));
@@ -3716,7 +3736,9 @@ bool Converter::setupDiplomacy () {
     vassal->setLeaf("second", addQuotes(vassalCountry->getName()));
     vassal->setLeaf("end_date", "1836.1.1");
     vassal->setLeaf("cancel", "no");
-    vassal->setLeaf("start_date", remQuotes((*ruler)->safeGetString(birthDateString, addQuotes(startDate))));
+    vassal->setLeaf("start_date",
+                    remQuotes((*ruler)->safeGetString(birthDateString,
+                                                      addQuotes(startDate))));
     vassalCountry->resetLeaf("liberty_desire", "0.000");
 
     for (auto& key : keyWords) {
