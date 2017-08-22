@@ -39,10 +39,12 @@ public:
 
   typedef vector<CK2Character*>::const_iterator CharacterIter;
 
+  void addSpouse(CK2Character* sp) {spouses.push_back(sp);}
   void createClaims ();
   CK2Character* getAdmiral () const {return admiral;}
   CK2Character* getAdvisor (const string& title);
   double getAge (string date) const;
+  CK2Character* getBestSpouse () const;
   int getAttribute (CKAttribute const* const att) const {return attributes[*att];}
   CK2Character* getCouncillor (CouncilTitle const* const con) const {return council[*con];}
   Object* getDynasty () const {return dynasty;}
@@ -70,6 +72,7 @@ protected:
   vector<CK2Character*> children;
   vector<CK2Character*> commanders;
   vector<CK2Character*> council;
+  vector<CK2Character*> spouses;
   unordered_map<string, vector<CK2Character*> > advisors;
   Object* dynasty;
   CK2Character* oldestChild;  

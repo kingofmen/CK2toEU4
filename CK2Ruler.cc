@@ -119,6 +119,26 @@ double CK2Character::getAge (string date) const {
   return years;
 }
 
+CK2Character* CK2Character::getBestSpouse() const {
+  if (spouses.empty()) {
+    return nullptr;
+  }
+  CK2Character* best = nullptr;
+  int score = 0;
+  for (auto* spouse : spouses) {
+    int curr_score = 0;
+    for (auto att : attributes) {
+      curr_score += att;
+    }
+    curr_score -= (int) floor(spouse->getAge("\"1444.11.11\"") + 0.5);
+    if (curr_score > score || !best) {
+      best = spouse;
+      score = curr_score;
+    }
+  }
+  return best;
+}
+
 bool CK2Character::hasModifier (const string& mod) {
   if (modifiers.count(mod)) return modifiers[mod];
   modifiers[mod] = false;

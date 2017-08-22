@@ -425,8 +425,21 @@ bool Converter::createCK2Objects () {
 	((*ch)->safeGetString("title", PlainNone) == "\"title_high_admiral\"")) {
       employer = CK2Ruler::findByName((*ch)->safeGetString(employerString));
     }
+    CK2Character* current = nullptr;
+    for (auto* sp : (*ch)->getValue("spouse")) {
+      CK2Ruler* spouse = CK2Ruler::findByName(sp->getLeaf());
+      if (!spouse) {
+        continue;
+      }
+      if (current == nullptr) {
+        current = new CK2Character((*ch), dynasties);
+      }
+      spouse->addSpouse(current);
+    }
     if ((!father) && (!mother) && (!employer) && (0 == claims.size())) continue;
-    CK2Character* current = new CK2Character((*ch), dynasties);
+    if (current == nullptr) {
+      current = new CK2Character((*ch), dynasties);
+    }
     if (father) father->personOfInterest(current);
     if (mother) mother->personOfInterest(current);
     if (employer) employer->personOfInterest(current);
@@ -2206,6 +2219,12 @@ bool Converter::createCharacters () {
         CK2Character* ckHeir = ruler->getOldestChild();
         if (ckHeir) makeMonarch(ckHeir, ruler, "heir", bonusTraits);
       }
+    }
+
+    auto* spouse = ruler->getBestSpouse();
+    if (spouse) {
+      auto* queen = makeMonarch(spouse, ruler, "queen", bonusTraits);
+      queen->setLeaf("consort", "yes");
     }
 
     Object* history = capital->getNeededObject("history");
