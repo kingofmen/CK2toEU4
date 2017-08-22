@@ -106,34 +106,50 @@ void Converter::cleanUp () {
 
   string infantryType = configObject->safeGetString("infantry_type", "\"western_medieval_infantry\"");
   string cavalryType = configObject->safeGetString("cavalry_type", "\"western_medieval_knights\"");
-  for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
-    (*eu4country)->unsetValue("needs_heir");
-    (*eu4country)->unsetValue(EU4Country::kNoProvinceMarker);
-    if (!(*eu4country)->getRuler()) continue;
-    (*eu4country)->resetLeaf("infantry", infantryType);
-    (*eu4country)->resetLeaf("cavalry", cavalryType);
-    (*eu4country)->resetLeaf("army_tradition", "0.000");
-    (*eu4country)->resetLeaf("navy_tradition", "0.000");
-    (*eu4country)->resetLeaf("papal_influence", "0.000");
-    (*eu4country)->resetLeaf("mercantilism", (*eu4country)->safeGetString("government") == "merchant_republic" ? "0.250" : "0.100");
-    (*eu4country)->resetLeaf("last_bankrupt", "1.1.1");
-    (*eu4country)->resetLeaf("last_focus_move", "1.1.1");
-    (*eu4country)->resetLeaf("last_conversion", "1.1.1");
-    (*eu4country)->resetLeaf("last_sacrifice", "1.1.1");
-    (*eu4country)->resetLeaf("last_debate", "1.1.1");
-    (*eu4country)->resetLeaf("wartax", "1.1.1");
-    (*eu4country)->resetLeaf("update_opinion_cache", "yes");
-    (*eu4country)->resetLeaf("needs_refresh", "yes");
-    (*eu4country)->resetLeaf("manpower", "10.000");
-    (*eu4country)->resetLeaf("technology_group", "western");
-    (*eu4country)->resetHistory("technology_group", "western");
-    objvec estates = (*eu4country)->getValue("estate");
-    for (objiter estate = estates.begin(); estate != estates.end(); ++estate) {
-      (*estate)->unsetValue("province");
-      (*estate)->resetLeaf("loyalty", "40.000");
-      (*estate)->resetLeaf("total_loyalty", "40.000");
-      (*estate)->resetLeaf("influence", "40.000");
-      (*estate)->resetLeaf("province_influence", "0.000");
+  for (auto* eu4country : EU4Country::getAll()) {
+    eu4country->unsetValue("needs_heir");
+    eu4country->unsetValue(EU4Country::kNoProvinceMarker);
+    double fraction = eu4country->safeGetFloat("manpower_fraction");
+    eu4country->unsetValue("manpower_fraction");
+    if (!eu4country->getRuler()) continue;
+    eu4country->resetLeaf("infantry", infantryType);
+    eu4country->resetLeaf("cavalry", cavalryType);
+    eu4country->resetLeaf("army_tradition", "0.000");
+    eu4country->resetLeaf("navy_tradition", "0.000");
+    eu4country->resetLeaf("papal_influence", "0.000");
+    eu4country
+        ->resetLeaf("mercantilism",
+                    eu4country->safeGetString("government") ==
+                            "merchant_republic"
+                        ? "0.250"
+                        : "0.100");
+    eu4country->resetLeaf("last_bankrupt", "1.1.1");
+    eu4country->resetLeaf("last_focus_move", "1.1.1");
+    eu4country->resetLeaf("last_conversion", "1.1.1");
+    eu4country->resetLeaf("last_sacrifice", "1.1.1");
+    eu4country->resetLeaf("last_debate", "1.1.1");
+    eu4country->resetLeaf("wartax", "1.1.1");
+    eu4country->resetLeaf("update_opinion_cache", "yes");
+    eu4country->resetLeaf("needs_refresh", "yes");
+    double max_manpower = 10;
+    for (auto* eu4prov : eu4country->getProvinces()) {
+      double autonomy = eu4prov->safeGetFloat("local_autonomy");
+      if (autonomy < 75)
+        autonomy = 75;
+      autonomy = 0.01 * (100 - autonomy);
+      // 250 per manpower point, and 1 = 1000.
+      max_manpower += 0.25 * eu4prov->safeGetFloat("base_manpower") * autonomy;
+    }
+    eu4country->resetLeaf("manpower", fraction * max_manpower);
+    eu4country->resetLeaf("technology_group", "western");
+    eu4country->resetHistory("technology_group", "western");
+    objvec estates = eu4country->getValue("estate");
+    for (auto* estate : estates) {
+      estate->unsetValue("province");
+      estate->resetLeaf("loyalty", "40.000");
+      estate->resetLeaf("total_loyalty", "40.000");
+      estate->resetLeaf("influence", "40.000");
+      estate->resetLeaf("province_influence", "0.000");
     }
   }
 
@@ -1701,13 +1717,13 @@ string Converter::getConversionDate(const string& ck2Date) {
   return strbuffer;
 }
 
-double Converter::calculateTroopWeight (Object* levy, Logger* logstream) {
+double Converter::calculateTroopWeight (Object* levy, Logger* logstream, int idx) {
   static Object* troopWeights = configObject->getNeededObject("troops");
   static objvec troopTypes = troopWeights->getLeaves();
   double ret = 0;
   for (objiter ttype = troopTypes.begin(); ttype != troopTypes.end(); ++ttype) {
     string key = (*ttype)->getKey();
-    double amount = getLevyStrength(key, levy);
+    double amount = getLevyStrength(key, levy, idx);
     if (logstream) (*logstream) << key << ": " << amount << "\n";
     amount *= troopWeights->safeGetFloat(key);
     ret += amount;
@@ -1748,6 +1764,8 @@ bool Converter::createArmies () {
 
     Logger::logStream("armies") << (*eu4country)->getKey() << " levies: \n" << LogOption::Indent;
     double ck2troops = 0;
+    double maxLevies = 0;
+    double realLevies = 0;
     for (auto* eu4prov : (*eu4country)->getProvinces()) {
       Logger::logStream("armies") << eu4prov->safeGetString("name") << ":\n" << LogOption::Indent;
       double weighted = 0;
@@ -1776,9 +1794,12 @@ bool Converter::createArmies () {
           double distanceFactor =
               1.0 / (1 + baronyTitle->distanceToSovereign());
           Logger::logStream("armies") << "(" << distanceFactor << "):\n" << LogOption::Indent;
-	  double amount = calculateTroopWeight(levy, &(Logger::logStream("armies")));
-	  Logger::logStream("armies") << LogOption::Undent;
-	  amount *= distanceFactor;
+          double amount =
+              calculateTroopWeight(levy, &(Logger::logStream("armies")));
+          realLevies += calculateTroopWeight(levy, nullptr, 0);
+          maxLevies += amount;
+          Logger::logStream("armies") << LogOption::Undent;
+          amount *= distanceFactor;
 	  amount *= weightFactor;
 	  ck2troops += amount;
 	  weighted += amount;
@@ -1790,6 +1811,9 @@ bool Converter::createArmies () {
                                 << ck2troops << " weighted levies.\n"
                                 << LogOption::Undent;
     (*eu4country)->resetLeaf("ck_troops", ck2troops);
+    if (maxLevies > 0) {
+      (*eu4country)->resetLeaf("manpower_fraction", realLevies / maxLevies);
+    }
     totalCkTroops += ck2troops;
     ++countries;
   }

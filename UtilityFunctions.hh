@@ -362,7 +362,7 @@ private:
 bool hasPrefix (string prefix, string candidate);
 double calcAvg (Object* ofthis);
 
-double getLevyStrength(const string& key, Object* levyObject);
+double getLevyStrength(const string& key, Object* levyObject, int idx = 1);
 
 string nameAndNumber(ObjectWrapper* prov, string key = "name");
 string nameAndNumber(Object* prov, string key = "name");

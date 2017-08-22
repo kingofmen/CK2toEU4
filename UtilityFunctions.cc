@@ -385,7 +385,7 @@ bool yearMonthDay (const string& date, int& year, int& month, int& day) {
   return true;
 }
 
-double getLevyStrength(const string& key, Object* levyObject) {
+double getLevyStrength(const string& key, Object* levyObject, int idx) {
   auto* levy = levyObject->safeGetObject(key);
   if (!levy) {
     return 0;
@@ -393,7 +393,7 @@ double getLevyStrength(const string& key, Object* levyObject) {
   if (levy->numTokens() == 0) {
     return levyObject->safeGetFloat(key);
   }
-  return levy->tokenAsFloat(1);
+  return levy->tokenAsFloat(idx);
 }
 
 string nameAndNumber(ObjectWrapper* prov, string key) {

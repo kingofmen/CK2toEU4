@@ -84,7 +84,7 @@ private:
 
   // Helpers:
   string getConversionDate(const string& ck2Date);
-  double calculateTroopWeight (Object* levy, Logger* logstream = 0);
+  double calculateTroopWeight (Object* levy, Logger* logstream = 0, int idx = 1);
   void cleanUp ();
   Object* createMonarchId ();
   Object* createTypedId (string keyword, string idType);
