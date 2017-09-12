@@ -119,6 +119,7 @@ CK2Title* CK2Title::getLiege () {
         << getKey() << " has base title " << baseTag << ".\n";
     isRebel = true;
   }
+
   return liegeTitle;
 }
 

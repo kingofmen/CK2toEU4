@@ -95,13 +95,15 @@ void Converter::loadFile () {
 void Converter::cleanUp () {
   // Restore the initial '-' in province tags.
   string minus("-");
-  for (EU4Province::Iter prov = EU4Province::start(); prov != EU4Province::final(); ++prov) {
-    (*prov)->object->setKey(minus + (*prov)->getKey());
-    (*prov)->unsetValue("fort_level");
-    (*prov)->unsetValue("base_fort_level");
-    (*prov)->unsetValue("influencing_fort");
-    (*prov)->unsetValue("fort_influencing");
-    (*prov)->unsetValue("estate");
+  for (auto* eu4prov : EU4Province::getAll()) {
+    eu4prov->object->setKey(minus + eu4prov->getKey());
+    if (eu4prov->converts()) {
+      eu4prov->unsetValue("fort_level");
+      eu4prov->unsetValue("base_fort_level");
+      eu4prov->unsetValue("influencing_fort");
+      eu4prov->unsetValue("fort_influencing");
+      eu4prov->unsetValue("estate");
+    }
   }
 
   string infantryType = configObject->safeGetString("infantry_type", "\"western_medieval_infantry\"");
@@ -1741,12 +1743,11 @@ bool Converter::createArmies () {
   double totalCkTroops = 0;
   int countries = 0;
 
-  for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
-    if (!(*eu4country)->converts()) {
-      (*eu4country)->unsetValue("army");
+  for (auto* eu4country : EU4Country::getAll()) {
+    if (eu4country->isROTW()) {
       continue;
     }
-    objvec armies = (*eu4country)->getValue("army");
+    objvec armies = eu4country->getValue("army");
     for (objiter army = armies.begin(); army != armies.end(); ++army) {
       Object* id = (*army)->safeGetObject("id");
       if (id) armyIds.push_back(id);
@@ -1760,13 +1761,13 @@ bool Converter::createArmies () {
 	if (location != "-1") armyLocations.insert(location);
       }
     }
-    (*eu4country)->unsetValue("army");
+    eu4country->unsetValue("army");
 
-    Logger::logStream("armies") << (*eu4country)->getKey() << " levies: \n" << LogOption::Indent;
+    Logger::logStream("armies") << eu4country->getKey() << " levies: \n" << LogOption::Indent;
     double ck2troops = 0;
     double maxLevies = 0;
     double realLevies = 0;
-    for (auto* eu4prov : (*eu4country)->getProvinces()) {
+    for (auto* eu4prov : eu4country->getProvinces()) {
       Logger::logStream("armies") << eu4prov->safeGetString("name") << ":\n" << LogOption::Indent;
       double weighted = 0;
       for (CK2Province::Iter ck2prov = eu4prov->startProv(); ck2prov != eu4prov->finalProv(); ++ck2prov) {
@@ -1781,7 +1782,7 @@ bool Converter::createArmies () {
 	  if (!baronyTitle) continue;
 	  CK2Ruler* sovereign = baronyTitle->getSovereign();
 	  Logger::logStream("armies") << baronyTag << ": ";
-          if (sovereign != (*eu4country)->getRuler()) {
+          if (sovereign != eu4country->getRuler()) {
             if ((sovereign) && (sovereign->getEU4Country())) {
               Logger::logStream("armies")
                   << "Ignoring, part of "
@@ -1807,12 +1808,12 @@ bool Converter::createArmies () {
       }
       Logger::logStream("armies") << "Province total: " << weighted << "\n" << LogOption::Undent;
     }
-    Logger::logStream("armies") << (*eu4country)->getKey() << " has "
+    Logger::logStream("armies") << eu4country->getKey() << " has "
                                 << ck2troops << " weighted levies.\n"
                                 << LogOption::Undent;
-    (*eu4country)->resetLeaf("ck_troops", ck2troops);
+    eu4country->resetLeaf("ck_troops", ck2troops);
     if (maxLevies > 0) {
-      (*eu4country)->resetLeaf("manpower_fraction", realLevies / maxLevies);
+      eu4country->resetLeaf("manpower_fraction", realLevies / maxLevies);
     }
     totalCkTroops += ck2troops;
     ++countries;
@@ -2398,8 +2399,7 @@ bool Converter::createNavies () {
   std::map<string, int> shipTypes;
 
   for (auto* eu4country : EU4Country::getAll()) {
-    if (!eu4country->converts()) {
-      eu4country->unsetValue("navy");
+    if (eu4country->isROTW()) {
       continue;
     }
     objvec navies = eu4country->getValue("navy");
@@ -3122,10 +3122,11 @@ bool Converter::moveBuildings () {
   for (objiter euBuilding = euBuildings.begin(); euBuilding != euBuildings.end(); ++euBuilding) {
     int numToBuild = (*euBuilding)->safeGetInt("extra");
     string buildingTag = (*euBuilding)->getKey();
-    for (EU4Province::Iter eu4prov = EU4Province::start(); eu4prov != EU4Province::final(); ++eu4prov) {
-      if ((*eu4prov)->safeGetString(buildingTag, "no") != "yes") continue;
+    for (auto* eu4prov : EU4Province::getAll()) {
+      if (!eu4prov->converts()) continue;
+      if (eu4prov->safeGetString(buildingTag, "no") != "yes") continue;
       numToBuild++;
-      (*eu4prov)->unsetValue(buildingTag);
+      eu4prov->unsetValue(buildingTag);
     }
     if (0 == numToBuild) continue;
     Logger::logStream("buildings") << "Found "
@@ -3159,7 +3160,9 @@ bool Converter::moveBuildings () {
       break;
     }
     if (!building) {
-      Logger::logStream(LogStream::Warn) << "Could not find a building that's not obsolete. This should never happen. Bailing.\n";
+      Logger::logStream(LogStream::Warn) << "Could not find a building that's "
+                                            "not obsolete. This should never "
+                                            "happen. Bailing.\n";
       break;
     }
     string obsolifies = makesObsolete[buildingTag];
@@ -3571,23 +3574,26 @@ bool Converter::resetHistories () {
   vector<string> valuesToRemove;
   valuesToRemove.push_back("core");
   valuesToRemove.push_back("unit");
-  for (EU4Province::Iter eu4province = EU4Province::start(); eu4province != EU4Province::final(); ++eu4province) {
-    if (0 == (*eu4province)->numCKProvinces()) continue;
+  for (auto* eu4prov : EU4Province::getAll()) {
+    if (!eu4prov->converts()) {
+      continue;
+    }
+
     for (vector<string>::iterator tag = objectsToClear.begin(); tag != objectsToClear.end(); ++tag) {
-      Object* history = (*eu4province)->getNeededObject(*tag);
+      Object* history = eu4prov->getNeededObject(*tag);
       history->clear();
       history->resetLeaf("discovered_by", addQuotes("western"));
     }
 
     for (vector<string>::iterator tag = valuesToRemove.begin(); tag != valuesToRemove.end(); ++tag) {
-      (*eu4province)->unsetValue(*tag);
+      eu4prov->unsetValue(*tag);
     }
 
-    Object* discovered = (*eu4province)->safeGetObject("discovered_dates");
+    Object* discovered = eu4prov->safeGetObject("discovered_dates");
     if ((discovered) && (1 < discovered->numTokens())) {
       discovered->resetToken(1, "1.1.1");
     }
-    discovered = (*eu4province)->safeGetObject("discovered_by");
+    discovered = eu4prov->safeGetObject("discovered_by");
     if (discovered) {
       vector<string> extraTags;
       for (int i = 0; i < discovered->numTokens(); ++i) {

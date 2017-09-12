@@ -22,16 +22,16 @@ culture_overrides = {
 # Dynasties to calculate custom score for.
 custom_score = {
   10293657 = 11  # Craig
-  10293658 = 13  # Yngling
+  10293658 = 18  # Yngling
   1040150  = 5   # Mordorite
-  10293656 = 0  # Borghest
-  10293649 = 8  # Lazuli
-  10293660 = 8  # Murayev
+  10293656 = 0   # Borghest
+  10293649 = 13  # Lazuli
+  10293660 = 8   # Murayev
   10293939 = 16  # von Britannia
-  10293663 = 0  # Le Saeva
+  10293663 = 0   # Le Saeva
   10293938 = 23  # Saar
-  10293654 = 5  # Hedareb
-  10293661 = 18  # Hrothgar
+  10293654 = 6   # Hedareb
+  10293661 = 23  # Hrothgar
   10293650 = 11  # Boyardee
 }
 
