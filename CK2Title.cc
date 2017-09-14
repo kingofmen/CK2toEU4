@@ -111,13 +111,16 @@ CK2Title* CK2Title::getLiege () {
     }
   }
 
-  // Try for base title.
-  string baseTag = object->safeGetString("base_title", "nonesuch");
-  liegeTitle = findByName(baseTag);
-  if (liegeTitle) {
-    Logger::logStream("titles")
-        << getKey() << " has base title " << baseTag << ".\n";
-    isRebel = true;
+  // For rebels we look for the base title.
+  string tag = this->getKey();
+  if (tag.substr(1, 8) == "_dyn_reb") {
+    string baseTag = object->safeGetString("base_title", "nonesuch");
+    liegeTitle = findByName(baseTag);
+    if (liegeTitle) {
+      isRebel = true;
+      Logger::logStream("titles")
+          << tag << " is rebel against base title " << baseTag << ".\n";
+    }
   }
 
   return liegeTitle;

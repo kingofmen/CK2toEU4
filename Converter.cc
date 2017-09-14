@@ -390,22 +390,26 @@ bool Converter::createCK2Objects () {
   detectChangedString(kOldFemale, kNewFemale, charObjs, &femaleString);
 
   Object* dynasties = ck2Game->safeGetObject("dynasties");
-  for (CK2Title::Iter ckCountry = CK2Title::start(); ckCountry != CK2Title::final(); ++ckCountry) {
-    string holderId = (*ckCountry)->safeGetString("holder", PlainNone);
+  for (auto* ckCountry : CK2Title::getAll()) {
+    string holderId = ckCountry->safeGetString("holder", PlainNone);
     if (PlainNone == holderId) continue;
     CK2Ruler* ruler = CK2Ruler::findByName(holderId);
     if (!ruler) {
       Object* character = characters->safeGetObject(holderId);
       if (!character) {
 	Logger::logStream(LogStream::Warn) << "Could not find character " << holderId
-					   << ", holder of title " << (*ckCountry)->getKey()
+					   << ", holder of title " << ckCountry->getKey()
 					   << ". Ignoring.\n";
 	continue;
       }
       ruler = new CK2Ruler(character, dynasties);
+      if (CK2Ruler::totalAmount() % 100 == 0) {
+        Logger::logStream("characters")
+            << "Processed " << CK2Ruler::totalAmount() << " rulers.\n";
+      }
     }
 
-    ruler->addTitle(*ckCountry);
+    ruler->addTitle(ckCountry);
   }
 
   Logger::logStream(LogStream::Info) << "Created " << CK2Ruler::totalAmount() << " CK2 rulers.\n";

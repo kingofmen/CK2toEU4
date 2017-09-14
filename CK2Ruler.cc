@@ -245,15 +245,14 @@ void CK2Ruler::createLiege () {
   while (currTitle) {
     string holderId = currTitle->safeGetString("holder", PlainNone);
     if (holderId == getName()) {
-      Logger::logStream("characters") << "Not making " << getName() << " vassal of "
-				      << liegeCand->getName() << " because of circularity with "
-				      << currTitle->getName() << "\n";
+      Logger::logStream("characters")
+          << "Not making " << getName() << " vassal of " << liegeCand->getName()
+          << " because of circularity with " << currTitle->getName() << "\n";
       return;
     }
     currTitle = currTitle->getLiege();
   }
-  
-  
+
   Logger::logStream("characters") << getName() << " is vassal of "
 				  << liegeCand->getName()
 				  << " because " << vassalTitle->getName()
