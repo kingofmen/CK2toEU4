@@ -61,7 +61,7 @@ void CK2Province::calculateWeights (Object* weightObject, Object* troops, objvec
     (*barony)->setLeaf(ProvinceWeight::Taxation->getName(),
                        buildingWeight * typeWeight->safeGetFloat("tax", 0.5));
     (*barony)->setLeaf(ProvinceWeight::Fortification->getName(), forts);
-
+    // Good to here.
     Object* levyObject = (*barony)->safeGetObject("levy");
     double mpWeight = 0;
     double galleys = 0;
@@ -77,6 +77,7 @@ void CK2Province::calculateWeights (Object* weightObject, Object* troops, objvec
         }
       }
     }
+
     (*barony)->setLeaf(ProvinceWeight::Manpower->getName(), mpWeight);
     (*barony)->setLeaf(ProvinceWeight::Galleys->getName(), galleys);
     Logger::logStream("buildings")
@@ -97,6 +98,7 @@ void CK2Province::calculateWeights (Object* weightObject, Object* troops, objvec
           << "(" << building.first << " " << building.second << ") ";
     }
     Logger::logStream("buildings") << "\n" << LogOption::Undent;
+
   }
   weights[*ProvinceWeight::Trade] = safeGetInt("realm_tradeposts");
 }

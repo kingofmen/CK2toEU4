@@ -13,7 +13,7 @@ void EU4Province::addCore (string countryTag) {
   getNeededObject("history")->setLeaf("add_core", quotedTag);
 }
 
-void EU4Province::assignCountry (EU4Country* eu4) {
+void EU4Province::assignCountry(EU4Country* eu4) {
   if (eu4Country) {
     eu4Country->remProvince(this);
   }
@@ -21,7 +21,9 @@ void EU4Province::assignCountry (EU4Country* eu4) {
   resetLeaf("owner", addQuotes(eu4->getName()));
   resetLeaf("controller", addQuotes(eu4->getName()));
   resetHistory("owner", addQuotes(eu4->getName()));
-  getNeededObject("history")->getNeededObject("controller")->resetLeaf("tag", addQuotes(eu4->getName()));
+  getNeededObject("history")
+      ->getNeededObject("controller")
+      ->resetLeaf("tag", addQuotes(eu4->getName()));
   eu4Country->addProvince(this);
 }
 
