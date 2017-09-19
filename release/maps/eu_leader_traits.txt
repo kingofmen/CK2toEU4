@@ -1,0 +1,109 @@
+general = {
+glory_seeker_personality = {
+  proud = 10
+  aggressive_leader = 4
+}
+
+born_to_the_saddle_personality = {
+  cavalry_leader = 10
+}
+
+defensive_planner_personality = {
+  defensive_leader = 10
+}
+
+battlefield_medic_personality = {
+  physician = 10
+}
+
+ruthless_personality = {
+  cruel = 10
+  impaler = 4
+  wroth = 4
+}
+
+inspirational_leader_general_personality = {
+  inspiring_leader = 10
+  brilliant_strategist = 5
+  brave = 3
+}
+
+master_of_arms_personality = {
+  heavy_infantry_leader = 10
+  light_foot_leader = 10
+  duelist = 1
+}
+
+goal_oriented_personality = {
+  experimenter = 10
+  skilled_tactician = 5
+  peasant_leader = 8
+}
+
+hardy_warrior_personality = {
+  winter_soldier = 10
+  martial_cleric = 3
+  temperate = 3
+  mountain_terrain_leader = 5
+  rough_terrain_leader = 4
+  desert_terrain_leader = 5
+}
+
+siege_specialist_personality = {
+  siege_leader = 10
+}
+
+cannoneer_personality = {
+
+}
+
+}
+admiral = {
+extortioner_personality = {
+  midas_touched = 10
+  fortune_builder = 8
+}
+
+ruthless_blockader_personality = {
+  viking = 10
+}
+
+buccaneer_personality = {
+  greedy = 10
+  ravager = 8
+}
+
+prize_hunter_personality = {
+  seaking = 10
+  sea_queen = 10
+}
+
+ironside_personality = {
+  organizer = 10
+  defensive_leader = 10
+}
+
+naval_engineer_personality = {
+  architect = 10
+}
+
+naval_showman_personality = {
+  proud = 10
+}
+
+ram_raider_personality = {
+  aggressive_leader = 10
+}
+
+naval_gunner_personality = {
+
+}
+
+accomplished_sailor_personality = {
+  diligent = 10
+}
+
+level_headed_personality = {
+  brave = 10
+}
+}

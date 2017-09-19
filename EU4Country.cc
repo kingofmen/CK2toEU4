@@ -15,7 +15,8 @@ EU4Country::EU4Country (Object* o)
 
 void EU4Country::addProvince(EU4Province* prov) {
   if (find(provinces.begin(), provinces.end(), prov) == provinces.end()) {
-    Logger::logStream("countries") << "Adding " << prov->getName() << " to " << getKey() << "\n";
+    Logger::logStream("countries")
+        << "Adding " << prov->getName() << " to " << getKey() << "\n";
     provinces.push_back(prov);
   }
 }
