@@ -1771,8 +1771,8 @@ bool Converter::createArmies () {
   objvec armyIds;
   objvec regimentIds;
   set<string> armyLocations;
-  string armyType = "54";
-  string regimentType = "54";
+  string armyType = "4713";
+  string regimentType = "4713";
   double totalCkTroops = 0;
   int countries = 0;
 
