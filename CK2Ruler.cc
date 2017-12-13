@@ -130,7 +130,7 @@ CK2Character* CK2Character::getBestSpouse() const {
     for (auto att : attributes) {
       curr_score += att;
     }
-    curr_score -= (int) floor(spouse->getAge("\"1444.11.11\"") + 0.5);
+    curr_score -= (int)floor(spouse->getAge("1444.11.11") + 0.5);
     if (curr_score > score || !best) {
       best = spouse;
       score = curr_score;
@@ -155,7 +155,9 @@ void CK2Ruler::personOfInterest (CK2Character* person) {
   if ((person->safeGetString(fatherString) == myId) ||
       (person->safeGetString(motherString) == myId)) {
     children.push_back(person);
-    if ((!oldestChild) || (oldestChild->getAge(remQuotes(person->safeGetString(birthDateString))) < 0)) {
+    if ((!oldestChild) ||
+        (oldestChild->getAge(
+             remQuotes(person->safeGetString(birthDateString))) < 0)) {
       oldestChild = person;
     }
   }
