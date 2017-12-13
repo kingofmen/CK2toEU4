@@ -1,11 +1,23 @@
 #include "CK2War.hh"
 
+#include <unordered_map>
+
 #include "Logger.hh"
 
-CK2War::CK2War (Object* obj)
-  : Enumerable<CK2War>(this, obj->safeGetString("name"), false)
-  , ObjectWrapper(obj)
-{
+string createUniqueWarName(Object* obj) {
+  static std::unordered_map<string, int> nameCount;
+  string warName = obj->safeGetString("name");
+  nameCount[warName]++;
+  if (nameCount[warName] > 1) {
+    sprintf(strbuffer, "%s %i", warName.c_str(), nameCount[warName]);
+    warName = strbuffer;
+  }
+  return warName;
+}
+
+CK2War::CK2War(Object* obj)
+    : Enumerable<CK2War>(this, createUniqueWarName(obj), false),
+      ObjectWrapper(obj) {
   objvec attack = object->getValue("attacker");
   for (objiter attacker = attack.begin(); attacker != attack.end(); ++attacker) {
     CK2Ruler* ruler = CK2Ruler::findByName((*attacker)->getLeaf());
