@@ -46,6 +46,7 @@ public:
   double getAge (string date) const;
   CK2Character* getBestSpouse () const;
   int getAttribute (CKAttribute const* const att) const {return attributes[*att];}
+  virtual string getBelief (string keyword) const;
   CK2Character* getCouncillor (CouncilTitle const* const con) const {return council[*con];}
   Object* getDynasty () const {return dynasty;}
   virtual EU4Country* getEU4Country () const {return 0;}
@@ -89,7 +90,6 @@ public:
   void addTributary (CK2Ruler* trib);
   int  countBaronies ();
   void createLiege ();
-  string getBelief (string keyword) const;
   int getEnemies () const {return enemies.size();}
   virtual EU4Country* getEU4Country () const {return eu4Country;}
   CK2Ruler* getLiege () {return liege;}

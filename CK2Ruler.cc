@@ -290,7 +290,7 @@ bool CK2Ruler::hasTitle(CK2Title* title, bool includeVassals) const {
   return (find(titles.begin(), titles.end(), title) != titles.end());
 }
 
-string CK2Ruler::getBelief (string keyword) const {
+string CK2Character::getBelief (string keyword) const {
   string ret = remQuotes(safeGetString(keyword, QuotedNone));
   if (ret != PlainNone) return ret;
   // Try the new keywords - don't use new/old constant here because it is
@@ -312,14 +312,21 @@ string CK2Ruler::getBelief (string keyword) const {
     }
   }
 
-  for (CK2Title::cIter title = startTitle(); title != finalTitle(); ++title) {
-    if (TitleLevel::Barony != (*title)->getLevel()) continue;
-    CK2Province* province = CK2Province::getFromBarony((*title)->getKey());
-    if (!province) continue;
-    ret = province->safeGetString(keyword, PlainNone);
-    if (PlainNone != ret) return ret;
+  CK2Ruler* ruler = CK2Ruler::getByName(getKey());
+  if (ruler != nullptr) {
+    for (CK2Title::cIter title = ruler->startTitle();
+         title != ruler->finalTitle(); ++title) {
+      if (TitleLevel::Barony != (*title)->getLevel()) {
+        continue;
+      }
+      CK2Province* province = CK2Province::getFromBarony((*title)->getKey());
+      if (province != nullptr) {
+        ret = province->safeGetString(keyword, PlainNone);
+        if (PlainNone != ret) return ret;
+      }
+    }
   }
-  
+
   return PlainNone;
 }
 

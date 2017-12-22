@@ -15,7 +15,7 @@ public:
   void assignProvince (CK2Province* ck);
   bool converts () const;
   EU4Country* getEU4Country () const {return eu4Country;}
-  bool hasCore (string countryTag) const;
+  bool hasCore (string countryTag);
   int numCKProvinces () const {return ckProvinces.size();}
   void remCore (string countryTag);
   CK2Province::Container& ckProvs () {return ckProvinces;}

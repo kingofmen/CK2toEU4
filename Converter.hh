@@ -95,10 +95,11 @@ private:
                    string capitalTag, map<string, objvec>& allAdvisors);
   void makeLeader(Object* eu4country, const string& keyword, CK2Character* base,
                   const objvec& generalSkills, const string& birthDate);
-  Object* makeMonarch(CK2Character* ruler, CK2Ruler* king,
-                      const string& keyword, Object* bonusTraits);
-  Object* makeMonarchObject(CK2Character* ruler, const string& keyword,
-                            Object* bonusTraits);
+  Object* makeMonarch(const string& capitalTag, CK2Character* ruler,
+                      CK2Ruler* king, const string& keyword,
+                      Object* bonusTraits);
+  Object* makeMonarchObject(const string& capitalTag, CK2Character* ruler,
+                            const string& keyword, Object* bonusTraits);
   bool rankProvinceDevelopment();
   bool redistributeDevelopment();
   bool swapKeys(Object* one, Object* two, string key);

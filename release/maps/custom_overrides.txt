@@ -21,18 +21,16 @@ culture_overrides = {
 
 # Dynasties to calculate custom score for.
 custom_score = {
-  10293657 = 11  # Craig
-  10293658 = 18  # Yngling
-  1040150  = 5   # Mordorite
-  10293656 = 0   # Borghest
-  10293649 = 13  # Lazuli
-  10293660 = 8   # Murayev
-  10293939 = 16  # von Britannia
-  10293663 = 0   # Le Saeva
-  10293938 = 23  # Saar
-  10293654 = 6   # Hedareb
-  10293661 = 23  # Hrothgar
-  10293650 = 11  # Boyardee
+  10292922 = 0   # Ivering
+  10292920 = 0   # Yngling
+  10292918 = 0   # Lazuli
+  10292927 = 0   # de Cantabria
+  10292926 = 0   # Lotharing
+  10292925 = 0   # von Borghest
+  1047006  = 0   # Cerdicing
+  10292923 = 0   # Heracleidae
+  10292929 = 0   # Ramsey
+  10294967 = 0   # Apocryphon
 }
 
 custom_score_traits = {

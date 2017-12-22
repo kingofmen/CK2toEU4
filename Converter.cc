@@ -40,6 +40,8 @@ ConverterJob const *const ConverterJob::DynastyScores =
 namespace {
 unordered_set<EU4Country*> independenceRevolts;
 Object* euLeaderTraits;
+map<string, vector<string> > religionMap;
+map<string, vector<string> > cultureMap;
 }
 
 Converter::Converter (Window* ow, string fn)
@@ -935,7 +937,9 @@ void Converter::loadFiles () {
   Logger::logStream(LogStream::Info) << "Directory: \"" << dirToUse << "\"\n" << LogOption::Indent;
 
   Parser::ignoreString = "EU4txt";
+  Parser::specialCases["map_area_data{"] = "map_area_data={";
   eu4Game = loadTextFile(dirToUse + "input.eu4");
+  Parser::specialCases.clear();
   Parser::ignoreString = "";
   provinceMapObject = loadTextFile(dirToUse + "provinces.txt");
   deJureObject = loadTextFile(dirToUse + "de_jure_lieges.txt");
@@ -1582,10 +1586,11 @@ bool Converter::calculateProvinceWeights () {
 				   << ck2prov->getWeight(ProvinceWeight::Manpower)
 				   << ".\n";
   }
-#ifdef BLAH
+
   // Initialise EU4Country iterator over baronies.
   for (auto* ck2prov : CK2Province::getAll()) {
-    for (objiter barony = ck2prov->startBarony(); barony != ck2prov->finalBarony(); ++barony) {
+    for (objiter barony = ck2prov->startBarony();
+         barony != ck2prov->finalBarony(); ++barony) {
       CK2Title* baronyTitle = CK2Title::findByName((*barony)->getKey());
       if (!baronyTitle) continue;
       CK2Ruler* ruler = baronyTitle->getRuler();
@@ -1603,7 +1608,7 @@ bool Converter::calculateProvinceWeights () {
       ruler->getEU4Country()->addBarony(*barony);
     }
   }
-#endif
+
   Logger::logStream(LogStream::Info) << "Done with province weight calculations.\n" << LogOption::Undent;
   return true;
 }
@@ -2015,16 +2020,37 @@ void addPersonality(objvec& personalities, CK2Character* ck2char, Object* eu4cha
     points = curr_points;
   }
   if (best_personality != nullptr) {
-    eu4char->setLeaf(best_personality->getKey(), "yes");
-    Logger::logStream("characters") << "Personality " << best_personality->getKey() << " from ";
+    eu4char->getNeededObject("personalities")
+        ->setLeaf(best_personality->getKey(), "yes");
+    Logger::logStream("characters")
+        << "Personality " << best_personality->getKey() << " from ";
     for (const auto& point : points) {
-      Logger::logStream("characters") << "(" << point.first << ", " << point.second << ") ";
+      Logger::logStream("characters")
+          << "(" << point.first << ", " << point.second << ") ";
     }
     Logger::logStream("characters") << "\n";
   }
 }
 
-Object* Converter::makeMonarchObject(CK2Character* ruler, const string& keyword,
+void setCultureAndReligion(const string& capitalTag, CK2Character* ruler,
+                           Object* target) {
+  string ckCulture = ruler->getBelief("culture");
+  if (ckCulture == PlainNone) {
+    auto* capital = EU4Province::getByName(capitalTag);
+    if (capital) {
+      target->setLeaf("culture", capital->safeGetString("culture"));
+    }
+  } else if (!cultureMap[ckCulture].empty()) {
+    target->setLeaf("culture", cultureMap[ckCulture][0]);
+  }
+  string ckReligion = ruler->getBelief("religion");
+  if (!religionMap[ckReligion].empty()) {
+    target->setLeaf("religion", religionMap[ckReligion][0]);
+  }
+}
+
+Object* Converter::makeMonarchObject(const string& capitalTag,
+                                     CK2Character* ruler, const string& keyword,
                                      Object* bonusTraits) {
   Object* monarchDef = new Object(keyword);
   monarchDef->setLeaf("name", ruler->safeGetString(birthNameString, "\"Some Guy\""));
@@ -2062,6 +2088,9 @@ Object* Converter::makeMonarchObject(CK2Character* ruler, const string& keyword,
     sources["DIP"]["future education"] = kEducation;
     sources["ADM"]["future education"] = kEducation;
   }
+
+  setCultureAndReligion(capitalTag, ruler, monarchDef);
+
   Logger::logStream("characters")
       << keyword << " " << nameAndNumber(ruler) << " with\n"
       << LogOption::Indent;
@@ -2097,9 +2126,10 @@ Object* Converter::makeMonarchObject(CK2Character* ruler, const string& keyword,
   return monarchDef;
 }
 
-Object* Converter::makeMonarch(CK2Character* ruler, CK2Ruler* king,
-                            const string& keyword, Object* bonusTraits) {
-  auto* monarchDef = makeMonarchObject(ruler, keyword, bonusTraits);
+Object* Converter::makeMonarch(const string& capitalTag, CK2Character* ruler,
+                               CK2Ruler* king, const string& keyword,
+                               Object* bonusTraits) {
+  auto* monarchDef = makeMonarchObject(capitalTag, ruler, keyword, bonusTraits);
   CK2Title* primary = king->getPrimaryTitle();
   monarchDef->setLeaf("country", addQuotes(primary->getEU4Country()->getKey()));
   Object* monarchId = createMonarchId();
@@ -2202,6 +2232,7 @@ bool Converter::makeAdvisor(CK2Character* councillor, Object* country_advisors,
   }
   Logger::logStream("characters") << "\n";
   advisor->setLeaf("location", capitalTag);
+  setCultureAndReligion(capitalTag, councillor, advisor);
   advisor->setLeaf("date", "1444.1.1");
   advisor->setLeaf("hire_date", "1.1.1");
   advisor->setLeaf("death_date", "9999.1.1");
@@ -2263,25 +2294,25 @@ bool Converter::createCharacters () {
     if (ck2Regent != nullptr &&
         ruler->getAge(
             remQuotes(ck2Game->safeGetString("date", "\"1444.11.11\""))) < 16) {
-      auto* eu4Regent = makeMonarch(ck2Regent, ruler, "monarch", bonusTraits);
+      auto* eu4Regent = makeMonarch(capitalTag, ck2Regent, ruler, "monarch", bonusTraits);
       eu4Regent->setLeaf("regent", "yes");
       if (eu4Regent->safeGetString("female", "no") == "yes") {
         eu4Regent->setLeaf("queen_regent", "yes");
       }
-      makeMonarch(ruler, ruler, "heir", bonusTraits);
+      makeMonarch(capitalTag, ruler, ruler, "heir", bonusTraits);
     } else {
-      makeMonarch(ruler, ruler, "monarch", bonusTraits);
+      makeMonarch(capitalTag, ruler, ruler, "monarch", bonusTraits);
 
       (*eu4country)->unsetValue("heir");
       if ((*eu4country)->safeGetString("needs_heir", "no") == "yes") {
         CK2Character* ckHeir = ruler->getOldestChild();
-        if (ckHeir) makeMonarch(ckHeir, ruler, "heir", bonusTraits);
+        if (ckHeir) makeMonarch(capitalTag, ckHeir, ruler, "heir", bonusTraits);
       }
     }
 
     auto* spouse = ruler->getBestSpouse();
     if (spouse) {
-      auto* queen = makeMonarch(spouse, ruler, "queen", bonusTraits);
+      auto* queen = makeMonarch(capitalTag, spouse, ruler, "queen", bonusTraits);
       queen->setLeaf("consort", "yes");
     }
 
@@ -2299,6 +2330,7 @@ bool Converter::createCharacters () {
         ++numAdvisors;
       }
     }
+
     for (const auto& advisor : ruler->getAdvisors()) {
       string key = advisor.first;
       for (auto* courtier : advisor.second) {
@@ -2328,21 +2360,26 @@ bool Converter::createCharacters () {
       highestSkill = currSkill;
       bestGeneral = (*commander);
     }
-    Logger::logStream("characters") << "General: " << (bestGeneral ? nameAndNumber(bestGeneral) : "None") << "\n";
+    Logger::logStream("characters")
+        << "General: " << (bestGeneral ? nameAndNumber(bestGeneral) : "None")
+        << "\n";
     if (bestGeneral) {
       Logger::logStream("characters") << LogOption::Indent;
-      makeLeader((*eu4country)->object, string("general"), bestGeneral, generalSkills, birthDate);
+      makeLeader((*eu4country)->object, string("general"), bestGeneral,
+                 generalSkills, birthDate);
       Logger::logStream("characters") << LogOption::Undent;
     }
 
     CK2Character* admiral = ruler->getAdmiral();
-    Logger::logStream("characters") << "Admiral: " << (admiral ? nameAndNumber(admiral) : "None") << "\n";
+    Logger::logStream("characters")
+        << "Admiral: " << (admiral ? nameAndNumber(admiral) : "None") << "\n";
     if (admiral) {
       Logger::logStream("characters") << LogOption::Indent;
-      makeLeader((*eu4country)->object, string("admiral"), admiral, generalSkills, birthDate);
+      makeLeader((*eu4country)->object, string("admiral"), admiral,
+                 generalSkills, birthDate);
       Logger::logStream("characters") << LogOption::Undent;
     }
-    
+
     Logger::logStream("characters") << LogOption::Undent;
   }
   Logger::logStream("characters") << "Advisors created:\n" << LogOption::Indent;
@@ -2360,6 +2397,7 @@ bool Converter::createCharacters () {
 
   Logger::logStream("characters") << "Total advisors created: " << numAdvisors << ".\n"
 				  << LogOption::Undent;
+
   Logger::logStream(LogStream::Info) << "Done with character creation.\n" << LogOption::Undent;
   return true;
 }
@@ -2464,15 +2502,22 @@ bool Converter::createNavies () {
     EU4Country* eu4country = ruler->getEU4Country();
     if (!eu4country) continue;
     double currShip = 0;
-    for (objiter barony = eu4country->startBarony(); barony != eu4country->finalBarony(); ++barony) {
+    for (objiter barony = eu4country->startBarony();
+         barony != eu4country->finalBarony(); ++barony) {
       Object* baronyLevy = (*barony)->getNeededObject("levy");
+      double baronyShips = 0;
       for (auto* ttype : ckShipTypes) {
 	string key = ttype->getKey();
 	double amount = getLevyStrength(key, baronyLevy);
 	amount *= shipWeights->safeGetFloat(key);
-	currShip += amount;
+	baronyShips += amount;
       }
+      Logger::logStream("navies") << "Barony " << (*barony)->getKey() << " has "
+                                  << baronyShips << " ships.\n";
+      currShip += baronyShips;
     }
+    Logger::logStream("navies")
+        << eu4country->getKey() << " has " << currShip << " CK ships.\n";
     ckShips += currShip;
     ruler->resetLeaf("shipWeight", currShip);    
   }
@@ -2632,7 +2677,8 @@ pair<string, string> findBest (map<string, map<string, int> >& corrMap) {
   return ret;
 }
 
-void makeMap (map<string, map<string, int> >& cultures, map<string, vector<string> >& assigns, Object* storage = 0) {
+void makeMap(map<string, map<string, int>>& cultures,
+             map<string, vector<string>>& assigns, Object* storage = 0) {
   map<string, map<string, int> > reverseMap;
   for (map<string, map<string, int> >::iterator cult = cultures.begin(); cult != cultures.end(); ++cult) {
     for (map<string, int>::iterator look = cult->second.begin(); look != cult->second.end(); ++look) {
@@ -2732,7 +2778,6 @@ bool Converter::cultureAndReligion () {
     }
   }
   
-  map<string, vector<string> > religionMap;
   Object* dynamicReligion = configObject->getNeededObject("dynamicReligions");
   makeMap(religions, religionMap, dynamicReligion);
   Object* overrideObject = customObject->getNeededObject("religion_overrides");
@@ -2746,7 +2791,6 @@ bool Converter::cultureAndReligion () {
     dynamicReligion->resetLeaf(ckReligion, euReligion);
   }
 
-  map<string, vector<string> > cultureMap;
   makeMap(cultures, cultureMap);
   overrideObject = customObject->getNeededObject("culture_overrides");
   overrides = overrideObject->getLeaves();
@@ -2792,7 +2836,9 @@ bool Converter::cultureAndReligion () {
 	religionMap[ckRulerReligion].push_back("catholic");
       }
       string euReligion = religionMap[ckRulerReligion][0];
-      Logger::logStream("cultures") << "Religion: " << euReligion << " based on CK religion " << ckRulerReligion << ".\n";
+      Logger::logStream("cultures")
+          << "Religion: " << euReligion << " based on CK religion "
+          << ckRulerReligion << ".\n";
       (*eu4country)->resetLeaf("religion", euReligion);
       (*eu4country)->resetHistory("religion", euReligion);
     }
@@ -2850,10 +2896,27 @@ bool Converter::cultureAndReligion () {
 }
 
 Object* Converter::createTypedId (string keyword, string idType) {
+  static const std::unordered_map<string, unsigned int> keyword_map = {
+      {"monarch", 1}, {"leader", 2}, {"advisor", 3}, {"rebel", 4}};
+
+  int number = -1;
+  Object* counters = eu4Game->safeGetObject("id_counters");
+  if (counters != nullptr) {
+    auto entry = keyword_map.find(keyword);
+    if (entry != keyword_map.end()) {
+      unsigned int index = entry->second;
+      number = counters->tokenAsInt(index);
+      sprintf(strbuffer, "%i", number + 1);
+      counters->resetToken(index, strbuffer);
+    }
+  }
+  if (number == -1) {
+    number = eu4Game->safeGetInt(keyword, 1);
+    eu4Game->resetLeaf(keyword, number + 1);
+  }
+
   Object* unitId = new Object("id");
-  int number = eu4Game->safeGetInt(keyword, 1);
   unitId->setLeaf("id", number);
-  eu4Game->resetLeaf(keyword, ++number);
   unitId->setLeaf("type", idType);
   return unitId;
 }
@@ -3676,8 +3739,7 @@ bool Converter::setCores () {
 			       << LogOption::Indent;
     CK2Title* title = (*ck2prov)->getCountyTitle();
     while (title) {
-      Logger::logStream("cores") << "Looking at title "
-				 << title->getKey();
+      Logger::logStream("cores") << "Looking at title " << title->getKey();
       CK2Ruler* ruler = title->getRuler();
       if (ruler) {
 	Logger::logStream("cores") << " with ruler " << nameAndNumber(ruler);
@@ -3685,21 +3747,20 @@ bool Converter::setCores () {
 	if (country) {
 	  Logger::logStream("cores") << " and country " << country->getKey();
 	  CK2Title* primary = ruler->getPrimaryTitle();
-
 	  // Claims due to holding de-jure liege title.
-	  for (EU4Province::Iter eu4prov = (*ck2prov)->startEU4Province(); eu4prov != (*ck2prov)->finalEU4Province(); ++eu4prov) {
-	    claimsMap[*eu4prov][country]++;
+	  for (auto* eu4prov : (*ck2prov)->eu4Provinces()) {
+	    claimsMap[eu4prov][country]++;
 	  }
 	  if ((primary == title) || (*(title->getLevel()) < *TitleLevel::Kingdom)) {
 	    Logger::logStream("cores") << ".\n" << LogOption::Indent;
-	    for (EU4Province::Iter eu4prov = (*ck2prov)->startEU4Province(); eu4prov != (*ck2prov)->finalEU4Province(); ++eu4prov) {
-	      Logger::logStream("cores") << nameAndNumber(*eu4prov)
+	    for (auto* eu4prov : (*ck2prov)->eu4Provinces()) {
+	      Logger::logStream("cores") << nameAndNumber(eu4prov)
 					 << " is core of "
 					 << country->getKey()
 					 << " because of "
 					 << title->getKey()
 					 << ".\n";
-	      country->setAsCore(*eu4prov);
+	      country->setAsCore(eu4prov);
 	    }
 	    Logger::logStream("cores") << LogOption::Undent;
 	  }
@@ -3728,7 +3789,8 @@ bool Converter::setCores () {
 
       title = title->getDeJureLiege();
     }
-    for (objiter barony = (*ck2prov)->startBarony(); barony != (*ck2prov)->finalBarony(); ++barony) {
+    for (objiter barony = (*ck2prov)->startBarony();
+         barony != (*ck2prov)->finalBarony(); ++barony) {
       CK2Title* baronyTitle = CK2Title::findByName((*barony)->getKey());
       if (!baronyTitle) continue;
       CK2Ruler* baron = baronyTitle->getRuler();
@@ -3804,7 +3866,9 @@ bool Converter::setupDiplomacy () {
     (*eu4)->unsetValue("is_lesser_in_union");
     (*eu4)->unsetValue("overlord");
     (*eu4)->unsetValue("previous_monarch");
-    (*eu4)->resetLeaf("num_of_unions", 0);
+    (*eu4)->resetLeaf("num_of_subjects", 0);
+    (*eu4)->resetLeaf("num_of_allies", 0);
+    (*eu4)->resetLeaf("num_of_royal_marriages", 0);
 
     Object* active_relations = (*eu4)->getNeededObject("active_relations");
     objvec relations = active_relations->getLeaves();
@@ -3814,14 +3878,13 @@ bool Converter::setupDiplomacy () {
   }
 
   string startDate = eu4Game->safeGetString("date", "1444.1.1");
-  int startYear = year(startDate);
 
   keyWords.clear();
   keyWords.push_back("friends");
   keyWords.push_back("subjects");
-  keyWords.push_back("vassals");
 
-  for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
+  for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final();
+       ++ruler) {
     EU4Country* vassalCountry = (*ruler)->getEU4Country();
     if (!vassalCountry) continue;
     if ((*ruler)->isSovereign()) continue;
@@ -3829,16 +3892,14 @@ bool Converter::setupDiplomacy () {
     if (!liege) continue;
     EU4Country* liegeCountry = liege->getEU4Country();
     if (liegeCountry == vassalCountry) continue;
-    Object* vassal = new Object("vassal");
+    Object* vassal = new Object("dependency");
     euDipObject->setValue(vassal);
     vassal->setLeaf("first", addQuotes(liegeCountry->getName()));
     vassal->setLeaf("second", addQuotes(vassalCountry->getName()));
-    vassal->setLeaf("end_date", "1836.1.1");
-    vassal->setLeaf("cancel", "no");
-    vassal->setLeaf("start_date",
-                    remQuotes((*ruler)->safeGetString(birthDateString,
-                                                      addQuotes(startDate))));
+    vassal->setLeaf("subject_type", addQuotes("vassal"));
     vassalCountry->resetLeaf("liberty_desire", "0.000");
+    liegeCountry->resetLeaf("num_of_unions",
+                            1 + liegeCountry->safeGetInt("num_of_unions"));
 
     for (auto& key : keyWords) {
       Object* toAdd = liegeCountry->getNeededObject(key);
@@ -3855,11 +3916,6 @@ bool Converter::setupDiplomacy () {
 				   << ".\n";
   }
 
-  keyWords.clear();
-  keyWords.push_back("friends");
-  keyWords.push_back("subjects");
-  keyWords.push_back("lesser_union_partners");
-
   for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
     CK2Title* primary = (*ruler)->getPrimaryTitle();
     EU4Country* overlord = primary->getEU4Country();
@@ -3874,21 +3930,18 @@ bool Converter::setupDiplomacy () {
 				     << overlord->getName() << " due to "
 				     << nameAndNumber(*ruler)
 				     << ".\n";
-      subject->resetLeaf("is_subject", "yes");
-      subject->resetLeaf("is_lesser_in_union", "yes");
       subject->resetLeaf("overlord", addQuotes(overlord->getKey()));
       subject->resetLeaf("liberty_desire", "0.000");
-      subject->resetLeaf("num_of_unions", 1);
-      overlord->resetLeaf("num_of_unions", 1 + overlord->safeGetInt("num_of_unions"));
       Object* unionObject = new Object("union");
       euDipObject->setValue(unionObject);
       unionObject->setLeaf("first", addQuotes(overlord->getKey()));
       unionObject->setLeaf("second", addQuotes(subject->getKey()));
-      unionObject->setLeaf("end_date", createString("%i.1.1", startYear + 50));
-      unionObject->setLeaf("cancel", "no");
       unionObject->setLeaf("start_date",
                            remQuotes((*ruler)->safeGetString(
                                birthDateString, addQuotes(startDate))));
+      unionObject->setLeaf("subject_type", addQuotes("personal_union"));
+      overlord->resetLeaf("num_of_unions",
+                          1 + overlord->safeGetInt("num_of_unions"));
 
       for (vector<string>::iterator key = keyWords.begin(); key != keyWords.end(); ++key) {
 	Object* toAdd = overlord->getNeededObject(*key);
@@ -4346,7 +4399,7 @@ bool Converter::warsAndRebels () {
     Object* faction = new Object("rebel_faction");
     Object* factionId = createTypedId("rebel", "50");
     faction->setValue(factionId);
-    faction->setLeaf("fraction", "0.000");
+    //faction->setLeaf("fraction", "0.000");
     faction->setLeaf("type", addQuotes(euRevoltType));
     faction->setLeaf("name", warName);
     faction->setLeaf("progress", "0.000");
@@ -4621,6 +4674,7 @@ void Converter::convert () {
 
   if (!createCK2Objects()) return;
   if (!createEU4Objects()) return;
+
   if (!createProvinceMap()) return;
   if (!createCountryMap()) return;
   if (!resetHistories()) return;
@@ -4641,6 +4695,7 @@ void Converter::convert () {
   if (!redistributeMana()) return;
   if (!hreAndPapacy()) return;
   if (!warsAndRebels()) return;
+
   calculateDynasticScores();
   cleanUp();
 

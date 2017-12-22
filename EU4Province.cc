@@ -8,9 +8,11 @@ EU4Province::EU4Province (Object* o)
 {}
 
 void EU4Province::addCore (string countryTag) {
-  string quotedTag = addQuotes(countryTag);
-  setLeaf("core", quotedTag);
-  getNeededObject("history")->setLeaf("add_core", quotedTag);
+  if (!hasCore(countryTag)) {
+    string quotedTag = addQuotes(countryTag);
+    getNeededObject("cores")->addToList(quotedTag);
+    getNeededObject("history")->setLeaf("add_core", quotedTag);
+  }
 }
 
 void EU4Province::assignCountry(EU4Country* eu4) {
@@ -36,18 +38,19 @@ bool EU4Province::converts () const {
   return true;
 }
 
-bool EU4Province::hasCore (string countryTag) const {
-  objvec cores = getValue("core");
+bool EU4Province::hasCore (string countryTag) {
+  auto* cores = getNeededObject("cores");
   string quotedTag = addQuotes(countryTag);
-  for (objiter core = cores.begin(); core != cores.end(); ++core) {
-    if ((*core)->getLeaf() != quotedTag) continue;
-    return true;
+  for (int i = 0; i < cores->numTokens(); ++i) {
+    if (cores->getToken(i) == quotedTag) {
+      return true;
+    }
   }
   return false;
 }
 
 void EU4Province::remCore (string countryTag) {
   string quotedTag = addQuotes(countryTag);
-  unsetKeyValue("core", quotedTag);
+  getNeededObject("cores")->remToken(quotedTag);
   getNeededObject("history")->unsetKeyValue("add_core", quotedTag);
 }
