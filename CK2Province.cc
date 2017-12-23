@@ -41,9 +41,11 @@ double CK2Province::getWeight (ProvinceWeight const* const pw) const {
 
 void CK2Province::calculateWeights (Object* weightObject, Object* troops, objvec& buildings) {
   for (unsigned int i = 0; i < weights.size(); ++i) weights[i] = 0;
+  int baronies = 0;
   for (objiter barony = startBarony(); barony != finalBarony(); ++barony) {
     string baronyType = (*barony)->safeGetString("type", "None");
     if (baronyType == "None") continue;
+    ++baronies;
     Object* typeWeight = weightObject->getNeededObject(baronyType);
     double buildingWeight = typeWeight->safeGetFloat("cost");
     double forts = 0;
@@ -61,7 +63,6 @@ void CK2Province::calculateWeights (Object* weightObject, Object* troops, objvec
     (*barony)->setLeaf(ProvinceWeight::Taxation->getName(),
                        buildingWeight * typeWeight->safeGetFloat("tax", 0.5));
     (*barony)->setLeaf(ProvinceWeight::Fortification->getName(), forts);
-    // Good to here.
     Object* levyObject = (*barony)->safeGetObject("levy");
     double mpWeight = 0;
     double galleys = 0;
@@ -100,5 +101,8 @@ void CK2Province::calculateWeights (Object* weightObject, Object* troops, objvec
     Logger::logStream("buildings") << "\n" << LogOption::Undent;
 
   }
+  Logger::logStream("provinces") << "Found " << baronies << " settlements in "
+                                 << nameAndNumber(this) << "\n";
+  // Doesn't seem to be used any more?
   weights[*ProvinceWeight::Trade] = safeGetInt("realm_tradeposts");
 }

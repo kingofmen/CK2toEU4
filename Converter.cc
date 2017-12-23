@@ -1041,9 +1041,9 @@ bool Converter::adjustBalkanisation () {
   map<EU4Country*, vector<EU4Country*> > subjectMap;
   Object* diplomacy = eu4Game->getNeededObject("diplomacy");
   objvec relations = diplomacy->getLeaves();
+  std::unordered_set<std::string> relations_to_blob = {"dependency", "union"};
   for (auto* relation : relations) {
-    string key = relation->getKey();
-    if ((key != "vassal") && (key != "union")) {
+    if (relations_to_blob.count(relation->getKey()) == 0) {
       continue;
     }
     EU4Country* overlord = EU4Country::getByName(
@@ -1656,23 +1656,21 @@ bool Converter::cleanEU4Nations () {
       dipsToRemove.push_back(*dip);
       EU4Country* overlord = EU4Country::getByName(first);
       overlord->getNeededObject("friends")->remToken(second);
-      overlord->getNeededObject("vassals")->remToken(second);
       overlord->getNeededObject("subjects")->remToken(second);
-      overlord->getNeededObject("lesser_union_partners")->remToken(second);
     }
     for (objiter rem = dipsToRemove.begin(); rem != dipsToRemove.end(); ++rem) {
       diplomacy->removeObject(*rem);
     }
   }
 
-  for (EU4Province::Iter eu4prov = EU4Province::start(); eu4prov != EU4Province::final(); ++eu4prov) {
-    if (!(*eu4prov)->converts()) continue;
-    EU4Country* owner = EU4Country::getByName(remQuotes((*eu4prov)->safeGetString("owner")));
-    if (owner) owner->getNeededObject("owned_provinces")->addToList((*eu4prov)->getKey());
-    objvec cores = (*eu4prov)->getValue("core");
-    for (objiter core = cores.begin(); core != cores.end(); ++core) {
-      EU4Country* coreHaver = EU4Country::getByName(remQuotes((*core)->getLeaf()));
-      if (coreHaver) coreHaver->setAsCore(*eu4prov);
+  for (auto* eu4prov : EU4Province::getAll()) {
+    if (!eu4prov->converts()) continue;
+    EU4Country* owner = EU4Country::getByName(remQuotes(eu4prov->safeGetString("owner")));
+    if (owner) owner->getNeededObject("owned_provinces")->addToList(eu4prov->getKey());
+    auto* cores = eu4prov->safeGetObject("cores");
+    for (int i = 0; i < cores->numTokens(); ++i) {
+      EU4Country* coreHaver = EU4Country::getByName(remQuotes(cores->getToken(i)));
+      if (coreHaver) coreHaver->setAsCore(eu4prov);
     }
   }
 
@@ -3667,23 +3665,24 @@ bool Converter::resetHistories () {
   Logger::logStream(LogStream::Info) << "Clearing histories and flags.\n" << LogOption::Indent;
   vector<string> objectsToClear;
   objectsToClear.push_back("history");
+  objectsToClear.push_back("cores");
   vector<string> valuesToRemove;
-  valuesToRemove.push_back("core");
   valuesToRemove.push_back("unit");
   for (auto* eu4prov : EU4Province::getAll()) {
     if (!eu4prov->converts()) {
       continue;
     }
 
-    for (vector<string>::iterator tag = objectsToClear.begin(); tag != objectsToClear.end(); ++tag) {
-      Object* history = eu4prov->getNeededObject(*tag);
-      history->clear();
-      history->resetLeaf("discovered_by", addQuotes("western"));
+    for (auto tag : objectsToClear) {
+      Object* obj = eu4prov->getNeededObject(tag);
+      obj->clear();
     }
 
-    for (vector<string>::iterator tag = valuesToRemove.begin(); tag != valuesToRemove.end(); ++tag) {
-      eu4prov->unsetValue(*tag);
+    for (auto tag : valuesToRemove) {
+      eu4prov->unsetValue(tag);
     }
+    Object* history = eu4prov->getNeededObject("history");
+    history->resetLeaf("discovered_by", addQuotes("western"));
 
     Object* discovered = eu4prov->safeGetObject("discovered_dates");
     if ((discovered) && (1 < discovered->numTokens())) {
@@ -3854,8 +3853,6 @@ bool Converter::setupDiplomacy () {
   vector<string> keyWords;
   keyWords.push_back("friends");
   keyWords.push_back("subjects");
-  keyWords.push_back("vassals");
-  keyWords.push_back("lesser_union_partners");
   for (EU4Country::Iter eu4 = EU4Country::start(); eu4 != EU4Country::final(); ++eu4) {
     for (vector<string>::iterator key = keyWords.begin(); key != keyWords.end(); ++key) {
       Object* toClear = (*eu4)->getNeededObject(*key);
@@ -3878,10 +3875,6 @@ bool Converter::setupDiplomacy () {
   }
 
   string startDate = eu4Game->safeGetString("date", "1444.1.1");
-
-  keyWords.clear();
-  keyWords.push_back("friends");
-  keyWords.push_back("subjects");
 
   for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final();
        ++ruler) {
