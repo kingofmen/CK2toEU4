@@ -1575,6 +1575,7 @@ bool Converter::calculateProvinceWeights () {
 
   Object* weightObject = configObject->getNeededObject("buildings");
   Object* troops = configObject->getNeededObject("troops");
+  weightObject->setValue(customObject->getNeededObject("special_nerfs"));
   for (auto* ck2prov : CK2Province::getAll()) {
     ck2prov->calculateWeights(weightObject, troops, buildingTypes);
     Logger::logStream("provinces") << nameAndNumber(ck2prov)

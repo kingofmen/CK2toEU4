@@ -1,4 +1,8 @@
 #include "CK2Province.hh"
+
+#include <unordered_map>
+
+#include "CK2Title.hh"
 #include "EU4Province.hh"
 #include "Logger.hh"
 #include "UtilityFunctions.hh"
@@ -105,4 +109,22 @@ void CK2Province::calculateWeights (Object* weightObject, Object* troops, objvec
                                  << nameAndNumber(this) << "\n";
   // Doesn't seem to be used any more?
   weights[*ProvinceWeight::Trade] = safeGetInt("realm_tradeposts");
+
+  Object* nerf = weightObject->getNeededObject("special_nerfs");
+  double de_jure_nerf = 1;
+  auto* liege = countyTitle;
+  while (liege != nullptr) {
+    string key = liege->getKey();
+    double current_nerf = nerf->safeGetFloat(key, 1);
+    if (current_nerf != 1) {
+      de_jure_nerf *= current_nerf;
+      Logger::logStream("provinces")
+          << "Nerfing " << nameAndNumber(this) << " by " << current_nerf
+          << " due to " << key << "\n";
+    }
+    liege = liege->getDeJureLiege();
+  }
+  for (unsigned int i = 0; i < weights.size(); ++i) {
+    weights[i] *= de_jure_nerf;
+  }
 }

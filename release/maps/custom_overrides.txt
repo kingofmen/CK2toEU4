@@ -56,3 +56,10 @@ custom_score_traits = {
   achievements = 0.01
 }
 
+# Reduce development in particular de-jure titles.
+special_nerfs = {
+  e_persia = 0.66
+  k_arabia = 0.66
+}
+
+
