@@ -39,7 +39,8 @@ ConverterJob const *const ConverterJob::DynastyScores =
 
 namespace {
 unordered_set<EU4Country*> independenceRevolts;
-Object* euLeaderTraits;
+Object* euLeaderTraits = nullptr;
+Object* ck_province_setup = nullptr;
 map<string, vector<string> > religionMap;
 map<string, vector<string> > cultureMap;
 }
@@ -246,8 +247,9 @@ bool Converter::swapKeys (Object* one, Object* two, string key) {
 
 void Converter::checkProvinces () {
   Logger::logStream(LogStream::Info) << "Checking provinces.\n";
-  if (!createCK2Objects())
+  if (!createCK2Objects()) {
     return;
+  }
   for (CK2Province::Iter ckprov = CK2Province::start();
        ckprov != CK2Province::final(); ++ckprov) {
     string baronytag =
@@ -845,86 +847,61 @@ bool Converter::createCountryMap () {
   return true; 
 }
 
-bool Converter::createProvinceMap () {
+bool Converter::createProvinceMap() {
   if (!provinceMapObject) {
-    Logger::logStream(LogStream::Error) << "Error: Could not find province-mapping object.\n";
-    return false; 
+    Logger::logStream(LogStream::Error)
+        << "Error: Could not find province-mapping object.\n";
+    return false;
   }
 
-  Logger::logStream(LogStream::Info) << "Starting province mapping\n" << LogOption::Indent;
-  // We have a map from county titles to EU4 provinces.
-  // We also have a list of CK2 provinces that know what
-  // their primary settlement is; it's a barony. The barony
-  // knows its liege, which will be a county. So we go
-  // CK2 province -> CK2 barony -> CK2 county -> EU4 province.
-
-  map<string, string> baronyToCountyMap;
-  for (CK2Title::Iter title = CK2Title::start(); title != CK2Title::final(); ++title) {
-    if (TitleLevel::Barony != (*title)->getLevel()) continue;
-    CK2Title* liege = (*title)->getLiege();
-    if (!liege) {
-      Logger::logStream(LogStream::Error) << "Barony " << (*title)->getName() << " has no liege? Ignoring.\n";
+  Logger::logStream(LogStream::Info) << "Starting province mapping\n"
+                                     << LogOption::Indent;
+  for (auto* ckprov : CK2Province::getAll()) {
+    Object* province_info = ck_province_setup->safeGetObject(ckprov->getKey());
+    if (province_info == nullptr) {
+      Logger::logStream(LogStream::Warn)
+          << "Could not find province information for " << nameAndNumber(ckprov)
+          << "\n";
       continue;
     }
-    if (TitleLevel::County != liege->getLevel()) {
-      // Not an error, indicates the family palace of a merchant republic.
+    string countytag = province_info->safeGetString("title", PlainNone);
+    if (countytag == PlainNone) {
+      Logger::logStream(LogStream::Warn)
+          << "Could not find title information for " << nameAndNumber(ckprov);
       continue;
     }
-
-    baronyToCountyMap[(*title)->getName()] = liege->getName();
-  }
-
-  for (CK2Province::Iter ckprov = CK2Province::start(); ckprov != CK2Province::final(); ++ckprov) {
-    string baronytag = remQuotes((*ckprov)->safeGetString("primary_settlement", QuotedNone));
-    if (baronytag == "---") continue; // Indicates wasteland.
-    if (PlainNone == baronytag) {
-      Logger::logStream(LogStream::Warn) << "Could not find primary settlement of "
-					 << nameAndNumber(*ckprov)
-					 << ", ignoring.\n";
-      continue;
-    }
-
-    if (0 == baronyToCountyMap.count(baronytag)) {
-      Logger::logStream(LogStream::Warn) << "Could not find county liege of barony "
-					 << addQuotes(baronytag)
-					 << " in county "
-					 << nameAndNumber(*ckprov)
-					 << ", ignoring.\n";
-      continue;
-    }
-
-    string countytag = baronyToCountyMap[baronytag];
     CK2Title* county = CK2Title::findByName(countytag);
-    if (!county) {
-      Logger::logStream(LogStream::Warn) << "Could not find county "
-					 << countytag
-					 << ", allegedly location of barony "
-					 << baronytag
-					 << ".\n";
+    if (county == nullptr) {
+      Logger::logStream(LogStream::Warn)
+          << "Could not find county " << countytag << " for province "
+          << nameAndNumber(ckprov) << ".\n";
+      continue;
     }
-    (*ckprov)->setCountyTitle(county);
+    ckprov->setCountyTitle(county);
+
     objvec conversions = provinceMapObject->getValue(countytag);
     if (0 == conversions.size()) {
-      Logger::logStream(LogStream::Warn) << "Could not find EU4 equivalent for province "
-					 << nameAndNumber(*ckprov)
-					 << ", ignoring.\n";
+      Logger::logStream(LogStream::Warn)
+          << "Could not find EU4 equivalent for province "
+          << nameAndNumber(ckprov) << ", ignoring.\n";
       continue;
     }
 
-    for (objiter conversion = conversions.begin(); conversion != conversions.end(); ++conversion) {
+    for (objiter conversion = conversions.begin();
+         conversion != conversions.end(); ++conversion) {
       string eu4id = (*conversion)->getLeaf();
       EU4Province* target = EU4Province::findByName(eu4id);
       if (!target) {
-	Logger::logStream(LogStream::Warn) << "Could not find EU4 province " << eu4id
-					   << ", (missing DLC in input save?), skipping "
-					   << nameAndNumber(*ckprov) << ".\n";
-	continue;
+        Logger::logStream(LogStream::Warn)
+            << "Could not find EU4 province " << eu4id
+            << ", (missing DLC in input save?), skipping "
+            << nameAndNumber(ckprov) << ".\n";
+        continue;
       }
-      (*ckprov)->assignProvince(target);
-      Logger::logStream("provinces") << nameAndNumber(*ckprov)
-				     << " mapped to EU4 province "
-				     << nameAndNumber(target)
-				     << ".\n";
+      ckprov->assignProvince(target);
+      Logger::logStream("provinces")
+          << nameAndNumber(ckprov) << " mapped to EU4 province "
+          << nameAndNumber(target) << ".\n";
     }
   }
 
@@ -958,6 +935,7 @@ void Converter::loadFiles () {
     advisorTypesObject = new Object("dummy_advisors");
   }
 
+  ck_province_setup = loadTextFile(dirToUse + "ck_province_titles.txt");
   string overrideFileName = remQuotes(configObject->safeGetString("custom", QuotedNone));
   if ((PlainNone != overrideFileName) && (overrideFileName != "NOCUSTOM")) {
     customObject = loadTextFile(dirToUse + overrideFileName);
@@ -1739,6 +1717,20 @@ bool Converter::cleanEU4Nations () {
   return true;
 }
 
+// Returns a date add_years into the converted game.
+string Converter::getConversionDate(int add_years) {
+  string eu4Date = eu4Game->safeGetString("date", "1444.11.11");
+  int eu4Year = 0;
+  int eu4Month = 0;
+  int eu4Day = 0;
+  yearMonthDay(eu4Date, eu4Year, eu4Month, eu4Day);
+  sprintf(strbuffer, "%i.%i.%i", eu4Year + add_years, eu4Month, eu4Day);
+  return strbuffer;
+}
+
+// Returns the date of 'ck2Date' assuming that the CK save year converts to the
+// EU4 save year; so if the conversion is from 1000 to 1100, and the date is in
+// 950, 1050 is returned.
 string Converter::getConversionDate(const string& ck2Date) {
   string eu4Date = eu4Game->safeGetString("date", "1444.11.11");
   int eu4Year = year(eu4Date);
@@ -3102,19 +3094,26 @@ bool Converter::rankProvinceDevelopment () {
   }
 
   vector<CK2Province*> sorted_ck2_provs;
-  for (CK2Province::Iter ck2prov = CK2Province::start();
-       ck2prov != CK2Province::final(); ++ck2prov) {
-    if (0 == (*ck2prov)->numEU4Provinces()) continue;
-    double dev = (*ck2prov)->getWeight(ProvinceWeight::Taxation);
-    dev += (*ck2prov)->getWeight(ProvinceWeight::Production);
-    dev += (*ck2prov)->getWeight(ProvinceWeight::Manpower);
-    (*ck2prov)->resetLeaf(kDevSortKey, dev);
-    sorted_ck2_provs.push_back(*ck2prov);
+  vector<CK2Province*> wasted_ck2_provs;
+  for (auto* ck2prov : CK2Province::getAll()) {
+    if (0 == ck2prov->numEU4Provinces()) continue;
+    double dev = ck2prov->getWeight(ProvinceWeight::Taxation);
+    dev += ck2prov->getWeight(ProvinceWeight::Production);
+    dev += ck2prov->getWeight(ProvinceWeight::Manpower);
+    ck2prov->resetLeaf(kDevSortKey, dev);
+    if (ck2prov->safeGetString("primary_settlement") == "\"---\"") {
+      wasted_ck2_provs.push_back(ck2prov);
+    } else {
+      sorted_ck2_provs.push_back(ck2prov);
+    }
   }
 
   ObjectDescendingSorter sorter(kDevSortKey);
   sort(sorted_ck2_provs.begin(), sorted_ck2_provs.end(), sorter);
+  sort(wasted_ck2_provs.begin(), wasted_ck2_provs.end(), sorter);
   sort(sorted_eu4_devs.begin(), sorted_eu4_devs.end(), sorter);
+  sorted_ck2_provs.insert(sorted_ck2_provs.end(), wasted_ck2_provs.begin(),
+                          wasted_ck2_provs.end());
 
   vector<CK2Province*> backup_ck2_provs;
   int counter = 0;
@@ -3157,6 +3156,21 @@ bool Converter::rankProvinceDevelopment () {
       for (const auto& key : {"base_tax", "base_production", "base_manpower"}) {
         eu4prov->resetLeaf(key, eu4dev->safeGetFloat(key));
       }
+      if (ck2prov->safeGetString("primary_settlement") == "\"---\"") {
+        Logger::logStream("provinces")
+            << nameAndNumber(eu4prov)
+            << " wasted by nomads due to conversion from "
+            << nameAndNumber(ck2prov) << "\n";
+        for (const auto& key : {"base_tax", "base_production", "base_manpower"}) {
+          eu4prov->resetLeaf(key, 1.0);
+        }
+        Object* modifier = new Object("modifier");
+        eu4prov->setValue(modifier);
+        modifier->setLeaf("modifier", "province_razed");
+        modifier->setLeaf("date", getConversionDate(20));
+        eu4prov->resetLeaf("loot_remaining", 0.0);
+        eu4prov->resetLeaf("devastation", 50.0);
+      }
       unassignedEu4Provs.erase(eu4prov);
     }
     if (++counter > 100) {
@@ -3190,7 +3204,9 @@ bool Converter::modifyProvinces () {
 
 // Apparently making this definition local to the function confuses the compiler.
 struct WeightDescendingSorter {
-  WeightDescendingSorter (ProvinceWeight const* const w, map<CK2Province*, double>* adj) : weight(w), adjustment(adj) {}
+  WeightDescendingSorter(ProvinceWeight const* const w,
+                         map<CK2Province*, double>* adj)
+      : weight(w), adjustment(adj) {}
   bool operator() (CK2Province* one, CK2Province* two) {
     double weightOne = one->getWeight(weight);
     if (adjustment->count(one)) weightOne *= adjustment->at(one);
@@ -3205,7 +3221,9 @@ struct WeightDescendingSorter {
 bool Converter::moveBuildings () {
   Logger::logStream(LogStream::Info) << "Moving buildings.\n" << LogOption::Indent;
   if (!euBuildingObject) {
-    Logger::logStream(LogStream::Warn) << "No EU building info. Buildings will not be moved.\n" << LogOption::Undent;
+    Logger::logStream(LogStream::Warn)
+        << "No EU building info. Buildings will not be moved.\n"
+        << LogOption::Undent;
     return true;
   }
 
@@ -3670,6 +3688,8 @@ bool Converter::resetHistories () {
   vector<string> valuesToRemove;
   valuesToRemove.push_back("unit");
   for (auto* eu4prov : EU4Province::getAll()) {
+    eu4prov->unsetValue("discovered_by");
+    eu4prov->getNeededObject("history")->unsetValue("discovered_by");
     if (!eu4prov->converts()) {
       continue;
     }
@@ -3689,7 +3709,8 @@ bool Converter::resetHistories () {
     if ((discovered) && (1 < discovered->numTokens())) {
       discovered->resetToken(1, "1.1.1");
     }
-    discovered = eu4prov->safeGetObject("discovered_by");
+    //discovered = eu4prov->safeGetObject("discovered_by");
+    discovered = eu4prov->getNeededObject("discovered_by");
     if (discovered) {
       vector<string> extraTags;
       for (int i = 0; i < discovered->numTokens(); ++i) {

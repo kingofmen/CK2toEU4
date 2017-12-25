@@ -1079,11 +1079,10 @@ c_beersheb = 379 # Beersheb - Judea
 
 d_damascus = 382 # Duchy Damascus - Damascus
 c_damascus = 382 # County Damascus - Damascus
-c_damascus = 382 # Duplicate to increase weight
-c_irbid = 382 # Irbid - Damascus
+c_irbid = 4271 # Irbid
 c_al_mafraq = 382 # Al Mafraq - Damascus
 
-c_amman = 381 # Amman - Hawran
+c_amman = 4270 # Amman
 c_az_zarqa = 381 # Az Zarqa - Hawran
 c_madaba = 381 # Madaba - Hawran
 
@@ -1483,39 +1482,50 @@ c_medina = 2330 # Medina - Ma'din Sulaym
 c_mecca = 385 # Mecca - Mecca
 c_mecca = 2331 # Mecca - Jeddah
 c_mecca = 2332 # Mecca - Truba
+c_mecca = 4277
 
 c_asir = 386 # Asir - Asir
 c_asir = 2346 # Asir - Jazan
+c_asir = 4278
 
 c_sanaa = 390 # Sanaa - Sana'a
 c_sanaa = 391 # Sanaa - Najran
+c_sanaa = 4282
 
 c_taizz = 387 # Taizz - Mocha
+c_taizz = 4279
 
 c_aden = 388 # Aden - Aden
 
 c_bayda = 2344 # Bayda - Al Jawf
 c_bayda = 2345 # Bayda - Ahqaf
+c_bayda = 4281
 
 c_kathiri = 389 # Kathiri - Kinda
 c_kathiri = 2343 # Kathiri - Hadramawt
+c_kathiri = 4283
 
 c_mahra = 402 # Mahra - Mahra
 
 c_dhofar = 401 # Dhofar - Dhofar
+c_dhofar = 4284
 
 c_duqm = 2342 # Duqm - Wusta
 
-c_muscat = 400 # Muscat - Muscat
 c_muscat = 2341 # Muscat - Sharqiyah
+c_muscat = 4286
 
 c_hajar = 399 # Hajar - Suhar
 c_hajar = 403 # Hajar - Nizwa
+c_hajar = 400
+c_hajar = 4287
 
 c_dhu_zabi = 398 # Dhu Zabi - Qawasim
 c_dhu_zabi = 404 # Dhu Zabi - Liwa
 c_dhu_zabi = 397 # Dhu Zabi - Beni Yas
 c_dhu_zabi = 2333 # Dhu Zabi - Abd al-Qays
+c_dhu_zabi = 4285
+c_dhu_zabi = 399
 
 c_al_hasa = 395 # Al Hasa - Qatar
 c_al_hasa = 2347 # Al Hasa - Hufuf
@@ -1531,14 +1541,18 @@ c_al_jawf = 2328 # Al Jawf - Tamya
 
 c_hail = 393 # Hail - Jabal Shammar
 c_hail = 2337 # Hail - Unaizah
+c_hail = 4272
 
 c_rafha = 2338 # Rafha - Hafar
 
 c_hajr = 392 # Hajr - Najd
 c_hajr = 2339 # Hajr - Yabrin
+c_hajr = 4274
+c_hajr = 4275
 
 c_halaban = 2335 # Halaban - Tamara
 c_halaban = 2336 # Halaban - Falaj
+c_halaban = 4273
 
 # Persian Empire
 
@@ -1549,8 +1563,8 @@ c_basra = 408 # Basra - Basra
 c_kufa = 2311 # Kufa - Samawah
 
 c_tigris = 2312 # Tigris - Wasit
+c_tigris = 4288
 
-c_tigris = 2209 # Tigris - Ilam
 c_ilam = 2209 # Ilam - Ilam
 
 c_baghdad = 410 # County Baghdad - Baghdad
