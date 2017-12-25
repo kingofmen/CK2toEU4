@@ -1596,6 +1596,7 @@ bool Converter::cleanEU4Nations () {
   Logger::logStream(LogStream::Info) << "Beginning nation cleanup.\n" << LogOption::Indent;
   Object* keysToClear = configObject->getNeededObject("keys_to_clear");
   keysToClear->addToList("owned_provinces");
+  keysToClear->addToList("controlled_provinces");
   keysToClear->addToList("core_provinces");
 
   Object* keysToRemove = configObject->getNeededObject("keys_to_remove");
@@ -1645,7 +1646,11 @@ bool Converter::cleanEU4Nations () {
   for (auto* eu4prov : EU4Province::getAll()) {
     if (!eu4prov->converts()) continue;
     EU4Country* owner = EU4Country::getByName(remQuotes(eu4prov->safeGetString("owner")));
-    if (owner) owner->getNeededObject("owned_provinces")->addToList(eu4prov->getKey());
+    if (owner) {
+      owner->getNeededObject("owned_provinces")->addToList(eu4prov->getKey());
+      owner->getNeededObject("controlled_provinces")
+          ->addToList(eu4prov->getKey());
+    }
     auto* cores = eu4prov->safeGetObject("cores");
     for (int i = 0; i < cores->numTokens(); ++i) {
       EU4Country* coreHaver = EU4Country::getByName(remQuotes(cores->getToken(i)));
