@@ -31,6 +31,16 @@ bool EU4Country::isROTW() const {
   return getRuler() == nullptr;
 }
 
+std::string EU4Country::getGovernment() {
+  return getNeededObject("government")
+      ->safeGetString("government", "\"feudal_monarchy\"");
+}
+
+void EU4Country::setGovernment(const std::string& government) {
+  getNeededObject("government")->resetLeaf("government", government);
+  resetHistory("government", remQuotes(government));
+}
+
 void EU4Country::setAsCore (EU4Province* prov) {
   Object* coreList = getNeededObject("core_provinces");
   bool listed = false;

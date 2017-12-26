@@ -1,6 +1,8 @@
 #ifndef EU4COUNTRY_HH
 #define EU4COUNTRY_HH
 
+#include <string>
+
 #include "EU4Province.hh"
 #include "UtilityFunctions.hh"
 #include "Logger.hh"
@@ -22,6 +24,8 @@ public:
   void removeCore (EU4Province* prov);
   void setAsCore (EU4Province* prov);
   void setRuler (CK2Ruler* ruler, CK2Title* title);
+  std::string getGovernment();
+  void setGovernment(const std::string& government);
 
   EU4Province::Container& getProvinces() {return provinces;}
   EU4Province::Iter startProvince () {return provinces.begin();}

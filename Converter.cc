@@ -2406,27 +2406,29 @@ bool Converter::createGovernments () {
   Object* govObject = configObject->getNeededObject("governments");
   double empireThreshold = configObject->safeGetFloat("empire_threshold", 1000);
   double kingdomThreshold = configObject->safeGetFloat("kingdom_threshold", 1000);
-  for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
-    CK2Ruler* ruler = (*eu4country)->getRuler();
+  for (auto* eu4country : EU4Country::getAll()) {
+    CK2Ruler* ruler = eu4country->getRuler();
     if (!ruler) continue;
     CK2Title* primary = ruler->getPrimaryTitle();
     string government_rank = "1";
     double totalDevelopment = 0;
-    for (EU4Province::Iter eu4prov = (*eu4country)->startProvince(); eu4prov != (*eu4country)->finalProvince(); ++eu4prov) {
-      totalDevelopment += (*eu4prov)->safeGetFloat("base_tax");
-      totalDevelopment += (*eu4prov)->safeGetFloat("base_manpower");
-      totalDevelopment += (*eu4prov)->safeGetFloat("base_production");
+    for (auto* eu4prov : eu4country->getProvinces()) {
+      totalDevelopment += eu4prov->safeGetFloat("base_tax");
+      totalDevelopment += eu4prov->safeGetFloat("base_manpower");
+      totalDevelopment += eu4prov->safeGetFloat("base_production");
     }
     if (totalDevelopment > empireThreshold) government_rank = "3";
     else if (totalDevelopment > kingdomThreshold) government_rank = "2";
-    (*eu4country)->resetLeaf("government_rank", government_rank);
-    (*eu4country)->resetHistory("government_rank", government_rank);
-    string ckGovernment = ruler->safeGetString(governmentString, "feudal_government");
+    eu4country->resetLeaf("government_rank", government_rank);
+    eu4country->resetHistory("government_rank", government_rank);
+    string ckGovernment =
+        ruler->safeGetString(governmentString, "feudal_government");
     Object* govInfo = govObject->safeGetObject(ckGovernment);
-    string euGovernment = (*eu4country)->safeGetString("government");
+    string euGovernmentType = eu4country->getGovernment();
     if (govInfo) {
-      Logger::logStream("governments") << nameAndNumber(ruler) << " of " << (*eu4country)->getKey()
-				       << " has CK government " << ckGovernment;
+      Logger::logStream("governments")
+          << nameAndNumber(ruler) << " of " << eu4country->getKey()
+          << " has CK government " << ckGovernment;
       if (primary) {
 	string succession = primary->safeGetString("succession", PlainNone);
 	Object* successionObject = govInfo->safeGetObject(succession);
@@ -2435,24 +2437,20 @@ bool Converter::createGovernments () {
 	  govInfo = successionObject;
 	}
       }
-      euGovernment = govInfo->safeGetString("eugov");
-      Logger::logStream("governments") << " giving EU government " << euGovernment
-				       << " of rank " << government_rank
-				       << " based on total development " << totalDevelopment
-				       << ".\n";
-      (*eu4country)->resetLeaf("needs_heir", govInfo->safeGetString("heir", "no"));
+      euGovernmentType = govInfo->safeGetString("eugov");
+      Logger::logStream("governments")
+          << " giving EU government " << euGovernmentType << " of rank "
+          << government_rank << " based on total development "
+          << totalDevelopment << ".\n";
+      eu4country->resetLeaf("needs_heir", govInfo->safeGetString("heir", "no"));
     }
     else {
-      Logger::logStream(LogStream::Warn) << "No information about CK government "
-					 << ckGovernment
-					 << ", leaving "
-					 << (*eu4country)->getKey()
-					 << " as "
-					 << euGovernment
-					 << ".\n";
+      Logger::logStream(LogStream::Warn)
+          << "No information about CK government " << ckGovernment
+          << ", leaving " << eu4country->getKey() << " as " << euGovernmentType
+          << ".\n";
     }
-    (*eu4country)->resetLeaf("government", euGovernment);
-    (*eu4country)->resetHistory("government", euGovernment);
+    eu4country->setGovernment(euGovernmentType);
   }  
   Logger::logStream(LogStream::Info) << "Done with governments.\n" << LogOption::Undent;
   return true;
@@ -3522,25 +3520,30 @@ bool Converter::redistributeMana () {
     }
     totalFactionStrength /= (1 + ruler->countBaronies());
     int stability = 3;
-    Logger::logStream("mana") << nameAndNumber(ruler) << " has faction strength " << totalFactionStrength;
+    Logger::logStream("mana")
+        << nameAndNumber(ruler) << " has faction strength "
+        << totalFactionStrength;
     totalFactionStrength *= 18;
     stability -= (int) floor(totalFactionStrength);
     if (stability < -3) stability = -3;
     (*eu4country)->resetLeaf("stability", stability);
-    Logger::logStream("mana") << " so " << (*eu4country)->getKey() << " has stability " << stability << ".\n";
+    Logger::logStream("mana") << " so " << (*eu4country)->getKey()
+                              << " has stability " << stability << ".\n";
 
     (*eu4country)->resetLeaf("legitimacy", "0.000");
-    if (((*eu4country)->safeGetString("government") == "merchant_republic") ||
-	((*eu4country)->safeGetString("government") == "noble_republic")) {
-      (*eu4country)->resetLeaf("republican_tradition", "1.000");
+    if (((*eu4country)->getGovernment() == "\"merchant_republic\"") ||
+        ((*eu4country)->getGovernment() == "\"noble_republic\"")) {
+      (*eu4country)->resetLeaf("republican_tradition", "100.000");
     }
     else {
-      Logger::logStream("mana") << claimants << " claims on " << ruler->getPrimaryTitle()->getKey() << ", hence ";
+      Logger::logStream("mana")
+          << claimants << " claims on " << ruler->getPrimaryTitle()->getKey()
+          << ", hence ";
       claimants /= maxClaimants;
-      //double legitimacy = minimumLegitimacy + (1.0 - claimants) * (1.0 - minimumLegitimacy);
       double legitimacy = 100 * (1.0 - claimants + minimumLegitimacy * claimants);
       (*eu4country)->resetLeaf("legitimacy", legitimacy);
-      Logger::logStream("mana") << (*eu4country)->getKey() << " has legitimacy " << legitimacy << ".\n";
+      Logger::logStream("mana") << (*eu4country)->getKey() << " has legitimacy "
+                                << legitimacy << ".\n";
     }
   }
 

@@ -4,11 +4,11 @@ streams = {
   generic  = yes 
   provinces = no
   buildings = no
-  characters = no
+  characters = yes
   cores = no
   countries = no
   cultures = no # Also covers religion
-  governments = no
+  governments = yes
   titles = no
   diplomacy = no
   armies = no
@@ -16,7 +16,7 @@ streams = {
   mana = no
   hre = no # Also papacy
   war = no
-  all = yes
+  all = no
 }
 
 # NOCUSTOM or delete to ignore 
@@ -31,8 +31,8 @@ accepted_culture_cutoff = 0.5
 redistribute_dev = no
 
 humans_always_independent = yes
-max_balkanisation = 0.40
-min_balkanisation = 0.30
+max_balkanisation = 0.001
+min_balkanisation = 0.00
 balkan_threshold = 8
 minimum_legitimacy = 25
 
@@ -57,6 +57,7 @@ rebel_faction_types = {
   liberation_revolt = pretender_rebels
   overthrow_ruler = pretender_rebels
   overthrow_ruler_no_calls = pretender_rebels
+  cb_faction_independence = nationalist_rebels
 }
 
 rebel_heresies = {
@@ -73,7 +74,7 @@ rebel_heresies = {
 }
 
 keys_to_clear = { ledger flags hidden_flags ruler_flags variables }
-keys_to_remove = { base_tax development raw_development enemy state
+keys_to_remove = { base_tax development enemy state
 power_projection military_strength army_strength navy_strength
 num_of_trade_embargos num_of_non_rival_trade_embargos total_war_worth
 num_of_rebel_controlled_provinces num_of_rebel_armies rival
@@ -119,7 +120,7 @@ buildings = {
   castle        = { prod = 0.45 tax = 0.45 cost = 720 }
   fort          = { prod = 0.0 tax = 0.0 cost = 21 }
   trade_post    = { prod = 0.9 tax = 0.0 cost = 160 }
-  family_palace = { prod = 0.4 tax = 0.6 cost = 1}
+  family_palace = { prod = 0.4 tax = 0.6 cost = 1 }
   hospital      = { prod = 0.5 tax = 0.5 cost = 110 }
 }
 
@@ -129,27 +130,27 @@ max_vassals_per_kingdom = 3
 
 governments = {
   feudal_government = {
-    eugov = feudal_monarchy
+    eugov = "feudal_monarchy"
     heir = yes
   }
   merchant_republic_government = {
-    eugov = merchant_republic
+    eugov = "merchant_republic"
     heir = no
   }
   republic_government = {
-    eugov = noble_republic
+    eugov = "noble_republic"
     heir = no
   }
   theocracy_government = {
-    eugov = theocratic_government
+    eugov = "theocratic_government"
     heir = no
     papal_succession = {
-      eugov = papal_government
+      eugov = "papal_government"
       heir = no
     }
   }
   muslim_government = {
-    eugov = iqta
+    eugov = "iqta"
     heir = yes
   }
 }
@@ -162,17 +163,28 @@ bonusTraits = {
 
 generalSkills = {
   # Not my typo, Pdox spells it like this
-  manuever = { flat_terrain_leader aggressive_leader cavalry_leader
-  skilled_tactician trickster deceitful desert_terrain_leader
-  rough_terrain_leader quick diligent administrator schemer gamer
-  experimenter brilliant_strategist brilliant_strategist winter_soldier }
-  shock = { war_elephant_leader unyielding_leader narrow_flank_leader
-  heavy_infantry_leader crusader narrow_flank_leader
-  brilliant_strategist brilliant_strategist cruel wroth brave flanker zealous impaler
-  inspiring_leader holy_warrior strong genius }
-  fire = { brilliant_strategist strategist organizer light_foot_leader hunter patient
-  cynical }
-  siege = { siege_leader defensive_leader }
+  manuever = {
+    flat_terrain_leader aggressive_leader cavalry_leader
+    skilled_tactician trickster deceitful desert_terrain_leader
+    rough_terrain_leader quick diligent administrator schemer gamer
+    experimenter brilliant_strategist brilliant_strategist
+    winter_soldier viking ravager seaking sea_queen peasant_leader 
+  }
+  shock = {
+    war_elephant_leader heavy_infantry_leader crusader mujahid
+    narrow_flank_leader brilliant_strategist brilliant_strategist
+    cruel wroth brave flanker zealous impaler inspiring_leader
+    holy_warrior strong genius valhalla_bound eagle_warrior
+    sun_warrior ukkos_shield nyames_shield peruns_chosen romuvas_own
+    ares_own tengri_warrior shaddai gondi_shahansha berserker
+  }
+  fire = {
+    brilliant_strategist strategist organizer light_foot_leader hunter
+    cynical varangian
+  }
+  siege = {
+    siege_leader defensive_leader unyielding_leader patient architect
+  }
 }
 
 troops = {
@@ -192,33 +204,4 @@ ships = {
 # locations. This is a patched-up workaround for not having a good way
 # to identify coastal provinces.
 forbidNavies = { 134 }
-
-# Dynasties to calculate custom score for, and their achievements.
-custom_score = {
-  # 1000 = 4
-}
-
-custom_score_traits = {
-  inbred = 1
-  kinslayer = 1
-  seaking = 1
-  sea_queen = 1
-  genius = 1
-  berserker = 1
-  crusader = 1
-  valhalla_bound = 1
-  mujahid = 1
-  eagle_warrior = 1
-  sun_warrior = 1
-  ukkos_shield = 1
-  nyames_shield = 1
-  peruns_chosen = 1
-  romuvas_own = 1
-  ares_own = 1
-  tengri_warrior = 1
-  shaddai = 1
-  gondi_shahansha = 1
-  # Weighting for achievement points.
-  achievements = 0.01
-}
 
