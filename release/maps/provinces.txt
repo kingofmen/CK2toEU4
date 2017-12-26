@@ -1595,6 +1595,8 @@ c_bamiyan = 2225 # Bamiyan - Bamyan
 c_kunduz = 2227 # Kunduz - Kunduz
 
 c_balkh = 450 # Balkh - Balkh
+c_balkh = 4343 # Balkh - Termez
+
 
 c_maymana = 2228 # Maymana - Maymana
 
@@ -1607,6 +1609,8 @@ c_zaranj = 2229 # Bost - Bust
 c_farrah = 2224 # Farrah - Ferah
 
 c_herat = 446 # Herat - Herat
+c_herat = 4324 # Herat - Ghuriyan
+c_herat = 4325 # Herat - Sarakhs
 
 c_zahedan = 435 # Zahedan - Zaranj
 
@@ -1617,23 +1621,26 @@ c_sistan = 434 # Sistan - Kohistan
 c_saravan = 434 # Saravan - Kohistan
 
 d_sistan = 2233 # Duchy Sistan - Chabahar
-c_jask = 2233 # Jask - Chabahar
 c_tis = 2233 # Tis - Chabahar
+c_jask = 4327 # Jask - Jask
 
 c_merv = 445 # Merv - Marv
 c_merv = 444 # Merv - Charjuy
 
 c_kerman = 432 # Kerman - Kerman
 c_kerman = 2234 # Kerman - Rafsanjan
+c_kerman = 4334 # Kerman - Tabas
 
 c_bam = 2220 # Bam - Bam
 
 c_hormuz = 431 # Hormuz - Mogostan
 c_hormuz = 2999 # Hormuz - Hormuz
+c_hormuz = 4345 # Hormuz - Saidabad
 
 c_ladistan = 2219 # Ladistan - Bandar Langeh
 
 c_sirjan = 2223 # Sirjan - Larestan
+c_sirjan = 4330 # Sirjan - Darab
 
 c_shiraz = 2218 # Shiraz - Sarvestan
 
@@ -1650,13 +1657,14 @@ c_qwivir = 2216 # Qwiver - Semnan
 
 c_lut = 427 # Lut - Qumis
 
-c_qom = 2213 # Qom - Markazi
+c_qom = 2213 # Qom - Qom
+c_qom = 4335 # Qom - Kashan
 
 c_luristan = 413 # Luristan - Lorestan
 
 c_rayy = 428 # Rayy - Teheran
 
-c_qazwin = 2215 # Qazqin - Qazvin
+c_qazwin = 414 # Qazwin - Hamadan
 
 c_khozistan = 412 # Khozistan - Ahvaz
 c_khozistan = 4290 # Khozistan - Hoveyzeh
@@ -1668,14 +1676,14 @@ c_yazd = 433 # Yazd - Yazd
 c_yazd = 2222 # Yazd - Ardakan
 c_yazd = 4171 # Yazd - Abarquh
 
-c_hamadan = 414 # Hamadan - Hamadan
 c_hamadan = 4337 # Hamadan - Savah
 
 c_oromieh = 4293 # Oromieh - Arbil
 
 c_qohistan = 2235 # Qohistan - Sabzevar
 
-c_birjand = 436 # Birjand - Khorasan
+c_birjand = 436 # Birjand - Birjand
+c_birjand = 4336 # Birjand - Tun
 
 c_konjikala = 437 # Konjikala - Kopet Dag
 c_konjikala = 2350 # Konjikala - Konjikala
@@ -1683,6 +1691,7 @@ c_konjikala = 2350 # Konjikala - Konjikala
 c_tus = 2221 # Tus - Mashhad
 
 c_nishapur = 2236 # Nishapur - Bojnord
+c_nishapur = 4326 # Nishapur - Nishapur
 
 c_kirkuk = 415 # Kirkuk - Kirkuk
 c_kirkuk = 4294 # Kirkuk - Sulamaniyeh
@@ -1719,6 +1728,7 @@ c_gilan = 4300 # Gilan - Mianeh
 
 c_dailam = 2212 # Dailam - Zanjan
 c_dailam = 4338 # Dailam - Soltanieh
+c_dailam = 2215 # Dailam - Qazvin
 
 c_dihistan = 2349 # Dihistan - Kizil-Su
 
@@ -1737,6 +1747,7 @@ c_bukhara = 442 # Bukhara - Bukhara
 
 c_samarkand = 453 # Samarkand - Qarshi
 c_samarkand = 454 # Samarkand - Samarkand
+c_samarkand = 4344 # Samarkand - Kish
 
 c_oshrusana = 2363 # Oshrushana - Atakent
 c_oshrusana = 1967 # Oshrushana - Khujand
