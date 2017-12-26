@@ -1001,7 +1001,8 @@ c_chaldea = 2304 # Chaldea - Canik
 c_chaldea = 4315
 
 c_trapezous = 330 # Trapezous - Trebizond
-c_theodosiopolis = 330 # Theodosiopolis - Trebizond
+
+c_theodosiopolis = 4303 # Theodosiopolis - Tao
 
 c_kaisereia = 1846 # Kaisereia - Amasya
 
@@ -1012,23 +1013,23 @@ c_koloneia = 2305 # Karin - Erzincan
 c_lykandos = 332 # Lykandos - Kayseri
 
 c_melitene = 2303 # Melitene - Malatya
-c_melitene = 4310
+c_melitene = 4310 # Melitene - Divrigi
 
-c_mesopotamia = 418 # Mesopotamia - Kurdistan
+c_mesopotamia = 4302 # Mesopotamia - Bayazid
+c_mesopotamia = 2306 # Mesopotamia - Mush
 
-c_taron = 418 # Taron - Kurdistan
+c_taron = 4296 # Taron - Bitlis
+c_taron = 2307 # Taron - Van
 
-c_karin = 2305 # 331 - Erserum;Karin - Erzurum
+c_karin = 2305 # 331 - Erserum; Karin - Erzurum
+
 c_ani = 331 # Ani - Erzurum
 
-c_vaspurakan = 2307 # Vaspurakan - Van # 2307
-
-c_vaspurakan = 2306 # Vaspurakan - Mush # 2306
+c_vaspurakan = 4304 # Vaspurakan - Khoy
 
 c_dwin = 419 # Dwin - Armenia
 
-c_kartli = 423 # Kartli - Kartli
-c_kakheti = 423 # Kahketi - Kartli
+c_kartli = 4301 # Kartli - Kartli
 
 c_guria = 2196 # Guria - Gruia
 
@@ -1036,6 +1037,7 @@ c_tao = 2204 # Tao - Samtskhe
 
 c_kakheti = 422 # Kakheti - Imereti
 
+c_albania = 423 # Albania - Tblisi
 c_albania = 2203 # Albania - Kahketi
 
 d_cyprus = 321 # Duchy Cyprus - Cyprus
@@ -1048,9 +1050,9 @@ c_kaneia = 163 # Kaneia - Crete
 
 # Levant
 
+c_edessa = 418 # Edessa - Diyarbekir
+c_edessa = 2308 # Edessa - Urfa
 c_aleppo = 377 # Aleppo - Aleppo
-c_aleppo = 377 # Duplicate to increase weight
-c_edessa = 377 # Edessa - Aleppo
 c_tell_bashir = 377 # Tell Bashir - Aleppo
 c_aintab = 4298
 
@@ -1110,14 +1112,15 @@ c_sinai = 365 # Sinai - Sinai
 c_farama = 2315 # Farama - Suez
 c_sarqihya = 2315 # Sarqihya - Suez
 
+c_bira = 4292 # Bira - Mardin
+
 d_jazira = 407 # Duchy Jazira - Ar-Raqqah
-c_bira = 407 # Bira - Ar-Raqqah
 c_al_jazira = 407 # Al Jazira - Ar-Raqqah
 c_amida = 407 # Amida - Ar-Raqqah
 c_nisibin = 407 # Nisibin - Ar-Raqqah
 
-c_amida = 2308 # Amida - Cizre
-c_nisibin = 2308 # Nisibin - Cizre
+c_amida = 4295 # Amida - Hisn Kayfa
+c_nisibin = 4295 # Nisibin - Hisn Kayfa
 
 d_mosul = 411 # Duchy Mosul - Mosul
 c_mosul = 411 # County Mosul - Mosul
@@ -1577,6 +1580,7 @@ c_tigris = 4288
 c_ilam = 2209 # Ilam - Ilam
 
 c_baghdad = 410 # County Baghdad - Baghdad
+c_baghdad = 4291 # Baghdad - Qazaniya
 
 d_tigris = 2311 # Duchy Tigris - Samawah
 c_al_amarah = 2311 # Al Amarah - Samawah
@@ -1633,11 +1637,14 @@ c_sirjan = 2223 # Sirjan - Larestan
 
 c_shiraz = 2218 # Shiraz - Sarvestan
 
-d_fars = 430 # Duchy Fars - Fars
-c_fars = 430 # Fars - Fars
-c_hendjan = 430 # Hendjan - Fars
+c_fars = 4332 # Fars - Siraf
+c_fars = 4329 # Fars - Fasa
+c_hendjan = 430 # Hendjan - Dashtistan
+c_hendjan = 2217 # Hendjan - Yasuj
+c_hendjan = 4331 # Hendjan - Kazerun
 
-c_avhaz = 2217 # Avhaz - Yasuj
+c_avhaz = 4342 # Avhaz - Malamir
+c_avhaz = 4289 # Avhaz - Shushtar
 
 c_qwivir = 2216 # Qwiver - Semnan
 
@@ -1647,12 +1654,13 @@ c_qom = 2213 # Qom - Markazi
 
 c_luristan = 413 # Luristan - Lorestan
 
-c_rayy = 428 # Rayy - Hamadan
+c_rayy = 428 # Rayy - Teheran
 
-c_dailam = 2215 # Dailam - Qazvin
 c_qazwin = 2215 # Qazqin - Qazvin
 
-c_khozistan = 412 # Khozistan - Khuzestan
+c_khozistan = 412 # Khozistan - Ahvaz
+c_khozistan = 4290 # Khozistan - Hoveyzeh
+
 
 c_esfahan = 429 # Esfahan - Esfahan
 
@@ -1661,8 +1669,9 @@ c_yazd = 2222 # Yazd - Ardakan
 c_yazd = 4171 # Yazd - Abarquh
 
 c_hamadan = 414 # Hamadan - Hamadan
+c_hamadan = 4337 # Hamadan - Savah
 
-c_oromieh = 2211 # Oromieh - Ardalan
+c_oromieh = 4293 # Oromieh - Arbil
 
 c_qohistan = 2235 # Qohistan - Sabzevar
 
@@ -1675,9 +1684,14 @@ c_tus = 2221 # Tus - Mashhad
 
 c_nishapur = 2236 # Nishapur - Bojnord
 
-c_kirkuk = 415 # Kirkuk - Shahrizor
+c_kirkuk = 415 # Kirkuk - Kirkuk
+c_kirkuk = 4294 # Kirkuk - Sulamaniyeh
+c_kirkuk = 2211 # Kirkuk - Ardalan
 
 c_shirvan = 421 # Shirvan - Shirvan
+
+c_shemakha = 4299 # Shemakha - Shamakhi
+c_shemakha = 4305 # Shemakha - Shaki
 
 c_suenik = 2205 # Suenik - Nakhchivan
 
@@ -1691,16 +1705,20 @@ c_kermanshah = 2210 # Kermanshah - Kirmanshah
 
 c_gurgan = 2214 # Gurgan - Golestan
 
-d_mazandaran = 426 # Duchy Tabaristan - Mazandaran
-c_tabaristan = 426 # Tabaristan - Mazandaran
-c_mazandaran = 426 # Mazandaran - Mazandaran
+c_tabaristan = 4341 # Tabaristan - Sari
+
+c_mazandaran = 426 # Mazandaran - Amol
+c_mazandaran = 417 # Mazandaran - Lahijan
 
 c_tabriz = 416 # Tabriz - Tabriz
 c_tabriz = 424 # Tabriz - Ardabil
 
-c_gilan = 417 # Gilan - Gilan
+c_gilan = 4339 # Gilan - Fuman
+c_gilan = 4340 # Gilan - Astara
+c_gilan = 4300 # Gilan - Mianeh
 
-c_dailam = 2212 # Gilan - Zanjan
+c_dailam = 2212 # Dailam - Zanjan
+c_dailam = 4338 # Dailam - Soltanieh
 
 c_dihistan = 2349 # Dihistan - Kizil-Su
 
@@ -2158,6 +2176,7 @@ c_yegorlyk = 2417 # Yegorlyk - Kuma
 c_manych = 2417 # Manych - Kuma
 
 c_derbent = 425 # County Derbent - Dagestan
+c_derbent = 4306 # Derbent - Lakia
 
 c_semender = 2198 # Semender - Khundzia
 
