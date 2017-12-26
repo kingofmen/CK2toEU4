@@ -385,13 +385,16 @@ bool Converter::createCK2Objects () {
   detectChangedString(kOldBirthName, kNewBirthName, charObjs, &birthNameString);
   detectChangedString(kOldBirthDate, kNewBirthDate, charObjs, &birthDateString);
   detectChangedString(kOldDynasty, kNewDynasty, charObjs, &dynastyString);
-  detectChangedString(kOldAttributes, kNewAttributes, charObjs, &attributesString);
+  detectChangedString(kOldAttributes, kNewAttributes, charObjs,
+                      &attributesString);
   detectChangedString(kOldPrestige, kNewPrestige, charObjs, &prestigeString);
   detectChangedString(kOldJobTitle, kNewJobTitle, charObjs, &jobTitleString);
   detectChangedString(kOldEmployer, kNewEmployer, charObjs, &employerString);
   detectChangedString(kOldFather, kNewFather, charObjs, &fatherString);
   detectChangedString(kOldMother, kNewMother, charObjs, &motherString);
   detectChangedString(kOldFemale, kNewFemale, charObjs, &femaleString);
+  detectChangedString(kOldGovernment, kNewGovernment, charObjs,
+                      &governmentString);
 
   Object* dynasties = ck2Game->safeGetObject("dynasties");
   for (auto* ckCountry : CK2Title::getAll()) {
@@ -2418,7 +2421,7 @@ bool Converter::createGovernments () {
     else if (totalDevelopment > kingdomThreshold) government_rank = "2";
     (*eu4country)->resetLeaf("government_rank", government_rank);
     (*eu4country)->resetHistory("government_rank", government_rank);
-    string ckGovernment = ruler->safeGetString("government", "feudal_government");
+    string ckGovernment = ruler->safeGetString(governmentString, "feudal_government");
     Object* govInfo = govObject->safeGetObject(ckGovernment);
     string euGovernment = (*eu4country)->safeGetString("government");
     if (govInfo) {

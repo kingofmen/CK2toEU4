@@ -12,3 +12,4 @@ std::string employerString;
 std::string fatherString;
 std::string motherString;
 std::string femaleString;
+std::string governmentString;

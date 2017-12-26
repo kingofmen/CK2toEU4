@@ -50,3 +50,7 @@ extern std::string motherString;
 const std::string kOldFemale = "female";
 const std::string kNewFemale = "fem";
 extern std::string femaleString;
+
+const std::string kOldGovernment = "government";
+const std::string kNewGovernment = "gov";
+extern std::string governmentString;
