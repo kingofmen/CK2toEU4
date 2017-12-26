@@ -947,17 +947,18 @@ c_thrake = 1764 # Thrake - Burgas
 c_byzantion = 151 # Byzantion - Thrace
 
 c_nikomedeia = 316 # Nikomedeia - Izmit
-c_nikaea = 316 # Nikea - Izmit
+c_nikaea = 4312 # Nikea - Sultanonu
 
 c_kyzikos = 317 # Kyzikos - Hudavendigar
 c_prusa = 317 # Prusa - Hudavendigar
 
 c_abydos = 2296 # Abydos - Biga
 
-c_smyrna = 318 # Smyrna - Sugla
+c_smyrna = 2297 # Smyrna - Saruhan
 c_ephesos = 318 # Ephesos - Sugla
 
-c_laodikeia = 2297 # Laodikeia - Saruhan
+c_laodikeia = 4308 # Laodikeia - Denizli
+c_laodikeia = 4309 # Laodikeia - Aydin
 
 c_lykia = 319 # Lykia - Mentese
 
@@ -975,16 +976,20 @@ c_teluch = 327 # Teluch - Adana
 c_sozopolis = 1848 # Sozopolis - Hamid
 
 c_dorylaion = 322 # Dorylaion - Kutahya
+c_dorylaion = 4311 # Dorylaion - Karahisar
 
 c_ikonion = 324 # Ikonion - Karaman
 
 c_tyana = 2301 # Tyana - Kayseri
+c_tyana = 4307 # Tyana - Aksaray
 
 c_paphlagonia = 326 # Paphlagonia - Ankara
+c_paphlagonia = 4313 # Paphlagonia - Kangiri
 
 c_ankyra = 323 # Ankyra - Konya
 
 c_galatia = 2300 # Galatia - Bozok
+c_galatia = 4314 # Galatia - Kirshehir
 
 c_herakleia = 2299 # Herakleia - Bolu
 
@@ -993,6 +998,7 @@ c_sinope = 325 # Sinope - Kastamon
 c_amisos = 328 # Amisos - Sinope
 
 c_chaldea = 2304 # Chaldea - Canik
+c_chaldea = 4315
 
 c_trapezous = 330 # Trapezous - Trebizond
 c_theodosiopolis = 330 # Theodosiopolis - Trebizond
@@ -1006,6 +1012,7 @@ c_koloneia = 2305 # Karin - Erzincan
 c_lykandos = 332 # Lykandos - Kayseri
 
 c_melitene = 2303 # Melitene - Malatya
+c_melitene = 4310
 
 c_mesopotamia = 418 # Mesopotamia - Kurdistan
 
@@ -1045,7 +1052,7 @@ c_aleppo = 377 # Aleppo - Aleppo
 c_aleppo = 377 # Duplicate to increase weight
 c_edessa = 377 # Edessa - Aleppo
 c_tell_bashir = 377 # Tell Bashir - Aleppo
-c_aintab = 377 # Aintab - Aleppo
+c_aintab = 4298
 
 c_alexandretta = 2313 # Alexandretta - Antioch
 c_antiocheia = 2313 # Antiocheia - Antioch
@@ -1053,7 +1060,7 @@ c_archa = 2313 # Archa - Antioch
 
 c_tripoli = 378 # Tripoli - Tarabulus
 c_tortosa = 378 # Tortosa - Tarabulus
-c_baalbek = 378 # Baalbek - Tarabulus
+c_baalbek = 4297 # Baalbek - Homs
 
 c_hama = 1849 # Hama - Hammah
 c_palmyra = 1849 # Palmyra - Hammah
@@ -1471,8 +1478,9 @@ c_mali = 2253 # Mali - Gwiriko
 # Arabia
 
 c_hijaz = 383 # Hijaz - Tabouk
+c_hijaz = 4269
 
-c_al_aqabah = 2327 # Al Aqabah - Maan
+c_al_aqabah = 4268
 c_tabuk = 2327 # Al Aqabah - Maan
 
 c_medina = 384 # Medina - Medina
@@ -1492,14 +1500,15 @@ c_sanaa = 390 # Sanaa - Sana'a
 c_sanaa = 391 # Sanaa - Najran
 c_sanaa = 4282
 
-c_taizz = 387 # Taizz - Mocha
 c_taizz = 4279
+c_taizz = 4280
 
-c_aden = 388 # Aden - Aden
+c_aden = 387
 
 c_bayda = 2344 # Bayda - Al Jawf
 c_bayda = 2345 # Bayda - Ahqaf
 c_bayda = 4281
+c_bayda = 388
 
 c_kathiri = 389 # Kathiri - Kinda
 c_kathiri = 2343 # Kathiri - Hadramawt
@@ -2667,11 +2676,10 @@ c_nandagiri = 533 # Nandagiri - Mysore
 
 d_nulambavadi = 541 # Duchy Nulambavadi - Vijayanagara
 c_uchangidurga = 541 # Uchangidurga - Vijayanagara
-c_dwarasamudra = 541 # Dwarasamudra - Vijayanagara
 c_alampur = 541 # Alampur - Vijayanagara
 c_banavasi = 541 # Banavasi - Vijayanagara
 
-c_dwarasamudra = 2023 # Dwarasamudra - Melenadu
+c_dwarasamudra = 2032 # Dwarasamudra - Melenadu
 
 d_gangavadi = 2031 # Duchy Gangavadi - Morasandu
 c_manyapura = 2031 # Manyapura - Morasandu

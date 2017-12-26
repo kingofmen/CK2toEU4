@@ -2273,19 +2273,19 @@ bool Converter::createCharacters () {
   string birthDate = eu4Game->safeGetString("date", "1444.11.11");
 
   int numAdvisors = 0;
-  for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
-    if (!(*eu4country)->converts()) continue;
-    Object* country_advisors = active_advisors->getNeededObject((*eu4country)->getKey());
+  for (auto* eu4country : EU4Country::getAll()) {
+    if (!eu4country->converts()) continue;
+    Object* country_advisors = active_advisors->getNeededObject(eu4country->getKey());
     country_advisors->clear();
 
-    CK2Ruler* ruler = (*eu4country)->getRuler();
+    CK2Ruler* ruler = eu4country->getRuler();
     if (ruler->safeGetString("madeCharacters", PlainNone) == "yes") continue;
     ruler->setLeaf("madeCharacters", "yes");
-    string capitalTag = (*eu4country)->safeGetString("capital");
+    string capitalTag = eu4country->safeGetString("capital");
     EU4Province* capital = EU4Province::findByName(capitalTag);
     if (!capital) continue;
-    string eu4Tag = (*eu4country)->getKey();
-    (*eu4country)->unsetValue("advisor");
+    string eu4Tag = eu4country->getKey();
+    eu4country->unsetValue("advisor");
     Logger::logStream("characters")
         << "Creating characters for " << eu4Tag << ":\n"
         << LogOption::Indent;
@@ -2301,9 +2301,11 @@ bool Converter::createCharacters () {
       makeMonarch(capitalTag, ruler, ruler, "heir", bonusTraits);
     } else {
       makeMonarch(capitalTag, ruler, ruler, "monarch", bonusTraits);
+      eu4country->resetLeaf("original_dynasty",
+                            addQuotes(getDynastyName(ruler)));
 
-      (*eu4country)->unsetValue("heir");
-      if ((*eu4country)->safeGetString("needs_heir", "no") == "yes") {
+      eu4country->unsetValue("heir");
+      if (eu4country->safeGetString("needs_heir", "no") == "yes") {
         CK2Character* ckHeir = ruler->getOldestChild();
         if (ckHeir) makeMonarch(capitalTag, ckHeir, ruler, "heir", bonusTraits);
       }
@@ -2364,7 +2366,7 @@ bool Converter::createCharacters () {
         << "\n";
     if (bestGeneral) {
       Logger::logStream("characters") << LogOption::Indent;
-      makeLeader((*eu4country)->object, string("general"), bestGeneral,
+      makeLeader(eu4country->object, string("general"), bestGeneral,
                  generalSkills, birthDate);
       Logger::logStream("characters") << LogOption::Undent;
     }
@@ -2374,7 +2376,7 @@ bool Converter::createCharacters () {
         << "Admiral: " << (admiral ? nameAndNumber(admiral) : "None") << "\n";
     if (admiral) {
       Logger::logStream("characters") << LogOption::Indent;
-      makeLeader((*eu4country)->object, string("admiral"), admiral,
+      makeLeader(eu4country->object, string("admiral"), admiral,
                  generalSkills, birthDate);
       Logger::logStream("characters") << LogOption::Undent;
     }
