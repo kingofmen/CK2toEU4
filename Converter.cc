@@ -3701,8 +3701,6 @@ bool Converter::resetHistories () {
   vector<string> valuesToRemove;
   valuesToRemove.push_back("unit");
   for (auto* eu4prov : EU4Province::getAll()) {
-    eu4prov->unsetValue("discovered_by");
-    eu4prov->getNeededObject("history")->unsetValue("discovered_by");
     if (!eu4prov->converts()) {
       continue;
     }
@@ -3722,8 +3720,7 @@ bool Converter::resetHistories () {
     if ((discovered) && (1 < discovered->numTokens())) {
       discovered->resetToken(1, "1.1.1");
     }
-    //discovered = eu4prov->safeGetObject("discovered_by");
-    discovered = eu4prov->getNeededObject("discovered_by");
+    discovered = eu4prov->safeGetObject("discovered_by");
     if (discovered) {
       vector<string> extraTags;
       for (int i = 0; i < discovered->numTokens(); ++i) {

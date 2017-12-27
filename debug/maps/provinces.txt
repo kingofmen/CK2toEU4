@@ -1142,9 +1142,9 @@ c_al_habbariyah = 406 # Al Habbariyah - Karbala
 
 # Egypt, Abyssinia, Socotra & Somalia
 
-c_pelusia = 363 # Pelusia - Dumyat
+c_pelusia = 4316 # Pelusia - Sharqiya
 
-c_delta = 362 # Delta - Rashid
+c_delta = 363 # Delta - Dumyat
 c_gabiyaha = 362 # Gabiyaha - Rashid
 c_manupura = 2316 # Manupura - Al Gharbia
 
@@ -1161,25 +1161,26 @@ c_alexandria = 2325 # Quattara - Tarrana
 d_cairo = 361 # Duchy Cairo - Cairo
 c_cairo = 361 # County Cairo - Cairo
 
-c_gizeh = 2318 # Gizeh - Al - Wahat
+c_gizeh = 2318 # Gizeh - Bahiriya
 c_gizeh = 359 # Gizeh - Faiyum
+c_gizeh = 4317 # Gizeh - Buhaira
 
 c_asyut = 2317 # Asyut - Minya
 c_asyut = 2319 # Asyut - Asyut
+c_asyut = 4318 # Asyut - Atfih
 
 d_aswan = 360 # Duchy Aswan - Qena
 c_quena = 360 # Quena - Qena
-c_aswan = 360 # Aswan - Qena
-
 c_quena = 2320 # Quena - RasGharib
+c_quena = 4320 # Quena - Girga
 
 c_buhairya = 1233 # Buhairya - Kharga
+c_buhairya = 4323 # Buhairya - Farahfreh
 
-d_aswan = 1231 # Duchy Aswan - Aswan
 c_aswan = 1231 # Aswan - Aswan
-
-d_aswan = 2321 # Duchy Aswan - Queseer
+c_aswan = 360 # Aswan - Qena
 c_aswan = 2321 # Aswan - Queseer
+c_aswan = 4319 # Aswan - Isna
 
 d_nobatia = 1234 # Duchy Nobatia - Qasr Ibrim
 c_dotawo = 1234 # Dotawo - Qasr Ibrim
@@ -1234,8 +1235,8 @@ c_massawa = 2767 # Massawa - Enderta
 d_sennar = 1222 # Duchy Alodia - Gezira
 c_alodia = 1222 # Alodia - Gezira
 c_sennar = 1222 # Sennar - Gezira
-c_kosti = 1222 # Kosti - Gezira
 
+c_kosti = 2800 # Kosti - Kosti
 c_kosti = 2799 # Kosti - Sennar
 
 d_axum = 1227 # Duchy Axum - Tigray
