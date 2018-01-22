@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <stdarg.h>
 
-char strbuffer[1000]; 
+char strbuffer[10000]; 
 const doublet doublet::zero(0, 0);
 const triplet triplet::zero(0, 0, 0); 
 

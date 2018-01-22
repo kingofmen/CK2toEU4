@@ -89,6 +89,7 @@ void Converter::loadFile () {
   if (ck2FileName == "") return;
   Parser::ignoreString = "CK2txt";
   Parser::specialCases["de_jure_liege=}"] = "";
+  Parser::specialCases["\t="] = "special_f=";
   ck2Game = loadTextFile(ck2FileName);
   Parser::ignoreString = "";
   Parser::specialCases.clear();
@@ -1263,6 +1264,7 @@ struct DynastyScore {
     for (const auto& held : title_days) {
       total_days[held.first] += held.second;
     }
+
     for (const auto& held : total_days) {
       CK2Title* title = held.first;
       int days = held.second;
@@ -1290,6 +1292,7 @@ struct DynastyScore {
               level.total_days / 365);
       ret += strbuffer;
     }
+
     string trait_line;
     double total_trait_bonus = 0;
     for (const auto& trait : trait_counts) {
@@ -1341,6 +1344,12 @@ void handleEvent(Object* event, CK2Title* title, int startDays, int endDays,
   if (!event) {
     return;
   }
+  if (title == nullptr) {
+    // This should never happen.
+    Logger::logStream("characters") << "Warning: Null title passed to handleEvent.\n";
+    return;
+  }
+
   Object* holder = event->safeGetObject("holder");
   if (!holder) {
     return;
@@ -1351,10 +1360,16 @@ void handleEvent(Object* event, CK2Title* title, int startDays, int endDays,
     return;
   }
   string dynastyKey = character->safeGetString(dynastyString, PlainNone);
-  if (dynastyKey == PlainNone ||
-      dynasties.find(dynastyKey) == dynasties.end()) {
+  if (dynastyKey == PlainNone) {
     return;
   }
+  auto scoreObject = dynasties.find(dynastyKey);
+  if (scoreObject == dynasties.end()) {
+    Logger::logStream("characters")
+        << "Did not find score object for dynasty " << dynastyKey << "\n";
+    return;
+  }
+
   int titleDays = endDays - startDays;
   if (holder->safeGetString("type") == "created") {
     Logger::logStream("characters")
@@ -1367,9 +1382,9 @@ void handleEvent(Object* event, CK2Title* title, int startDays, int endDays,
   years /= 365;
   Logger::logStream("characters")
       << nameAndNumber(character, birthNameString) << " of dynasty "
-      << dynasties[dynastyKey].name << " held " << title->getKey()
-      << " for " << years << " years.\n";
-  dynasties[dynastyKey].title_days.push_back(make_pair(title, titleDays));
+      << dynasties[dynastyKey].name << " held " << title->getKey() << " for "
+      << years << " years.\n";
+  scoreObject->second.title_days.emplace_back(title, titleDays);
 }
 
 void Converter::calculateDynasticScores() {
@@ -1468,6 +1483,7 @@ void Converter::calculateDynasticScores() {
     }
     handleEvent(previousEvent, title, previousDays, gameDays, characters, dynasties);
   }
+
   vector<DynastyScore> sorted_dynasties;
   for (auto& dynasty : dynasties) {
     dynasty.second.score();
@@ -1477,6 +1493,7 @@ void Converter::calculateDynasticScores() {
   if (sorted_dynasties.empty()) {
     return;
   }
+
   int size = sorted_dynasties.size();
   double median = 0.5 *
                   (sorted_dynasties[size / 2].cached_score +
