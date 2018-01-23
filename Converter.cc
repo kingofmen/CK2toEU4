@@ -563,7 +563,7 @@ void convertTitle(CK2Title* title, CK2Ruler* ruler,
   if (title->getEU4Country()) {
     return;
   }
-  EU4Country* bestCandidate = 0;
+  EU4Country* bestCandidate = nullptr;
   vector<pair<string, string> > bestOverlapList;
   for (auto* cand : candidateCountries) {
     vector<EU4Province*> eu4Provinces = initialProvincesMap[cand];
@@ -572,11 +572,14 @@ void convertTitle(CK2Title* title, CK2Ruler* ruler,
       for (auto* ck2Prov : eu4Province->ckProvs()) {
 	CK2Title* countyTitle = ck2Prov->getCountyTitle();
 	if (title->isDeJureOverlordOf(countyTitle)) {
-	  currOverlapList.push_back(pair<string, string>(countyTitle->getName(), nameAndNumber(eu4Province)));
-	}
+          currOverlapList.emplace_back(countyTitle->getName(),
+                                       nameAndNumber(eu4Province));
+        }
       }
     }
-    if ((0 < bestOverlapList.size()) && (currOverlapList.size() <= bestOverlapList.size())) continue;
+    if ((0 < bestOverlapList.size()) &&
+        (currOverlapList.size() <= bestOverlapList.size()))
+      continue;
     bestCandidate = cand;
     bestOverlapList = currOverlapList;
   }
@@ -585,27 +588,36 @@ void convertTitle(CK2Title* title, CK2Ruler* ruler,
       vector<EU4Province*> eu4Provinces = initialProvincesMap[cand];
       vector<pair<string, string> > currOverlapList;
       for (auto* eu4Province : eu4Provinces) {
-	for (CK2Province::Iter ck2Prov = eu4Province->startProv(); ck2Prov != eu4Province->finalProv(); ++ck2Prov) {
-	  CK2Title* countyTitle = (*ck2Prov)->getCountyTitle();
-	  if (ruler->hasTitle(countyTitle, true)) {
-	    currOverlapList.push_back(pair<string, string>(countyTitle->getName(), nameAndNumber(eu4Province)));
-	  }
+        for (auto* ck2Prov : eu4Province->ckProvs()) {
+          CK2Title* countyTitle = ck2Prov->getCountyTitle();
+          if (ruler->hasTitle(countyTitle, true)) {
+            currOverlapList.emplace_back(countyTitle->getName(),
+                                         nameAndNumber(eu4Province));
+          }
 	}
       }
-      if ((0 < bestOverlapList.size()) && (currOverlapList.size() <= bestOverlapList.size())) continue;
+      if ((0 < bestOverlapList.size()) &&
+          (currOverlapList.size() <= bestOverlapList.size())) {
+        continue;
+      }
       bestCandidate = cand;
       bestOverlapList = currOverlapList;
     }
   }
-  
-  Logger::logStream("countries") << nameAndNumber(ruler) << " as ruler of " << title->getName()
-				 << " converts to " << bestCandidate->getKey()
-				 << " based on overlap " << bestOverlapList.size()
-				 << " with these counties: ";
-  for (vector<pair<string, string>>::iterator overlap = bestOverlapList.begin();
-       overlap != bestOverlapList.end(); ++overlap) {
+
+  if (bestCandidate == nullptr) {
+    Logger::logStream(LogStream::Warn)
+        << "Could not find conversion candidate for " << title->getName()
+        << ", skipping.\n";
+    return;
+  }
+  Logger::logStream("countries")
+      << nameAndNumber(ruler) << " as ruler of " << title->getName()
+      << " converts to " << bestCandidate->getKey() << " based on overlap "
+      << bestOverlapList.size() << " with these counties: ";
+  for (auto& overlap : bestOverlapList) {
     Logger::logStream("countries")
-        << (*overlap).first << " -> " << (*overlap).second << " ";
+        << overlap.first << " -> " << overlap.second << " ";
   }
   Logger::logStream("countries") << "\n";
   bestCandidate->setRuler(ruler, title);
@@ -647,7 +659,7 @@ bool Converter::createCountryMap () {
 				       << ckCountry->getName()
 				       << ".\n";
   }
-
+  Logger::logStream(LogStream::Debug) << "Line " << __LINE__ << "\n";
   // Candidate countries are: All countries that have provinces with
   // CK equivalent and none without; plus all countries with no provinces,
   // but which have discovered one of a configurable list of provinces.
@@ -723,8 +735,10 @@ bool Converter::createCountryMap () {
   }
   Logger::logStream("countries") << "\n";
   if (12 > candidateCountries.size()) {
-    Logger::logStream(LogStream::Error) << "Found " << candidateCountries.size()
-					<< " EU4 countries; cannot continue with so few.\n" << LogOption::Undent;
+    Logger::logStream(LogStream::Error)
+        << "Found " << candidateCountries.size()
+        << " EU4 countries; cannot continue with so few.\n"
+        << LogOption::Undent;
     return false;
   }
 
@@ -734,6 +748,7 @@ bool Converter::createCountryMap () {
     if (!primary) continue;
     rulers[*primary->getLevel()].push_back(*ruler);
   }
+  Logger::logStream(LogStream::Debug) << "Line " << __LINE__ << "\n";
 
   int maxUnions = configObject->safeGetInt("max_unions", 2);
   map<CK2Ruler*, int> unions;
@@ -741,30 +756,30 @@ bool Converter::createCountryMap () {
   bool subInfeudate = (configObject->safeGetString("permit_subinfeudation") == "yes");
   map<CK2Ruler*, map<CK2Title*, int> > totalVassals;
 
-  const unsigned int kSovereignOnly = 0;
-  for (TitleLevel::rIter level = TitleLevel::rstart(); level != TitleLevel::rfinal(); ++level) {
-    for (unsigned int doVassals = kSovereignOnly; doVassals < 2; ++doVassals) {
-      bool sovereignsOnly = (doVassals == kSovereignOnly);
-      for (vector<CK2Ruler*>::iterator ruler = rulers[**level].begin(); ruler != rulers[**level].end(); ++ruler) {
-	CK2Title* primary = (*ruler)->getPrimaryTitle();
-	Logger::logStream("countries") << nameAndNumber(*ruler) << " of " << primary->getName() << "\n";
-	if (!primary) {
-	  // Should not happen.
-	  Logger::logStream("countries") << "Skipping " << nameAndNumber(*ruler)
-					 << " due to no primary title.\n";
-	  continue;
-	}
-	if (0 == (*ruler)->countBaronies()) {
-	  // Rebels, adventurers, and suchlike riffraff.
-	  if (sovereignsOnly) {
-	    Logger::logStream("countries") << "Skipping " << nameAndNumber(*ruler)
-					   << " of " << primary->getName()
-					   << " due to zero baronies.\n";
-	  }
-	  continue;
-	}
+  for (TitleLevel::rIter level = TitleLevel::rstart();
+       level != TitleLevel::rfinal(); ++level) {
+    for (bool sovereignsOnly : {true, false}) {
+      for (auto* ruler : rulers[**level]) {
+        CK2Title* primary = ruler->getPrimaryTitle();
+        Logger::logStream("countries")
+            << nameAndNumber(ruler) << " of " << primary->getName() << "\n";
+        if (!primary) {
+          // Should not happen.
+          Logger::logStream("countries") << "Skipping " << nameAndNumber(ruler)
+                                         << " due to no primary title.\n";
+          continue;
+        }
+        if (0 == ruler->countBaronies()) {
+          // Rebels, adventurers, and suchlike riffraff.
+          if (sovereignsOnly) {
+            Logger::logStream("countries")
+                << "Skipping " << nameAndNumber(ruler) << " of "
+                << primary->getName() << " due to zero baronies.\n";
+          }
+          continue;
+        }
 
-        if ((*ruler)->isSovereign()) {
+        if (ruler->isSovereign()) {
           if (candidateCountries.empty()) {
             if (!primary->getSovereignTitle()) {
               Logger::logStream(LogStream::Error)
@@ -776,53 +791,79 @@ bool Converter::createCountryMap () {
             continue;
           }
           if (sovereignsOnly) {
-            if (primary->getEU4Country())
+            if (primary->getEU4Country()) {
               continue;
+            }
             Logger::logStream("countries")
                 << "Converting " << primary->getName()
                 << " because it is primary title of sovereign.\n";
-            convertTitle(primary, (*ruler), initialProvincesMap,
+            convertTitle(primary, ruler, initialProvincesMap,
                          candidateCountries);
           } else {
-            for (CK2Title::Iter title = (*ruler)->startTitle(); title != (*ruler)->finalTitle(); ++title) {
-	      if (primary == (*title)) continue;
-	      if (primary->getLevel() == TitleLevel::Empire) {
-		if (*primary->getLevel() < *TitleLevel::Kingdom) continue;
-	      }
-	      else if (primary->getLevel() != (*title)->getLevel()) continue;
-	      if ((*title)->getEU4Country()) continue;
-	      Logger::logStream("countries") << "Converting " << (*title)->getName() << " as union.\n";
-	      convertTitle((*title), (*ruler), initialProvincesMap, candidateCountries);
-	      unions[*ruler]++;
-	      if (unions[*ruler] >= maxUnions) {
-		Logger::logStream("countries") << "Skipping " << (*title)->getName() << ", over union limit.\n";
-		break;
-	      }
-	      if (candidateCountries.empty()) break;
-	    }
-	  }
-	}
-	else if (!sovereignsOnly) {
-	  // Vassal. Convert if there's room.
-	  if (primary->getEU4Country()) continue;
-	  CK2Ruler* sovereign = primary->getSovereign();
-	  CK2Title* kingdom = primary->getDeJureLevel(TitleLevel::Kingdom);
-	  if (!sovereign) {
-	    Logger::logStream("countries") << "Could not find sovereign for "
-					   << nameAndNumber(*ruler) << " of "
-					   << primary->getName()
-					   << "\n";
-	    continue;
-	  }
-
-	  CK2Ruler* immediateLiege = (*ruler)->getLiege();
+            for (auto* title : ruler->getTitles()) {
+              if (primary == title) {
+                continue;
+              }
+              if (primary->getLevel() == TitleLevel::Empire) {
+                if (*primary->getLevel() < *TitleLevel::Kingdom) {
+                  continue;
+                }
+              } else if (primary->getLevel() != title->getLevel()) {
+                continue;
+              }
+              if (title->getEU4Country()) {
+                continue;
+              }
+              Logger::logStream("countries")
+                  << "Converting " << title->getName() << " as union.\n";
+              convertTitle(title, ruler, initialProvincesMap,
+                           candidateCountries);
+              unions[ruler]++;
+              if (unions[ruler] >= maxUnions) {
+                Logger::logStream("countries")
+                    << "Skipping " << title->getName()
+                    << ", over union limit.\n";
+                break;
+              }
+              if (candidateCountries.empty()) {
+                break;
+              }
+            }
+          }
+        } else if (!sovereignsOnly) {
+          // Vassal. Convert if there's room.
+          if (primary->getEU4Country()) {
+            continue;
+          }
+          CK2Ruler* sovereign = primary->getSovereign();
+          if (!sovereign) {
+            Logger::logStream("countries")
+                << "Could not find sovereign for " << nameAndNumber(ruler)
+                << " of " << primary->getName() << "\n";
+            continue;
+          }
+          CK2Title* kingdom = primary->getDeJureLevel(TitleLevel::Kingdom);
+          if (kingdom == nullptr) {
+            Logger::logStream("countries")
+                << "Could not find de-jure kingdom for " << primary->getName()
+                << ", using primary title instead.\n";
+            kingdom = primary;
+          }
+          CK2Ruler* immediateLiege = ruler->getLiege();
+          if (immediateLiege == nullptr) {
+            Logger::logStream(LogStream::Warn)
+                << "Something weird about " << primary->getName()
+                << ", it is a vassal but has no liege. Skipping.\n";
+            continue;
+          }
           if ((!immediateLiege->isSovereign()) && (!subInfeudate)) {
             Logger::logStream("countries") << "Skipping " << primary->getName()
                                            << " to avoid subinfeudation.\n";
             continue;
           }
-          bool notTooMany = (totalVassals[sovereign][kingdom] < maxSmallVassals);
-	  bool important = *(primary->getLevel()) >= *(TitleLevel::Kingdom);
+          bool notTooMany =
+              (totalVassals[sovereign][kingdom] < maxSmallVassals);
+          bool important = *(primary->getLevel()) >= *(TitleLevel::Kingdom);
           if (notTooMany || important) {
             Logger::logStream("countries")
                 << "Converting " << primary->getName() << " as vassal, "
@@ -831,15 +872,18 @@ bool Converter::createCountryMap () {
                            (kingdom ? kingdom->getName() : PlainNone))
                         : string("too big to ignore"))
                 << ".\n";
-            convertTitle(primary, (*ruler), initialProvincesMap,
+            convertTitle(primary, ruler, initialProvincesMap,
                          candidateCountries);
             totalVassals[sovereign][kingdom]++;
           } else {
-            Logger::logStream("countries") << "Skipping " << primary->getName() << ", too small.\n";
-	  }
-	}
+            Logger::logStream("countries")
+                << "Skipping " << primary->getName() << ", too small.\n";
+          }
+        }
 
-	if (candidateCountries.empty()) break;
+        if (candidateCountries.empty()) {
+          break;
+        }
       }
     }
     if (candidateCountries.empty()) {
@@ -871,7 +915,8 @@ bool Converter::createProvinceMap() {
     string countytag = province_info->safeGetString("title", PlainNone);
     if (countytag == PlainNone) {
       Logger::logStream(LogStream::Warn)
-          << "Could not find title information for " << nameAndNumber(ckprov);
+          << "Could not find title information for " << nameAndNumber(ckprov)
+          << "\n";
       continue;
     }
     CK2Title* county = CK2Title::findByName(countytag);

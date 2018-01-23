@@ -16,7 +16,7 @@ streams = {
   mana = no
   hre = no # Also papacy
   war = no
-  all = no
+  all = yes
 }
 
 # NOCUSTOM or delete to ignore 

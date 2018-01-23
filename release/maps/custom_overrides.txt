@@ -1,11 +1,6 @@
 country_overrides = {
   k_papal_state = PAP
   k_venice = VEN
-  k_ireland = Z00
-  k_sapmi = Z10
-  k_finland = Z21
-  k_byzantium = Z40
-  k_ruthenia = Z89
 }
 
 religion_overrides = {
@@ -21,16 +16,6 @@ culture_overrides = {
 
 # Dynasties to calculate custom score for.
 custom_score = {
-  10292922 = 0   # Ivering
-  10292920 = 0   # Yngling
-  10292918 = 0   # Lazuli
-  10292927 = 0   # de Cantabria
-  10292926 = 0   # Lotharing
-  10292925 = 0   # von Borghest
-  1047006  = 0   # Cerdicing
-  10292923 = 0   # Heracleidae
-  10292929 = 0   # Ramsey
-  10294967 = 0   # Apocryphon
 }
 
 custom_score_traits = {
@@ -59,8 +44,6 @@ custom_score_traits = {
 
 # Reduce development in particular de-jure titles.
 special_nerfs = {
-  e_persia = 0.66
-  k_arabia = 0.66
 }
 
 
