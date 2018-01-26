@@ -4394,6 +4394,13 @@ bool Converter::warsAndRebels () {
   }
 
   Object* rebelCountry = eu4Game->getNeededObject("countries")->safeGetObject("REB");
+  if (!rebelCountry) {
+    Logger::logStream(LogStream::Info)
+        << "Could not find rebel country, no rebels or heresies.\n"
+        << LogOption::Undent;
+    return true;
+  }
+
   objvec factions = eu4Game->getValue("rebel_faction");
   objvec rebel_leaders = rebelCountry->getValue("leader");
   objvec rebel_armies = rebelCountry->getValue("army");
@@ -4403,6 +4410,7 @@ bool Converter::warsAndRebels () {
     if (!country) continue;
     if (country->isROTW()) continue;
     Object* rebel_leader = faction->safeGetObject("leader");
+
     if (rebel_leader) {
       int rebel_leader_id = rebel_leader->safeGetInt("id");
       for (auto* leader : rebel_leaders) {
@@ -4411,10 +4419,13 @@ bool Converter::warsAndRebels () {
       }
       for (auto* army : rebel_armies) {
         Object* army_leader = army->safeGetObject("leader");
-        if (rebel_leader_id != army_leader->safeGetInt("id")) continue;
+        if (army_leader && rebel_leader_id != army_leader->safeGetInt("id")) {
+          continue;
+        }
         rebelCountry->removeObject(army);
       }
     }
+
     auto provinces = faction->getNeededObject("possible_provinces");
     int faction_id = faction->getNeededObject("id")->safeGetInt("id");
     for (int i = 0; i < provinces->numTokens(); ++i) {
@@ -4433,12 +4444,6 @@ bool Converter::warsAndRebels () {
   before = eu4Game->safeGetObject("religions");
   string birthDate = eu4Game->safeGetString("date", "1444.11.11");
   objvec generalSkills = configObject->getNeededObject("generalSkills")->getLeaves();
-  if (!rebelCountry) {
-    Logger::logStream(LogStream::Info)
-        << "Could not find rebel country, no rebel factions created.\n"
-        << LogOption::Undent;
-    return true;
-  }
 
   for (auto* cand : rebelCandidates) {
     string ckCasusBelli =
