@@ -684,7 +684,7 @@ bool Converter::createCountryMap () {
       if (0 < (*prov)->numCKProvinces())
         hasGoodProvince = true;
       else {
-        badProvinceTag = (*prov)->getKey();
+        badProvinceTag = nameAndNumber(*prov);
         break;
       }
     }

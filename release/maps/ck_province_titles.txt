@@ -1615,12 +1615,12 @@
 }
 324 = {
    title=c_corsica
-   max_settlements=4
+   max_settlements=3
    terrain=mountain
 }
 325 = {
    title=c_arborea
-   max_settlements=3
+   max_settlements=4
    terrain=mountain
 }
 326 = {
@@ -3146,7 +3146,7 @@
 630 = {
    title=c_merv
    max_settlements=5
-   terrain=plains
+   terrain=desert
 }
 631 = {
    title=c_dihistan
@@ -3161,27 +3161,27 @@
 633 = {
    title=c_gurgan
    max_settlements=5
-   terrain=mountain
+   terrain=plains
 }
 634 = {
    title=c_nishapur
    max_settlements=6
-   terrain=mountain
+   terrain=desert
 }
 635 = {
    title=c_qohistan
    max_settlements=4
-   terrain=desert
+   terrain=mountain
 }
 636 = {
    title=c_lut
-   max_settlements=5
+   max_settlements=3
    terrain=desert
 }
 637 = {
    title=c_sistan
    max_settlements=6
-   terrain=mountain
+   terrain=desert
 }
 638 = {
    title=c_yazd
@@ -3221,7 +3221,7 @@
 645 = {
    title=c_hendjan
    max_settlements=4
-   terrain=desert
+   terrain=mountain
 }
 646 = {
    title=c_esfahan
@@ -3271,7 +3271,7 @@
 655 = {
    title=c_kufa
    max_settlements=5
-   terrain=desert
+   terrain=plains
 }
 656 = {
    title=c_tigris
@@ -3291,42 +3291,42 @@
 659 = {
    title=c_qom
    max_settlements=5
-   terrain=mountain
+   terrain=desert
 }
 660 = {
    title=c_qwivir
    max_settlements=5
-   terrain=desert
+   terrain=mountain
 }
 661 = {
    title=c_tabaristan
    max_settlements=5
-   terrain=mountain
+   terrain=plains
 }
 662 = {
-   title=c_mazandaran
+   title=c_alamut
    max_settlements=5
    terrain=mountain
 }
 663 = {
    title=c_rayy
    max_settlements=7
-   terrain=mountain
+   terrain=desert
 }
 664 = {
    title=c_qazwin
    max_settlements=5
-   terrain=mountain
+   terrain=desert
 }
 665 = {
-   title=c_dailam
+   title=c_daylam
    max_settlements=5
    terrain=mountain
 }
 666 = {
    title=c_gilan
    max_settlements=6
-   terrain=mountain
+   terrain=plains
 }
 667 = {
    title=c_tabriz
@@ -3419,19 +3419,19 @@
    terrain=desert
 }
 685 = {
-   title=c_kurdistan
-   max_settlements=5
-   terrain=mountain
-}
-686 = {
    title=c_oromieh
    max_settlements=6
+   terrain=desert
+}
+686 = {
+   title=c_kurdistan
+   max_settlements=5
    terrain=mountain
 }
 687 = {
    title=c_kirkuk
    max_settlements=5
-   terrain=mountain
+   terrain=desert
 }
 688 = {
    title=c_kermanshah
@@ -3449,9 +3449,9 @@
    terrain=plains
 }
 691 = {
-   title=c_al_nasiryah
-   max_settlements=5
-   terrain=desert
+   title=c_istakhr
+   max_settlements=4
+   terrain=mountain
 }
 692 = {
    title=c_al_nadjaf
@@ -3471,7 +3471,7 @@
 695 = {
    title=c_deir
    max_settlements=6
-   terrain=plains
+   terrain=desert
 }
 696 = {
    title=c_euphrates
@@ -3481,7 +3481,7 @@
 697 = {
    title=c_mosul
    max_settlements=6
-   terrain=plains
+   terrain=desert
 }
 698 = {
    title=c_al_jazira
@@ -3496,7 +3496,7 @@
 700 = {
    title=c_bira
    max_settlements=4
-   terrain=desert
+   terrain=mountain
 }
 701 = {
    title=c_taron
@@ -3554,9 +3554,9 @@
    terrain=desert
 }
 712 = {
-   title=c_suwaida
+   title=c_rahbah
    max_settlements=4
-   terrain=desert
+   terrain=plains
 }
 713 = {
    title=c_druz
@@ -3569,14 +3569,14 @@
    terrain=desert
 }
 715 = {
-   title=c_al_habbariyah
+   title=c_zanjan_abhar
    max_settlements=4
-   terrain=desert
+   terrain=mountain
 }
 716 = {
-   title=c_ar_ar
-   max_settlements=3
-   terrain=desert
+   title=c_jeddah
+   max_settlements=5
+   terrain=mountain
 }
 717 = {
    title=c_al_jawf
@@ -3586,12 +3586,12 @@
 718 = {
    title=c_medina
    max_settlements=5
-   terrain=desert
+   terrain=mountain
 }
 719 = {
    title=c_mecca
    max_settlements=6
-   terrain=mountain
+   terrain=desert
 }
 720 = {
    title=c_hijaz
@@ -3604,7 +3604,7 @@
    terrain=mountain
 }
 722 = {
-   title=c_petra
+   title=c_al_aqabah
    max_settlements=4
    terrain=mountain
 }
@@ -3645,13 +3645,13 @@
 }
 730 = {
    title=c_palmyra
-   max_settlements=3
+   max_settlements=4
    terrain=desert
 }
 731 = {
    title=c_homs
    max_settlements=5
-   terrain=plains
+   terrain=desert
 }
 732 = {
    title=c_hama
@@ -3846,12 +3846,12 @@
 770 = {
    title=c_beirut
    max_settlements=5
-   terrain=mountain
+   terrain=plains
 }
 771 = {
    title=c_tyrus
    max_settlements=5
-   terrain=mountain
+   terrain=plains
 }
 772 = {
    title=c_acre
@@ -3861,7 +3861,7 @@
 773 = {
    title=c_tiberias
    max_settlements=4
-   terrain=desert
+   terrain=mountain
 }
 774 = {
    title=c_jerusalem
@@ -3901,7 +3901,7 @@
 781 = {
    title=c_darum
    max_settlements=3
-   terrain=mountain
+   terrain=plains
 }
 782 = {
    title=c_negev
@@ -3914,8 +3914,8 @@
    terrain=desert
 }
 784 = {
-   title=c_al_aqabah
-   max_settlements=4
+   title=c_shahrazur
+   max_settlements=3
    terrain=mountain
 }
 785 = {
@@ -4264,7 +4264,7 @@
    terrain=desert
 }
 854 = {
-   title=c_jask
+   title=c_zamindawar
    max_settlements=3
    terrain=mountain
 }
@@ -4276,7 +4276,7 @@
 856 = {
    title=c_kathiri
    max_settlements=4
-   terrain=desert
+   terrain=mountain
 }
 857 = {
    title=c_bayda
@@ -4300,8 +4300,8 @@
 }
 861 = {
    title=c_asir
-   max_settlements=4
-   terrain=mountain
+   max_settlements=3
+   terrain=desert
 }
 862 = {
    title=c_halaban
@@ -4336,12 +4336,12 @@
 868 = {
    title=c_muscat
    max_settlements=6
-   terrain=desert
+   terrain=mountain
 }
 869 = {
    title=c_hajar
    max_settlements=4
-   terrain=desert
+   terrain=mountain
 }
 870 = {
    title=c_dhu_zabi
@@ -4521,7 +4521,7 @@
 905 = {
    title=c_herat
    max_settlements=5
-   terrain=desert
+   terrain=mountain
 }
 906 = {
    title=c_birjand
@@ -5381,7 +5381,7 @@
 1113 = {
    title=c_chagai
    max_settlements=1
-   terrain=mountain
+   terrain=desert
 }
 1114 = {
    title=c_mahoyadapuram
@@ -5511,7 +5511,7 @@
 1139 = {
    title=c_makran
    max_settlements=4
-   terrain=mountain
+   terrain=desert
 }
 1140 = {
    title=c_banavasi
@@ -5621,7 +5621,7 @@
 1161 = {
    title=c_kasmira
    max_settlements=6
-   terrain=mountain
+   terrain=hills
 }
 1162 = {
    title=c_kusinagara
@@ -5755,8 +5755,8 @@
 }
 1188 = {
    title=c_khuttal
-   max_settlements=3
-   terrain=steppe
+   max_settlements=5
+   terrain=plains
 }
 1189 = {
    title=c_bamiyan
@@ -6541,7 +6541,7 @@
 }
 1348 = {
    max_settlements=7
-   terrain=plains
+   terrain=mountain
 }
 1349 = {
    title=c_vikramapura
@@ -6554,7 +6554,8 @@
    terrain=desert
 }
 1351 = {
-   max_settlements=7
+   title = c_nagchu
+   max_settlements=4
    terrain=desert
 }
 1352 = {
@@ -6685,7 +6686,7 @@
 1377 = {
    title=c_maymana
    max_settlements=4
-   terrain=steppe
+   terrain=mountain
 }
 1378 = {
    title=c_urgench
@@ -6813,7 +6814,7 @@
 }
 1408 = {
    title=c_anxi
-   max_settlements=2
+   max_settlements=5
    terrain=desert
 }
 1409 = {
@@ -6959,57 +6960,57 @@
 }
 1438 = {
    title=c_yarkand
-   max_settlements=3
-   terrain=plains
+   max_settlements=4
+   terrain=desert
 }
 1439 = {
    title=c_kashgar
-   max_settlements=3
-   terrain=plains
+   max_settlements=5
+   terrain=hills
 }
 1440 = {
    title=c_khotan
-   max_settlements=5
+   max_settlements=6
    terrain=desert
 }
 1441 = {
    title=c_cherchen
-   max_settlements=3
+   max_settlements=4
    terrain=desert
 }
 1442 = {
    title=c_charkliq
-   max_settlements=3
+   max_settlements=5
    terrain=desert
 }
 1443 = {
    title=c_karashar
    max_settlements=5
-   terrain=desert
+   terrain=mountain
 }
 1444 = {
    title=c_kucha
-   max_settlements=4
+   max_settlements=5
    terrain=plains
 }
 1445 = {
    title=c_aksu
-   max_settlements=3
+   max_settlements=5
    terrain=plains
 }
 1446 = {
    title=c_kara_khoja
-   max_settlements=4
+   max_settlements=6
    terrain=desert
 }
 1447 = {
    title=c_loulan
-   max_settlements=3
+   max_settlements=4
    terrain=desert
 }
 1448 = {
    title=c_dunhuang
-   max_settlements=4
+   max_settlements=6
    terrain=desert
 }
 1449 = {
@@ -7019,7 +7020,7 @@
 }
 1450 = {
    title=c_kumul
-   max_settlements=3
+   max_settlements=5
    terrain=desert
 }
 1451 = {
@@ -7028,9 +7029,9 @@
    terrain=steppe
 }
 1452 = {
-   title=c_dunkheger
+   title=c_beshbaliq
    max_settlements=3
-   terrain=hills
+   terrain=plains
 }
 1453 = {
    title=c_aj_bogd
@@ -7088,10 +7089,589 @@
    terrain=plains
 }
 1464 = {
+	title=c_gilgit
+	max_settlements=4
+	terrain=mountain
+}
+1465 = {
+	title=c_tashkurgan
+	max_settlements=3
+	terrain=mountain
+}
+1466 = {
+	title=c_skardu
+	max_settlements=3
+	terrain=mountain
+}
+1467 = {
+	title=c_diskit
+	max_settlements=3
+	terrain=mountain
+}
+1468 = {
+	title=c_leh
+	max_settlements=5
+	terrain=mountain
+}
+1469 = {
+	title=c_kangra
+	max_settlements=4
+	terrain=mountain
+}
+1470 = {
+	title=c_garhwal
+	max_settlements=4
+	terrain=mountain
+}
+1471 = {
+	title=c_kurmanchal
+	max_settlements=5
+	terrain=mountain
+}
+1472 = {
+	title=c_jumla
+	max_settlements=4
+	terrain=mountain
+}
+1473 = {
+	title=c_doti
+	max_settlements=4
+	terrain=mountain
+}
+1474 = {
+	title=c_lumbini
+	max_settlements=5
+	terrain=mountain
+}
+1475 = {
+	title=c_pokhara
+	max_settlements=4
+	terrain=mountain
+}
+1476 = {
+	title=c_mangyul
+	max_settlements=5
+	terrain=mountain
+}
+1477 = {
+	title=c_janakpur
+	max_settlements=5
+	terrain=mountain
+}
+1478 = {
+	title=c_kathmandu
+	max_settlements=5
+	terrain=mountain
+}
+1479 = {
+	title=c_limbuwan
+	max_settlements=4
+	terrain=mountain
+}
+1480 = {
+	title=c_sikkim
+	max_settlements=5
+	terrain=mountain
+}
+1481 = {
+	title=c_paro
+	max_settlements=4
+	terrain=mountain
+}
+1482 = {
+	title=c_bumthang
+	max_settlements=4
+	terrain=mountain
+}
+1483 = {
+	title=c_monyul
+	max_settlements=5
+	terrain=mountain
+}
+1484 = {
+	title=c_lhoyu
+	max_settlements=5
+	terrain=mountain
+}
+1485 = {
+	title=c_rutog
+	max_settlements=4
+	terrain=mountain
+}
+1486 = {
+	title=c_tsaparang
+	max_settlements=5
+	terrain=mountain
+}
+1487 = {
+	title=c_gar
+	max_settlements=4
+	terrain=mountain
+}
+1488 = {
+	title=c_pangong
+	max_settlements=4
+	terrain=desert
+}
+1489 = {
+	title=c_kunlun
+	max_settlements=2
+	terrain=mountain
+}
+1490 = {
+	title=c_kyunglung
+	max_settlements=5
+	terrain=mountain
+}
+1491 = {
+	title=c_purang
+	max_settlements=6
+	terrain=mountain
+}
+1492 = {
+	title=c_sakya
+	max_settlements=5
+	terrain=mountain
+}
+1493 = {
+	title=c_coqen
+	max_settlements=2
+	terrain=mountain
+}
+1494 = {
+	title=c_gerze
+	max_settlements=2
+	terrain=desert
+}
+1495 = {
+	title=c_samtho
+	max_settlements=2
+	terrain=desert
+}
+1496 = {
+	title=c_taktse
+	max_settlements=5
+	terrain=mountain
+}
+1497 = {
+	title=c_gyantse
+	max_settlements=5
+	terrain=mountain
+}
+1498 = {
+	title=c_lhasa
+	max_settlements=7
+	terrain=mountain
+}
+1499 = {
+	title=c_shigatse
+	max_settlements=4
+	terrain=mountain
+}
+1500 = {
+	title=c_nyingchi
+	max_settlements=5
+	terrain=plains
+}
+1501 = {
+	title=c_nagormo
+	max_settlements=5
+	terrain=desert
+}
+1502 = {
+	title=c_fuqi
+	max_settlements=4
+	terrain=plains
+}
+1503 = {
+	title=c_nangqen
+	max_settlements=5
+	terrain=desert
+}
+1504 = {
+	title=c_lingtsang
+	max_settlements=4
+	terrain=plains
+}
+1505 = {
+	title=c_markam
+	max_settlements=4
+	terrain=mountain
+}
+1506 = {
+	title=c_dege
+	max_settlements=5
+	terrain=plains
+}
+1507 = {
+	title=c_nyima
+	max_settlements=5
+	terrain=desert
+}
+1508 = {
+	title=c_qamdo
+	max_settlements=4
+	terrain=plains
+}
+
+1511 = {
+	title=c_pamir
+	max_settlements=3
+	terrain=mountain
+}
+
+1513 = {
+	title=c_jiuquan
+	max_settlements=4
+	terrain=desert
+}
+
+1514 = {
+	title=c_ejin
+	max_settlements=2
+	terrain=desert
+}
+
+1515 = {
+	title=c_yungguan
+	max_settlements=3
+	terrain=desert
+}
+
+1516 = {
+	title=c_barkul
+	max_settlements=2
+	terrain=desert
+}
+
+1517 = {
+	title=c_dunkheger
+	max_settlements=3
+	terrain=plains
+}
+
+1518 = {
+	title=c_kumtag
+	max_settlements=3
+	terrain=desert
+}
+
+1519 = {
+	title=c_lopnor
+	max_settlements=2
+	terrain=desert
+}
+
+1520 = {
+	title=c_yuni
+	max_settlements=2
+	terrain=desert
+}
+
+1521 = {
+	title=c_mingoi
+	max_settlements=4
+	terrain=mountain
+}
+
+1522 = {
+	title=c_cadota
+	max_settlements=2
+	terrain=desert
+}
+
+1523 = {
+	title=c_keriya
+	max_settlements=3
+	terrain=desert
+}
+
+1524 = {
+	title=c_karghalik
+	max_settlements=2
+	terrain=desert
+}
+
+1525 = {
+	title=c_yopurga
+	max_settlements=3
+	terrain=plains
+}
+
+1526 = {
+	title=c_artux
+	max_settlements=2
+	terrain=plains
+}
+
+1527 = {
+	title=c_uchturpan
+	max_settlements=3
+	terrain=hills
+}
+
+1528 = {
+	title=c_kubera
+	max_settlements=3
+	terrain=plains
+}
+
+1529 = {
+   max_settlements=7
+   terrain=coastal_desert
+}
+
+1530 = {
+   title=c_dariya
+   max_settlements=2
+   terrain=desert
+}
+
+1531 = {
+   title=c_uwal
+   max_settlements=4
+   terrain=plains
+}
+
+1532 = {
+   title=c_zabid
+   max_settlements=4
+   terrain=mountain
+}
+
+1533 = {
+   title=c_najran
+   max_settlements=3
+   terrain=mountain
+}
+
+1534 = {
+   title=c_al_ahqaf
+   max_settlements=3
+   terrain=mountain
+}
+
+1535 = {
+   title=c_tihama
+   max_settlements=4
+   terrain=mountain
+}
+1536 = {
+   title=c_khaybar
+   max_settlements=4
+   terrain=mountain
+}
+1537 = {
+   title=c_maragha
+   max_settlements=3
+   terrain=mountain
+}
+1538 = {
+   title=c_badghis
+   max_settlements=3
+   terrain=desert
+}
+1539 = {
+   title=c_kanj_rustaq
+   max_settlements=3
+   terrain=mountain
+}
+1540 = {
+   title=c_guzgan
+   max_settlements=3
+   terrain=desert
+}
+1541 = {
+   title=c_amol
+   max_settlements=3
+   terrain=desert
+}
+1542 = {
+   title=c_sarakhs
+   max_settlements=4
+   terrain=desert
+}
+1543 = {
+   title=c_vakhan
+   max_settlements=3
+   terrain=mountain
+}
+1544 = {
+   title=c_chaghaniyan
+   max_settlements=4
+   terrain=plains
+}
+1545 = {
+   title=c_nakhshab
+   max_settlements=3
+   terrain=steppe
+}
+1546 = {
+   title=c_khojand
+   max_settlements=5
+   terrain=plains
+}
+1547 = {
+   title=c_badakhshan
+   max_settlements=3
+   terrain=hills
+}
+1548 = {
+   title=c_khaylam
+   max_settlements=4
+   terrain=plains
+}
+1549 = {
    max_settlements=7
    terrain=desert
 }
-1465 = {
-   max_settlements=7
+1550 = {
+   title=c_lhatok
+   max_settlements=4
+   terrain=plains
+}
+1551 = {
+   title=c_mustang
+   max_settlements=3
    terrain=mountain
+}
+1552 = {
+   title=c_lhunze
+   max_settlements=3
+   terrain=mountain
+}
+1553 = {
+   title=c_bome
+   max_settlements=4
+   terrain=plains
+}
+1554 = {
+   title=c_banbar
+   max_settlements=2
+   terrain=plains
+}
+1555 = {
+   title=c_medog
+   max_settlements=3
+   terrain=mountain
+}
+1556 = {
+   title=c_lhunzhub
+   max_settlements=4
+   terrain=desert
+}
+1557 = {
+   title=c_kunggar
+   max_settlements=5
+   terrain=desert
+}
+1558 = {
+   title=c_amdo
+   max_settlements=2
+   terrain=desert
+}
+1559 = {
+   title=c_xainza
+   max_settlements=2
+   terrain=desert
+}
+1560 = {
+   title=c_ogliastra
+   max_settlements=3
+   terrain=hills
+}
+1561 = {
+   title=c_lhatse
+   max_settlements=4
+   terrain=desert
+}
+1562 = {
+   title=c_zhongba
+   max_settlements=3
+   terrain=mountain
+}
+1563 = {
+   title=c_gegyai
+   max_settlements=4
+   terrain=desert
+}
+1564 = {
+   title=c_qangtang
+   max_settlements=2
+   terrain=desert
+}
+1565 = {
+   title=c_tsakha
+   max_settlements=2
+   terrain=desert
+}
+1566 = {
+   title=c_gyesar
+   max_settlements=3
+   terrain=mountain
+}
+1567 = {
+   title=c_mainling
+   max_settlements=3
+   terrain=mountain
+}
+1568 = {
+   title=c_yumen
+   max_settlements=4
+   terrain=plains
+}
+1569 = {
+   title=c_delingha
+   max_settlements=5
+   terrain=desert
+}
+1570 = {
+   title=c_qaidam
+   max_settlements=2
+   terrain=desert
+}
+1571 = {
+   title=c_lenghu
+   max_settlements=2
+   terrain=mountain
+}
+1572 = {
+   title=c_arjin
+   max_settlements=2
+   terrain=mountain
+}
+1573 = {
+   title=c_tanggula
+   max_settlements=3
+   terrain=mountain
+}
+1574 = {
+   title=c_gallura
+   max_settlements=3
+   terrain=mountain
+}
+1575 = {
+   title=c_zadoi
+   max_settlements=4
+   terrain=mountain
+}
+1576 = {
+   title=c_torres
+   max_settlements=4
+   terrain=mountain
+}
+1577 = {
+   title=c_cinarca
+   max_settlements=3
+   terrain=mountain
+}
+1578 = {
+   title=c_dulan
+   max_settlements=3
+   terrain=mountain
+}
+1579 = {
+   title=c_nedong
+   max_settlements=6
+   terrain=desert
 }

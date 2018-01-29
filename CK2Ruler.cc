@@ -61,7 +61,7 @@ CK2Character::CK2Character (Object* obj, Object* dynasties)
       if (index >= (int) ckTraits.size()) {
         if (!unknownTraits.count(index)) {
           Logger::logStream(LogStream::Warn)
-              << "Trait " << index << " is unknown and will be ignored.";
+              << "Trait " << index << " is unknown and will be ignored.\n";
           unknownTraits.insert(index);
         }
 	continue;
