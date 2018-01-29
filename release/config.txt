@@ -203,5 +203,8 @@ ships = {
 # Blacklist for navies; provinces listed here cannot be used as navy
 # locations. This is a patched-up workaround for not having a good way
 # to identify coastal provinces.
-forbidNavies = { 134 }
+forbidNavies = { 104 134 183 208 }
+
+# Whitelist for navies.
+allowNavies = { 1 12 101 112 151 207 226 236 250 2752 }
 

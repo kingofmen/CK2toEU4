@@ -2569,6 +2569,13 @@ bool Converter::createNavies () {
   string shipTypeNumber = "54";
   std::map<string, int> shipTypes;
 
+  auto* whitelist = configObject->safeGetObject("allowNavies");
+  if (whitelist) {
+    for (int i = 0; i < whitelist->numTokens(); ++i) {
+      navyLocations.insert(whitelist->getToken(i));
+    }
+  }
+
   for (auto* eu4country : EU4Country::getAll()) {
     if (eu4country->isROTW()) {
       continue;
@@ -2694,6 +2701,8 @@ bool Converter::createNavies () {
         }
       }
 
+      Logger::logStream("navies") << "Putting navy of " << nameAndNumber(ruler)
+                                  << " in " << location << "\n";
       navy->setLeaf("location", location);
       EU4Province* eu4prov = EU4Province::findByName(location);
       if (navyId != nullptr) {
