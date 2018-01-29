@@ -479,7 +479,7 @@ c_albarracin = 2990 # Albarracin - Teruel
 
 d_barcelona = 213 # Duchy Barcelona - Barcelona
 c_barcelona = 213 # County Barcelona - Barcelona
-c_lleida = 213 # Lleida - Barcelona
+c_lleida = 2987 # Lleida - Urgell
 
 c_tarragona = 2988 # Tarragona - Tarragona
 
