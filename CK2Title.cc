@@ -140,18 +140,18 @@ CK2Title* CK2Title::getSovereignTitle () {
     currTitle = currTitle->getLiege();
   }
 
-  // De jure chain.
-  currTitle = this;
-  while (currTitle) {
-    if (currTitle->getEU4Country()) return currTitle;
-    currTitle = currTitle->getDeJureLiege();
-  }
-
   // Liege chain again - characters may have nations where their titles don't.
   currTitle = this;
   while (currTitle) {
     if ((currTitle->getRuler()) && (currTitle->getRuler()->getEU4Country())) return currTitle;
     currTitle = currTitle->getLiege();
+  }
+
+  // De jure chain.
+  currTitle = this;
+  while (currTitle) {
+    if (currTitle->getEU4Country()) return currTitle;
+    currTitle = currTitle->getDeJureLiege();
   }
 
   // And de-jure again.
