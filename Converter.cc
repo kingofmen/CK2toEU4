@@ -1306,12 +1306,14 @@ bool Converter::adjustBalkanisation () {
 struct DynastyScore {
   DynastyScore() = default;
   explicit DynastyScore(string n, int cheevos)
-      : name(n), achievements(cheevos), members(0), cached_score(-1) {}
+      : name(n), achievements(cheevos), members(0), cached_score(-1),
+        adjusted_score(0) {}
   DynastyScore(const DynastyScore& other) = default;
   string name;
   int achievements;
   int members;
   int cached_score;
+  int adjusted_score;
   map<string, int> trait_counts;
   vector<pair<CK2Title*, int> > title_days;
 
@@ -1334,7 +1336,7 @@ struct DynastyScore {
     }
   }
 
-  string score_string (Object* custom_score_traits, double median) const {
+  string score_string (Object* custom_score_traits, double median, double target) {
     string ret;
     struct levelInfo {
       string titles;
@@ -1376,6 +1378,12 @@ struct DynastyScore {
               level.total_days / 365);
       ret += strbuffer;
     }
+    double actual_score = cached_score;
+    if (actual_score < median) {
+      sprintf(strbuffer, "Adjust to median: %.2f\n", median);
+      ret += strbuffer;
+      actual_score = median;
+    }
 
     string trait_line;
     double total_trait_bonus = 0;
@@ -1397,13 +1405,7 @@ struct DynastyScore {
     sprintf(strbuffer, "Total from traits: %.1f\n", total_trait_bonus);
     trait_line += strbuffer;
     ret += trait_line;
-
-    double actual_score = cached_score + total_trait_bonus;
-    if (actual_score < median) {
-      sprintf(strbuffer, "Adjust to median: %.2f\n", median);
-      ret += strbuffer;
-      actual_score = median;
-    }
+    actual_score += total_trait_bonus;
 
     double achievement_bonus =
         median * achievements *
@@ -1411,9 +1413,12 @@ struct DynastyScore {
     sprintf(strbuffer, "Achievement bonus: %.1f\n", achievement_bonus);
     ret += strbuffer;
 
-    sprintf(strbuffer, "Adjusted total: %.1f\n",
-            actual_score + achievement_bonus);
+    double final_points = actual_score + achievement_bonus;
+    sprintf(strbuffer, "Adjusted total: %.1f\n", final_points);
     ret += strbuffer;
+    final_points /= median;
+    final_points *= target;
+    adjusted_score = (int)floor(final_points + 0.5);
     return ret;
   }
 };
@@ -1582,11 +1587,19 @@ void Converter::calculateDynasticScores() {
   double median = 0.5 *
                   (sorted_dynasties[size / 2].cached_score +
                    sorted_dynasties[(size - 1) / 2].cached_score);
-  for (const auto& score : sorted_dynasties) {
+  double target = configObject->safeGetFloat("median_mana", 1000);
+  for (auto& score : sorted_dynasties) {
     Logger::logStream(LogStream::Info)
         << score.name << " : " << score.cached_score << "\n"
-        << LogOption::Indent << score.score_string(score_traits, median) << "\n"
+        << LogOption::Indent << score.score_string(score_traits, median, target)
+        << "\n"
         << LogOption::Undent;
+  }
+
+  Logger::logStream(LogStream::Info) << "\nMana:\n";
+  for (const auto& score : sorted_dynasties) {
+    Logger::logStream(LogStream::Info)
+        << score.name << " : " << score.adjusted_score << "\n";
   }
 
   Logger::logStream(LogStream::Info) << "Done with dynasty scores.\n" << LogOption::Undent;
