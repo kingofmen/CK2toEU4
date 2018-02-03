@@ -54,3 +54,7 @@ extern std::string femaleString;
 const std::string kOldGovernment = "government";
 const std::string kNewGovernment = "gov";
 extern std::string governmentString;
+
+const std::string kOldDeadCharHoldings = "old_holdings";
+const std::string kNewDeadCharHoldings = "oh";
+extern std::string deadCharHoldingsString;

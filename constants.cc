@@ -13,3 +13,4 @@ std::string fatherString;
 std::string motherString;
 std::string femaleString;
 std::string governmentString;
+std::string deadCharHoldingsString;

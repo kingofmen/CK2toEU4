@@ -395,7 +395,9 @@ bool Converter::createCK2Objects () {
   detectChangedString(kOldMother, kNewMother, charObjs, &motherString);
   detectChangedString(kOldFemale, kNewFemale, charObjs, &femaleString);
   detectChangedString(kOldGovernment, kNewGovernment, charObjs,
-                      &governmentString);
+                      &deadCharHoldingsString);
+  detectChangedString(kOldDeadCharHoldings, kNewDeadCharHoldings, charObjs,
+                      &deadCharHoldingsString);
 
   Object* dynasties = ck2Game->safeGetObject("dynasties");
   for (auto* ckCountry : CK2Title::getAll()) {
@@ -437,7 +439,7 @@ bool Converter::createCK2Objects () {
       // Dead character, check for dynasty power.
       string dynastyId = (*ch)->safeGetString(dynastyString, PlainNone);
       if (PlainNone == dynastyId) continue;
-      objvec holdings = (*ch)->getValue("old_holding");
+      objvec holdings = (*ch)->getValue(deadCharHoldingsString);
       for (objiter holding = holdings.begin(); holding != holdings.end(); ++holding) {
 	CK2Title* title = CK2Title::findByName(remQuotes((*holding)->getLeaf()));
 	if (!title) continue;
