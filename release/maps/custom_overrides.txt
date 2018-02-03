@@ -18,6 +18,8 @@ culture_overrides = {
 custom_score = {
 }
 
+median_mana = 1000
+
 custom_score_traits = {
   inbred = 1
   kinslayer = 1
