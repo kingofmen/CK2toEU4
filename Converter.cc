@@ -3365,22 +3365,22 @@ bool Converter::moveBuildings () {
   map<string, Object*> euBuildingTypes;
   
   objvec euBuildings = euBuildingObject->getLeaves();
-  for (objiter euBuilding = euBuildings.begin(); euBuilding != euBuildings.end(); ++euBuilding) {
-    int numToBuild = (*euBuilding)->safeGetInt("extra");
-    string buildingTag = (*euBuilding)->getKey();
+  for (auto* euBuilding : euBuildings) {
+    int numToBuild = euBuilding->safeGetInt("extra");
+    string buildingTag = euBuilding->getKey();
     for (auto* eu4prov : EU4Province::getAll()) {
       if (!eu4prov->converts()) continue;
-      if (eu4prov->safeGetString(buildingTag, "no") != "yes") continue;
+      if (!eu4prov->hasBuilding(buildingTag)) continue;
       numToBuild++;
-      eu4prov->unsetValue(buildingTag);
+      eu4prov->removeBuilding(buildingTag);
     }
     if (0 == numToBuild) continue;
     Logger::logStream("buildings") << "Found "
 				   << numToBuild << " "
 				   << buildingTag << ".\n";
-    (*euBuilding)->setLeaf("num_to_build", numToBuild);
-    euBuildingTypes[buildingTag] = (*euBuilding);
-    string obsolifies = (*euBuilding)->safeGetString("make_obsolete", PlainNone);
+    euBuilding->setLeaf("num_to_build", numToBuild);
+    euBuildingTypes[buildingTag] = euBuilding;
+    string obsolifies = euBuilding->safeGetString("make_obsolete", PlainNone);
     if (obsolifies != PlainNone) {
       makesObsolete[buildingTag] = obsolifies;
       nextLevel[obsolifies] = buildingTag;
@@ -3391,18 +3391,18 @@ bool Converter::moveBuildings () {
   map<CK2Province*, double> adjustment;
   for (CK2Province::Iter prov = provList.begin(); prov != provList.end(); ++prov) {
     adjustment[*prov] = 1;
-    for (map<string, Object*>::iterator tag = euBuildingTypes.begin(); tag != euBuildingTypes.end(); ++tag) {
-      (*prov)->unsetValue((*tag).first);
+    for (const auto& tag : euBuildingTypes) {
+      (*prov)->unsetValue(tag.first);
     }
   }
   
   while (!euBuildingTypes.empty()) {
     Object* building = 0;
     string buildingTag;
-    for (map<string, Object*>::iterator tag = euBuildingTypes.begin(); tag != euBuildingTypes.end(); ++tag) {
-      buildingTag = (*tag).first;
+    for (const auto& tag : euBuildingTypes) {
+      buildingTag = tag.first;
       if (nextLevel[buildingTag] != "") continue;
-      building = (*tag).second;
+      building = tag.second;
       break;
     }
     if (!building) {
@@ -3443,15 +3443,7 @@ bool Converter::moveBuildings () {
 				     << provList[i]->getWeight(weight) * adjustment[provList[i]]
 				     << ".\n";
       adjustment[provList[i]] *= 0.75;
-      target->setLeaf(buildingTag, "yes");
-      if (building->safeGetString("influencing_fort", "no") == "yes") {
-	target->setLeaf("influencing_fort", "yes");
-	Object* modifier = building->safeGetObject("modifier");
-	if (modifier) {
-	  string fortLevel = modifier->safeGetString("fort_level", PlainNone);
-	  if (fortLevel != PlainNone) target->setLeaf("fort_level", fortLevel);
-	}
-      }
+      target->addBuilding(buildingTag);
     }
   }
 

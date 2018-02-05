@@ -15,6 +15,9 @@ public:
   void assignProvince (CK2Province* ck);
   bool converts () const;
   EU4Country* getEU4Country () const {return eu4Country;}
+  bool hasBuilding(string buildingTag);
+  void addBuilding(string buildingTag);
+  void removeBuilding(string buildingTag);
   bool hasCore (string countryTag);
   int numCKProvinces () const {return ckProvinces.size();}
   void remCore (string countryTag);
@@ -24,6 +27,8 @@ public:
 private:
   CK2Province::Container ckProvinces;
   EU4Country* eu4Country;
+
+  Object* get_building_object();
 };
 
 #endif

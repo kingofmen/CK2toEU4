@@ -38,6 +38,34 @@ bool EU4Province::converts () const {
   return true;
 }
 
+Object* EU4Province::get_building_object() {
+  auto* buildings = safeGetObject("buildings");
+  if (buildings) {
+    return buildings;
+  }
+  return object;
+}
+
+void EU4Province::addBuilding(string buildingTag) {
+  getNeededObject("buildings")->resetLeaf(buildingTag, "yes");
+  getNeededObject("history")->resetLeaf(buildingTag, "yes");
+  getNeededObject("building_builders")
+      ->resetLeaf(buildingTag, safeGetString("owner"));
+}
+
+bool EU4Province::hasBuilding(string buildingTag) {
+  return get_building_object()->safeGetString(buildingTag) == "yes";
+}
+
+void EU4Province::removeBuilding(string buildingTag) {
+  get_building_object()->unsetValue(buildingTag);
+  getNeededObject("history")->unsetValue(buildingTag);
+  auto* builders = safeGetObject("building_builders");
+  if (builders != nullptr) {
+    builders->unsetValue(buildingTag);
+  }
+}
+
 bool EU4Province::hasCore (string countryTag) {
   auto* cores = getNeededObject("cores");
   string quotedTag = addQuotes(countryTag);
