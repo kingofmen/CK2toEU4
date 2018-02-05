@@ -3636,7 +3636,20 @@ bool Converter::redistributeMana () {
     CK2Ruler* ruler = (*eu4country)->getRuler();
     Object* powers = (*eu4country)->getNeededObject("powers");
     powers->clear();
+    if (customObject) {
+      auto* scores = customObject->safeGetObject("custom_score");
+      if (scores &&
+          scores->safeGetInt(ruler->safeGetString(dynastyString, PlainNone),
+                             -1000) != -1000) {
+        Logger::logStream("mana")
+            << nameAndNumber(ruler) << " is of custom dynasty "
+            << getDynastyName(ruler) << ", giving flat mana.\n";
+        totalPower = 300;
+      }
+    }
     totalPower /= 3;
+    Logger::logStream("mana") << (*eu4country)->getKey() << " gets "
+                              << totalPower << " of each mana.\n";
     powers->addToList(totalPower);
     powers->addToList(totalPower);
     powers->addToList(totalPower);
