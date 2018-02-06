@@ -1,3 +1,17 @@
+# Buildings are in priority order - forts should be first. Defence
+# before affluence!
+fort_15th = {
+  cost = 200
+  time = 30
+  modifier = {
+    fort_level = 2
+  }
+  onmap = yes
+  influencing_fort = yes
+
+  sort_by = pw_fortification
+}
+
 marketplace = {
   cost = 100
   time = 12
@@ -55,18 +69,6 @@ shipyard = {
 
   sort_by = pw_galleys
   extra = 4
-}
-
-fort_15th = {
-  cost = 200
-  time = 30
-  modifier = {
-    fort_level = 2
-  }
-  onmap = yes
-  influencing_fort = yes
-
-  sort_by = pw_fortification
 }
 
 courthouse = {

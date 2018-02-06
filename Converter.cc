@@ -41,8 +41,10 @@ namespace {
 unordered_set<EU4Country*> independenceRevolts;
 Object* euLeaderTraits = nullptr;
 Object* ck_province_setup = nullptr;
+Object* eu4_areas = nullptr;
 map<string, vector<string> > religionMap;
 map<string, vector<string> > cultureMap;
+const string kStateKey = "part_of_state";
 }
 
 Converter::Converter (Window* ow, string fn)
@@ -101,6 +103,7 @@ void Converter::cleanUp () {
   string minus("-");
   for (auto* eu4prov : EU4Province::getAll()) {
     eu4prov->object->setKey(minus + eu4prov->getKey());
+    eu4prov->unsetValue(kStateKey);
     if (eu4prov->converts()) {
       eu4prov->unsetValue("fort_level");
       eu4prov->unsetValue("base_fort_level");
@@ -535,6 +538,21 @@ bool Converter::createEU4Objects () {
     new EU4Province(*province);
   }
   Logger::logStream(LogStream::Info) << "Created " << EU4Province::totalAmount() << " provinces.\n";
+
+  objvec areas = eu4_areas->getLeaves();
+  for (auto* area : areas) {
+    for (int i = 0; i < area->numTokens(); ++i) {
+      string provinceTag = area->getToken(i);
+      auto* province = EU4Province::findByName(provinceTag);
+      if (!province) {
+        Logger::logStream("provinces")
+            << "Could not find province " << provinceTag << ", part of area "
+            << area->getKey() << "\n";
+        continue;
+      }
+      province->resetLeaf(kStateKey, area->getKey());
+    }
+  }
 
   wrapperObject = eu4Game->safeGetObject("countries");
   if (!wrapperObject) {
@@ -1025,6 +1043,7 @@ void Converter::loadFiles () {
     advisorTypesObject = new Object("dummy_advisors");
   }
 
+  eu4_areas = loadTextFile(dirToUse + "areas.txt");
   ck_province_setup = loadTextFile(dirToUse + "ck_province_titles.txt");
   string overrideFileName = remQuotes(configObject->safeGetString("custom", QuotedNone));
   if ((PlainNone != overrideFileName) && (overrideFileName != "NOCUSTOM")) {
@@ -3395,7 +3414,8 @@ bool Converter::moveBuildings () {
       (*prov)->unsetValue(tag.first);
     }
   }
-  
+
+  std::map<string, std::unordered_set<string>> fort_owners_in_states;
   while (!euBuildingTypes.empty()) {
     Object* building = 0;
     string buildingTag;
@@ -3422,10 +3442,14 @@ bool Converter::moveBuildings () {
     sort(provList.begin(), provList.end(), WeightDescendingSorter(weight, &adjustment));
     for (int i = 0; i < numToBuild; ++i) {
       if (0 == provList[i]->numEU4Provinces()) continue;
-      EU4Province* target = *(provList[i]->startEU4Province());
-      string tradeGood = target->safeGetString("trade_goods");
-      if ((tradeGood == "gold") && (building->safeGetString("allow_in_gold_provinces") == "no")) {
-	continue;
+      EU4Province* eu4prov = *(provList[i]->startEU4Province());
+      string tradeGood = eu4prov->safeGetString("trade_goods");
+      if ((tradeGood == "gold") &&
+          (building->safeGetString("allow_in_gold_provinces") == "no")) {
+        Logger::logStream("buildings")
+            << "No " << buildingTag << " in " << nameAndNumber(eu4prov)
+            << " due to gold.\n";
+        continue;
       }
       Object* manu = building->safeGetObject("manufactory");
       bool badGood = false;
@@ -3436,14 +3460,38 @@ bool Converter::moveBuildings () {
 	  break;
 	}
       }
-      if (badGood) continue;
+      if (badGood) {
+        Logger::logStream("buildings")
+            << "No " << buildingTag << " in " << nameAndNumber(eu4prov)
+            << " due to " << tradeGood << ".\n";
+        continue;
+      }
+      string owner = eu4prov->safeGetString("owner", PlainNone);
+      if (owner == PlainNone) {
+        Logger::logStream("buildings")
+            << "No " << buildingTag << " in unowned province "
+            << nameAndNumber(eu4prov) << "\n";
+        continue;
+      }
+
+      string area = eu4prov->safeGetString(kStateKey, PlainNone);
+      if (building->safeGetString("influencing_fort", "no") == "yes") {
+        if (fort_owners_in_states[area].count(owner)) {
+          Logger::logStream("buildings")
+              << "No " << buildingTag << " in province " << nameAndNumber(eu4prov)
+              << " because it is part of " << area
+              << " which already has a fort.\n";
+          continue;
+        }
+        fort_owners_in_states[area].insert(owner);
+      }
       Logger::logStream("buildings") << "Creating " << buildingTag << " in "
-				     << nameAndNumber(target)
+				     << nameAndNumber(eu4prov)
 				     << " with adjusted weight "
 				     << provList[i]->getWeight(weight) * adjustment[provList[i]]
 				     << ".\n";
       adjustment[provList[i]] *= 0.75;
-      target->addBuilding(buildingTag);
+      eu4prov->addBuilding(buildingTag);
     }
   }
 
@@ -4843,9 +4891,9 @@ void Converter::convert () {
   if (!setCores()) return;
   if (!moveCapitals()) return;
   if (!modifyProvinces()) return;
-  if (!moveBuildings()) return;
   if (!setupDiplomacy()) return;
   if (!adjustBalkanisation()) return;
+  if (!moveBuildings()) return;
   if (!cleanEU4Nations()) return;
   if (!createArmies()) return;
   if (!createNavies()) return;  
