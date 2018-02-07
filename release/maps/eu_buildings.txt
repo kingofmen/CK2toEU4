@@ -1,5 +1,3 @@
-# Buildings are in priority order - forts should be first. Defence
-# before affluence!
 fort_15th = {
   cost = 200
   time = 30
@@ -11,6 +9,46 @@ fort_15th = {
 
   sort_by = pw_fortification
 }
+
+fort_16th = {
+  cost = 400
+  time = 30
+  make_obsolete = fort_15th
+  modifier = {
+    fort_level = 4
+  }
+
+  onmap = yes
+
+  influencing_fort = yes
+}
+
+fort_17th = {
+  cost = 600
+  time = 30
+
+  make_obsolete = fort_16th
+
+  modifier = {
+    fort_level = 6
+  }
+
+  onmap = yes
+
+  influencing_fort = yes
+}
+
+fort_18th = {
+  cost = 800
+  time = 30
+  make_obsolete = fort_17th
+  modifier = {
+    fort_level = 8
+  }
+  onmap = yes
+  influencing_fort = yes
+}
+
 
 marketplace = {
   cost = 100
@@ -101,19 +139,6 @@ regimental_camp = {
   }
 }
 
-fort_16th = {
-  cost = 400
-  time = 30
-  make_obsolete = fort_15th
-  modifier = {
-    fort_level = 4
-  }
-
-  onmap = yes
-
-  influencing_fort = yes
-}
-
 cathedral = {
   make_obsolete = temple
 
@@ -173,22 +198,6 @@ training_fields = {
   modifier = {
     local_manpower_modifier = 1
   }
-}
-
-
-fort_17th = {
-  cost = 600
-  time = 30
-
-  make_obsolete = fort_16th
-
-  modifier = {
-    fort_level = 6
-  }
-
-  onmap = yes
-
-  influencing_fort = yes
 }
 
 stock_exchange = {
@@ -253,19 +262,6 @@ conscription_center = {
   modifier = {
     land_forcelimit = 2
   }
-}
-
-
-
-fort_18th = {
-  cost = 800
-  time = 30
-  make_obsolete = fort_17th
-  modifier = {
-    fort_level = 8
-  }
-  onmap = yes
-  influencing_fort = yes
 }
 
 wharf = {

@@ -3382,7 +3382,8 @@ bool Converter::moveBuildings () {
   map<string, string> makesObsolete;
   map<string, string> nextLevel;
   map<string, Object*> euBuildingTypes;
-  
+  int fort_types = 0;
+
   objvec euBuildings = euBuildingObject->getLeaves();
   for (auto* euBuilding : euBuildings) {
     int numToBuild = euBuilding->safeGetInt("extra");
@@ -3399,6 +3400,9 @@ bool Converter::moveBuildings () {
 				   << buildingTag << ".\n";
     euBuilding->setLeaf("num_to_build", numToBuild);
     euBuildingTypes[buildingTag] = euBuilding;
+    if (euBuilding->safeGetString("influencing_fort", "no") == "yes") {
+      ++fort_types;
+    }
     string obsolifies = euBuilding->safeGetString("make_obsolete", PlainNone);
     if (obsolifies != PlainNone) {
       makesObsolete[buildingTag] = obsolifies;
@@ -3416,6 +3420,13 @@ bool Converter::moveBuildings () {
   }
 
   std::map<string, std::unordered_set<string>> fort_owners_in_states;
+  std::map<string, string> fort_influence;
+  Object* influence = configObject->getNeededObject("fort_influence");
+  for (auto* p : influence->getLeaves()) {
+    for (int i = 0; i < p->numTokens(); ++i) {
+      fort_influence[p->getToken(i)] = p->getKey();
+    }
+  }
   while (!euBuildingTypes.empty()) {
     Object* building = 0;
     string buildingTag;
@@ -3423,6 +3434,10 @@ bool Converter::moveBuildings () {
       buildingTag = tag.first;
       if (nextLevel[buildingTag] != "") continue;
       building = tag.second;
+      if (fort_types > 0 &&
+          building->safeGetString("influencing_fort", "no") == "no") {
+        continue;
+      }
       break;
     }
     if (!building) {
@@ -3434,6 +3449,9 @@ bool Converter::moveBuildings () {
     string obsolifies = makesObsolete[buildingTag];
     if (obsolifies != "") nextLevel[obsolifies] = "";
     int numToBuild = building->safeGetInt("num_to_build", 0);
+    if (building->safeGetString("influencing_fort", "no") == "yes") {
+      --fort_types;
+    }
     euBuildingTypes.erase(buildingTag);
     if (0 == numToBuild) continue;
     string sortBy = building->safeGetString("sort_by", PlainNone);
@@ -3476,6 +3494,51 @@ bool Converter::moveBuildings () {
 
       string area = eu4prov->safeGetString(kStateKey, PlainNone);
       if (building->safeGetString("influencing_fort", "no") == "yes") {
+        auto province_tag = eu4prov->getKey();
+        auto influence_tag = fort_influence[province_tag];
+        if (!influence_tag.empty()) {
+          auto* influence_prov = EU4Province::findByName(influence_tag);
+          if (influence_prov) {
+            if (influence_prov->hasBuilding(buildingTag) &&
+                influence_prov->safeGetString("owner") == owner) {
+              Logger::logStream("buildings")
+                  << "No " << buildingTag << " in province "
+                  << nameAndNumber(eu4prov) << " because neighbour "
+                  << nameAndNumber(influence_prov) << " already has one.\n";
+              continue;
+            }
+          } else {
+            Logger::logStream("buildings")
+                << "Could not find province " << influence_tag
+                << ", allegedly influencing " << nameAndNumber(eu4prov) << "\n";
+          }
+        }
+        auto* priority = influence->safeGetObject(province_tag);
+        if (priority) {
+          bool moved = false;
+          for (int i = 0; i < priority->numTokens(); ++i) {
+            auto* other = EU4Province::findByName(priority->getToken(i));
+            if (!other || other->safeGetString("owner") != owner ||
+                !other->hasBuilding(buildingTag)) {
+              continue;
+            }
+            Logger::logStream("buildings")
+                << nameAndNumber(eu4prov) << " has higher priority for "
+                << buildingTag << " than " << nameAndNumber(other)
+                << ", moving from latter to former.\n";
+            other->removeBuilding(buildingTag);
+            fort_owners_in_states[other->safeGetString(kStateKey, PlainNone)]
+                .erase(owner);
+            moved = true;
+            break;
+          }
+          if (moved) {
+            adjustment[provList[i]] *= 0.75;
+            eu4prov->addBuilding(buildingTag);
+            fort_owners_in_states[area].insert(owner);
+            continue;
+          }
+        }
         if (fort_owners_in_states[area].count(owner)) {
           Logger::logStream("buildings")
               << "No " << buildingTag << " in province " << nameAndNumber(eu4prov)
@@ -3483,6 +3546,7 @@ bool Converter::moveBuildings () {
               << " which already has a fort.\n";
           continue;
         }
+        
         fort_owners_in_states[area].insert(owner);
       }
       Logger::logStream("buildings") << "Creating " << buildingTag << " in "
@@ -3651,9 +3715,9 @@ bool Converter::redistributeMana () {
   }
 
   double maxClaimants = 0;
-  for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
-    if (!(*eu4country)->converts()) continue;
-    CK2Ruler* ruler = (*eu4country)->getRuler();
+  for (auto* eu4country : EU4Country::getAll()) {
+    if (!eu4country->converts()) continue;
+    CK2Ruler* ruler = eu4country->getRuler();
     CK2Title* primary = ruler->getPrimaryTitle();
     double claimants = 0;
     for (CK2Character::CharacterIter claimant = primary->startClaimant();
@@ -3663,18 +3727,18 @@ bool Converter::redistributeMana () {
     if (claimants > maxClaimants) {
       maxClaimants = claimants;
     }
-    (*eu4country)->resetLeaf("claimants", claimants);
+    eu4country->resetLeaf("claimants", claimants);
   }
 
   double minimumLegitimacy = configObject->safeGetFloat("minimum_legitimacy", 25);
-  for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
-    int totalPower = (*eu4country)->safeGetFloat(kAwesomePower);
-    (*eu4country)->unsetValue(kAwesomePower);
-    double claimants = (*eu4country)->safeGetFloat("claimants");
-    (*eu4country)->unsetValue("claimants");
-    if (!(*eu4country)->converts()) continue;
-    CK2Ruler* ruler = (*eu4country)->getRuler();
-    Object* powers = (*eu4country)->getNeededObject("powers");
+  for (auto* eu4country : EU4Country::getAll()) {
+    int totalPower = eu4country->safeGetFloat(kAwesomePower);
+    eu4country->unsetValue(kAwesomePower);
+    double claimants = eu4country->safeGetFloat("claimants");
+    eu4country->unsetValue("claimants");
+    if (!eu4country->converts()) continue;
+    CK2Ruler* ruler = eu4country->getRuler();
+    Object* powers = eu4country->getNeededObject("powers");
     powers->clear();
     if (customObject) {
       auto* scores = customObject->safeGetObject("custom_score");
@@ -3688,7 +3752,7 @@ bool Converter::redistributeMana () {
       }
     }
     totalPower /= 3;
-    Logger::logStream("mana") << (*eu4country)->getKey() << " gets "
+    Logger::logStream("mana") << eu4country->getKey() << " gets "
                               << totalPower << " of each mana.\n";
     powers->addToList(totalPower);
     powers->addToList(totalPower);
@@ -3706,14 +3770,14 @@ bool Converter::redistributeMana () {
     totalFactionStrength *= 18;
     stability -= (int) floor(totalFactionStrength);
     if (stability < -3) stability = -3;
-    (*eu4country)->resetLeaf("stability", stability);
-    Logger::logStream("mana") << " so " << (*eu4country)->getKey()
+    eu4country->resetLeaf("stability", stability);
+    Logger::logStream("mana") << " so " << eu4country->getKey()
                               << " has stability " << stability << ".\n";
 
-    (*eu4country)->resetLeaf("legitimacy", "0.000");
-    if (((*eu4country)->getGovernment() == "\"merchant_republic\"") ||
-        ((*eu4country)->getGovernment() == "\"noble_republic\"")) {
-      (*eu4country)->resetLeaf("republican_tradition", "100.000");
+    eu4country->resetLeaf("legitimacy", "0.000");
+    if ((eu4country->getGovernment() == "\"merchant_republic\"") ||
+        (eu4country->getGovernment() == "\"noble_republic\"")) {
+      eu4country->resetLeaf("republican_tradition", "100.000");
     }
     else {
       Logger::logStream("mana")
@@ -3721,9 +3785,9 @@ bool Converter::redistributeMana () {
           << ", hence ";
       claimants /= maxClaimants;
       double legitimacy = 100 * (1.0 - claimants + minimumLegitimacy * claimants);
-      (*eu4country)->resetLeaf("legitimacy", legitimacy);
-      Logger::logStream("mana") << (*eu4country)->getKey() << " has legitimacy "
-                                << legitimacy << ".\n";
+      eu4country->resetLeaf("legitimacy", legitimacy);
+      Logger::logStream("mana")
+          << eu4country->getKey() << " has legitimacy " << legitimacy << ".\n";
     }
   }
 
