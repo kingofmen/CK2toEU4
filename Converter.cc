@@ -3690,8 +3690,8 @@ bool Converter::redistributeMana () {
 
   objvec factions = ck2Game->getValue("active_faction");
   map<CK2Ruler*, vector<CK2Ruler*> > factionMap;
-  for (objiter faction = factions.begin(); faction != factions.end(); ++faction) {
-    Object* scope = (*faction)->getNeededObject("scope");
+  for (auto* faction : factions) {
+    Object* scope = faction->getNeededObject("scope");
     string creatorId = scope->safeGetString("char");
     CK2Ruler* creator = CK2Ruler::findByName(creatorId);
     CK2Ruler* target = 0;
@@ -3713,7 +3713,7 @@ bool Converter::redistributeMana () {
     if (!target) continue;
     if (creator) factionMap[target].push_back(creator);
 
-    objvec backers = (*faction)->getValue("backer");
+    objvec backers = faction->getValue("backer");
     for (objiter backer = backers.begin(); backer != backers.end(); ++backer) {
       CK2Ruler* rebel = CK2Ruler::findByName((*backer)->getLeaf());
       if (rebel) factionMap[target].push_back(rebel);
@@ -3773,7 +3773,7 @@ bool Converter::redistributeMana () {
     Logger::logStream("mana")
         << nameAndNumber(ruler) << " has faction strength "
         << totalFactionStrength;
-    totalFactionStrength *= 18;
+    totalFactionStrength *= 6; // Half rebels, stability 0.
     stability -= (int) floor(totalFactionStrength);
     if (stability < -3) stability = -3;
     eu4country->resetLeaf("stability", stability);
