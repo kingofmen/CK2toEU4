@@ -3627,6 +3627,7 @@ bool Converter::redistributeMana () {
   keywords[prestigeString] = "prestige";
   keywords[kDynastyPower] = kAwesomePower;
   map<string, doublet> globalAmounts;
+  map<string, double> maxima = {{prestigeString, 100}};
 
   map<CK2Ruler*, int> counts;
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
@@ -3634,9 +3635,9 @@ bool Converter::redistributeMana () {
     CK2Ruler* ruler = (*eu4country)->getRuler();
     counts[ruler]++;
     if (ruler->getPrimaryTitle() != (*eu4country)->getTitle()) continue;
-    for (map<string, string>::iterator keyword = keywords.begin(); keyword != keywords.end(); ++keyword) {
-      string ck2word = keyword->first;
-      string eu4word = keyword->second;
+    for (const auto& keyword : keywords) {
+      string ck2word = keyword.first;
+      string eu4word = keyword.second;
       double amount = ruler->safeGetFloat(ck2word);
       if (amount > 0) globalAmounts[ck2word].x() += amount;
       amount = (*eu4country)->safeGetFloat(eu4word);
@@ -3644,7 +3645,7 @@ bool Converter::redistributeMana () {
     }
   }
 
-  for (const auto &keyword : keywords) {
+  for (const auto& keyword : keywords) {
     string ck2word = keyword.first;
     string eu4word = keyword.second;
     Logger::logStream("mana")
@@ -3654,28 +3655,33 @@ bool Converter::redistributeMana () {
 
     double ratio =
         globalAmounts[ck2word].y() / (1 + globalAmounts[ck2word].x());
-    for (EU4Country::Iter eu4country = EU4Country::start();
-         eu4country != EU4Country::final(); ++eu4country) {
-      CK2Ruler *ruler = (*eu4country)->getRuler();
-      if (!ruler)
+    for (auto* eu4country : EU4Country::getAll()) {
+      CK2Ruler *ruler = eu4country->getRuler();
+      if (!ruler) {
         continue;
+      }
       double ck2Amount = ruler->safeGetFloat(ck2word);
-      if (ck2Amount <= 0)
+      if (ck2Amount <= 0) {
         continue;
+      }
 
       double distribution = 1;
       if (counts[ruler] > 1) {
-        if (ruler->getPrimaryTitle() == (*eu4country)->getTitle())
+        if (ruler->getPrimaryTitle() == eu4country->getTitle()) {
           distribution = 0.666;
-        else
+        } else {
           distribution = 0.333 / (counts[ruler] - 1);
+        }
       }
       double eu4Amount = ck2Amount * ratio * distribution;
+      if (maxima.find(ck2word) != maxima.end() && maxima[ck2word] < eu4Amount) {
+        eu4Amount = maxima[ck2word];
+      }
       Logger::logStream("mana")
           << nameAndNumber(ruler) << " has " << ck2Amount << " " << ck2word
-          << ", so " << (*eu4country)->getKey() << " gets " << eu4Amount << " "
+          << ", so " << eu4country->getKey() << " gets " << eu4Amount << " "
           << eu4word << ".\n";
-      (*eu4country)->resetLeaf(eu4word, eu4Amount);
+      eu4country->resetLeaf(eu4word, eu4Amount);
     }
 
     Logger::logStream("mana") << LogOption::Undent;
@@ -3784,7 +3790,8 @@ bool Converter::redistributeMana () {
           << claimants << " claims on " << ruler->getPrimaryTitle()->getKey()
           << ", hence ";
       claimants /= maxClaimants;
-      double legitimacy = 100 * (1.0 - claimants + minimumLegitimacy * claimants);
+      double legitimacy =
+          100 * (1.0 - claimants + 0.01 * minimumLegitimacy * claimants);
       eu4country->resetLeaf("legitimacy", legitimacy);
       Logger::logStream("mana")
           << eu4country->getKey() << " has legitimacy " << legitimacy << ".\n";

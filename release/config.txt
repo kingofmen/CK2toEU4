@@ -216,4 +216,9 @@ fort_influence = {
   226 = { 1749 223 } # Gibraltar
   223 = { 1749 } # Granada over Cadiz
   1751 = { 334 342 343 335 } # Ceuta
+  124 = { 125 2982 } # Messina
+  123 = { 2984 } # Calabria
+  292 = { 317 2299 } # Kocaeli
+  4312 = { 292 317 2299 } # Sultanonu
+  183 = { 167 168 182 184 185 186 1879 } # Paris
 }
