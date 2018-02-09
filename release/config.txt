@@ -73,8 +73,9 @@ rebel_heresies = {
   buddhism = "Zen"
 }
 
-keys_to_clear = { ledger flags hidden_flags ruler_flags variables }
-keys_to_remove = { base_tax development enemy state
+keys_to_clear = { ledger flags hidden_flags ruler_flags variables
+parliament }
+keys_to_remove = { base_tax development enemy state custom_republic
 power_projection military_strength army_strength navy_strength
 num_of_trade_embargos num_of_non_rival_trade_embargos total_war_worth
 num_of_rebel_controlled_provinces num_of_rebel_armies rival

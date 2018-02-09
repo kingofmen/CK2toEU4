@@ -110,6 +110,10 @@ void Converter::cleanUp () {
       eu4prov->unsetValue("influencing_fort");
       eu4prov->unsetValue("fort_influencing");
       eu4prov->unsetValue("estate");
+      auto* history = eu4prov->safeGetObject("history");
+      if (history) {
+        history->unsetValue("seat_in_parliament");
+      }
     }
   }
 
@@ -2587,6 +2591,23 @@ bool Converter::createGovernments () {
           << ", leaving " << eu4country->getKey() << " as " << euGovernmentType
           << ".\n";
     }
+    if (customObject) {
+      auto* customGov = customObject->getNeededObject("governments")
+                            ->safeGetObject(eu4country->getKey());
+      if (customGov != nullptr) {
+        euGovernmentType = customGov->safeGetString("gov", "feudal_monarchy");
+        Logger::logStream("governments")
+            << "Custom information, overriding " << eu4country->getKey()
+            << " government to " << euGovernmentType << "\n";
+        if (customGov->safeGetString("republic", "no") == "yes") {
+          eu4country->resetLeaf("needs_heir", "no");
+          eu4country->resetLeaf("custom_republic", "yes");
+        } else {
+          eu4country->resetLeaf("needs_heir", "yes");
+          eu4country->resetLeaf("custom_republic", "no");
+        }
+      }
+    }
     eu4country->setGovernment(euGovernmentType);
   }  
   Logger::logStream(LogStream::Info) << "Done with governments.\n" << LogOption::Undent;
@@ -3782,7 +3803,8 @@ bool Converter::redistributeMana () {
 
     eu4country->resetLeaf("legitimacy", "0.000");
     if ((eu4country->getGovernment() == "\"merchant_republic\"") ||
-        (eu4country->getGovernment() == "\"noble_republic\"")) {
+        (eu4country->getGovernment() == "\"noble_republic\"") ||
+        (eu4country->safeGetString("custom_republic") == "yes")) {
       eu4country->resetLeaf("republican_tradition", "100.000");
     }
     else {
