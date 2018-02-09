@@ -1058,6 +1058,10 @@ void Converter::loadFiles () {
   countryMapObject = customObject->getNeededObject("country_overrides");
   setDynastyNames(loadTextFile(dirToUse + "dynasties.txt"));
 
+  if (eu4Game->safeGetObject("provinces") == nullptr) {
+    Logger::logStream(LogStream::Warn)
+        << "Couldn't find EU4 provinces object, this will cause errors later.\n";
+  }
   Logger::logStream(LogStream::Info) << "Done loading input files\n" << LogOption::Undent;
 }
 
