@@ -36,7 +36,8 @@ min_balkanisation = 0.00
 balkan_threshold = 8
 minimum_legitimacy = 25
 
-# Options are keep, remove
+# Options are keep, remove, dynasties. For dynasties, specify which
+# ones in custom_overrides.txt.
 hre = remove
 
 infantry_type = "western_medieval_infantry"

@@ -3100,17 +3100,88 @@ Object* Converter::createMonarchId () {
 bool Converter::hreAndPapacy () {
   Logger::logStream(LogStream::Info) << "Beginning HRE and papacy.\n" << LogOption::Indent;
   string hreOption = configObject->safeGetString("hre", "keep");
-  if (hreOption == "remove") {
-    Logger::logStream("hre") << "Removing bratwurst.\n";
-    for (EU4Province::Iter eu4prov = EU4Province::start(); eu4prov != EU4Province::final(); ++eu4prov) {
-      (*eu4prov)->unsetValue("hre");
+  const std::unordered_set<string> allowedOptions = {"keep", "remove", "dynasties"};
+  if (allowedOptions.find(hreOption) == allowedOptions.end()) {
+    Logger::logStream(LogStream::Warn)
+        << "Unknown HRE option " << hreOption << ", defaulting to 'keep'.\n";
+    hreOption = "keep";
+  }
+
+  std::unordered_set<string> hre_dynasties;
+  std::set<string> hre_electors;
+  string empTag = addQuotes("---");
+  if (customObject && hreOption == "dynasties") {
+    auto* members = customObject->getNeededObject("empire_members");
+    for (int i = 0; i < members->numTokens(); ++i) {
+      hre_dynasties.insert(members->getToken(i));
+      Logger::logStream("hre") << members->getToken(i) << " is HRE dynasty.\n";
     }
-    for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
-      (*eu4country)->unsetValue("preferred_emperor");
-      (*eu4country)->unsetValue("is_elector");
+    auto* electors = customObject->getNeededObject("electors");
+    for (int i = 0; i < electors->numTokens(); ++i) {
+      hre_electors.insert(electors->getToken(i));
+      Logger::logStream("hre") << electors->getToken(i) << " is elector.\n";
     }
-    eu4Game->unsetValue("emperor");
-    eu4Game->unsetValue("old_emperor");
+    if (!hre_electors.empty()) {
+      empTag = addQuotes(electors->getToken(0));
+      Logger::logStream("hre") << electors->getToken(0) << " is emperor.\n";
+    }
+  }
+
+  if (hreOption != "keep") {
+    Logger::logStream("hre") << "Removing bratwurst with option " << hreOption << ".\n";
+    for (auto* eu4prov : EU4Province::getAll()) {
+      if (hreOption == "dynasties") {
+        auto* country = eu4prov->getEU4Country();
+        CK2Ruler* ruler = nullptr;
+        if (country) {
+          ruler = country->getRuler();
+        } else {
+          Logger::logStream("hre")
+              << "No country for " << nameAndNumber(eu4prov) << "\n";
+        }
+        string dynastyId = PlainNone;
+        if (ruler) {
+          dynastyId = ruler->safeGetString(dynastyString, PlainNone);
+        } else {
+          Logger::logStream("hre")
+              << "No ruler for " << nameAndNumber(eu4prov) << "\n";
+        }
+        if (dynastyId != PlainNone &&
+            hre_dynasties.find(dynastyId) != hre_dynasties.end()) {
+          Logger::logStream("hre")
+              << nameAndNumber(eu4prov) << " belongs to "
+              << nameAndNumber(ruler) << " of HRE dynasty " << dynastyId
+              << ", making part of HRE.\n";
+          eu4prov->resetLeaf("hre", "yes");
+          eu4prov->getNeededObject("history")->resetLeaf("hre", "yes");
+        } else {
+          Logger::logStream("hre") << "No HRE for " << nameAndNumber(eu4prov)
+                                   << " " << dynastyId << "\n";
+          eu4prov->unsetValue("hre");
+        }
+      } else {
+        eu4prov->unsetValue("hre");
+      }
+    }
+    for (auto* eu4country : EU4Country::getAll()) {
+      eu4country->unsetValue("preferred_emperor");
+      if (hre_electors.find(eu4country->getKey()) != hre_electors.end()) {
+        eu4country->resetLeaf("is_elector", "yes");
+      } else {
+        eu4country->unsetValue("is_elector");
+      }
+    }
+    Object* empire = eu4Game->safeGetObject("empire");
+    if (empire) {
+      auto* electorObject = empire->getNeededObject("electors");
+      if (!hre_electors.empty()) {
+        for (auto& tag : hre_electors) {
+          electorObject->addToList(addQuotes(tag));
+        }
+      }
+      empire->resetLeaf("emperor", empTag);
+      empire->unsetValue("old_emperor");
+    }
   }
 
   Object* papacy = eu4Game->getNeededObject("religions");
