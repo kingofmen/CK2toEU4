@@ -136,32 +136,36 @@ CK2Title* CK2Title::getSovereignTitle () {
   CK2Title* currTitle = this;
   // Straightforward liege chain.
   while (currTitle) {
-    if (currTitle->getEU4Country()) return currTitle;
-    currTitle = currTitle->getLiege();
-  }
-
-  // Liege chain again - characters may have nations where their titles don't.
-  currTitle = this;
-  while (currTitle) {
-    if ((currTitle->getRuler()) && (currTitle->getRuler()->getEU4Country())) return currTitle;
+    // Characters may have nations where their titles don't.
+    if (currTitle->getEU4Country() ||
+        (currTitle->getRuler() && currTitle->getRuler()->getEU4Country())) {
+      return currTitle;
+    }
     currTitle = currTitle->getLiege();
   }
 
   // De jure chain.
   currTitle = this;
   while (currTitle) {
-    if (currTitle->getEU4Country()) return currTitle;
+    if (currTitle->getEU4Country() ||
+        (currTitle->getRuler() && currTitle->getRuler()->getEU4Country())) {
+      return currTitle;
+    }
     currTitle = currTitle->getDeJureLiege();
   }
 
-  // And de-jure again.
-  currTitle = this;
-  while (currTitle) {
-    if ((currTitle->getRuler()) && (currTitle->getRuler()->getEU4Country())) return currTitle;
-    currTitle = currTitle->getDeJureLiege();
+  // Mix de-jure with regular.
+  for (auto* curr : {getLiege(), getDeJureLiege()}) {
+    if (!curr) {
+      continue;
+    }
+    curr = curr->getSovereignTitle();
+    if (curr) {
+      return curr;
+    }
   }
-  
-  return 0;
+
+  return nullptr;
 }
 
 bool CK2Title::isDeJureOverlordOf (CK2Title* dat) const {
