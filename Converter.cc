@@ -45,6 +45,7 @@ Object* eu4_areas = nullptr;
 map<string, vector<string> > religionMap;
 map<string, vector<string> > cultureMap;
 const string kStateKey = "part_of_state";
+map<string, unordered_set<EU4Province*>> area_province_map;
 }
 
 Converter::Converter (Window* ow, string fn)
@@ -555,6 +556,7 @@ bool Converter::createEU4Objects () {
         continue;
       }
       province->resetLeaf(kStateKey, area->getKey());
+      area_province_map[area->getKey()].insert(province);
     }
   }
 
@@ -4329,12 +4331,13 @@ bool Converter::transferProvinces () {
   Logger::logStream(LogStream::Info) << "Beginning province transfer.\n" << LogOption::Indent;
 
   bool debugNames = (configObject->safeGetString("debug_names", "no") == "yes");
-  for (EU4Province::Iter eu4Prov = EU4Province::start(); eu4Prov != EU4Province::final(); ++eu4Prov) {
-    if (0 == (*eu4Prov)->numCKProvinces()) continue; // ROTW or water.
+  std::unordered_set<EU4Province*> deferred;
+  for (auto* eu4prov : EU4Province::getAll()) {
+    if (0 == eu4prov->numCKProvinces()) continue; // ROTW or water.
     map<EU4Country*, double> weights;
     double rebelWeight = 0;
     string debugName;
-    for (auto* ck2Prov : (*eu4Prov)->ckProvs()) {
+    for (auto* ck2Prov : eu4prov->ckProvs()) {
       CK2Title* countyTitle = ck2Prov->getCountyTitle();
       if (!countyTitle) {
 	Logger::logStream(LogStream::Warn) << "Could not find county title of CK province "
@@ -4423,17 +4426,10 @@ bool Converter::transferProvinces () {
                        ck2Prov->getWeight(ProvinceWeight::Manpower));
     }
     if (0 == weights.size()) {
-      string ownerTag = remQuotes((*eu4Prov)->safeGetString("owner"));
       Logger::logStream(LogStream::Warn) << "Could not find any candidates for "
-					 << nameAndNumber(*eu4Prov)
-					 << ", it will convert belonging to "
-					 << ownerTag
-					 << "\n";
-      EU4Country* inputOwner = EU4Country::findByName(ownerTag);
-      if (inputOwner) {
-        (*eu4Prov)->assignCountry(inputOwner);
-        inputOwner->setAsCore(*eu4Prov);
-      }
+					 << nameAndNumber(eu4prov)
+					 << "; deferring.\n";
+      deferred.insert(eu4prov);
       continue;
     }
     EU4Country* best = 0;
@@ -4443,13 +4439,53 @@ bool Converter::transferProvinces () {
       best = cand.first;
       highest = cand.second;
     }
-    Logger::logStream("provinces") << nameAndNumber(*eu4Prov) << " assigned to "
+    Logger::logStream("provinces") << nameAndNumber(eu4prov) << " assigned to "
                                    << best->getName() << "\n";
     if (debugNames) {
-      (*eu4Prov)->resetLeaf("name", addQuotes(debugName));
+      eu4prov->resetLeaf("name", addQuotes(debugName));
     }
-    (*eu4Prov)->assignCountry(best);
-    best->setAsCore(*eu4Prov);
+    eu4prov->assignCountry(best);
+    best->setAsCore(eu4prov);
+  }
+
+  if (!deferred.empty()) {
+    Logger::logStream("provinces")
+        << deferred.size() << " deferred provinces:\n";
+  }
+  for (auto* eu4prov : deferred) {
+    auto& area_provinces = area_province_map[eu4prov->safeGetString(kStateKey)];
+    unordered_map<string, int> weights;
+    for (auto* other_prov : area_provinces) {
+      if (deferred.find(other_prov) != deferred.end()) {
+        continue;
+      }
+      weights[remQuotes(other_prov->safeGetString("owner", QuotedNone))]++;
+    }
+    string ownerTag = PlainNone;
+    int highest = -1;
+    for (const auto& cand : weights) {
+      if (cand.second < highest)
+        continue;
+      ownerTag = cand.first;
+      highest = cand.second;
+    }
+    EU4Country* best = nullptr;
+    if (ownerTag == PlainNone) {
+      ownerTag = remQuotes(eu4prov->safeGetString("owner"));
+      Logger::logStream(LogStream::Warn)
+          << "Could not find any candidates for " << nameAndNumber(eu4prov)
+          << " even after deferring; giving up and converting as owned by "
+             "input owner "
+          << ownerTag << ".\n";
+    } else {
+      Logger::logStream("provinces")
+          << nameAndNumber(eu4prov) << " assigned to " << ownerTag << "\n";
+    }
+    best = EU4Country::findByName(ownerTag);
+    if (best) {
+      eu4prov->assignCountry(best);
+      best->setAsCore(eu4prov);
+    }
   }
 
   Logger::logStream(LogStream::Info) << "Done with province transfer.\n" << LogOption::Undent;
