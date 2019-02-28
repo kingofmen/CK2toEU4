@@ -1649,7 +1649,7 @@ void calculateBuildingWeights(objvec& buildingTypes, Object* weights) {
     double weight = 0;
     for (auto* fw : fieldWeights) {
       double curr = bt->safeGetFloat(fw->getKey());
-      curr *= bt->getLeafAsFloat();
+      curr *= fw->getLeafAsFloat();
       weight += curr;
     }
     bt->setLeaf("weight", weight);
