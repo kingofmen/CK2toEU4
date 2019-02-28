@@ -107,7 +107,8 @@ private:
 
   // Input info
   Object* advisorTypesObject;
-  Object* ckBuildingObject;  
+  Object* ckBuildingObject;
+  Object* ckBuildingWeights;
   Object* configObject;
   Object* countryMapObject;
   Object* customObject;

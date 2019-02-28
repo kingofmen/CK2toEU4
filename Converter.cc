@@ -53,6 +53,7 @@ Converter::Converter (Window* ow, string fn)
   , ck2Game(0)
   , eu4Game(0)
   , ckBuildingObject(0)
+  , ckBuildingWeights(0)
   , configObject(0)
   , countryMapObject(0)
   , customObject(0)
@@ -1035,6 +1036,7 @@ void Converter::loadFiles () {
   provinceMapObject = loadTextFile(dirToUse + "provinces.txt");
   deJureObject = loadTextFile(dirToUse + "de_jure_lieges.txt");
   ckBuildingObject = loadTextFile(dirToUse + "ck_buildings.txt");
+  ckBuildingWeights = loadTextFile(dirToUse + "ck_building_weights.txt");
   euBuildingObject = loadTextFile(dirToUse + "eu_buildings.txt");
   Object* ckTraitObject = loadTextFile(dirToUse + "ck_traits.txt");
   CK2Character::ckTraits = ckTraitObject->getLeaves();
@@ -1636,6 +1638,26 @@ void Converter::calculateDynasticScores() {
   Logger::logStream(LogStream::Info) << "Done with dynasty scores.\n" << LogOption::Undent;
 }
 
+void calculateBuildingWeights(objvec& buildingTypes, Object* weights) {
+  if (10 > buildingTypes.size()) {
+    Logger::logStream(LogStream::Warn)
+        << "Only found " << buildingTypes.size()
+        << " types of buildings. Proceeding, but dubiously.\n";
+  }
+  objvec fieldWeights = weights->getLeaves();
+  for (auto* bt : buildingTypes) {
+    double weight = 0;
+    for (auto* fw : fieldWeights) {
+      double curr = bt->safeGetFloat(fw->getKey());
+      curr *= bt->getLeafAsFloat();
+      weight += curr;
+    }
+    bt->setLeaf("weight", weight);
+    Logger::logStream("buildings")
+        << "Set weight of " << bt->getKey() << " to " << weight << "\n";
+  }
+}
+
 bool Converter::calculateProvinceWeights () {
   Logger::logStream(LogStream::Info) << "Beginning province weight calculations.\n" << LogOption::Indent;
 
@@ -1685,19 +1707,13 @@ bool Converter::calculateProvinceWeights () {
     Logger::logStream(LogStream::Error) << "Cannot proceed without building object.\n";
     return false;
   }
+  if (!ckBuildingWeights) {
+    Logger::logStream(LogStream::Error) << "Cannot proceed without building weights.\n";
+    return false;
+  }
+
   objvec buildingTypes = ckBuildingObject->getLeaves();
-  if (10 > buildingTypes.size()) {
-    Logger::logStream(LogStream::Warn) << "Only found "
-				       << buildingTypes.size()
-				       << " types of buildings. Proceeding, but dubiously.\n";
-  }
-  for (auto* bt : buildingTypes) {
-    double weight = bt->safeGetFloat("gold_cost");
-    weight += bt->safeGetFloat("build_time") / 36.5;
-    bt->setLeaf("weight", weight);
-    Logger::logStream("buildings")
-        << "Set weight of " << bt->getKey() << " to " << weight << "\n";
-  }
+  calculateBuildingWeights(buildingTypes, ckBuildingWeights);
 
   Object* weightObject = configObject->getNeededObject("buildings");
   Object* troops = configObject->getNeededObject("troops");
