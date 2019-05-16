@@ -4,8 +4,20 @@ country_overrides = {
 }
 
 religion_overrides = {
+  # These religions exist in the base game.
   norse_pagan_reformed = norse_pagan_reformed
   norse_pagan = norse_pagan_reformed
+  zoroastrian = zoroastrian
+  tengri_pagan = tengri_pagan_reformed
+  tengri_pagan_reformed = tengri_pagan_reformed
+
+  # These ones assume a modded savegame.
+  hellenic_pagan = hellenic_pagan_reformed
+  hellenic_pagan_reformed = hellenic_pagan_reformed
+  baltic_pagan = baltic_pagan_reformed
+  baltic_pagan_reformed = baltic_pagan_reformed
+  nestorian = nestorian
+  bon = bon
 }
 
 culture_overrides = {
