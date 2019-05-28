@@ -14,3 +14,4 @@ std::string motherString;
 std::string femaleString;
 std::string governmentString;
 std::string deadCharHoldingsString;
+std::string traitString;

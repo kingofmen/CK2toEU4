@@ -442,9 +442,10 @@ bool Converter::createCK2Objects () {
   detectChangedString(kOldMother, kNewMother, charObjs, &motherString);
   detectChangedString(kOldFemale, kNewFemale, charObjs, &femaleString);
   detectChangedString(kOldGovernment, kNewGovernment, charObjs,
-                      &deadCharHoldingsString);
+                      &governmentString);
   detectChangedString(kOldDeadCharHoldings, kNewDeadCharHoldings, charObjs,
                       &deadCharHoldingsString);
+  detectChangedString(kOldTraits, kNewTraits, charObjs, &traitString);
 
   Object* dynasties = ck2Game->safeGetObject("dynasties");
   for (auto* ckCountry : CK2Title::getAll()) {

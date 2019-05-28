@@ -54,7 +54,7 @@ CK2Character::CK2Character (Object* obj, Object* dynasties)
     debug = true;
   }
   static set<int> unknownTraits;
-  Object* traitList = safeGetObject("traits");
+  Object* traitList = safeGetObject(traitString);
   if (traitList) {
     for (int i = 0; i < traitList->numTokens(); ++i) {
       int index = traitList->tokenAsInt(i) - 1;

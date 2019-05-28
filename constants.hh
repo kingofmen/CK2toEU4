@@ -58,3 +58,7 @@ extern std::string governmentString;
 const std::string kOldDeadCharHoldings = "old_holdings";
 const std::string kNewDeadCharHoldings = "oh";
 extern std::string deadCharHoldingsString;
+
+const std::string kOldTraits = "traits";
+const std::string kNewTraits = "tr";
+extern std::string traitString;
