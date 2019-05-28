@@ -51,10 +51,12 @@ int main (int argc, char** argv) {
   QAction* debugParser = actionMenu->addAction("Debug parser");
   QAction* dynastyScore = actionMenu->addAction("Dynastic scores");
   QAction* checkProvinces = actionMenu->addAction("Check provinces");
+  QAction* playerWars = actionMenu->addAction("Player wars");
   QObject::connect(convert, SIGNAL(triggered()), parentWindow, SLOT(convert()));
   QObject::connect(debugParser, SIGNAL(triggered()), parentWindow, SLOT(debugParser()));
   QObject::connect(dynastyScore, SIGNAL(triggered()), parentWindow, SLOT(dynasticScore()));
   QObject::connect(checkProvinces, SIGNAL(triggered()), parentWindow, SLOT(checkProvinces()));
+  QObject::connect(playerWars, SIGNAL(triggered()), parentWindow, SLOT(playerWars()));
 
   parentWindow->textWindow = new QPlainTextEdit(parentWindow);
   parentWindow->textWindow->setFixedSize(3*scr.width()/5 - 10, scr.height()/2-40);
@@ -122,7 +124,7 @@ void Window::convert () {
     Logger::logStream(LogStream::Info) << "No file loaded.\n";
     return;
   }
-  Logger::logStream(LogStream::Info) << "Convert to EU4.\n";
+  Logger::logStream(LogStream::Info) << "Queued up conversion to EU4.\n";
   worker->scheduleJob(ConverterJob::Convert);
 }
 
@@ -131,7 +133,7 @@ void Window::debugParser () {
     Logger::logStream(LogStream::Info) << "No file loaded.\n";
     return;
   }
-  Logger::logStream(LogStream::Info) << "Debug.\n";
+  Logger::logStream(LogStream::Info) << "Queued up debug.\n";
   worker->scheduleJob(ConverterJob::DebugParser);
 }
 
@@ -140,7 +142,7 @@ void Window::dynasticScore () {
     Logger::logStream(LogStream::Info) << "No file loaded.\n";
     return;
   }
-  Logger::logStream(LogStream::Info) << "Dynasty scores.\n";
+  Logger::logStream(LogStream::Info) << "Queued up dynasty scores.\n";
   worker->scheduleJob(ConverterJob::DynastyScores);
 }
 
@@ -149,8 +151,17 @@ void Window::checkProvinces () {
     Logger::logStream(LogStream::Info) << "No file loaded.\n";
     return;
   }
-  Logger::logStream(LogStream::Info) << "Province check.\n";
+  Logger::logStream(LogStream::Info) << "Queued up province check.\n";
   worker->scheduleJob(ConverterJob::CheckProvinces);
+}
+
+void Window::playerWars () {
+  if (!worker) {
+    Logger::logStream(LogStream::Info) << "No file loaded.\n";
+    return;
+  }
+  Logger::logStream(LogStream::Info) << "Queued up player wars.\n";
+  worker->scheduleJob(ConverterJob::PlayerWars);
 }
 
 void Window::closeDebugLog () {

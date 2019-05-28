@@ -28,6 +28,7 @@ public slots:
   void convert ();
   void debugParser ();
   void dynasticScore ();
+  void playerWars ();
   void message (QString m);
 
 private:

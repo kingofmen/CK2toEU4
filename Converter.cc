@@ -34,6 +34,8 @@ ConverterJob const *const ConverterJob::CheckProvinces =
     new ConverterJob("check_provinces", false);
 ConverterJob const *const ConverterJob::LoadFile =
     new ConverterJob("loadfile", false);
+ConverterJob const *const ConverterJob::PlayerWars = 
+    new ConverterJob("player_wars", false);
 ConverterJob const *const ConverterJob::DynastyScores = 
     new ConverterJob("dynasty_scores", true);
 
@@ -85,6 +87,7 @@ void Converter::run () {
     if (ConverterJob::DebugParser    == job) debugParser();
     if (ConverterJob::LoadFile       == job) loadFile();
     if (ConverterJob::CheckProvinces == job) checkProvinces();
+    if (ConverterJob::PlayerWars     == job) playerWars();
     if (ConverterJob::DynastyScores  == job) dynastyScores();
   }
 }
@@ -207,6 +210,41 @@ void Converter::debugParser() {
   objvec parsed = ck2Game->getLeaves();
   Logger::logStream(LogStream::Info) << "Last parsed object:\n"
                                      << parsed.back();
+}
+
+void Converter::playerWars () {
+  Logger::logStream(LogStream::Info) << "Player wars.\n";
+  if (!createCK2Objects()) {
+    return;
+  }
+
+  auto playerFilter = [](const CK2Ruler* ruler) -> bool {
+    return ruler->isHuman();
+  };
+
+  for (auto war = CK2War::start(); war != CK2War::final(); ++war) {
+    auto attackers = (*war)->getParticipants(CK2War::Attackers, playerFilter);
+    if (attackers.empty()) {
+      continue;
+    }
+    auto defenders = (*war)->getParticipants(CK2War::Defenders, playerFilter);
+    if (defenders.empty()) {
+      continue;
+    }
+    Logger::logStream(LogStream::Info) << (*war)->getName() << ":\n  Attackers: ";
+    for (const auto* attacker : attackers) {
+      Logger::logStream(LogStream::Info)
+          << attacker->safeGetString("player_name", "Someone") << " ";
+    }
+    Logger::logStream(LogStream::Info) << "\n  Defenders: ";
+    for (const auto* defender : defenders) {
+      Logger::logStream(LogStream::Info)
+          << defender->safeGetString("player_name", "Someone") << " ";
+    }
+    Logger::logStream(LogStream::Info) << "\n";
+  }
+
+  Logger::logStream(LogStream::Info) << "Done with player wars.\n";
 }
 
 void Converter::dynastyScores () {

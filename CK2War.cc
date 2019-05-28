@@ -55,3 +55,28 @@ CK2War::CK2War(Object* obj)
     }
   }
 }
+
+std::vector<const CK2Ruler*>
+CK2War::getParticipants(int mask,
+                        std::function<bool(const CK2Ruler*)> filter) const {
+  std::vector<const CK2Ruler*> ret;
+  std::vector<const CK2Ruler::Container*> todo;
+  
+  if (mask & Attackers) {
+    todo.push_back(&attackers);
+  }
+  if (mask & Defenders) {
+    todo.push_back(&defenders);
+  }
+
+  for (const auto* fighters : todo) {
+    for (const auto* fighter : *fighters) {
+      if (!filter(fighter)) {
+        continue;
+      }
+      ret.push_back(fighter);
+    }
+  }
+
+  return ret;
+}

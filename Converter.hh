@@ -24,6 +24,7 @@ public:
   static ConverterJob const* const DebugParser;
   static ConverterJob const* const CheckProvinces;
   static ConverterJob const* const LoadFile;
+  static ConverterJob const* const PlayerWars;
   static ConverterJob const* const DynastyScores;
 };
 
@@ -72,6 +73,7 @@ private:
   void convert ();
   void debugParser ();
   void dynastyScores ();
+  void playerWars ();
   void configure ();
 
   // Initialisers
