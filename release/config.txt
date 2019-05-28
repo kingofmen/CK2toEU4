@@ -124,6 +124,12 @@ buildings = {
   trade_post    = { prod = 0.9 tax = 0.0 cost = 160 }
   family_palace = { prod = 0.4 tax = 0.6 cost = 1 }
   hospital      = { prod = 0.5 tax = 0.5 cost = 110 }
+
+  # Per province, basically only affects nomads.
+  minimumWeights = {
+    pw_manpower = 2500 # 3 castles, roughly.
+    pw_taxation = 324 # 1 empty castle.
+  }
 }
 
 permit_subinfeudation = no
@@ -190,16 +196,28 @@ generalSkills = {
 }
 
 troops = {
+  # Old levy keywords.
   light_infantry_f = 0.7
   heavy_infantry_f = 3
   pikemen_f        = 2
   light_cavalry_f  = 3
   archers_f        = 2
   knights_f        = 6
+
+  # New-style keywords.
+  li = 0.7
+  hi = 3
+  pi = 2
+  lc = 3
+  ar = 2
+  hc = 6
+  horse_archers = 4
+  war_elephants = 4
 }
 
 ships = {
   galleys_f = 1
+  ga = 1
 }
 
 # Blacklist for navies; provinces listed here cannot be used as navy

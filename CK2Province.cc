@@ -75,7 +75,7 @@ void CK2Province::calculateWeights (Object* weightObject, Object* troops, objvec
       for (auto* levy : levies) {
         string key = levy->getKey();
         double amount = getLevyStrength(key, levyObject);
-        if (key == "galleys_f") {
+        if (key == "galleys_f" || key == "ga") {
           galleys += amount;
         } else {
           mpWeight += amount * troops->safeGetFloat(key, 0.0001);
@@ -89,8 +89,7 @@ void CK2Province::calculateWeights (Object* weightObject, Object* troops, objvec
         << (*barony)->getKey() << " in " << getKey() << " ("
         << safeGetString("name", "name_not_found") << ") has weights:\n"
         << LogOption::Indent;
-    for (ProvinceWeight::Iter p = ProvinceWeight::start();
-         p != ProvinceWeight::final(); ++p) {
+    for (auto p = ProvinceWeight::start(); p != ProvinceWeight::final(); ++p) {
       weights[**p] += (*barony)->safeGetFloat((*p)->getName());
       Logger::logStream("buildings")
           << (*p)->getName() << " : "
@@ -103,12 +102,19 @@ void CK2Province::calculateWeights (Object* weightObject, Object* troops, objvec
           << "(" << building.first << " " << building.second << ") ";
     }
     Logger::logStream("buildings") << "\n" << LogOption::Undent;
-
   }
   Logger::logStream("provinces") << "Found " << baronies << " settlements in "
                                  << nameAndNumber(this) << "\n";
   // Doesn't seem to be used any more?
   weights[*ProvinceWeight::Trade] = safeGetInt("realm_tradeposts");
+
+  Object* minWeights = weightObject->getNeededObject("minimumWeights");
+  for (auto p = ProvinceWeight::start(); p != ProvinceWeight::final(); ++p) {
+    double minimum = minWeights->safeGetFloat((*p)->getName());
+    if (weights[**p] < minimum) {
+      weights[**p] = minimum;
+    }
+  }
 
   Object* nerf = weightObject->getNeededObject("special_nerfs");
   double de_jure_nerf = 1;
