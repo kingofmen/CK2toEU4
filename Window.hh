@@ -27,6 +27,7 @@ public slots:
   void checkProvinces ();
   void convert ();
   void debugParser ();
+  void dejures ();
   void dynasticScore ();
   void playerWars ();
   void message (QString m);

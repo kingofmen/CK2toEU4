@@ -22,6 +22,7 @@ public:
   ConverterJob (string n, bool final) : Enumerable<const ConverterJob>(this, n, final) {}
   static ConverterJob const* const Convert;
   static ConverterJob const* const DebugParser;
+  static ConverterJob const* const DejureLieges;
   static ConverterJob const* const CheckProvinces;
   static ConverterJob const* const LoadFile;
   static ConverterJob const* const PlayerWars;
@@ -75,6 +76,7 @@ private:
   void dynastyScores ();
   void playerWars ();
   void configure ();
+  void dejures ();
 
   // Initialisers
   bool createCK2Objects ();

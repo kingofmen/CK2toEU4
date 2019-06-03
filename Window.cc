@@ -49,6 +49,7 @@ int main (int argc, char** argv) {
   QMenu* actionMenu = menuBar->addMenu("Actions");
   QAction* convert = actionMenu->addAction("Convert to EU4");
   QAction* debugParser = actionMenu->addAction("Debug parser");
+  QAction* dejures = actionMenu->addAction("Dejure lieges");
   QAction* dynastyScore = actionMenu->addAction("Dynastic scores");
   QAction* checkProvinces = actionMenu->addAction("Check provinces");
   QAction* playerWars = actionMenu->addAction("Player wars");
@@ -57,6 +58,7 @@ int main (int argc, char** argv) {
   QObject::connect(dynastyScore, SIGNAL(triggered()), parentWindow, SLOT(dynasticScore()));
   QObject::connect(checkProvinces, SIGNAL(triggered()), parentWindow, SLOT(checkProvinces()));
   QObject::connect(playerWars, SIGNAL(triggered()), parentWindow, SLOT(playerWars()));
+  QObject::connect(dejures, SIGNAL(triggered()), parentWindow, SLOT(dejures()));
 
   parentWindow->textWindow = new QPlainTextEdit(parentWindow);
   parentWindow->textWindow->setFixedSize(3*scr.width()/5 - 10, scr.height()/2-40);
@@ -136,6 +138,16 @@ void Window::debugParser () {
   Logger::logStream(LogStream::Info) << "Queued up debug.\n";
   worker->scheduleJob(ConverterJob::DebugParser);
 }
+
+void Window::dejures () {
+  if (!worker) {
+    Logger::logStream(LogStream::Info) << "No file loaded.\n";
+    return;
+  }
+  Logger::logStream(LogStream::Info) << "Queued up dejures.\n";
+  worker->scheduleJob(ConverterJob::DejureLieges);
+}
+
 
 void Window::dynasticScore () {
   if (!worker) {

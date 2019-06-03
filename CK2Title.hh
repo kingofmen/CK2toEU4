@@ -33,6 +33,7 @@ public:
   CK2Ruler* getRuler () {return ruler;}
   CK2Ruler* getSovereign (); // Returns the first liege that converts to an EU4 nation.
   CK2Title* getSovereignTitle (); // The title that converts.
+  string getTag() { return getKey(); }
   bool isDeJureOverlordOf (CK2Title* dat) const;
   bool isRebelTitle () const {return isRebel;}
   void setRuler (CK2Ruler* r) {ruler = r;}

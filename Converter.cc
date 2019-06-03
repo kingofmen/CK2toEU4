@@ -30,6 +30,8 @@ ConverterJob const *const ConverterJob::Convert =
     new ConverterJob("convert", false);
 ConverterJob const *const ConverterJob::DebugParser =
     new ConverterJob("debug", false);
+ConverterJob const *const ConverterJob::DejureLieges =
+    new ConverterJob("dejures", false);
 ConverterJob const *const ConverterJob::CheckProvinces =
     new ConverterJob("check_provinces", false);
 ConverterJob const *const ConverterJob::LoadFile =
@@ -85,6 +87,7 @@ void Converter::run () {
     jobsToDo.pop();
     if (ConverterJob::Convert        == job) convert();
     if (ConverterJob::DebugParser    == job) debugParser();
+    if (ConverterJob::DejureLieges   == job) dejures();
     if (ConverterJob::LoadFile       == job) loadFile();
     if (ConverterJob::CheckProvinces == job) checkProvinces();
     if (ConverterJob::PlayerWars     == job) playerWars();
@@ -206,7 +209,37 @@ void Converter::configure () {
   CK2Ruler::humansSovereign = configObject->safeGetString("humans_always_independent", "no") == "yes";
 }
 
-void Converter::debugParser() {
+void Converter::dejures () {
+  Logger::logStream(LogStream::Info)
+      << "Outputting de-jure lieges from savegame.\n";
+  configure();
+  if (!createCK2Objects()) return;
+
+  for (CK2Title::Iter title = CK2Title::start(); title != CK2Title::final(); ++title) {
+    if ((*title)->safeGetString("landless", "no") == "yes") continue;
+    Object* deJureObj = (*title)->safeGetObject("de_jure_liege");
+    string deJureTag = (*title)->safeGetString("de_jure_liege", PlainNone);
+    if (deJureObj && deJureTag == PlainNone)
+      deJureTag = remQuotes(deJureObj->safeGetString("title", QuotedNone));
+    if (deJureTag == PlainNone) {
+      continue;
+    }
+    (*title)->setDeJureLiege(CK2Title::findByName(deJureTag));
+  }
+
+  for (CK2Title::Iter title = CK2Title::start(); title != CK2Title::final(); ++title) {
+    if ((*title)->safeGetString("landless", "no") == "yes") continue;
+    auto* liege = (*title)->getDeJureLiege();
+    if (!liege) {
+      continue;
+    }
+    Logger::logStream(LogStream::Info)
+        << (*title)->getTag() << " = " << liege->getTag() << "\n";
+  }
+  Logger::logStream(LogStream::Info) << "Done with de-jure lieges.\n";
+}
+
+void Converter::debugParser () {
   objvec parsed = ck2Game->getLeaves();
   Logger::logStream(LogStream::Info) << "Last parsed object:\n"
                                      << parsed.back();
@@ -409,8 +442,9 @@ bool Converter::createCK2Objects () {
   for (CK2Title::Iter ckCountry = CK2Title::start(); ckCountry != CK2Title::final(); ++ckCountry) {
     if ((*ckCountry)->safeGetString("landless", "no") == "yes") continue;
     Object* deJureObj = (*ckCountry)->safeGetObject("de_jure_liege");
-    string deJureTag = PlainNone;
-    if (deJureObj) deJureTag = remQuotes(deJureObj->safeGetString("title", QuotedNone));
+    string deJureTag = (*ckCountry)->safeGetString("de_jure_liege", PlainNone);
+    if (deJureObj && deJureTag == PlainNone)
+      deJureTag = remQuotes(deJureObj->safeGetString("title", QuotedNone));
     if ((deJureTag == PlainNone) && (deJureMap.count((*ckCountry)->getName()))) {
       deJureTag = deJureMap[(*ckCountry)->getName()];
     }
@@ -1699,6 +1733,7 @@ void calculateBuildingWeights(objvec& buildingTypes, Object* weights) {
 
 bool Converter::calculateProvinceWeights () {
   Logger::logStream(LogStream::Info) << "Beginning province weight calculations.\n" << LogOption::Indent;
+
 
   map<string, CK2Province*> patricianToCapitalMap;
   // Add merchant-family houses to provinces.
