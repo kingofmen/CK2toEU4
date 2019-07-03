@@ -26,6 +26,54 @@ using namespace std;
 
 Window* parentWindow;
 ofstream* debugFile = 0;
+ofstream* errorLog = 0;
+
+namespace {
+
+void closeDebugLog () {
+  if (!debugFile) return;
+  debugFile->flush();
+  debugFile->close();
+  delete debugFile;
+  debugFile = 0;
+  Logger::setLogFile(0);
+}
+
+bool createOutputDir () {
+  DWORD attribs = GetFileAttributesA("Output");
+  if (attribs == INVALID_FILE_ATTRIBUTES) {
+    Logger::logStream(LogStream::Warn) << "Warning, no Output directory, attempting to create one.\n";
+    int error = _mkdir("Output");
+    if (-1 == error) {
+      Logger::logStream(LogStream::Error) << "Error: Could not create Output directory. Aborting.\n";
+      return false;
+    }
+  }
+  return true;
+}
+
+void deleteIfExists(string fname) {
+  DWORD attribs = GetFileAttributesA(fname.c_str());
+  if (attribs != INVALID_FILE_ATTRIBUTES) {
+    if (0 != remove(fname.c_str())) {
+      (*errorLog) << "Warning: Could not delete old log file \"" << fname
+                  << "\". New one will be appended." << std::endl;
+    }
+  }
+}
+
+void openDebugLog (string fname) {
+  if (fname == "") return;
+  if (!createOutputDir()) return;
+  if (debugFile) closeDebugLog();
+  (*errorLog) << "Creating debug log " << fname << std::endl;
+  deleteIfExists(fname);
+  debugFile = new ofstream(fname.c_str(), ios_base::trunc);
+  Logger::setLogFile(debugFile);
+  Logger::logStream(LogStream::Info) << "Opened debug log " << fname << "\n";
+}
+
+}  // namespace
 
 int main (int argc, char** argv) {
   QApplication industryApp(argc, argv);
@@ -34,6 +82,13 @@ int main (int argc, char** argv) {
   parentWindow = new Window();
   parentWindow->show();
   srand(42);
+
+  char errorFileName[] = "Output\\errorlog.txt";
+  DWORD attribs = GetFileAttributesA(errorFileName);
+  if (attribs != INVALID_FILE_ATTRIBUTES) {
+    remove(errorFileName);
+  }
+  errorLog = new ofstream(errorFileName, ios_base::trunc);
 
   parentWindow->resize(3*scr.width()/5, scr.height()/2);
   parentWindow->move(scr.width()/5, scr.height()/4);
@@ -62,6 +117,8 @@ int main (int argc, char** argv) {
 
   parentWindow->textWindow = new QPlainTextEdit(parentWindow);
   parentWindow->textWindow->setFixedSize(3*scr.width()/5 - 10, scr.height()/2-40);
+  // No need to take up unlimited amounts of memory.
+  parentWindow->textWindow->setMaximumBlockCount(100000);
   parentWindow->textWindow->move(5, 30);
   parentWindow->textWindow->show();
 
@@ -74,6 +131,8 @@ int main (int argc, char** argv) {
   QObject::connect(&(Logger::logStream(LogStream::Info)),  SIGNAL(message(QString)), parentWindow, SLOT(message(QString)));
   QObject::connect(&(Logger::logStream(LogStream::Warn)),  SIGNAL(message(QString)), parentWindow, SLOT(message(QString)));
   QObject::connect(&(Logger::logStream(LogStream::Error)), SIGNAL(message(QString)), parentWindow, SLOT(message(QString)));
+
+  openDebugLog("Output\\logfile.txt");
 
   parentWindow->show();
   if (argc > 1) {
@@ -100,11 +159,11 @@ Window::Window (QWidget* parent)
 
 Window::~Window () {
   closeDebugLog();
+  errorLog->close();
 }
 
 void Window::message (QString m) {
   textWindow->appendPlainText(m);
-  if (debugFile) (*debugFile) << m.toStdString() << std::endl;
 }
 
 void Window::loadFile () {
@@ -114,7 +173,6 @@ void Window::loadFile () {
 }
 
 void Window::loadFile (string fname) {
-  openDebugLog("Output\\logfile.txt");
   if (worker) delete worker;
   worker = new Converter(this, fname);
   worker->scheduleJob(ConverterJob::LoadFile);
@@ -176,37 +234,4 @@ void Window::playerWars () {
   worker->scheduleJob(ConverterJob::PlayerWars);
 }
 
-void Window::closeDebugLog () {
-  if (!debugFile) return;
-  debugFile->close();
-  delete debugFile;
-  debugFile = 0;
-}
-
-bool Window::createOutputDir () {
-  DWORD attribs = GetFileAttributesA("Output");
-  if (attribs == INVALID_FILE_ATTRIBUTES) {
-    Logger::logStream(LogStream::Warn) << "Warning, no Output directory, attempting to create one.\n";
-    int error = _mkdir("Output");
-    if (-1 == error) {
-      Logger::logStream(LogStream::Error) << "Error: Could not create Output directory. Aborting.\n";
-      return false;
-    }
-  }
-  return true;
-}
-
-void Window::openDebugLog (string fname) {
-  if (fname == "") return;
-  if (!createOutputDir()) return;
-  if (debugFile) closeDebugLog();
-  Logger::logStream(LogStream::Info) << "Opening debug log " << fname << "\n";
-  DWORD attribs = GetFileAttributesA(fname.c_str());
-  if (attribs != INVALID_FILE_ATTRIBUTES) {
-    int error = remove(fname.c_str());
-    if (0 != error) Logger::logStream(LogStream::Warn) << "Warning: Could not delete old log file. New one will be appended.\n";
-  }
-
-  debugFile = new ofstream(fname.c_str(), ios_base::trunc);
-}
 

@@ -4,6 +4,8 @@
 
 int Logger::indent = 0;
 std::map<int, Logger*> Logger::logs;
+char convertBuffer[10000];
+std::ofstream* Logger::logFile;
 
 LogStream const* const LogStream::Debug = new LogStream("debug");
 LogStream const* const LogStream::Info  = new LogStream("info");
@@ -14,30 +16,29 @@ LogOption const* const LogOption::Indent   = new LogOption("indent", false);
 LogOption const* const LogOption::Unindent = new LogOption("unindent", true);
 LogOption const* const LogOption::Undent   = LogOption::Unindent;
 
-Logger::Logger ()
+Logger::Logger (string n)
   : active(true)
   , buffer()
   , precision(-1)
+  , name(n)
 {}
 
 Logger::~Logger () {}
 
-Logger& Logger::append (unsigned int prec, double val) {
-  static char str[1000];
-  static char str2[1000];
-  sprintf(str, "%%.%if", prec);
-  sprintf(str2, str, val);
-  buffer.append(str2);
-  return *this;
+void Logger::setLogFile(std::ofstream* file) {
+  logFile = file;
 }
 
 Logger& Logger::operator<< (std::string dat) {
   if (!active) return *this;
+  if (logFile) {
+    (*logFile) << dat;
+  }
   std::size_t linebreak = dat.find_first_of('\n');
   if (std::string::npos == linebreak) buffer.append(dat.c_str());
   else {
     buffer.append(dat.substr(0, linebreak).c_str());
-    flush();
+    sendMessage();
     (*this) << dat.substr(linebreak+1);
   }
   return *this;
@@ -88,41 +89,35 @@ Logger& Logger::operator<< (const char* dat) {
 
 Logger& Logger::operator<< (QString dat) {
   if (!active) return *this;
-  int linebreak = dat.indexOf('\n');
-  if (-1 == linebreak) buffer.append(dat);
-  else {
-    buffer.append(dat.mid(0, linebreak));
-    flush();
-    (*this) << dat.mid(linebreak+1);
-  }
-
-  return *this;
+  return (*this) << dat.toStdString();
 }
 
 Logger& Logger::operator<< (int dat) {
   if (!active) return *this;
-  buffer.append(QString("%1").arg(dat));
-  return *this;
+  sprintf(convertBuffer, "%i", dat);
+  return (*this) << convertBuffer;
 }
 
 Logger& Logger::operator<< (unsigned int dat) {
   if (!active) return *this;
-  buffer.append(QString("%1").arg(dat));
-  return *this;
+  sprintf(convertBuffer, "%i", dat);
+  return (*this) << convertBuffer;
 }
 
 Logger& Logger::operator<< (double dat) {
   if (!active) return *this;
-  if (precision > 0) append(precision, dat);
-  else buffer.append(QString("%1").arg(dat));
-  return *this;
+  if (precision > 0) {
+    sprintf(convertBuffer, "%.*f", precision, dat);
+  }
+  else {
+    sprintf(convertBuffer, "%f", dat);
+  }
+  return (*this) << convertBuffer;
 }
 
 Logger& Logger::operator<< (char dat) {
   if (!active) return *this;
-  if ('\n' == dat) flush();
-  else buffer.append(dat);
-  return *this;
+  return (*this) << std::string(1, dat);
 }
 
 Logger& Logger::operator<< (LogOption const* const opt) {
@@ -135,7 +130,7 @@ Logger& Logger::operator<< (LogOption const* const opt) {
 }
 
 Logger* Logger::createStream (LogStream const* const str) {
-  logs[*str] = new Logger();
+  logs[*str] = new Logger(str->getName());
   return logs[*str];
 }
 
@@ -159,7 +154,7 @@ Logger& Logger::logStream (const string& ls) {
   return *(logs[*str]);
 }
 
-std::ostream& Logger::flush () {
+Logger& Logger::sendMessage () {
   if (0 < indent) emit message(QString(indent, ' ') + buffer);
   else emit message(buffer);
   buffer.clear();

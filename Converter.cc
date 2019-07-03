@@ -1355,6 +1355,12 @@ bool Converter::adjustBalkanisation () {
 	if (0 == ownerMap[target]) continue;
 	EU4Province::Iter iter = target->startProvince();
 	EU4Province* province = *iter;
+        if (!province) {
+          Logger::logStream(LogStream::Warn)
+              << "Cannot find provinces of " << target->getKey()
+              << ", skipping\n";
+          continue;
+        }
 	if (province->getKey() == target->safeGetString("capital")) {
 	  ++iter;
 	  if (iter != target->finalProvince()) province = *iter;
@@ -1639,6 +1645,9 @@ void Converter::calculateDynasticScores() {
   }
   Logger::logStream("characters")
       << "Found " << characters.size() << " characters of interest.\n";
+  if (characters.size() == 0) {
+    return;
+  }
 
   string gameDate = remQuotes(ck2Game->safeGetString("date", "\"1444.11.10\""));
   int gameDays = days(gameDate);
@@ -2006,7 +2015,8 @@ double Converter::calculateTroopWeight (Object* levy, Logger* logstream, int idx
 }
 
 bool Converter::createArmies () {
-  Logger::logStream(LogStream::Info) << "Beginning army creation.\n" << LogOption::Indent;
+  Logger::logStream(LogStream::Info) << "Beginning army creation.\n"
+                                     << LogOption::Indent;
   objvec armyIds;
   objvec regimentIds;
   set<string> armyLocations;
@@ -2016,6 +2026,10 @@ bool Converter::createArmies () {
   int countries = 0;
 
   for (auto* eu4country : EU4Country::getAll()) {
+    if (!eu4country) {
+      Logger::logStream(LogStream::Error) << "Null EU4 country?!\n";
+      continue;
+    }
     if (eu4country->isROTW()) {
       continue;
     }
@@ -2090,9 +2104,10 @@ bool Converter::createArmies () {
     totalCkTroops += ck2troops;
     ++countries;
   }
+
   if (0 < regimentIds.size()) regimentType = regimentIds.back()->safeGetString("type", regimentType);
   if (0 < armyIds.size()) armyType = armyIds.back()->safeGetString("type", armyType);
-  
+
   double totalRetinues = 0;
   for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
     EU4Country* eu4country = (*ruler)->getEU4Country();
@@ -2139,6 +2154,9 @@ bool Converter::createArmies () {
   double makeAverage = max(0.0, configObject->safeGetFloat("make_average", 1));
   
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
+    if (!(*eu4country)) {
+      continue;
+    }
     if (!(*eu4country)->converts()) continue;
     CK2Ruler* ruler = (*eu4country)->getRuler();
 
@@ -2152,6 +2170,7 @@ bool Converter::createArmies () {
     currWeight += averageTroops * makeAverage;
     currWeight /= (1 + makeAverage);
     Logger::logStream("armies") << " gives adjusted weight " << currWeight;    
+
     currWeight /= totalCkTroops;
     currWeight *= numRegiments;
     int regimentsToCreate = (int) floor(0.5 + currWeight);
@@ -2159,6 +2178,7 @@ bool Converter::createArmies () {
 				<< regimentsToCreate
 				<< " regiments.\n";
     (*eu4country)->unsetValue("ck_troops");
+
     if (0 == regimentsToCreate) continue;
     Object* army = (*eu4country)->getNeededObject("army");
     Object* armyId = 0;
@@ -2169,6 +2189,7 @@ bool Converter::createArmies () {
     else {
       armyId = createUnitId(armyType);
     }
+
     army->setValue(armyId);
     string name = remQuotes(ruler->safeGetString(birthNameString, "\"Nemo\""));
     army->setLeaf("name", addQuotes(string("Army of ") + name));
@@ -2206,7 +2227,7 @@ bool Converter::createArmies () {
       regiment->setLeaf("strength", "1.000");
     }
   }
-  
+
   Logger::logStream(LogStream::Info) << "Done with armies.\n" << LogOption::Undent;
   return true;
 }
@@ -5176,7 +5197,6 @@ void Converter::convert () {
 
   if (!createCK2Objects()) return;
   if (!createEU4Objects()) return;
-
   if (!createProvinceMap()) return;
   if (!createCountryMap()) return;
   if (!resetHistories()) return;
@@ -5190,7 +5210,7 @@ void Converter::convert () {
   if (!moveBuildings()) return;
   if (!cleanEU4Nations()) return;
   if (!createArmies()) return;
-  if (!createNavies()) return;  
+  if (!createNavies()) return;
   if (!cultureAndReligion()) return;
   if (!createGovernments()) return;
   if (!createCharacters()) return;

@@ -33,9 +33,6 @@ public slots:
   void message (QString m);
 
 private:
-  void closeDebugLog ();
-  bool createOutputDir ();
-  void openDebugLog (string fname);
 };
 
 #endif

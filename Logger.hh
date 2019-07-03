@@ -5,6 +5,7 @@
 #include <string>
 #include <map>
 #include <ostream>
+#include <fstream>
 
 #include "Parser.hh"
 #include "UtilityFunctions.hh"
@@ -31,10 +32,8 @@ public:
 class Logger : public QObject, public std::ostream {
   Q_OBJECT
 public:
-  Logger ();
+  Logger (string n);
   ~Logger ();
-
-  Logger& append (unsigned int prec, double val);
 
   Logger& operator<< (std::string dat);
   Logger& operator<< (QString dat);
@@ -55,9 +54,8 @@ public:
   static Logger& logStream (LogStream const* const str);
   static Logger& logStream (LogStream const& str);
   static Logger& logStream (const string& ls);
-
-  // Inherited from ostream.
-  std::ostream& flush ();
+  static void setLogFile(std::ofstream* file);
+  static ofstream* getLogFile() { return logFile; }
 
 signals:
   void message (QString m);
@@ -66,9 +64,13 @@ private:
   bool active;
   QString buffer;
   int precision;
+  string name;
 
   static int indent;
   static std::map<int, Logger*> logs;
+  static std::ofstream* logFile;
+
+  Logger& sendMessage ();
 };
 
 
