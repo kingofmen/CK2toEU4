@@ -33,6 +33,7 @@ Logger& Logger::operator<< (std::string dat) {
   if (!active) return *this;
   if (logFile) {
     (*logFile) << dat;
+    logFile->flush();
   }
   std::size_t linebreak = dat.find_first_of('\n');
   if (std::string::npos == linebreak) buffer.append(dat.c_str());

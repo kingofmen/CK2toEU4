@@ -1875,6 +1875,7 @@ bool Converter::cleanEU4Nations () {
     for (int i = 0; i < zeroProvKeys->numTokens(); ++i) {
       (*eu4country)->unsetValue(zeroProvKeys->getToken(i));
     }
+
     objvec dipsToRemove;
     for (objiter dip = dipObjects.begin(); dip != dipObjects.end(); ++dip) {
       string first = remQuotes((*dip)->safeGetString("first"));
@@ -1919,8 +1920,9 @@ bool Converter::cleanEU4Nations () {
   for (EU4Country::Iter eu4country = EU4Country::start();
        eu4country != EU4Country::final(); ++eu4country) {
     Object* relations = (*eu4country)->safeGetObject("active_relations");
-    if (!relations)
+    if (!relations) {
       continue;
+    }
     for (const auto& tag : tags_to_clean) {
       relations->unsetValue(tag);
     }
@@ -1944,17 +1946,21 @@ bool Converter::cleanEU4Nations () {
     if (owned_provs->numTokens() == (int)provinceOwnership[eu4tag].size()) {
       continue;
     }
-    Logger::logStream("countries") << "Nonconverted country " << eu4tag
-                                   << " had " << owned_provs->toString();
+    Logger::logStream("countries")
+        << "Nonconverted country " << eu4tag << " had " << owned_provs;
     owned_provs->clear();
     for (const auto& prov : provinceOwnership[eu4tag]) {
       owned_provs->addToList(prov);
     }
-    Logger::logStream("countries")
-        << "  changed to " << owned_provs->toString();
-    string capital = (*eu4country)->safeGetString("capital");
+    Logger::logStream("countries") << "  changed to " << owned_provs << "\n";
+    string capital = (*eu4country)->safeGetString("capital", "NoneSuch");
     if (find(provinceOwnership[eu4tag].begin(), provinceOwnership[eu4tag].end(),
              capital) == provinceOwnership[eu4tag].end()) {
+      if (provinceOwnership[eu4tag].empty()) {
+        Logger::logStream("countries")
+            << eu4tag << " owns no provinces, not moving capital\n";
+        continue;
+      }
       string newCapital = provinceOwnership[eu4tag][0];
       (*eu4country)->resetLeaf("capital", newCapital);
       (*eu4country)->resetLeaf("original_capital", newCapital);
@@ -5194,32 +5200,58 @@ void Converter::convert () {
   objvec leaves = eu4Game->getLeaves();
   Object* final = leaves.back();
   eu4Game->removeObject(final);
+  ofstream* debug = Logger::getLogFile();
 
+  if (debug) (*debug) << "createCK2Objects" << std::endl;
   if (!createCK2Objects()) return;
+  if (debug) (*debug) << "createEU4Objects" << std::endl;
   if (!createEU4Objects()) return;
+  if (debug) (*debug) << "createProvinceMap" << std::endl;
   if (!createProvinceMap()) return;
+  if (debug) (*debug) << "createCountryMap" << std::endl;
   if (!createCountryMap()) return;
+  if (debug) (*debug) << "resetHistories" << std::endl;
   if (!resetHistories()) return;
+  if (debug) (*debug) << "calculateProvinceWeights" << std::endl;
   if (!calculateProvinceWeights()) return;
+  if (debug) (*debug) << "transferProvinces" << std::endl;
   if (!transferProvinces()) return;
+  if (debug) (*debug) << "setCores" << std::endl;
   if (!setCores()) return;
+  if (debug) (*debug) << "moveCapitals" << std::endl;
   if (!moveCapitals()) return;
+  if (debug) (*debug) << "modifyProvinces" << std::endl;
   if (!modifyProvinces()) return;
+  if (debug) (*debug) << "setupDiplomacy" << std::endl;
   if (!setupDiplomacy()) return;
+  if (debug) (*debug) << "adjustBalkanisation" << std::endl;
   if (!adjustBalkanisation()) return;
+  if (debug) (*debug) << "moveBuildings" << std::endl;
   if (!moveBuildings()) return;
+  if (debug) (*debug) << "cleanEU4Nations" << std::endl;
   if (!cleanEU4Nations()) return;
+  if (debug) (*debug) << "createArmies" << std::endl;
   if (!createArmies()) return;
+  if (debug) (*debug) << "createNavies" << std::endl;
   if (!createNavies()) return;
+  if (debug) (*debug) << "cultureAndReligion" << std::endl;
   if (!cultureAndReligion()) return;
+  if (debug) (*debug) << "createGovernments" << std::endl;
   if (!createGovernments()) return;
+  if (debug) (*debug) << "createCharacters" << std::endl;
   if (!createCharacters()) return;
+  if (debug) (*debug) << "redistributeMana" << std::endl;
   if (!redistributeMana()) return;
+  if (debug) (*debug) << "hreAndPapacy" << std::endl;
   if (!hreAndPapacy()) return;
+  if (debug) (*debug) << "warsAndRebels" << std::endl;
   if (!warsAndRebels()) return;
 
+  if (debug) (*debug) << "calculateDynasticScores" << std::endl;
   calculateDynasticScores();
+  if (debug) (*debug) << "cleanUp" << std::endl;
   cleanUp();
+  if (debug) (*debug) << "Done, writing" << std::endl;
 
   Logger::logStream(LogStream::Info) << "Done with conversion, writing to Output/converted.eu4.\n";
   Parser::EqualsSign = "="; // No whitespace around equals, thanks Paradox.
