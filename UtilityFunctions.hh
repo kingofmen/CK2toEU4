@@ -7,6 +7,7 @@
 #include <cassert>
 #include <cmath> 
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include "boost/foreach.hpp"
 #include "boost/tuple/tuple.hpp"
@@ -210,7 +211,12 @@ template<class T> bool Finalizable<T>::s_Final = false;
 
 template<class T, bool unique=true> class Named {
 public:
-  Named (string n, T* dat) : name(n) {if (unique) assert(!nameToObjectMap[name]); nameToObjectMap[name] = dat;}
+  Named(const string& n, T* dat) : name(n) {
+    if (unique) {
+      assert(!nameToObjectMap[name]);
+    }
+    nameToObjectMap[name] = dat;
+  }
   Named () : name("ToBeNamed") {}
   string getName () const {return name;}
   string getName (int space) const {return name + string("").insert(0, space - name.size(), ' ');}
@@ -222,10 +228,11 @@ public:
   static void clear () {nameToObjectMap.clear();}
 private:
   string name;
-  static map<const string, T*> nameToObjectMap;
+  static unordered_map<string, T*> nameToObjectMap;
 };
 
-template<class T, bool unique> map<const string, T*> Named<T, unique>::nameToObjectMap;
+template <class T, bool unique>
+unordered_map<string, T*> Named<T, unique>::nameToObjectMap;
 
 template<class T> class Numbered {
 public:

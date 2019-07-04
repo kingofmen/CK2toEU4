@@ -381,7 +381,7 @@ bool yearMonthDay (const string& date, int& year, int& month, int& day) {
   if (secondDotIdx + 1 == (int) date.size()) return false;
   year = atoi(date.substr(0, firstDotIdx).c_str());
   month = atoi(date.substr(firstDotIdx+1, secondDotIdx).c_str());
-  day = atoi(date.substr(secondDotIdx).c_str());
+  day = atoi(date.substr(secondDotIdx+1).c_str());
   return true;
 }
 
