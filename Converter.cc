@@ -132,9 +132,11 @@ void Converter::cleanUp () {
     eu4country->unsetValue(EU4Country::kNoProvinceMarker);
     double fraction = eu4country->safeGetFloat("manpower_fraction");
     eu4country->unsetValue("manpower_fraction");
+    eu4country->unsetValue("ck_troops");
     if (!eu4country->getRuler()) continue;
-    eu4country->resetLeaf("infantry", infantryType);
-    eu4country->resetLeaf("cavalry", cavalryType);
+    Object* unitTypes = eu4country->getNeededObject("sub_unit");
+    unitTypes->resetLeaf("infantry", infantryType);
+    unitTypes->resetLeaf("cavalry", cavalryType);
     eu4country->resetLeaf("army_tradition", "0.000");
     eu4country->resetLeaf("navy_tradition", "0.000");
     eu4country->resetLeaf("papal_influence", "0.000");
@@ -148,10 +150,10 @@ void Converter::cleanUp () {
     eu4country->resetLeaf("last_focus_move", "1.1.1");
     eu4country->resetLeaf("last_conversion", "1.1.1");
     eu4country->resetLeaf("last_sacrifice", "1.1.1");
-    eu4country->resetLeaf("last_debate", "1.1.1");
     eu4country->resetLeaf("wartax", "1.1.1");
     eu4country->resetLeaf("update_opinion_cache", "yes");
     eu4country->resetLeaf("needs_refresh", "yes");
+    eu4country->unsetValue("last_debate");
     double max_manpower = 10;
     for (auto* eu4prov : eu4country->getProvinces()) {
       double autonomy = eu4prov->safeGetFloat("local_autonomy");
@@ -738,18 +740,25 @@ bool Converter::createCountryMap () {
     string eutag = (*override)->getLeaf();
     CK2Title* ckCountry = CK2Title::findByName(cktag);
     if ((!ckCountry) || (!ckCountry->getRuler())) {
-      Logger::logStream(LogStream::Warn) << "Attempted override "
-					 << cktag << " -> "
-					 << eutag << ", but could not find CK title. Ignoring.\n";
+      Logger::logStream(LogStream::Warn)
+          << "Attempted override " << cktag << " -> " << eutag
+          << ", but could not find CK title. Ignoring.\n";
       continue;
     }
     EU4Country* euCountry = EU4Country::findByName(eutag);
     if (!euCountry) {
-      Logger::logStream(LogStream::Warn) << "Attempted override "
-					 << cktag << " -> "
-					 << eutag << ", but could not find EU country. Ignoring.\n";
+      Logger::logStream(LogStream::Warn)
+          << "Attempted override " << cktag << " -> " << eutag
+          << ", but could not find EU country. Ignoring.\n";
       continue;
     }
+    if (ckCountry->getRuler()->getPrimaryTitle()->getTag() != cktag) {
+      Logger::logStream(LogStream::Warn)
+          << "Attempted override " << cktag << " -> " << eutag << ", but "
+          << cktag << " is not primary title. Ignoring.\n";
+      continue;
+    }
+
     euCountry->setRuler(ckCountry->getRuler(), ckCountry);
     forbiddenCountries.insert(euCountry);
     Logger::logStream(LogStream::Info) << "Converting "
@@ -759,7 +768,7 @@ bool Converter::createCountryMap () {
 				       << ckCountry->getName()
 				       << ".\n";
   }
-  Logger::logStream(LogStream::Debug) << "Line " << __LINE__ << "\n";
+
   // Candidate countries are: All countries that have provinces with
   // CK equivalent and none without; plus all countries with no provinces,
   // but which have discovered one of a configurable list of provinces.
@@ -1854,7 +1863,6 @@ bool Converter::cleanEU4Nations () {
 
   Object* diplomacy = eu4Game->getNeededObject("diplomacy");
   Object* active_advisors = eu4Game->getNeededObject("active_advisors");
-  objvec dipObjects = diplomacy->getLeaves();
   vector<string> tags_to_clean;
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
     if (!(*eu4country)->converts()) continue;
@@ -1868,7 +1876,8 @@ bool Converter::cleanEU4Nations () {
 
     if (0 < ownerMap[*eu4country]) continue;
     string eu4tag = (*eu4country)->getKey();
-    Logger::logStream("countries") << eu4tag << " has no provinces, removing.\n";
+    Logger::logStream("countries")
+        << eu4tag << " has no provinces, removing diplomacy.\n";
     tags_to_clean.push_back(eu4tag);
     (*eu4country)->resetLeaf(EU4Country::kNoProvinceMarker, "yes");
     active_advisors->unsetValue(eu4tag);
@@ -1877,10 +1886,14 @@ bool Converter::cleanEU4Nations () {
     }
 
     objvec dipsToRemove;
+    objvec dipObjects = diplomacy->getLeaves();
     for (objiter dip = dipObjects.begin(); dip != dipObjects.end(); ++dip) {
       string first = remQuotes((*dip)->safeGetString("first"));
       string second = (*dip)->safeGetString("second");
       if ((first != eu4tag) && (remQuotes(second) != eu4tag)) continue;
+      Logger::logStream(LogStream::Info)
+          << "Removing " << (*dip) << " due to " << first << ", " << second
+          << " vs " << eu4tag << "\n";
       dipsToRemove.push_back(*dip);
       EU4Country* overlord = EU4Country::getByName(first);
       overlord->getNeededObject("friends")->remToken(second);
@@ -1972,6 +1985,7 @@ bool Converter::cleanEU4Nations () {
 
   eu4Game->unsetValue("trade_league");
   Logger::logStream(LogStream::Info) << "Done with nation cleanup.\n" << LogOption::Undent;
+  Logger::logStream(LogStream::Info) << "Diplomacy object: " << diplomacy << "\n";
   return true;
 }
 
@@ -2557,9 +2571,6 @@ bool Converter::createCharacters () {
             remQuotes(ck2Game->safeGetString("date", "\"1444.11.11\""))) < 16) {
       auto* eu4Regent = makeMonarch(capitalTag, ck2Regent, ruler, "monarch", bonusTraits);
       eu4Regent->setLeaf("regent", "yes");
-      if (eu4Regent->safeGetString("female", "no") == "yes") {
-        eu4Regent->setLeaf("queen_regent", "yes");
-      }
       makeMonarch(capitalTag, ruler, ruler, "heir", bonusTraits);
     } else {
       makeMonarch(capitalTag, ruler, ruler, "monarch", bonusTraits);
@@ -3162,12 +3173,14 @@ bool Converter::cultureAndReligion () {
       (*eu4country)->resetLeaf("primary_culture", euCulture);
       (*eu4country)->resetHistory("primary_culture", euCulture);
       (*eu4country)->unsetValue("accepted_culture");
+      Object* history = (*eu4country)->getNeededObject("history");
+      history->unsetValue("add_accepted_culture");
       if (acceptedCultures.size()) {
 	Logger::logStream("cultures") << "Accepted cultures: ";
 	for (vector<string>::iterator accepted = acceptedCultures.begin(); accepted != acceptedCultures.end(); ++accepted) {
 	  Logger::logStream("cultures") << (*accepted) << " ";
 	  (*eu4country)->setLeaf("accepted_culture", (*accepted));
-	  (*eu4country)->resetHistory("accepted_culture", (*accepted));
+	  history->setLeaf("add_accepted_culture", (*accepted));
 	}
 	Logger::logStream("cultures") << "\n";
       }
@@ -4331,7 +4344,6 @@ bool Converter::setCores () {
       claimYear += numClaims * 5;
       if (claimYear > startYear) claimYear = startYear;
       string date = createString("%i.1.1", claimYear);
-      eu4prov->setLeaf("claim", addQuotes(eu4country->getKey()));
       Object* history = eu4prov->getNeededObject("history");
       Object* add_claim = new Object(date);
       history->setValue(add_claim);
@@ -4388,8 +4400,6 @@ bool Converter::setupDiplomacy () {
     vassal->setLeaf("second", addQuotes(vassalCountry->getName()));
     vassal->setLeaf("subject_type", addQuotes("vassal"));
     vassalCountry->resetLeaf("liberty_desire", "0.000");
-    liegeCountry->resetLeaf("num_of_unions",
-                            1 + liegeCountry->safeGetInt("num_of_unions"));
 
     for (auto& key : keyWords) {
       Object* toAdd = liegeCountry->getNeededObject(key);
@@ -4430,8 +4440,6 @@ bool Converter::setupDiplomacy () {
                            remQuotes((*ruler)->safeGetString(
                                birthDateString, addQuotes(startDate))));
       unionObject->setLeaf("subject_type", addQuotes("personal_union"));
-      overlord->resetLeaf("num_of_unions",
-                          1 + overlord->safeGetInt("num_of_unions"));
 
       for (vector<string>::iterator key = keyWords.begin(); key != keyWords.end(); ++key) {
 	Object* toAdd = overlord->getNeededObject(*key);
@@ -4928,7 +4936,6 @@ bool Converter::warsAndRebels () {
     Object* faction = new Object("rebel_faction");
     Object* factionId = createTypedId("rebel", "50");
     faction->setValue(factionId);
-    //faction->setLeaf("fraction", "0.000");
     faction->setLeaf("type", addQuotes(euRevoltType));
     faction->setLeaf("name", warName);
     faction->setLeaf("progress", "0.000");
@@ -5135,7 +5142,6 @@ bool Converter::warsAndRebels () {
       Object* faction = new Object("rebel_faction");
       Object* factionId = createTypedId("rebel", "50");
       faction->setValue(factionId);
-      faction->setLeaf("fraction", "0.000");
       faction->setLeaf("type", "heretic_rebels");
       string heresy = configObject->getNeededObject("rebel_heresies")->safeGetString(euReligion, "Lollard");
       faction->setLeaf("name", addQuotes(remQuotes(heresy) + " Rebels"));
