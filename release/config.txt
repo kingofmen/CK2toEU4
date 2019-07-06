@@ -138,28 +138,141 @@ max_vassals_per_kingdom = 3
 
 governments = {
   feudal_government = {
-    eugov = "feudal_monarchy"
+    government = {
+      government="monarchy"
+      reform_stack={
+        reforms={
+          "monarchy_mechanic"
+          "feudal_monarchy"
+        }
+        history={
+          "feudal_monarchy"
+        }
+      }
+    }
+    reforms = { "feudalism_reform" }
     heir = yes
   }
   merchant_republic_government = {
-    eugov = "merchant_republic"
+    name = "italian_republic"
+    government={
+      government="republic"
+      reform_stack={
+        reforms={
+          "republic_mechanic"
+          "merchant_republic"
+        }
+        history={
+          "merchant_republic"
+        }
+      }
+    }
+    reforms = { "merchants_reform" }
     heir = no
   }
   republic_government = {
-    eugov = "noble_republic"
+    name = "noble_republic"
+    government={
+      government="republic"
+      reform_stack={
+        reforms={
+          "republic_mechanic"
+          "noble_republic"
+        }
+        history={
+          "noble_republic"
+        }
+      }
+    }
+    reforms = { "noble_elite_reform" }
     heir = no
   }
   theocracy_government = {
-    eugov = "theocratic_government"
+    name = "default_theocracy"
+    government={
+      government="theocracy"
+      reform_stack={
+        reforms={
+          "theocracy_mechanic"
+          "theocratic_government"
+        }
+        history={
+          "theocratic_government"
+        }
+      }
+    }
+    reforms = { "leading_clergy_reform" }
     heir = no
     papal_succession = {
-      eugov = "papal_government"
+      name = "gov_papal_government"
+      government={
+        government="theocracy"
+        reform_stack={
+          reforms={
+            "theocracy_mechanic"
+            "papal_government"
+          }
+          history={
+            "papal_government"
+          }
+        }
+      }
+      reforms = { "papacy_reform" }
       heir = no
     }
   }
+  tribal_government = {
+    name = "gov_tribal_kingdom"
+    government={
+      government="tribal"
+      reform_stack={
+        reforms={
+          "tribe_mechanic"
+          "tribal_kingdom_legacy"
+        }
+        history={
+          "tribal_kingdom_legacy"
+        }
+      }
+    }
+    heir = no
+    reforms = { "tribal_kingdom" }
+  }
   muslim_government = {
-    eugov = "iqta"
+    name = "muslim_monarchy"
+    government={
+      government="monarchy"
+      reform_stack={
+        reforms={
+          "monarchy_mechanic"
+          "iqta_legacy"
+        }
+        history={
+          "iqta_legacy"
+        }
+      }
+      iqta_mechanic={
+      }
+    }
+    reforms = { "iqta" }
     heir = yes
+  }
+  order_government = {
+    name = "gov_religious_order"
+    government={
+      government="theocracy"
+      reform_stack={
+        reforms={
+          "theocracy_mechanic"
+          "monastic_order_government"
+        }
+        history={
+          "monastic_order_government"
+        }
+      }
+    }
+    reforms = { "monastic_order_reform" }
+    heir = no
   }
 }
 

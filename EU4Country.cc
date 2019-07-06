@@ -31,14 +31,25 @@ bool EU4Country::isROTW() const {
   return getRuler() == nullptr;
 }
 
-std::string EU4Country::getGovernment() {
+std::string EU4Country::getGovernmentType() {
   return getNeededObject("government")
-      ->safeGetString("government", "\"feudal_monarchy\"");
+      ->safeGetString("government", "\"monarchy\"");
 }
 
-void EU4Country::setGovernment(const std::string& government) {
-  getNeededObject("government")->resetLeaf("government", government);
-  resetHistory("government", remQuotes(government));
+void EU4Country::setGovernment(Object* govInfo) {
+  unsetValue("government");
+  setValue(govInfo->getNeededObject("government"));
+  resetLeaf("government_name", govInfo->safeGetString("name", "\"default_monarchy\""));
+  resetLeaf("needs_heir", govInfo->safeGetString("heir", "no"));
+  resetHistory("government", remQuotes(getGovernmentType()));
+  Object* hist = getNeededObject("history");
+  hist->unsetValue("add_government_reform");
+  Object* reforms = govInfo->safeGetObject("reforms");
+  if (reforms) {
+    for (int i = 0; i < reforms->numTokens(); ++i) {
+      hist->setLeaf("add_government_reform", reforms->getToken(i));
+    }
+  }
 }
 
 void EU4Country::setAsCore (EU4Province* prov) {

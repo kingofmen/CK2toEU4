@@ -2699,7 +2699,15 @@ bool Converter::createGovernments () {
     string ckGovernment =
         ruler->safeGetString(governmentString, "feudal_government");
     Object* govInfo = govObject->safeGetObject(ckGovernment);
-    string euGovernmentType = eu4country->getGovernment();
+    Object* euGovernment = eu4country->getGovernment();
+    if (customObject) {
+      Object* customGov = customObject->getNeededObject("governments")
+                            ->safeGetObject(eu4country->getKey());
+      if (customGov) {
+        ckGovernment = "custom override";
+        govInfo = customGov;
+      }
+    }
     if (govInfo) {
       Logger::logStream("governments")
           << nameAndNumber(ruler) << " of " << eu4country->getKey()
@@ -2712,37 +2720,18 @@ bool Converter::createGovernments () {
 	  govInfo = successionObject;
 	}
       }
-      euGovernmentType = govInfo->safeGetString("eugov");
+      euGovernment = govInfo->safeGetObject("government");
       Logger::logStream("governments")
-          << " giving EU government " << euGovernmentType << " of rank "
-          << government_rank << " based on total development "
-          << totalDevelopment << ".\n";
-      eu4country->resetLeaf("needs_heir", govInfo->safeGetString("heir", "no"));
+          << " giving EU: " << euGovernment << " of rank " << government_rank
+          << " based on total development " << totalDevelopment << ".\n";
+      eu4country->setGovernment(govInfo);
     }
     else {
       Logger::logStream(LogStream::Warn)
           << "No information about CK government " << ckGovernment
-          << ", leaving " << eu4country->getKey() << " as " << euGovernmentType
+          << ", leaving " << eu4country->getKey() << " as " << euGovernment
           << ".\n";
     }
-    if (customObject) {
-      auto* customGov = customObject->getNeededObject("governments")
-                            ->safeGetObject(eu4country->getKey());
-      if (customGov != nullptr) {
-        euGovernmentType = customGov->safeGetString("gov", "feudal_monarchy");
-        Logger::logStream("governments")
-            << "Custom information, overriding " << eu4country->getKey()
-            << " government to " << euGovernmentType << "\n";
-        if (customGov->safeGetString("republic", "no") == "yes") {
-          eu4country->resetLeaf("needs_heir", "no");
-          eu4country->resetLeaf("custom_republic", "yes");
-        } else {
-          eu4country->resetLeaf("needs_heir", "yes");
-          eu4country->resetLeaf("custom_republic", "no");
-        }
-      }
-    }
-    eu4country->setGovernment(euGovernmentType);
   }  
   Logger::logStream(LogStream::Info) << "Done with governments.\n" << LogOption::Undent;
   return true;
@@ -4009,9 +3998,7 @@ bool Converter::redistributeMana () {
                               << " has stability " << stability << ".\n";
 
     eu4country->resetLeaf("legitimacy", "0.000");
-    if ((eu4country->getGovernment() == "\"merchant_republic\"") ||
-        (eu4country->getGovernment() == "\"noble_republic\"") ||
-        (eu4country->safeGetString("custom_republic") == "yes")) {
+    if (eu4country->getGovernmentType() == "\"republic\"") {
       eu4country->resetLeaf("republican_tradition", "100.000");
     }
     else {
