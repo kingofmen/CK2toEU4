@@ -44,7 +44,7 @@ const std::string kNewFather = "fat";
 extern std::string fatherString;
 
 const std::string kOldMother = "mother";
-const std::string kNewMother = "fat";
+const std::string kNewMother = "mot";
 extern std::string motherString;
 
 const std::string kOldFemale = "female";
