@@ -38,6 +38,8 @@ ConverterJob const *const ConverterJob::LoadFile =
     new ConverterJob("loadfile", false);
 ConverterJob const *const ConverterJob::PlayerWars = 
     new ConverterJob("player_wars", false);
+ConverterJob const *const ConverterJob::Statistics = 
+    new ConverterJob("statistics", false);
 ConverterJob const *const ConverterJob::DynastyScores = 
     new ConverterJob("dynasty_scores", true);
 
@@ -91,6 +93,7 @@ void Converter::run () {
     if (ConverterJob::LoadFile       == job) loadFile();
     if (ConverterJob::CheckProvinces == job) checkProvinces();
     if (ConverterJob::PlayerWars     == job) playerWars();
+    if (ConverterJob::Statistics     == job) statistics();
     if (ConverterJob::DynastyScores  == job) dynastyScores();
   }
 }
@@ -247,6 +250,90 @@ void Converter::debugParser () {
                                      << parsed.back();
 }
 
+struct TitleStats {
+  CK2Title* title;
+  std::vector<CK2Province*> ck2Provinces;
+  void print() const;
+};
+
+std::unordered_map<CK2Title*, TitleStats> statsMap;
+
+void TitleStats::print() const {
+  if (ck2Provinces.empty()) {
+    return;
+  }
+  const CK2Province* best = ck2Provinces[0];
+  double heaviest = 0;
+  double avg_tech = 0;
+  for (const auto* p : ck2Provinces) {
+    avg_tech += p->totalTech();
+    double currWeight = p->getWeight(ProvinceWeight::Manpower) +
+                        p->getWeight(ProvinceWeight::Production) +
+                        p->getWeight(ProvinceWeight::Taxation);
+    if (currWeight > heaviest) {
+      heaviest = currWeight;
+      best = p;
+    }
+  }
+  avg_tech /= ck2Provinces.size();
+
+  Logger::logStream(LogStream::Info) << title->getKey() << ":\n"
+                                     << LogOption::Indent;
+  Logger::logStream(LogStream::Info)
+      << "CK2 provinces: " << ck2Provinces.size() << "\n";
+  Logger::logStream(LogStream::Info)
+      << "Best province: " << nameAndNumber(best) << "\n";
+  Logger::logStream(LogStream::Info) << "Average tech: " << avg_tech << "\n";
+  Logger::logStream(LogStream::Info) << LogOption::Undent;
+}
+
+bool Converter::displayStats() {
+  Logger::logStream(LogStream::Info) << "Statistics:\n" << LogOption::Indent;
+  for (auto prov = CK2Province::start(); prov != CK2Province::final(); ++prov) {
+    auto* title = (*prov)->getCountyTitle();
+    if (!title) continue;
+    while ((title = title->getDeJureLiege()) != 0) {
+      if (title->getLevel() != TitleLevel::Kingdom &&
+          title->getLevel() != TitleLevel::Empire) {
+        continue;
+      }
+      if (statsMap.find(title) == statsMap.end()) {
+        statsMap[title].title = title;
+      }
+      statsMap[title].ck2Provinces.push_back(*prov);
+    }
+  }
+
+  for (auto emp = CK2Title::startEmpire(); emp != CK2Title::finalEmpire();
+       ++emp) {
+    statsMap[*emp].print();
+  }
+  for (auto kng = CK2Title::startLevel(TitleLevel::Kingdom);
+       kng != CK2Title::finalLevel(TitleLevel::Kingdom); ++kng) {
+    statsMap[*kng].print();
+  }
+
+  Logger::logStream(LogStream::Info) << "Done with statistics.\n"
+                                     << LogOption::Undent;
+  return true;
+}
+
+void Converter::statistics() {
+  if (!ck2Game) {
+    Logger::logStream(LogStream::Info) << "No file loaded.\n";
+    return; 
+  }
+
+  loadFiles();
+  if (!createCK2Objects()) return;
+  if (!createEU4Objects()) return;
+  if (!createProvinceMap()) return;
+  if (!createCountryMap()) return;
+  if (!calculateProvinceWeights()) return;
+
+  displayStats();
+}
+
 void Converter::playerWars () {
   Logger::logStream(LogStream::Info) << "Player wars.\n";
   if (!createCK2Objects()) {
@@ -389,12 +476,15 @@ void detectChangedString(const string& old_string, const string& new_string,
           << "Detected old keyword '" << old_string
           << "', proceeding with that.\n";
       *target = old_string;
-      break;
+      return;
     }
     if (newObject) {
-      break;
+      return;
     }
   }
+  Logger::logStream(LogStream::Warn)
+      << "Reached end of detectChangedString for " << old_string << " vs "
+      << new_string << ", may indicate bug.\n";
 }
 
 /********************************  End helpers  **********************/
@@ -455,6 +545,7 @@ bool Converter::createCK2Objects () {
     }
     (*ckCountry)->setDeJureLiege(CK2Title::findByName(deJureTag));
   }
+  Logger::logStream(LogStream::Info) << "Set de-jure lieges.\n";
 
   Object* characters = ck2Game->safeGetObject("character");
   if (!characters) {
@@ -483,6 +574,14 @@ bool Converter::createCK2Objects () {
                       &deadCharHoldingsString);
   detectChangedString(kOldTraits, kNewTraits, charObjs, &traitString);
 
+  Logger::logStream(LogStream::Info)
+      << "Using keywords: " << demesneString << ", " << birthNameString << ", "
+      << birthDateString << ", " << dynastyString << ", " << attributesString
+      << ", " << prestigeString << ", " << jobTitleString << ", "
+      << employerString << ", " << fatherString << ", " << motherString << ", "
+      << femaleString << ", " << governmentString << ", "
+      << deadCharHoldingsString << ", " << traitString << "\n";
+
   Object* dynasties = ck2Game->safeGetObject("dynasties");
   for (auto* ckCountry : CK2Title::getAll()) {
     string holderId = ckCountry->safeGetString("holder", PlainNone);
@@ -506,11 +605,13 @@ bool Converter::createCK2Objects () {
     ruler->addTitle(ckCountry);
   }
 
-  Logger::logStream(LogStream::Info) << "Created " << CK2Ruler::totalAmount() << " CK2 rulers.\n";
+  Logger::logStream(LogStream::Info)
+      << "Created " << CK2Ruler::totalAmount() << " CK2 rulers.\n";
   for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
     (*ruler)->createLiege();
   }
 
+  Logger::logStream(LogStream::Info) << "Counting baronies\n";
   for (CK2Ruler::Iter ruler = CK2Ruler::start(); ruler != CK2Ruler::final(); ++ruler) {
     (*ruler)->countBaronies();
     (*ruler)->createClaims();
@@ -518,6 +619,7 @@ bool Converter::createCK2Objects () {
 
   map<string, int> dynastyPower;
   objvec allChars = characters->getLeaves();
+  Logger::logStream(LogStream::Info) << "Calculating dynasty power\n";
   for (objiter ch = allChars.begin(); ch != allChars.end(); ++ch) {
     if ((*ch)->safeGetString("d_d", PlainNone) != PlainNone) {
       // Dead character, check for dynasty power.
@@ -532,7 +634,7 @@ bool Converter::createCK2Objects () {
       continue;
     }
 
-    objvec claims = (*ch)->getValue("claim");    
+    objvec claims = (*ch)->getValue("claim");
     CK2Ruler* father = CK2Ruler::findByName((*ch)->safeGetString(fatherString));
     CK2Ruler* mother = CK2Ruler::findByName((*ch)->safeGetString(motherString));
     CK2Ruler* employer = nullptr;
@@ -569,6 +671,7 @@ bool Converter::createCK2Objects () {
   }
   
   // Diplomacy
+  Logger::logStream(LogStream::Info) << "Creating relations\n";
   Object* relationObject = ck2Game->getNeededObject("relation");
   objvec relations = relationObject->getLeaves();
   for (objiter relation = relations.begin(); relation != relations.end(); ++relation) {
@@ -5239,6 +5342,8 @@ void Converter::convert () {
   if (!hreAndPapacy()) return;
   if (debug) (*debug) << "warsAndRebels" << std::endl;
   if (!warsAndRebels()) return;
+  if (debug) (*debug) << "displayStats" << std::endl;
+  displayStats();
 
   if (debug) (*debug) << "calculateDynasticScores" << std::endl;
   calculateDynasticScores();

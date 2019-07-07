@@ -134,3 +134,15 @@ void CK2Province::calculateWeights (Object* weightObject, Object* troops, objvec
     weights[i] *= de_jure_nerf;
   }
 }
+
+double CK2Province::totalTech() const {
+  Object* tech = safeGetObject("technology");
+  if (!tech) return 0;
+  tech = tech->safeGetObject("tech_levels");
+  if (!tech) return 0;
+  double ret = 0;
+  for (int i = 0; i < tech->numTokens(); ++i) {
+    ret += tech->tokenAsFloat(i);
+  }
+  return ret;
+}

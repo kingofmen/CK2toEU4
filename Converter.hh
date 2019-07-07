@@ -26,6 +26,7 @@ public:
   static ConverterJob const* const CheckProvinces;
   static ConverterJob const* const LoadFile;
   static ConverterJob const* const PlayerWars;
+  static ConverterJob const* const Statistics;
   static ConverterJob const* const DynastyScores;
 };
 
@@ -57,6 +58,7 @@ private:
   bool createGovernments ();
   bool createNavies ();  
   bool cultureAndReligion ();
+  bool displayStats ();
   bool hreAndPapacy ();
   bool modifyProvinces ();
   bool moveBuildings ();
@@ -77,6 +79,7 @@ private:
   void playerWars ();
   void configure ();
   void dejures ();
+  void statistics ();
 
   // Initialisers
   bool createCK2Objects ();

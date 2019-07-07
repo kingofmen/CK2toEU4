@@ -29,6 +29,7 @@ public:
   double getWeight (ProvinceWeight const* const pw) const;
   int numEU4Provinces () const {return targets.size();}
   void setCountyTitle (CK2Title* t) {countyTitle = t;}
+  double totalTech() const;
 
   EU4Province* eu4Province(int idx) { return targets[idx]; }
   vector<EU4Province*>& eu4Provinces() { return targets; }

@@ -108,11 +108,13 @@ int main (int argc, char** argv) {
   QAction* dynastyScore = actionMenu->addAction("Dynastic scores");
   QAction* checkProvinces = actionMenu->addAction("Check provinces");
   QAction* playerWars = actionMenu->addAction("Player wars");
+  QAction* statistics = actionMenu->addAction("Statistics");
   QObject::connect(convert, SIGNAL(triggered()), parentWindow, SLOT(convert()));
   QObject::connect(debugParser, SIGNAL(triggered()), parentWindow, SLOT(debugParser()));
   QObject::connect(dynastyScore, SIGNAL(triggered()), parentWindow, SLOT(dynasticScore()));
   QObject::connect(checkProvinces, SIGNAL(triggered()), parentWindow, SLOT(checkProvinces()));
   QObject::connect(playerWars, SIGNAL(triggered()), parentWindow, SLOT(playerWars()));
+  QObject::connect(statistics, SIGNAL(triggered()), parentWindow, SLOT(statistics()));
   QObject::connect(dejures, SIGNAL(triggered()), parentWindow, SLOT(dejures()));
 
   parentWindow->textWindow = new QPlainTextEdit(parentWindow);
@@ -232,6 +234,15 @@ void Window::playerWars () {
   }
   Logger::logStream(LogStream::Info) << "Queued up player wars.\n";
   worker->scheduleJob(ConverterJob::PlayerWars);
+}
+
+void Window::statistics () {
+  if (!worker) {
+    Logger::logStream(LogStream::Info) << "No file loaded.\n";
+    return;
+  }
+  Logger::logStream(LogStream::Info) << "Queued up statistics.\n";
+  worker->scheduleJob(ConverterJob::Statistics);
 }
 
 

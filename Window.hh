@@ -30,6 +30,7 @@ public slots:
   void dejures ();
   void dynasticScore ();
   void playerWars ();
+  void statistics ();
   void message (QString m);
 
 private:
