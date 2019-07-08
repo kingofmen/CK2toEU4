@@ -82,3 +82,8 @@ void EU4Province::remCore (string countryTag) {
   getNeededObject("cores")->remToken(quotedTag);
   getNeededObject("history")->unsetKeyValue("add_core", quotedTag);
 }
+
+double EU4Province::totalDev() const {
+  return safeGetFloat("base_tax") + safeGetFloat("base_manpower") +
+         safeGetFloat("base_production");
+}

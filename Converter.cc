@@ -262,18 +262,12 @@ void TitleStats::print() const {
   if (ck2Provinces.empty()) {
     return;
   }
-  const CK2Province* best = ck2Provinces[0];
-  double heaviest = 0;
+  unsigned int numToPrint = 2 + (ck2Provinces.size() / 10);
+  if (numToPrint > ck2Provinces.size())
+    numToPrint = ck2Provinces.size();
   double avg_tech = 0;
   for (const auto* p : ck2Provinces) {
     avg_tech += p->totalTech();
-    double currWeight = p->getWeight(ProvinceWeight::Manpower) +
-                        p->getWeight(ProvinceWeight::Production) +
-                        p->getWeight(ProvinceWeight::Taxation);
-    if (currWeight > heaviest) {
-      heaviest = currWeight;
-      best = p;
-    }
   }
   avg_tech /= ck2Provinces.size();
 
@@ -282,7 +276,20 @@ void TitleStats::print() const {
   Logger::logStream(LogStream::Info)
       << "CK2 provinces: " << ck2Provinces.size() << "\n";
   Logger::logStream(LogStream::Info)
-      << "Best province: " << nameAndNumber(best) << "\n";
+      << "Best provinces:\n" << LogOption::Indent;
+  for (unsigned int i = 0; i < numToPrint; ++i) {
+    CK2Province* curr = ck2Provinces[i];
+    EU4Province* conv = NULL;
+    if (curr->numEU4Provinces() > 0) {
+      conv = curr->eu4Province(0);
+    }
+    Logger::logStream(LogStream::Info)
+        << nameAndNumber(curr) << " (" << curr->totalWeight() << ") -> "
+        << nameAndNumber(conv) << "(" << (conv ? conv->totalDev() : 0.0)
+        << ")\n";
+  }
+  Logger::logStream(LogStream::Info) << LogOption::Undent;
+
   Logger::logStream(LogStream::Info) << "Average tech: " << avg_tech << "\n";
   Logger::logStream(LogStream::Info) << LogOption::Undent;
 }
@@ -302,6 +309,15 @@ bool Converter::displayStats() {
       }
       statsMap[title].ck2Provinces.push_back(*prov);
     }
+  }
+
+  for (auto& ts : statsMap) {
+    auto& stat = ts.second;
+    std::sort(stat.ck2Provinces.begin(), stat.ck2Provinces.end(),
+              [](const CK2Province* one, const CK2Province* two) {
+                // Descending order, greater-than.
+                return one->totalWeight() > two->totalWeight();
+              });
   }
 
   for (auto emp = CK2Title::startEmpire(); emp != CK2Title::finalEmpire();
@@ -2791,9 +2807,7 @@ bool Converter::createGovernments () {
     string government_rank = "1";
     double totalDevelopment = 0;
     for (auto* eu4prov : eu4country->getProvinces()) {
-      totalDevelopment += eu4prov->safeGetFloat("base_tax");
-      totalDevelopment += eu4prov->safeGetFloat("base_manpower");
-      totalDevelopment += eu4prov->safeGetFloat("base_production");
+      totalDevelopment += eu4prov->totalDev();
     }
     if (totalDevelopment > empireThreshold) government_rank = "3";
     else if (totalDevelopment > kingdomThreshold) government_rank = "2";

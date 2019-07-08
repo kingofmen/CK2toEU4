@@ -397,11 +397,17 @@ double getLevyStrength(const string& key, Object* levyObject, int idx) {
 }
 
 string nameAndNumber(const ObjectWrapper* prov, string key) {
+  if (!prov) {
+    return "null province";
+  }
   return prov->getKey() + " (" +
          remQuotes(prov->safeGetString(key, "\"could not find name\"")) + ")";
 }
 
 string nameAndNumber(Object* prov, string key) {
+  if (!prov) {
+    return "null province";
+  }
   return prov->getKey() + " (" +
          remQuotes(prov->safeGetString(key, "\"could not find name\"")) + ")";
 }

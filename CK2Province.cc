@@ -135,6 +135,12 @@ void CK2Province::calculateWeights (Object* weightObject, Object* troops, objvec
   }
 }
 
+double CK2Province::totalWeight() const {
+  return getWeight(ProvinceWeight::Production) +
+         getWeight(ProvinceWeight::Manpower) +
+         getWeight(ProvinceWeight::Taxation);
+}
+
 double CK2Province::totalTech() const {
   Object* tech = safeGetObject("technology");
   if (!tech) return 0;
