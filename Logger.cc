@@ -36,11 +36,15 @@ Logger& Logger::operator<< (std::string dat) {
     logFile->flush();
   }
   std::size_t linebreak = dat.find_first_of('\n');
-  if (std::string::npos == linebreak) buffer.append(dat.c_str());
-  else {
-    buffer.append(dat.substr(0, linebreak).c_str());
+  std::size_t previous = 0;
+  while (linebreak != std::string::npos) {
+    buffer.append(dat.substr(previous, linebreak-previous).c_str());
     sendMessage();
-    (*this) << dat.substr(linebreak+1);
+    previous = linebreak + 1;
+    linebreak = dat.find_first_of('\n', previous);
+  }
+  if (previous < dat.size()) {
+    buffer.append(dat.substr(previous).c_str());
   }
   return *this;
 }

@@ -1758,7 +1758,7 @@ void Converter::calculateDynasticScores() {
     }
     dynasties[dIndex].members++;
     characters[character->getKey()] = character;
-    Object* traits = character->safeGetObject("traits");
+    Object* traits = character->safeGetObject(traitString);
     if (traits) {
       for (int i = 0; i < traits->numTokens(); ++i) {
         int trait_number = traits->tokenAsInt(i);
@@ -2588,7 +2588,7 @@ bool Converter::makeAdvisor(CK2Character* councillor, Object* country_advisors,
   set<string> decisionTraits;
   for (objiter advType = advisorTypes.begin(); advType != advisorTypes.end();
        ++advType) {
-    Object* mods = (*advType)->getNeededObject("traits");
+    Object* mods = (*advType)->getNeededObject(traitString);
     objvec traits = mods->getLeaves();
     int currPoints = 0;
     set<string> yesTraits;
