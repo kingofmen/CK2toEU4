@@ -39,8 +39,11 @@ custom_score_traits = {
   seaking = 2
   sea_queen = 2
   genius = 1
-  berserker = 1
+  beatified = 1
+  saint = 2
   crusader = 1
+  crusader_king = 2
+  crusader_queen = 2
   valhalla_bound = 1
   mujahid = 1
   eagle_warrior = 1
@@ -56,11 +59,48 @@ custom_score_traits = {
   achievements = 0.01
 }
 
+custom_score_title_points = {
+  baron = 0
+  count = 1
+  duke = 3
+  king = 5
+  emperor = 7
+}
+
 # Reduce development in particular de-jure titles.
 special_nerfs = {
 }
 
-# Set unusual government types. Must specify republic or not.
+# Give a government object like in config.
 governments = {
-#  Z04 = { gov = english_monarchy republic = no }
+  EXAMPLE = {
+    name = "german_republic"
+    government={
+      government="republic"
+      reform_stack={
+        reforms={
+          "republic_mechanic"
+          "peasants_republic_legacy"
+        }
+        history={
+          "peasants_republic_legacy"
+        }
+      }
+    }
+    reform_name = "peasants_republic"
+    heir = no
+  }
 }
+
+# All countries ruled by members of these dynasties will be part of
+# the HRE. This and the electors field below only take effect if 'hre'
+# is set to 'dynasties' in config.txt.
+empire_members = {
+#  10292922 10292925 704733  
+}
+
+# First tag listed becomes emperor.
+electors = {
+#  Z18 BAV BOH
+}
+
