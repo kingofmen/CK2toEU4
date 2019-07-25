@@ -1557,20 +1557,28 @@ struct DynastyScore {
   map<string, int> trait_counts;
   vector<pair<CK2Title*, int> > title_days;
 
+  static int BaronyPoints;
+  static int CountyPoints;
+  static int DuchyPoints;
+  static int KingdomPoints;
+  static int EmpirePoints;
+
   void score () {
     cached_score = 0;
     for (const auto& held : title_days) {
       CK2Title* title = held.first;
       int days = held.second;
       int mult = 0;
-      if (title->getLevel() == TitleLevel::County) {
-        mult = 1;
+      if (title->getLevel() == TitleLevel::Barony) {
+        mult = BaronyPoints;
+      } else if (title->getLevel() == TitleLevel::County) {
+        mult = CountyPoints;
       } else if (title->getLevel() == TitleLevel::Duchy) {
-        mult = 3;
+        mult = DuchyPoints;
       } else if (title->getLevel() == TitleLevel::Kingdom) {
-        mult = 5;
+        mult = KingdomPoints;
       } else if (title->getLevel() == TitleLevel::Empire) {
-        mult = 7;
+        mult = EmpirePoints;
       }
       cached_score += days * mult;
     }
@@ -1663,6 +1671,12 @@ struct DynastyScore {
   }
 };
 
+int DynastyScore::BaronyPoints = 0;
+int DynastyScore::CountyPoints = 1;
+int DynastyScore::DuchyPoints = 3;
+int DynastyScore::KingdomPoints = 5;
+int DynastyScore::EmpirePoints = 7;
+
 bool operator<(const DynastyScore& left, const DynastyScore& right) {
   return left.cached_score < right.cached_score;
 }
@@ -1723,6 +1737,14 @@ void Converter::calculateDynasticScores() {
   }
   Logger::logStream(LogStream::Info) << "Beginning dynasty score calculation.\n"
                                      << LogOption::Indent;
+
+  auto* titlePoints = customObject->getNeededObject("custom_score_title_points");
+  DynastyScore::BaronyPoints = titlePoints->safeGetInt("baron", 0);
+  DynastyScore::CountyPoints = titlePoints->safeGetInt("count", 1);
+  DynastyScore::DuchyPoints = titlePoints->safeGetInt("duke", 3);
+  DynastyScore::KingdomPoints = titlePoints->safeGetInt("king", 5);
+  DynastyScore::EmpirePoints = titlePoints->safeGetInt("emperor", 7);
+
   if (CK2Character::ckTraits.empty()) {
     string dirToUse = remQuotes(configObject->safeGetString("maps_dir", ".\\maps\\"));
     Object* ckTraitObject = loadTextFile(dirToUse + "ck_traits.txt");
