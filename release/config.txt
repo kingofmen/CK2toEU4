@@ -25,6 +25,11 @@ custom = "custom_overrides.txt"
 maps_dir = ".\maps\"
 
 accepted_culture_cutoff = 0.5
+# For split cultures, e.g. norse -> swedish, danish, norwegian,
+# cultures that have at least this percentage of the dominant one
+# will be preserved in their historical domains. Set above 1 to
+# avoid such preservation entirely.
+split_cutoff = 0.75
 
 # If true, development will be redistributed. Otherwise it will be
 # given by province rank.

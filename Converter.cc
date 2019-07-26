@@ -262,7 +262,11 @@ void TitleStats::print() const {
   if (ck2Provinces.empty()) {
     return;
   }
-  unsigned int numToPrint = 2 + (ck2Provinces.size() / 10);
+  unsigned int numToPrint = 2;
+  if (ck2Provinces.size() > 5) numToPrint++;
+  if (ck2Provinces.size() > 9) numToPrint++;
+  if (ck2Provinces.size() > 14) numToPrint++;
+  if (ck2Provinces.size() > 20) numToPrint++;
   if (numToPrint > ck2Provinces.size())
     numToPrint = ck2Provinces.size();
   double avg_tech = 0;
@@ -3104,7 +3108,7 @@ pair<string, string> findBest (map<string, map<string, int> >& corrMap) {
 }
 
 void makeMap(map<string, map<string, int>>& cultures,
-             map<string, vector<string>>& assigns, Object* storage = 0) {
+             map<string, vector<string>>& assigns, double splitCutoff = 2, Object* storage = 0) {
   map<string, map<string, int> > reverseMap;
   for (map<string, map<string, int> >::iterator cult = cultures.begin(); cult != cultures.end(); ++cult) {
     for (map<string, int>::iterator look = cult->second.begin(); look != cult->second.end(); ++look) {
@@ -3124,15 +3128,15 @@ void makeMap(map<string, map<string, int>>& cultures,
     for (map<string, int>::iterator cand = cultures[ckCulture].begin(); cand != cultures[ckCulture].end(); ++cand) {
       if (cand->first == euCulture) continue;
       Logger::logStream("cultures") << "(" << cand->first << " " << cand->second << " ";
-      if (cand->second > highestValue * 0.75) {
-	Logger::logStream("cultures") << "[" << cand->second / highestValue << "]) ";
+      if (cand->second < highestValue * splitCutoff) {
+	Logger::logStream("cultures") << ") ";
+        continue;
       }
-      else if (1 == reverseMap[cand->first].size()) {
+      if (1 == reverseMap[cand->first].size()) {
 	Logger::logStream("cultures") << "[sole]) ";
       }
       else {
-	Logger::logStream("cultures") << ") ";
-	continue;
+	Logger::logStream("cultures") << "[" << cand->second / highestValue << "]) ";
       }
       assigns[ckCulture].push_back(cand->first);
     }
@@ -3141,7 +3145,7 @@ void makeMap(map<string, map<string, int>>& cultures,
   }
 }
 
-void proselytise (map<string, vector<string> >& religionMap, string key) {
+void proselytise (map<string, vector<string> >& conversionMap, string key) {
   for (EU4Province::Iter eu4prov = EU4Province::start(); eu4prov != EU4Province::final(); ++eu4prov) {
     if (0 == (*eu4prov)->numCKProvinces()) continue;
     map<string, double> weights;
@@ -3159,10 +3163,10 @@ void proselytise (map<string, vector<string> >& religionMap, string key) {
       Logger::logStream("cultures") << "No culture found for " << nameAndNumber(*eu4prov) << ", probably nomad fief. Ignoring.\n";
       continue;
     }
-    string euBest = religionMap[ckBest][0];
+    string euBest = conversionMap[ckBest][0];
     if (key == "culture") {
       string existingCulture = (*eu4prov)->safeGetString("culture", PlainNone);
-      if (find(religionMap[ckBest].begin(), religionMap[ckBest].end(), existingCulture) != religionMap[ckBest].end()) {
+      if (find(conversionMap[ckBest].begin(), conversionMap[ckBest].end(), existingCulture) != conversionMap[ckBest].end()) {
 	euBest = existingCulture;
       }
     }
@@ -3205,7 +3209,7 @@ bool Converter::cultureAndReligion () {
   }
   
   Object* dynamicReligion = configObject->getNeededObject("dynamicReligions");
-  makeMap(religions, religionMap, dynamicReligion);
+  makeMap(religions, religionMap, 2, dynamicReligion);
   Object* overrideObject = customObject->getNeededObject("religion_overrides");
   objvec overrides = overrideObject->getLeaves();
   for (objiter override = overrides.begin(); override != overrides.end(); ++override) {
@@ -3217,7 +3221,7 @@ bool Converter::cultureAndReligion () {
     dynamicReligion->resetLeaf(ckReligion, euReligion);
   }
 
-  makeMap(cultures, cultureMap);
+  makeMap(cultures, cultureMap, configObject->safeGetFloat("split_cutoff", 0.75));
   overrideObject = customObject->getNeededObject("culture_overrides");
   overrides = overrideObject->getLeaves();
   for (objiter override = overrides.begin(); override != overrides.end(); ++override) {
