@@ -2,7 +2,7 @@ streams = {
   # NB, do not remove these lines, they are used to create
   # debug streams and the code relies on them being present.
   generic  = yes 
-  provinces = no
+  provinces = yes
   buildings = no
   characters = yes
   cores = no

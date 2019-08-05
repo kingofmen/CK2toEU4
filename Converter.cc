@@ -103,6 +103,7 @@ void Converter::loadFile () {
   Parser::ignoreString = "CK2txt";
   Parser::specialCases["de_jure_liege=}"] = "";
   Parser::specialCases["\t="] = "special_f=";
+  Parser::specialCases["\\\""] = "'";
   ck2Game = loadTextFile(ck2FileName);
   Parser::ignoreString = "";
   Parser::specialCases.clear();
