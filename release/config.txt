@@ -3,12 +3,12 @@ streams = {
   # debug streams and the code relies on them being present.
   generic  = yes 
   provinces = yes
-  buildings = no
-  characters = yes
+  buildings = yes
+  characters = no
   cores = no
   countries = no
   cultures = no # Also covers religion
-  governments = yes
+  governments = no
   titles = no
   diplomacy = no
   armies = no
@@ -16,7 +16,7 @@ streams = {
   mana = no
   hre = no # Also papacy
   war = no
-  all = yes
+  all = no
 }
 
 # NOCUSTOM or delete to ignore 
@@ -121,20 +121,10 @@ float_dev_values = no
 # The EU4 tags that know about these provinces will be used.
 provinces_for_tags = { 1 112 213 1315 }
 
-buildings = {
-  temple        = { prod = 0.6 tax = 0.4 cost = 720 } # 730 days plus avg 700 gold
-  city          = { prod = 0.4 tax = 0.6 cost = 720 }
-  castle        = { prod = 0.45 tax = 0.45 cost = 720 }
-  fort          = { prod = 0.0 tax = 0.0 cost = 21 }
-  trade_post    = { prod = 0.9 tax = 0.0 cost = 160 }
-  family_palace = { prod = 0.4 tax = 0.6 cost = 1 }
-  hospital      = { prod = 0.5 tax = 0.5 cost = 110 }
-
-  # Per province, basically only affects nomads.
-  minimumWeights = {
-    pw_manpower = 2500 # 3 castles, roughly.
-    pw_taxation = 324 # 1 empty castle.
-  }
+# Per province, basically only affects nomads.
+minimumWeights = {
+  pw_manpower = 2500 # 3 castles, roughly.
+  pw_taxation = 324 # 1 empty castle.
 }
 
 permit_subinfeudation = no

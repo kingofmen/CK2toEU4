@@ -1,3 +1,103 @@
+castle = {
+	tax_income = 4
+	fort_level = 3
+	build_cost_modifier = 500
+	build_time_modifier = 730
+	light_infantry = 60
+	heavy_infantry = 150
+	light_cavalry = 15
+	levy_reinforce_rate = 1.25
+	land_organisation = 0.2
+}
+
+city = {
+	tax_income = 12
+	fort_level = 0
+	light_infantry = 75
+	archers = 40
+	build_cost_modifier = 500
+	build_time_modifier = 730
+	land_organisation = 0.2
+}
+
+temple = {
+	tax_income = 8
+	heavy_infantry = 45
+	light_infantry = 45
+	archers = 40
+	build_cost_modifier = 500
+	build_time_modifier = 730
+	levy_reinforce_rate = 0.25
+	land_organisation = 0.2
+}
+
+trade_post = {
+	tax_income = 6
+	fort_level = 0
+	levy_size = 0
+	light_infantry = 50
+	archers = 50
+	build_cost_modifier = 150
+	build_time_modifier = 365
+	land_organisation = 0.2
+}
+
+family_palace = {
+	tax_income = 10
+	fort_level = 0
+	light_infantry = 40
+	archers = 10
+	galleys = 25
+	levy_reinforce_rate = 1.25
+	land_organisation = 0.2
+}
+
+tribal = {
+	tax_income = 0.5
+	fort_level = 1
+	light_infantry = 100
+	heavy_infantry = 5
+	archers = 20
+	levy_reinforce_rate = 1.5
+	land_organisation = 0.2
+	build_cost_modifier = 25 # cost per empty holding slot
+	build_time_modifier = 365
+}
+
+nomad = {
+	tax_income = 0
+	fort_level = 1
+	levy_size = -3
+	light_infantry = 160
+	heavy_infantry = 40
+	levy_reinforce_rate = 0
+	land_organisation = 0
+}
+
+fort = {
+	tax_income = 0
+	fort_level = 2
+	levy_size = 0
+	build_cost_modifier = 20
+	build_time_modifier = 20
+	light_infantry = 30
+	heavy_infantry = 75
+	light_cavalry = 7
+	levy_reinforce_rate = 2
+	land_organisation = 0.2
+}
+
+hospital = {
+	tax_income = 0
+	hospital_level = 1
+	fort_level = 0
+	levy_size = 0
+	build_cost_modifier = 100
+	build_time_modifier = 365
+	land_organisation = 0.2
+}
+
+
 ct_wall_q_1 = {
 desc = ct_wall_q_1_desc
 trigger = { TECH_FORTIFICATIONS_CONSTRUCTION = 0 }

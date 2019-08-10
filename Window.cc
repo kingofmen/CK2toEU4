@@ -147,8 +147,11 @@ int main (int argc, char** argv) {
     }
     parentWindow->worker->scheduleJob(ConverterJob::Convert);
   }
-
+  if (parentWindow->worker) {
+    parentWindow->worker->start();
+  }
   int ret = industryApp.exec();
+  (*errorLog) << "Exiting with exit code " << ret << std::endl;
   delete parentWindow;
   return ret;
 }
@@ -172,13 +175,13 @@ void Window::loadFile () {
   QString filename = QFileDialog::getOpenFileName(this, tr("Select file"), QString(""), QString("*.ck2"));
   if (filename.isEmpty()) return;
   loadFile(filename.toStdString());
+  worker->start();
 }
 
 void Window::loadFile (string fname) {
   if (worker) delete worker;
   worker = new Converter(this, fname);
   worker->scheduleJob(ConverterJob::LoadFile);
-  worker->start();
 }
 
 void Window::convert () {

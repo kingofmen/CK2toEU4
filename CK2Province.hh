@@ -1,7 +1,9 @@
 #ifndef CK2_PROVINCE_HH
 #define CK2_PROVINCE_HH
 
+#include <string>
 #include <vector>
+
 #include "UtilityFunctions.hh"
 
 class CK2Title;
@@ -14,7 +16,6 @@ public:
   static ProvinceWeight const* const Production;
   static ProvinceWeight const* const Taxation;
   static ProvinceWeight const* const Galleys;
-  static ProvinceWeight const* const Trade;
   static ProvinceWeight const* const Fortification;
 };
 
@@ -24,7 +25,7 @@ public:
 
   void addBarony (Object* house) {baronies.push_back(house);}
   void assignProvince (EU4Province* t);
-  void calculateWeights (Object* weightObject, Object* troops, objvec& buildings);
+  void calculateWeights (Object* weightObject, objvec& buildings);
   CK2Title* getCountyTitle () const {return countyTitle;}
   double getWeight (ProvinceWeight const* const pw) const;
   int numEU4Provinces () const {return targets.size();}
@@ -40,6 +41,8 @@ public:
   objiter finalBarony() { return baronies.end(); }
 
   static CK2Province* getFromBarony (string baronyTag) {return baronyMap[baronyTag];}
+  static std::vector<const ProvinceWeight*> weight_areas;
+
 private:
   CK2Title* countyTitle;
   objvec baronies;

@@ -47,7 +47,7 @@ CK2War::CK2War(Object* obj)
 
   for (auto* attacker : attackers) {
     for (auto* defender : defenders) {
-      Logger::logStream(LogStream::Info)
+      Logger::logStream("characters")
           << attacker->getName() << " is now enemy of " << defender->getName()
           << "\n";
       attacker->addEnemy(defender);

@@ -1,6 +1,7 @@
 #include "CK2Province.hh"
 
 #include <unordered_map>
+#include <unordered_set>
 
 #include "CK2Title.hh"
 #include "EU4Province.hh"
@@ -11,10 +12,11 @@ ProvinceWeight const* const ProvinceWeight::Manpower      = new ProvinceWeight("
 ProvinceWeight const* const ProvinceWeight::Production    = new ProvinceWeight("pw_production", false);
 ProvinceWeight const* const ProvinceWeight::Taxation      = new ProvinceWeight("pw_taxation", false);
 ProvinceWeight const* const ProvinceWeight::Galleys       = new ProvinceWeight("pw_galleys", false);
-ProvinceWeight const* const ProvinceWeight::Trade         = new ProvinceWeight("pw_trade", false);
 ProvinceWeight const* const ProvinceWeight::Fortification = new ProvinceWeight("pw_fortification", true);
 
 map<string, CK2Province*> CK2Province::baronyMap;
+std::vector<const ProvinceWeight*> CK2Province::weight_areas = {
+  ProvinceWeight::Manpower, ProvinceWeight::Production, ProvinceWeight::Taxation};
 
 CK2Province::CK2Province (Object* o)
   : Enumerable<CK2Province>(this, o->getKey(), false)
@@ -43,72 +45,69 @@ double CK2Province::getWeight (ProvinceWeight const* const pw) const {
   return weights[*pw];
 }
 
-void CK2Province::calculateWeights (Object* weightObject, Object* troops, objvec& buildings) {
+void CK2Province::calculateWeights (Object* minWeights, objvec& buildings) {
   for (unsigned int i = 0; i < weights.size(); ++i) weights[i] = 0;
   int baronies = 0;
   for (objiter barony = startBarony(); barony != finalBarony(); ++barony) {
     string baronyType = (*barony)->safeGetString("type", "None");
     if (baronyType == "None") continue;
     ++baronies;
-    Object* typeWeight = weightObject->getNeededObject(baronyType);
-    double buildingWeight = typeWeight->safeGetFloat("cost");
-    double forts = 0;
-    vector<pair<string, double>> province_buildings;
-    for (auto* building : buildings) {
-      string key = building->getKey();
-      if ((*barony)->safeGetString(key, "no") != "yes") continue;
-      double weight = building->safeGetFloat("weight");
-      buildingWeight += weight;
-      province_buildings.emplace_back(key, weight);
-      forts += building->safeGetFloat("fort_level");
-    }
-    (*barony)->setLeaf(ProvinceWeight::Production->getName(),
-                       buildingWeight * typeWeight->safeGetFloat("prod", 0.5));
-    (*barony)->setLeaf(ProvinceWeight::Taxation->getName(),
-                       buildingWeight * typeWeight->safeGetFloat("tax", 0.5));
-    (*barony)->setLeaf(ProvinceWeight::Fortification->getName(), forts);
-    Object* levyObject = (*barony)->safeGetObject("levy");
-    double mpWeight = 0;
-    double galleys = 0;
-    if (levyObject) {
-      objvec levies = levyObject->getLeaves();
-      for (auto* levy : levies) {
-        string key = levy->getKey();
-        double amount = getLevyStrength(key, levyObject);
-        if (key == "galleys_f" || key == "ga") {
-          galleys += amount;
-        } else {
-          mpWeight += amount * troops->safeGetFloat(key, 0.0001);
+    std::unordered_set<Object*> province_buildings;
+    std::map<std::string, double> areaWeights;
+    for (auto p = ProvinceWeight::start(); p != ProvinceWeight::final(); ++p) {
+      std::string areaName = (*p)->getName();
+      double multiplier = 0;
+      for (auto* building : buildings) {
+        string key = building->getKey();
+        if (((*barony)->safeGetString(key, "no") != "yes") &&
+            (baronyType != key)) {
+          continue;
+        }
+        double weight = building->safeGetFloat(areaName);
+        areaWeights[areaName] += weight;
+        multiplier += building->safeGetFloat(areaName + "_mult");
+        if (weight + multiplier > 0) {
+          province_buildings.insert(building);
         }
       }
+      (*barony)->setLeaf(areaName, areaWeights[areaName] * (1 + multiplier));
     }
-
-    (*barony)->setLeaf(ProvinceWeight::Manpower->getName(), mpWeight);
-    (*barony)->setLeaf(ProvinceWeight::Galleys->getName(), galleys);
-    Logger::logStream("buildings")
-        << (*barony)->getKey() << " in " << getKey() << " ("
-        << safeGetString("name", "name_not_found") << ") has weights:\n"
-        << LogOption::Indent;
+    Logger::logStream("buildings") << (*barony)->getKey() << " in "
+                                   << nameAndNumber(this) << " has weights:\n"
+                                   << LogOption::Indent;
     for (auto p = ProvinceWeight::start(); p != ProvinceWeight::final(); ++p) {
-      weights[**p] += (*barony)->safeGetFloat((*p)->getName());
+      std::string areaName = (*p)->getName();
+      double bWeight = (*barony)->safeGetFloat(areaName);
+      weights[**p] += bWeight;
+
       Logger::logStream("buildings")
-          << (*p)->getName() << " : "
-          << (*barony)->safeGetFloat((*p)->getName()) << "\n";
+          << (*p)->getName() << " : " << bWeight << "\n";
+      if (bWeight < 0.001) {
+        continue;
+      }
+      Logger::logStream("buildings") << LogOption::Indent << "from: ";
+      for (const auto* building : province_buildings) {
+        double weight = building->safeGetFloat(areaName);
+        double mult = building->safeGetFloat(areaName + "_mult");
+        if (weight + mult < 0.00001) {
+          continue;
+        }
+        Logger::logStream("buildings") << "(" << building->getKey();
+        if (weight > 0) {
+          Logger::logStream("buildings") << " " << weight;
+        }
+        if (mult > 0) {
+          Logger::logStream("buildings") << " x" << mult;
+        }
+        Logger::logStream("buildings") << ") ";
+      }
+      Logger::logStream("buildings") << "\n" << LogOption::Undent;
     }
-    Logger::logStream("buildings")
-        << "from " << province_buildings.size() << " buildings: ";
-    for (const auto& building : province_buildings) {
-      Logger::logStream("buildings")
-          << "(" << building.first << " " << building.second << ") ";
-    }
-    Logger::logStream("buildings") << "\n" << LogOption::Undent;
+    Logger::logStream("buildings") << LogOption::Undent;
   }
   Logger::logStream("provinces") << "Found " << baronies << " settlements in "
                                  << nameAndNumber(this) << "\n";
-  // Doesn't seem to be used any more?
-  weights[*ProvinceWeight::Trade] = safeGetInt("realm_tradeposts");
 
-  Object* minWeights = weightObject->getNeededObject("minimumWeights");
   for (auto p = ProvinceWeight::start(); p != ProvinceWeight::final(); ++p) {
     double minimum = minWeights->safeGetFloat((*p)->getName());
     if (weights[**p] < minimum) {
@@ -116,7 +115,7 @@ void CK2Province::calculateWeights (Object* weightObject, Object* troops, objvec
     }
   }
 
-  Object* nerf = weightObject->getNeededObject("special_nerfs");
+  Object* nerf = minWeights->getNeededObject("special_nerfs");
   double de_jure_nerf = 1;
   auto* liege = countyTitle;
   while (liege != nullptr) {

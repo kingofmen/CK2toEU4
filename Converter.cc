@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <direct.h>
 #include <deque>
+#include <exception>
 #include <iostream> 
 #include <string>
 #include <set>
@@ -79,6 +80,7 @@ Converter::~Converter () {
 }
 
 void Converter::run () {
+  char* emergency = new char[16384];
   while (true) {
     if (jobsToDo.empty()) {
       sleep(5);
@@ -87,14 +89,33 @@ void Converter::run () {
 
     ConverterJob const* const job = jobsToDo.front();
     jobsToDo.pop();
-    if (ConverterJob::Convert        == job) convert();
-    if (ConverterJob::DebugParser    == job) debugParser();
-    if (ConverterJob::DejureLieges   == job) dejures();
-    if (ConverterJob::LoadFile       == job) loadFile();
-    if (ConverterJob::CheckProvinces == job) checkProvinces();
-    if (ConverterJob::PlayerWars     == job) playerWars();
-    if (ConverterJob::Statistics     == job) statistics();
-    if (ConverterJob::DynastyScores  == job) dynastyScores();
+    try {
+      if (ConverterJob::Convert        == job) convert();
+      if (ConverterJob::DebugParser    == job) debugParser();
+      if (ConverterJob::DejureLieges   == job) dejures();
+      if (ConverterJob::LoadFile       == job) loadFile();
+      if (ConverterJob::CheckProvinces == job) checkProvinces();
+      if (ConverterJob::PlayerWars     == job) playerWars();
+      if (ConverterJob::Statistics     == job) statistics();
+      if (ConverterJob::DynastyScores  == job) dynastyScores();
+    } catch(const std::bad_alloc& e) {
+      delete emergency;
+      Logger::logStream(LogStream::Error)
+          << "Caught bad alloc: " << e.what() << "\n";
+      break;
+    } catch(const std::runtime_error& e) {
+      Logger::logStream(LogStream::Error)
+          << "Caught runtime error: " << e.what() << "\n";
+      break;
+    } catch(const std::exception& e) {
+      Logger::logStream(LogStream::Error)
+          << "Caught standard exception: " << e.what() << "\n";
+      break;
+    } catch (...) {
+      delete emergency;
+      Logger::logStream(LogStream::Error) << "Caught unknown exception!\n";
+      break;
+    }
   }
 }
 
@@ -1875,23 +1896,54 @@ void Converter::calculateDynasticScores() {
   Logger::logStream(LogStream::Info) << "Done with dynasty scores.\n" << LogOption::Undent;
 }
 
+// Returns the total weight of the fields in building, according to the entries
+// in weights.
+double getTotalWeight(Object* building, Object* weights) {
+  if (!weights) {
+    return 1;
+  }
+  objvec fieldWeights = weights->getLeaves();
+  double weight = 0;
+  for (auto* fw : fieldWeights) {
+    double curr = building->safeGetFloat(fw->getKey());
+    curr *= fw->getLeafAsFloat();
+    weight += curr;
+  }
+  return weight;
+}
+
 void calculateBuildingWeights(objvec& buildingTypes, Object* weights) {
   if (10 > buildingTypes.size()) {
     Logger::logStream(LogStream::Warn)
         << "Only found " << buildingTypes.size()
         << " types of buildings. Proceeding, but dubiously.\n";
   }
-  objvec fieldWeights = weights->getLeaves();
-  for (auto* bt : buildingTypes) {
-    double weight = 0;
-    for (auto* fw : fieldWeights) {
-      double curr = bt->safeGetFloat(fw->getKey());
-      curr *= fw->getLeafAsFloat();
-      weight += curr;
+  for (auto p = ProvinceWeight::start(); p != ProvinceWeight::final(); ++p) {
+    std::string areaName = (*p)->getName();
+    Object* currWeights = weights->safeGetObject(areaName);
+    Object* linear = 0;
+    if (currWeights == 0) {
+      Logger::logStream(LogStream::Error)
+          << "Could not find " << areaName
+          << " in CK building weights, Bad Things will happen.\n";
+    } else {
+      linear = currWeights->safeGetObject("linear");
     }
-    bt->setLeaf("weight", weight);
-    Logger::logStream("buildings")
-        << "Set weight of " << bt->getKey() << " to " << weight << "\n";
+    if (linear == 0) {
+      Logger::logStream(LogStream::Error)
+          << "Could not find linear " << areaName
+          << " modifiers in CK building weights, Bad Things will happen.\n";
+    }
+    Object* mult = currWeights = currWeights->getNeededObject("mult");
+    for (auto* bt : buildingTypes) {
+      double weight = getTotalWeight(bt, linear);
+      bt->setLeaf(areaName, weight);
+      double totalMult = getTotalWeight(bt, mult);
+      bt->setLeaf(areaName + "_mult", totalMult);
+      Logger::logStream("buildings")
+          << "Set " << areaName << " of " << bt->getKey() << " to " << weight
+          << " and " << totalMult << "\n";
+    }
   }
 }
 
@@ -1953,11 +2005,10 @@ bool Converter::calculateProvinceWeights () {
   objvec buildingTypes = ckBuildingObject->getLeaves();
   calculateBuildingWeights(buildingTypes, ckBuildingWeights);
 
-  Object* weightObject = configObject->getNeededObject("buildings");
-  Object* troops = configObject->getNeededObject("troops");
-  weightObject->setValue(customObject->getNeededObject("special_nerfs"));
+  Object* minWeights = configObject->getNeededObject("minimumWeights");
+  minWeights->setValue(customObject->getNeededObject("special_nerfs"));
   for (auto* ck2prov : CK2Province::getAll()) {
-    ck2prov->calculateWeights(weightObject, troops, buildingTypes);
+    ck2prov->calculateWeights(minWeights, buildingTypes);
     Logger::logStream("provinces") << nameAndNumber(ck2prov)
 				   << " has weights production "
 				   << ck2prov->getWeight(ProvinceWeight::Production)
