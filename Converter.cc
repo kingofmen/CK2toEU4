@@ -2045,6 +2045,32 @@ bool Converter::calculateProvinceWeights () {
   return true;
 }
 
+void cleanStates(Object* map_area_data) {
+  if (!map_area_data) {
+    return;
+  }
+  objvec areas = map_area_data->getLeaves();
+  for (auto* area : areas) {
+    Object* state = area->safeGetObject("state");
+    if (!state) {
+      continue;
+    }
+    objvec country_states = state->getValue("country_state");
+    objvec to_remove;
+    for (auto* cs : country_states) {
+      std::string tag = remQuotes(cs->safeGetString("country", QuotedNone));
+      EU4Country* country = EU4Country::findByName(tag);
+      if (country->converts()) {
+        to_remove.push_back(cs);
+      }
+    }
+    for (auto* tr : to_remove) {
+      state->removeObject(tr);
+      delete tr;
+    }
+  }
+}
+
 bool Converter::cleanEU4Nations () {
   Logger::logStream(LogStream::Info) << "Beginning nation cleanup.\n" << LogOption::Indent;
   Object* keysToClear = configObject->getNeededObject("keys_to_clear");
@@ -2181,6 +2207,9 @@ bool Converter::cleanEU4Nations () {
   }
 
   eu4Game->unsetValue("trade_league");
+  Object* map_area_data = eu4Game->safeGetObject("map_area_data");
+  cleanStates(map_area_data);
+
   Logger::logStream(LogStream::Info) << "Done with nation cleanup.\n" << LogOption::Undent;
   Logger::logStream(LogStream::Info) << "Diplomacy object: " << diplomacy << "\n";
   return true;
