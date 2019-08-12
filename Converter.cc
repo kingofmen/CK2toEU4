@@ -636,10 +636,6 @@ bool Converter::createCK2Objects () {
   Object* dynasties = ck2Game->safeGetObject("dynasties");
   // Map from heir to ruler, not the other way around.
   std::unordered_map<std::string, std::string> heirMap;
-  objvec heirOverrides = customObject->getNeededObject("heir_overrides")->getLeaves();
-  for (const auto* over : heirOverrides) {
-    heirMap[over->getLeaf()] = over->getKey();
-  }
   
   for (auto* ckCountry : CK2Title::getAll()) {
     string holderId = ckCountry->safeGetString("holder", PlainNone);
@@ -665,6 +661,11 @@ bool Converter::createCK2Objects () {
     }
 
     ruler->addTitle(ckCountry);
+  }
+
+  objvec heirOverrides = customObject->getNeededObject("heir_overrides")->getLeaves();
+  for (const auto* over : heirOverrides) {
+    heirMap[over->getLeaf()] = over->getKey();
   }
 
   Logger::logStream(LogStream::Info)
