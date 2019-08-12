@@ -21,6 +21,7 @@ religion_overrides = {
 }
 
 # Allows setting of heir to something other than oldest male child.
+# Format is ruler_id = heir_id.
 heir_overrides = {
 
 }
