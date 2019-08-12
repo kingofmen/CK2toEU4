@@ -1582,13 +1582,14 @@ struct DynastyScore {
   DynastyScore() = default;
   explicit DynastyScore(string n, int cheevos)
       : name(n), achievements(cheevos), members(0), cached_score(-1),
-        adjusted_score(0) {}
+        adjusted_score(0), unadjusted_score(0) {}
   DynastyScore(const DynastyScore& other) = default;
   string name;
   int achievements;
   int members;
   int cached_score;
   int adjusted_score;
+  int unadjusted_score;
   map<string, int> trait_counts;
   vector<pair<CK2Title*, int> > title_days;
   map<const TitleLevel*, int> current_titles;
@@ -1697,12 +1698,17 @@ struct DynastyScore {
     sprintf(strbuffer, "Achievement bonus: %.1f\n", achievement_bonus);
     ret += strbuffer;
 
+
     double final_points = actual_score + achievement_bonus;
+    double cached_final = cached_score + achievement_bonus;
     sprintf(strbuffer, "Adjusted total: %.1f\n", final_points);
     ret += strbuffer;
     final_points /= median;
     final_points *= target;
+    cached_final /= median;
+    cached_final *= target;
     adjusted_score = (int)floor(final_points + 0.5);
+    unadjusted_score = (int)floor(cached_final + 0.5);
     for (const auto& tc : current_titles) {
       sprintf(strbuffer, "%s : %i\n", tc.first->getName().c_str(), tc.second);
       ret += strbuffer;
@@ -1901,7 +1907,8 @@ void Converter::calculateDynasticScores() {
   Logger::logStream(LogStream::Info) << "\nMana:\n";
   for (const auto& score : sorted_dynasties) {
     Logger::logStream(LogStream::Info)
-        << score.name << " : " << score.adjusted_score << "\n";
+        << score.name << " : " << score.adjusted_score << " ("
+        << score.unadjusted_score << ")\n";
   }
 
   Logger::logStream(LogStream::Info) << "Done with dynasty scores.\n" << LogOption::Undent;
