@@ -54,6 +54,13 @@ make_average = 1
 empire_threshold = 1000
 kingdom_threshold = 300
 
+default_stats = {
+  use = no
+  MIL = 3
+  ADM = 3
+  DIP = 3
+}
+
 rebel_faction_types = {
   peasant_revolt = anti_tax_rebels
   other_claim_on_liege = pretender_rebels

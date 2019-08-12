@@ -2634,6 +2634,13 @@ Object* Converter::makeMonarchObject(const string& capitalTag,
 
   setCultureAndReligion(capitalTag, ruler, monarchDef);
 
+  Object* defaults = configObject->getNeededObject("default_stats");
+  if (defaults->safeGetString("use", "no") == "yes") {
+      sources.clear();
+      for (auto& stat : std::vector<std::string>{"MIL", "ADM", "DIP"}) {
+        sources[stat]["default"] = defaults->safeGetInt(stat, 3);
+      }
+    }
   Logger::logStream("characters")
       << keyword << " " << nameAndNumber(ruler) << " with\n"
       << LogOption::Indent;
