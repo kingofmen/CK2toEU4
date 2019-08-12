@@ -1700,7 +1700,7 @@ struct DynastyScore {
 
 
     double final_points = actual_score + achievement_bonus;
-    double cached_final = cached_score + achievement_bonus;
+    double cached_final = cached_score + total_trait_bonus + achievement_bonus;
     sprintf(strbuffer, "Adjusted total: %.1f\n", final_points);
     ret += strbuffer;
     final_points /= median;
