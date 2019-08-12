@@ -53,6 +53,8 @@ map<string, vector<string> > religionMap;
 map<string, vector<string> > cultureMap;
 const string kStateKey = "part_of_state";
 map<string, unordered_set<EU4Province*>> area_province_map;
+std::string gameDate = "";
+int gameDays = 0;
 }
 
 Converter::Converter (Window* ow, string fn)
@@ -535,6 +537,13 @@ void detectChangedString(const string& old_string, const string& new_string,
 
 bool Converter::createCK2Objects () {
   Logger::logStream(LogStream::Info) << "Creating CK2 objects\n" << LogOption::Indent;
+  gameDate = remQuotes(ck2Game->safeGetString("date", "\"1444.11.10\""));
+  gameDays = days(gameDate);
+  if (gameDays == 0) {
+    Logger::logStream(LogStream::Warn)
+        << "Problem with game date: \"" << gameDate << "\".\n";
+  }
+
   Object* wrapperObject = ck2Game->safeGetObject("provinces");
   if (!wrapperObject) {
     Logger::logStream(LogStream::Error)
@@ -1582,6 +1591,7 @@ struct DynastyScore {
   int adjusted_score;
   map<string, int> trait_counts;
   vector<pair<CK2Title*, int> > title_days;
+  map<const TitleLevel*, int> current_titles;
 
   static int BaronyPoints;
   static int CountyPoints;
@@ -1693,6 +1703,10 @@ struct DynastyScore {
     final_points /= median;
     final_points *= target;
     adjusted_score = (int)floor(final_points + 0.5);
+    for (const auto& tc : current_titles) {
+      sprintf(strbuffer, "%s : %i\n", tc.first->getName().c_str(), tc.second);
+      ret += strbuffer;
+    }
     return ret;
   }
 };
@@ -1754,6 +1768,9 @@ void handleEvent(Object* event, CK2Title* title, int startDays, int endDays,
       << dynasties[dynastyKey].name << " held " << title->getKey() << " for "
       << years << " years.\n";
   scoreObject->second.title_days.emplace_back(title, titleDays);
+  if (endDays == gameDays) {
+    scoreObject->second.current_titles[title->getLevel()]++;
+  }
 }
 
 void Converter::calculateDynasticScores() {
@@ -1825,12 +1842,6 @@ void Converter::calculateDynasticScores() {
     return;
   }
 
-  string gameDate = remQuotes(ck2Game->safeGetString("date", "\"1444.11.10\""));
-  int gameDays = days(gameDate);
-  if (gameDays == 0) {
-    Logger::logStream(LogStream::Warn)
-        << "Problem with game date: \"" << gameDate << "\".\n";
-  }
   string startDate = remQuotes(ck2Game->safeGetString("start_date", "\"769.1.1\""));
   int startDays = days(startDate);
   if (startDays == 0) {
@@ -2577,7 +2588,6 @@ Object* Converter::makeMonarchObject(const string& capitalTag,
       area.second[desc] = bonus->safeGetInt(desc);
     }
   }
-  string gameDate = remQuotes(ck2Game->safeGetString("date", "\"1444.11.11\""));
   double age = ruler->getAge(gameDate);
   if (age < 16) {
     int ageAdjust = (int) floor((16 - age) / 7 + 0.5);
