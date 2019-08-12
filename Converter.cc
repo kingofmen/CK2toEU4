@@ -634,6 +634,13 @@ bool Converter::createCK2Objects () {
       << deadCharHoldingsString << ", " << traitString << "\n";
 
   Object* dynasties = ck2Game->safeGetObject("dynasties");
+  // Map from heir to ruler, not the other way around.
+  std::unordered_map<std::string, std::string> heirMap;
+  objvec heirOverrides = customObject->getNeededObject("heir_overrides")->getLeaves();
+  for (const auto* over : heirOverrides) {
+    heirMap[over->getLeaf()] = over->getKey();
+  }
+  
   for (auto* ckCountry : CK2Title::getAll()) {
     string holderId = ckCountry->safeGetString("holder", PlainNone);
     if (PlainNone == holderId) continue;
@@ -645,6 +652,10 @@ bool Converter::createCK2Objects () {
 					   << ", holder of title " << ckCountry->getKey()
 					   << ". Ignoring.\n";
 	continue;
+      }
+      std::string heirTag = character->safeGetString("dh", PlainNone);
+      if (heirTag != PlainNone) {
+        heirMap[heirTag] = holderId;
       }
       ruler = new CK2Ruler(character, dynasties);
       if (CK2Ruler::totalAmount() % 100 == 0) {
@@ -672,6 +683,7 @@ bool Converter::createCK2Objects () {
   objvec allChars = characters->getLeaves();
   Logger::logStream(LogStream::Info) << "Calculating dynasty power\n";
   for (objiter ch = allChars.begin(); ch != allChars.end(); ++ch) {
+    std::string charTag = (*ch)->getKey();
     if ((*ch)->safeGetString("d_d", PlainNone) != PlainNone) {
       // Dead character, check for dynasty power.
       string dynastyId = (*ch)->safeGetString(dynastyString, PlainNone);
@@ -694,7 +706,19 @@ bool Converter::createCK2Objects () {
 	((*ch)->safeGetString("title", PlainNone) == "\"title_high_admiral\"")) {
       employer = CK2Ruler::findByName((*ch)->safeGetString(employerString));
     }
-    CK2Character* current = nullptr;
+    CK2Character* current = CK2Ruler::findByName(charTag);
+    if (heirMap.find(charTag) != heirMap.end()) {
+      if (current == nullptr) {
+        current = new CK2Character((*ch), dynasties);
+      }
+      CK2Ruler* ruler = CK2Ruler::findByName(heirMap[charTag]);
+      if (ruler != nullptr) {
+        Logger::logStream("characters")
+            << "Overriding: " << nameAndNumber(current, birthNameString)
+            << " is heir of " << nameAndNumber(ruler, birthNameString) << "\n";
+        ruler->overrideHeir(current);
+      }
+    }
     for (auto* sp : (*ch)->getValue("spouse")) {
       CK2Ruler* spouse = CK2Ruler::findByName(sp->getLeaf());
       if (!spouse) {
@@ -2822,7 +2846,7 @@ bool Converter::createCharacters () {
 
       eu4country->unsetValue("heir");
       if (eu4country->safeGetString("needs_heir", "no") == "yes") {
-        CK2Character* ckHeir = ruler->getOldestChild();
+        CK2Character* ckHeir = ruler->getHeir();
         if (ckHeir) makeMonarch(capitalTag, ckHeir, ruler, "heir", bonusTraits);
       }
     }

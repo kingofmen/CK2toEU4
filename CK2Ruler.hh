@@ -50,7 +50,7 @@ public:
   CK2Character* getCouncillor (CouncilTitle const* const con) const {return council[*con];}
   Object* getDynasty () const {return dynasty;}
   virtual EU4Country* getEU4Country () const {return 0;}
-  CK2Character* getOldestChild () const {return oldestChild;}
+  CK2Character* getHeir () const {return heir;}
   bool hasModifier (const string& mod);
   bool hasTrait (const string& t) const {return 0 != traits.count(t);}
 
@@ -76,7 +76,7 @@ protected:
   vector<CK2Character*> spouses;
   unordered_map<string, vector<CK2Character*> > advisors;
   Object* dynasty;
-  CK2Character* oldestChild;  
+  CK2Character* heir;  
   set<string> traits;
   map<string, bool> modifiers;
 };
@@ -91,6 +91,7 @@ public:
   int  countBaronies ();
   void createLiege ();
   int getEnemies () const {return enemies.size();}
+  void overrideHeir(CK2Character* heir) { heir = heir; }
   virtual EU4Country* getEU4Country () const {return eu4Country;}
   CK2Ruler* getLiege () {return liege;}
   CK2Ruler* getSovereignLiege ();

@@ -20,6 +20,11 @@ religion_overrides = {
   bon = bon
 }
 
+# Allows setting of heir to something other than oldest male child.
+heir_overrides = {
+
+}
+
 culture_overrides = {
   khazar = khazak
   turkish = turkish
