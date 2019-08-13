@@ -322,6 +322,44 @@ void TitleStats::print() const {
   Logger::logStream(LogStream::Info) << LogOption::Undent;
 }
 
+void getAverageAndMedian(const std::vector<int>& counts, double& average, double& median) {
+  double total = 0;
+  int entries = 0;
+  for (int i = 0; i < (int) counts.size(); ++i) {
+    entries += counts[i];
+    total += i * counts[i];
+  }
+
+  // 0 1 2 3 4 5 6 7 8 9
+  // 1 4 8 0 0 0 2 7 1 7
+  // Total: 30
+  // Median: 6.5
+  int cumul = 0;
+  int prevIdx = 0;
+  bool odd = (counts.size() % 2 == 1);
+  for (int i = 0; i < (int) counts.size(); ++i) {
+    if (counts[i] == 0) {
+      continue;
+    }
+    if (!odd && cumul == entries/2) {
+      median = 0.5 * (i + prevIdx);
+      break;
+    }
+    cumul += counts[i];
+    if (cumul > entries/2) {
+      median = i;
+      break;
+    }
+    prevIdx = i;
+  }
+
+  if (entries == 0) {
+    return;
+  }
+  average = total / entries;
+}
+
+
 bool Converter::displayStats() {
   Logger::logStream(LogStream::Info) << "Statistics:\n" << LogOption::Indent;
   for (auto prov = CK2Province::start(); prov != CK2Province::final(); ++prov) {
@@ -355,6 +393,40 @@ bool Converter::displayStats() {
   for (auto kng = CK2Title::startLevel(TitleLevel::Kingdom);
        kng != CK2Title::finalLevel(TitleLevel::Kingdom); ++kng) {
     statsMap[*kng].print();
+  }
+
+  std::unordered_map<EU4Country*, std::unordered_set<std::string>>
+      country_states;
+  for (auto& state : area_province_map) {
+    const std::string& state_name = state.first;
+    for (auto* eu4prov : state.second) {
+      EU4Country* eu4Country = eu4prov->getEU4Country();
+      if (!eu4Country) {
+        continue;
+      }
+      country_states[eu4Country].insert(state_name);
+    }
+  }
+
+  Logger::logStream(LogStream::Info) << "State sizes:\n";
+  for (auto& it : country_states) {
+    EU4Country* country = it.first;
+    if (!country->getRuler() || !country->getRuler()->isHuman()) {
+      continue;
+    }
+    Logger::logStream(LogStream::Info) << country->getKey() << " : ";
+    std::vector<int> sizeCounts(100, 0);
+    for (const auto& stateName : it.second) {
+      int stateSize = area_province_map[stateName].size();
+      sizeCounts[stateSize]++;
+      Logger::logStream(LogStream::Info) << stateName << " (" << stateSize << ") ";
+    }
+    Logger::logStream(LogStream::Info) << "\n";
+    double average = 0;
+    double median = 0;
+    getAverageAndMedian(sizeCounts, average, median);
+    Logger::logStream(LogStream::Info) << "Average : " << average << "\n";
+    Logger::logStream(LogStream::Info) << "Median : " << median << "\n";
   }
 
   Logger::logStream(LogStream::Info) << "Done with statistics.\n"
