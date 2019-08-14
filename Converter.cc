@@ -656,14 +656,24 @@ bool Converter::createCK2Objects () {
   }
   for (CK2Title::Iter ckCountry = CK2Title::start(); ckCountry != CK2Title::final(); ++ckCountry) {
     if ((*ckCountry)->safeGetString("landless", "no") == "yes") continue;
+    if ((*ckCountry)->getLevel() == TitleLevel::Empire) {
+      continue;
+    }
     Object* deJureObj = (*ckCountry)->safeGetObject("de_jure_liege");
-    string deJureTag = (*ckCountry)->safeGetString("de_jure_liege", PlainNone);
-    if (deJureObj && deJureTag == PlainNone)
-      deJureTag = remQuotes(deJureObj->safeGetString("title", QuotedNone));
-    if ((deJureTag == PlainNone) && (deJureMap.count((*ckCountry)->getName()))) {
+    std::string deJureTag = "";
+    if (deJureObj != nullptr) {
+      if (deJureObj->isLeaf()) {
+        deJureTag = deJureObj->getLeaf();
+      } else {
+        deJureTag = remQuotes(deJureObj->safeGetString("title", "\"\""));
+      }
+    }
+    if ((deJureTag.empty()) && (deJureMap.count((*ckCountry)->getName()))) {
       deJureTag = deJureMap[(*ckCountry)->getName()];
     }
-    if (deJureTag == PlainNone) {
+    if (deJureTag.empty()) {
+      Logger::logStream(LogStream::Warn) << "Could not find de-jure liege for "
+                                         << (*ckCountry)->getKey() << "\n";
       continue;
     }
     (*ckCountry)->setDeJureLiege(CK2Title::findByName(deJureTag));
