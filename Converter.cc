@@ -1687,16 +1687,11 @@ bool Converter::adjustBalkanisation () {
 
 struct DynastyScore {
   DynastyScore() = default;
-  explicit DynastyScore(string n, int cheevos)
-      : name(n), achievements(cheevos), members(0), cached_score(-1),
-        adjusted_score(0), unadjusted_score(0) {}
+  explicit DynastyScore(string n) : name(n), members(0), cached_score(-1) {}
   DynastyScore(const DynastyScore& other) = default;
   string name;
-  int achievements;
   int members;
   int cached_score;
-  int adjusted_score;
-  int unadjusted_score;
   map<string, int> trait_counts;
   vector<pair<CK2Title*, int> > title_days;
   map<const TitleLevel*, int> current_titles;
@@ -1727,9 +1722,51 @@ struct DynastyScore {
       cached_score += days * mult;
     }
   }
+};
 
-  string score_string (Object* custom_score_traits, double median, double target) {
-    string ret;
+int DynastyScore::BaronyPoints = 0;
+int DynastyScore::CountyPoints = 1;
+int DynastyScore::DuchyPoints = 3;
+int DynastyScore::KingdomPoints = 5;
+int DynastyScore::EmpirePoints = 7;
+
+struct PlayerScore {
+  string name;
+  int achievements;
+  int cached_score;
+  int adjusted_score;
+  int unadjusted_score;
+  std::vector<DynastyScore*> dynasties;
+
+  PlayerScore(std::string n, int cheev)
+      : name(n), achievements(cheev), cached_score(0), adjusted_score(0),
+        unadjusted_score(0) {}
+
+  void score() {
+    cached_score = 0;
+    for (auto* dynasty : dynasties) {
+      dynasty->score();
+      cached_score += dynasty->cached_score;
+    }
+  }
+
+  std::string score_string(Object* custom_score_traits, double median,
+                           double target);
+};
+
+bool operator<(const PlayerScore& left, const PlayerScore& right) {
+  return left.cached_score < right.cached_score;
+}
+
+std::string PlayerScore::score_string(Object* custom_score_traits,
+                                      double median, double target) {
+  string ret;
+  map<string, int> trait_counts;
+  int totalMembers = 0;
+  for (auto* dyn : dynasties) {
+    ret += dyn->name;
+    ret += "\n";
+    totalMembers += dyn->members;
     struct levelInfo {
       string titles;
       double total_days = 0;
@@ -1739,7 +1776,7 @@ struct DynastyScore {
     levelInfo kingdoms;
     levelInfo empires;
     unordered_map<CK2Title*, int> total_days;
-    for (const auto& held : title_days) {
+    for (const auto& held : dyn->title_days) {
       total_days[held.first] += held.second;
     }
 
@@ -1770,73 +1807,70 @@ struct DynastyScore {
               level.total_days / 365);
       ret += strbuffer;
     }
-    double actual_score = cached_score;
-    if (actual_score < median) {
-      sprintf(strbuffer, "Adjust to median: %.2f\n", median);
-      ret += strbuffer;
-      actual_score = median;
+    for (const auto& trait : dyn->trait_counts) {
+      trait_counts[trait.first] += trait.second;
     }
+  }
+  double actual_score = cached_score;
+  if (actual_score < median) {
+    sprintf(strbuffer, "Adjust to median: %.2f\n", median);
+    ret += strbuffer;
+    actual_score = median;
+  }
 
-    string trait_line;
-    double total_trait_bonus = 0;
-    for (const auto& trait : trait_counts) {
-      string trait_name = trait.first;
-      double bonus = custom_score_traits->safeGetFloat(trait_name);
-      if (abs(bonus) < 0.001) {
-        continue;
-      }
-      int number = trait.second;
-      double fraction = number;
-      fraction /= members;
-      double trait_bonus = fraction * bonus * median;
-      sprintf(strbuffer, "%s: %i (%.2f) -> %.1f ", trait_name.c_str(), number,
-              fraction, trait_bonus);
-      total_trait_bonus += trait_bonus;
-      trait_line += strbuffer;
+  string trait_line;
+  double total_trait_bonus = 0;
+  for (const auto& trait : trait_counts) {
+    string trait_name = trait.first;
+    double bonus = custom_score_traits->safeGetFloat(trait_name);
+    if (abs(bonus) < 0.001) {
+      continue;
     }
-    sprintf(strbuffer, "Total from traits: %.1f\n", total_trait_bonus);
+    int number = trait.second;
+    double fraction = number;
+    fraction /= totalMembers;
+    double trait_bonus = fraction * bonus * median;
+    sprintf(strbuffer, "%s: %i (%.2f) -> %.1f ", trait_name.c_str(), number,
+            fraction, trait_bonus);
+    total_trait_bonus += trait_bonus;
     trait_line += strbuffer;
-    ret += trait_line;
-    actual_score += total_trait_bonus;
+  }
+  sprintf(strbuffer, "Total from traits: %.1f\n", total_trait_bonus);
+  trait_line += strbuffer;
+  ret += trait_line;
+  actual_score += total_trait_bonus;
 
-    double achievement_bonus =
-        median * achievements *
-        custom_score_traits->safeGetFloat("achievements", 0.01);
-    sprintf(strbuffer, "Achievement bonus: %.1f\n", achievement_bonus);
-    ret += strbuffer;
+  double achievement_bonus =
+      median * achievements *
+      custom_score_traits->safeGetFloat("achievements", 0.01);
+  sprintf(strbuffer, "Achievement bonus: %.1f\n", achievement_bonus);
+  ret += strbuffer;
 
-
-    double final_points = actual_score + achievement_bonus;
-    double cached_final = cached_score + total_trait_bonus + achievement_bonus;
-    sprintf(strbuffer, "Adjusted total: %.1f\n", final_points);
-    ret += strbuffer;
-    final_points /= median;
-    final_points *= target;
-    cached_final /= median;
-    cached_final *= target;
-    adjusted_score = (int)floor(final_points + 0.5);
-    unadjusted_score = (int)floor(cached_final + 0.5);
-    for (const auto& tc : current_titles) {
+  double final_points = actual_score + achievement_bonus;
+  double cached_final = cached_score + total_trait_bonus + achievement_bonus;
+  sprintf(strbuffer, "Adjusted total: %.1f\n", final_points);
+  ret += strbuffer;
+  final_points /= median;
+  final_points *= target;
+  cached_final /= median;
+  cached_final *= target;
+  adjusted_score = (int)floor(final_points + 0.5);
+  unadjusted_score = (int)floor(cached_final + 0.5);
+  ret += "Current titles:\n";
+  for (auto* dyn : dynasties) {
+    ret += dyn->name;
+    ret += ":\n";
+    for (const auto& tc : dyn->current_titles) {
       sprintf(strbuffer, "%s : %i\n", tc.first->getName().c_str(), tc.second);
       ret += strbuffer;
     }
-    return ret;
   }
-};
-
-int DynastyScore::BaronyPoints = 0;
-int DynastyScore::CountyPoints = 1;
-int DynastyScore::DuchyPoints = 3;
-int DynastyScore::KingdomPoints = 5;
-int DynastyScore::EmpirePoints = 7;
-
-bool operator<(const DynastyScore& left, const DynastyScore& right) {
-  return left.cached_score < right.cached_score;
+  return ret;
 }
 
 void handleEvent(Object* event, CK2Title* title, int startDays, int endDays,
                  unordered_map<string, Object*>& characters,
-                 unordered_map<string, DynastyScore>& dynasties) {
+                 unordered_map<string, DynastyScore*>& dynasties) {
   if (!event) {
     return;
   }
@@ -1859,18 +1893,19 @@ void handleEvent(Object* event, CK2Title* title, int startDays, int endDays,
   if (dynastyKey == PlainNone) {
     return;
   }
-  auto scoreObject = dynasties.find(dynastyKey);
-  if (scoreObject == dynasties.end()) {
+  auto scoreIterator = dynasties.find(dynastyKey);
+  if (scoreIterator == dynasties.end()) {
     Logger::logStream("characters")
         << "Did not find score object for dynasty " << dynastyKey << "\n";
     return;
   }
+  auto* scoreObject = scoreIterator->second;
 
   int titleDays = endDays - startDays;
   if (holder->safeGetString("type") == "created") {
     Logger::logStream("characters")
         << nameAndNumber(character, birthNameString) << " of dynasty "
-        << dynasties[dynastyKey].name << " created " << title->getKey()
+        << dynasties[dynastyKey]->name << " created " << title->getKey()
         << ".\n";
     titleDays += 3650;
   }
@@ -1878,11 +1913,11 @@ void handleEvent(Object* event, CK2Title* title, int startDays, int endDays,
   years /= 365;
   Logger::logStream("characters")
       << nameAndNumber(character, birthNameString) << " of dynasty "
-      << dynasties[dynastyKey].name << " held " << title->getKey() << " for "
+      << dynasties[dynastyKey]->name << " held " << title->getKey() << " for "
       << years << " years.\n";
-  scoreObject->second.title_days.emplace_back(title, titleDays);
+  scoreObject->title_days.emplace_back(title, titleDays);
   if (endDays == gameDays) {
-    scoreObject->second.current_titles[title->getLevel()]++;
+    scoreObject->current_titles[title->getLevel()]++;
   }
 }
 
@@ -1911,19 +1946,32 @@ void Converter::calculateDynasticScores() {
     trait_number_to_name[idx+1] = CK2Character::ckTraits[idx]->getKey();
   }
 
-  unordered_map<string, DynastyScore> dynasties;
+  unordered_map<string, DynastyScore*> dynastyScores;
+  unordered_map<string, PlayerScore> playerScores;
   auto* dynastyObject = ck2Game->getNeededObject("dynasties");
   for (auto* custom : customs) {
-    string index = custom->getKey();
-    Object* ckDynasty = dynastyObject->safeGetObject(index);
-    if (!ckDynasty) {
-      Logger::logStream(LogStream::Warn)
-          << "Could not find dynasty " << index << "\n";
+    std::string name = custom->safeGetString("name");
+    if (name.empty()) {
+      Logger::logStream(LogStream::Warn) << "Skipping unnamed player\n";
       continue;
     }
-    dynasties.emplace(piecewise_construct, forward_as_tuple(index),
-                      forward_as_tuple(ckDynasty->safeGetString("name"),
-                                       atoi(custom->getLeaf().c_str())));
+    playerScores.emplace(
+        piecewise_construct, forward_as_tuple(name),
+        forward_as_tuple(name, custom->safeGetInt("achievements")));
+
+    objvec dyns = custom->getValue("dynasty");
+    for (auto* dyn : dyns) {
+      std::string index = dyn->getLeaf();
+      Object* ckDynasty = dynastyObject->safeGetObject(index);
+      if (!ckDynasty) {
+        Logger::logStream(LogStream::Warn)
+            << "Could not find dynasty " << index << "\n";
+        continue;
+      }
+      DynastyScore* d = new DynastyScore(ckDynasty->safeGetString("name"));
+      dynastyScores[index] = d;
+      playerScores.at(name).dynasties.push_back(d);
+    }
   }
 
   Logger::logStream("characters") << "Starting character iteration.\n";
@@ -1931,10 +1979,10 @@ void Converter::calculateDynasticScores() {
   Object* score_traits = customObject->getNeededObject("custom_score_traits");
   for (auto* character : ck2Game->getNeededObject("character")->getLeaves()) {
     string dIndex = character->safeGetString(dynastyString, PlainNone);
-    if (dIndex == PlainNone || dynasties.find(dIndex) == dynasties.end()) {
+    if (dIndex == PlainNone || dynastyScores.find(dIndex) == dynastyScores.end()) {
       continue;
     }
-    dynasties[dIndex].members++;
+    dynastyScores[dIndex]->members++;
     characters[character->getKey()] = character;
     Object* traits = character->safeGetObject(traitString);
     if (traits) {
@@ -1945,7 +1993,7 @@ void Converter::calculateDynasticScores() {
         if (abs(bonus) < 0.001) {
           continue;
         }
-        dynasties[dIndex].trait_counts[trait_name]++;
+        dynastyScores[dIndex]->trait_counts[trait_name]++;
       }
     }
   }
@@ -1981,29 +2029,29 @@ void Converter::calculateDynasticScores() {
       if (start < startDays) {
         continue;
       }
-      handleEvent(previousEvent, title, previousDays, start, characters, dynasties);
+      handleEvent(previousEvent, title, previousDays, start, characters, dynastyScores);
       previousEvent = event;
       previousDays = start;
     }
-    handleEvent(previousEvent, title, previousDays, gameDays, characters, dynasties);
+    handleEvent(previousEvent, title, previousDays, gameDays, characters, dynastyScores);
   }
 
-  vector<DynastyScore> sorted_dynasties;
-  for (auto& dynasty : dynasties) {
-    dynasty.second.score();
-    sorted_dynasties.emplace_back(dynasty.second);
+  vector<PlayerScore> sortedPlayerScores;
+  for (auto& player : playerScores) {
+    player.second.score();
+    sortedPlayerScores.emplace_back(player.second);
   }
-  sort(sorted_dynasties.begin(), sorted_dynasties.end());
-  if (sorted_dynasties.empty()) {
+  sort(sortedPlayerScores.begin(), sortedPlayerScores.end());
+  if (sortedPlayerScores.empty()) {
     return;
   }
 
-  int size = sorted_dynasties.size();
+  int size = sortedPlayerScores.size();
   double median = 0.5 *
-                  (sorted_dynasties[size / 2].cached_score +
-                   sorted_dynasties[(size - 1) / 2].cached_score);
+                  (sortedPlayerScores[size / 2].cached_score +
+                   sortedPlayerScores[(size - 1) / 2].cached_score);
   double target = configObject->safeGetFloat("median_mana", 1000);
-  for (auto& score : sorted_dynasties) {
+  for (auto& score : sortedPlayerScores) {
     Logger::logStream(LogStream::Info)
         << score.name << " : " << score.cached_score << "\n"
         << LogOption::Indent << score.score_string(score_traits, median, target)
@@ -2012,7 +2060,7 @@ void Converter::calculateDynasticScores() {
   }
 
   Logger::logStream(LogStream::Info) << "\nMana:\n";
-  for (const auto& score : sorted_dynasties) {
+  for (const auto& score : sortedPlayerScores) {
     Logger::logStream(LogStream::Info)
         << score.name << " : " << score.adjusted_score << " ("
         << score.unadjusted_score << ")\n";
