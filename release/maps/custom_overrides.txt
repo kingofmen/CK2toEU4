@@ -32,7 +32,13 @@ culture_overrides = {
   castillan = castillian
 }
 
-# Dynasties to calculate custom score for.
+# Players to calculate custom score for. Format:
+#  player = {
+#    name = "Example"
+#    dynasty = 1
+#    dynasty = 2
+#    achievements = 0
+#  }
 custom_score = {
 }
 
