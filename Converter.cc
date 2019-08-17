@@ -434,15 +434,13 @@ bool Converter::displayStats() {
   }
 
   Logger::logStream(LogStream::Info) << "\nShared provinces:\n";
-  bool onlyHumans = false;
-  if (statConfig->safeGetString("human_overlap_only", "no") == "yes") {
-    onlyHumans = true;
-  }
+  int requiredHumans = statConfig->safeGetInt("humans_for_overlap");
   for (auto* eu4prov : EU4Province::getAll()) {
     if (!eu4prov->converts()) {
       continue;
     }
-    std::unordered_map<CK2Ruler*, std::vector<CK2Province*>> humans;
+    std::unordered_map<CK2Ruler*, std::vector<CK2Province*>> sovereigns;
+    int numHumans = 0;
     for (auto* ck2Prov : eu4prov->ckProvs()) {
       auto* title = ck2Prov->getCountyTitle();
       if (title == nullptr) {
@@ -459,25 +457,25 @@ bool Converter::displayStats() {
             << "?\n";
       }
       
-      if (onlyHumans && !ruler->isHuman()) {
-        continue;
+      if (ruler->isHuman() && sovereigns.find(ruler) == sovereigns.end()) {
+        numHumans++;
       }
-      humans[ruler].push_back(ck2Prov);
+      sovereigns[ruler].push_back(ck2Prov);
     }
-    if (humans.size() < 2) {
+    if (sovereigns.size() < 2 || numHumans < requiredHumans) {
       continue;
     }
     Logger::logStream(LogStream::Info)
         << "Province " << nameAndNumber(eu4prov)
         << " converts from multiple independent rulers:\n"
         << LogOption::Indent;
-    for (auto& human : humans) {
-      CK2Title* primary = human.first->getPrimaryTitle();
+    for (auto& sovereign : sovereigns) {
+      CK2Title* primary = sovereign.first->getPrimaryTitle();
       Logger::logStream(LogStream::Info)
-          << nameAndNumber(human.first, birthNameString) << " "
+          << nameAndNumber(sovereign.first, birthNameString) << " "
           << nameAndNumber(primary, "name", "\"???\"") << " -> "
           << primary->getEU4Country()->getKey() << " : ";
-      for (auto* prov : human.second) {
+      for (auto* prov : sovereign.second) {
         Logger::logStream(LogStream::Info) << nameAndNumber(prov) << " ";
       }
       Logger::logStream(LogStream::Info) << "\n";

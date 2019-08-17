@@ -337,7 +337,8 @@ ships = {
 
 statistics = {
   show = yes
-  human_overlap_only = no
+  # Shared provinces with fewer humans than this involved will be ignored.
+  humans_for_overlap = 0
 }
 
 # Blacklist for navies; provinces listed here cannot be used as navy
