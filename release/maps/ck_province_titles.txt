@@ -7834,11 +7834,6 @@ max_settlements=7
 terrain=desert 
 } 
 784= {
-title = c_al_aqabah 
-max_settlements=7 
-terrain=desert 
-} 
-784= {
 title = c_shahrazur 
 max_settlements=7 
 terrain=desert 
