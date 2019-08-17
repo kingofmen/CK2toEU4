@@ -335,6 +335,11 @@ ships = {
   ga = 1
 }
 
+statistics = {
+  show = yes
+  human_overlap_only = no
+}
+
 # Blacklist for navies; provinces listed here cannot be used as navy
 # locations. This is a patched-up workaround for not having a good way
 # to identify coastal provinces.

@@ -396,18 +396,17 @@ double getLevyStrength(const string& key, Object* levyObject, int idx) {
   return levy->tokenAsFloat(idx);
 }
 
-string nameAndNumber(const ObjectWrapper* prov, string key) {
+string nameAndNumber(const ObjectWrapper* prov, string key, string def) {
   if (!prov) {
-    return "null province";
+    return "null";
   }
-  return prov->getKey() + " (" +
-         remQuotes(prov->safeGetString(key, "\"could not find name\"")) + ")";
+  return nameAndNumber(prov->object, key, def);
 }
 
-string nameAndNumber(Object* prov, string key) {
+string nameAndNumber(Object* prov, string key, string def) {
   if (!prov) {
-    return "null province";
+    return "null";
   }
   return prov->getKey() + " (" +
-         remQuotes(prov->safeGetString(key, "\"could not find name\"")) + ")";
+         remQuotes(prov->safeGetString(key, def)) + ")";
 }

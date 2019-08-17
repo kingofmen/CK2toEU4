@@ -361,6 +361,10 @@ void getAverageAndMedian(const std::vector<int>& counts, double& average, double
 
 
 bool Converter::displayStats() {
+  Object* statConfig = configObject->getNeededObject("statistics");
+  if (statConfig->safeGetString("show", "no") != "yes") {
+    return true;
+  }
   Logger::logStream(LogStream::Info) << "Statistics:\n" << LogOption::Indent;
   for (auto prov = CK2Province::start(); prov != CK2Province::final(); ++prov) {
     auto* title = (*prov)->getCountyTitle();
@@ -429,6 +433,58 @@ bool Converter::displayStats() {
     Logger::logStream(LogStream::Info) << "Median : " << median << "\n";
   }
 
+  Logger::logStream(LogStream::Info) << "\nShared provinces:\n";
+  bool onlyHumans = false;
+  if (statConfig->safeGetString("human_overlap_only", "no") == "yes") {
+    onlyHumans = true;
+  }
+  for (auto* eu4prov : EU4Province::getAll()) {
+    if (!eu4prov->converts()) {
+      continue;
+    }
+    std::unordered_map<CK2Ruler*, std::vector<CK2Province*>> humans;
+    for (auto* ck2Prov : eu4prov->ckProvs()) {
+      auto* title = ck2Prov->getCountyTitle();
+      if (title == nullptr) {
+        Logger::logStream(LogStream::Warn)
+            << "CK2 province " << nameAndNumber(ck2Prov)
+            << " does not have an associated title?\n";
+        continue;
+      }
+      auto* ruler = title->getSovereign();
+      if (ruler == nullptr) {
+        Logger::logStream(LogStream::Warn)
+            << "CK2 province " << nameAndNumber(ck2Prov)
+            << " does not have a sovereign for its title " << title->getKey()
+            << "?\n";
+      }
+      
+      if (onlyHumans && !ruler->isHuman()) {
+        continue;
+      }
+      humans[ruler].push_back(ck2Prov);
+    }
+    if (humans.size() < 2) {
+      continue;
+    }
+    Logger::logStream(LogStream::Info)
+        << "Province " << nameAndNumber(eu4prov)
+        << " converts from multiple independent rulers:\n"
+        << LogOption::Indent;
+    for (auto& human : humans) {
+      CK2Title* primary = human.first->getPrimaryTitle();
+      Logger::logStream(LogStream::Info)
+          << nameAndNumber(human.first, birthNameString) << " "
+          << nameAndNumber(primary, "name", "\"???\"") << " -> "
+          << primary->getEU4Country()->getKey() << " : ";
+      for (auto* prov : human.second) {
+        Logger::logStream(LogStream::Info) << nameAndNumber(prov) << " ";
+      }
+      Logger::logStream(LogStream::Info) << "\n";
+    }
+    Logger::logStream(LogStream::Info) << LogOption::Undent;
+  }
+  
   Logger::logStream(LogStream::Info) << "Done with statistics.\n"
                                      << LogOption::Undent;
   return true;

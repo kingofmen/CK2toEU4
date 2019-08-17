@@ -371,7 +371,9 @@ double calcAvg (Object* ofthis);
 
 double getLevyStrength(const string& key, Object* levyObject, int idx = 1);
 
-string nameAndNumber(const ObjectWrapper* prov, string key = "name");
-string nameAndNumber(Object* prov, string key = "name");
+string nameAndNumber(const ObjectWrapper* prov, string key = "name",
+                     string def = "\"could not find name\"");
+string nameAndNumber(Object* prov, string key = "name",
+                     string def = "\"could not find name\"");
 
 #endif
