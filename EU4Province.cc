@@ -46,23 +46,29 @@ Object* EU4Province::get_building_object() {
   return object;
 }
 
-void EU4Province::addBuilding(string buildingTag) {
+void EU4Province::addBuilding(string buildingTag, int fortLevel) {
   getNeededObject("buildings")->resetLeaf(buildingTag, "yes");
   getNeededObject("history")->resetLeaf(buildingTag, "yes");
   getNeededObject("building_builders")
       ->resetLeaf(buildingTag, safeGetString("owner"));
+  if (fortLevel != 0) {
+    resetLeaf("garrison", fortLevel * 1000.0);
+  }
 }
 
 bool EU4Province::hasBuilding(string buildingTag) {
   return get_building_object()->safeGetString(buildingTag) == "yes";
 }
 
-void EU4Province::removeBuilding(string buildingTag) {
+void EU4Province::removeBuilding(string buildingTag, int fortLevel) {
   get_building_object()->unsetValue(buildingTag);
   getNeededObject("history")->unsetValue(buildingTag);
   auto* builders = safeGetObject("building_builders");
   if (builders != nullptr) {
     builders->unsetValue(buildingTag);
+  }
+  if (fortLevel != 0) {
+    unsetValue("garrison");
   }
 }
 

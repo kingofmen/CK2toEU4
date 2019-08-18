@@ -4044,6 +4044,14 @@ struct WeightDescendingSorter {
   map<CK2Province*, double> const* const adjustment;
 };
 
+int getFortLevel(Object* building) {
+  Object* mod = building->safeGetObject("modifier");
+  if (!mod) {
+    return 0;
+  }
+  return mod->safeGetInt("fort_level");
+}
+
 bool Converter::moveBuildings () {
   Logger::logStream(LogStream::Info) << "Moving buildings.\n" << LogOption::Indent;
   if (!euBuildingObject) {
@@ -4066,7 +4074,7 @@ bool Converter::moveBuildings () {
       if (!eu4prov->converts()) continue;
       if (!eu4prov->hasBuilding(buildingTag)) continue;
       numToBuild++;
-      eu4prov->removeBuilding(buildingTag);
+      eu4prov->removeBuilding(buildingTag, getFortLevel(euBuilding));
     }
     if (0 == numToBuild) continue;
     Logger::logStream("buildings") << "Found "
@@ -4200,7 +4208,7 @@ bool Converter::moveBuildings () {
                 << nameAndNumber(eu4prov) << " has higher priority for "
                 << buildingTag << " than " << nameAndNumber(other)
                 << ", moving from latter to former.\n";
-            other->removeBuilding(buildingTag);
+            other->removeBuilding(buildingTag, getFortLevel(building));
             fort_owners_in_states[other->safeGetString(kStateKey, PlainNone)]
                 .erase(owner);
             moved = true;
@@ -4208,7 +4216,7 @@ bool Converter::moveBuildings () {
           }
           if (moved) {
             adjustment[provList[i]] *= 0.75;
-            eu4prov->addBuilding(buildingTag);
+            eu4prov->addBuilding(buildingTag, getFortLevel(building));
             fort_owners_in_states[area].insert(owner);
             continue;
           }
@@ -4229,7 +4237,7 @@ bool Converter::moveBuildings () {
 				     << provList[i]->getWeight(weight) * adjustment[provList[i]]
 				     << ".\n";
       adjustment[provList[i]] *= 0.75;
-      eu4prov->addBuilding(buildingTag);
+      eu4prov->addBuilding(buildingTag, getFortLevel(building));
     }
   }
 

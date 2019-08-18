@@ -16,8 +16,8 @@ public:
   bool converts () const;
   EU4Country* getEU4Country () const {return eu4Country;}
   bool hasBuilding(string buildingTag);
-  void addBuilding(string buildingTag);
-  void removeBuilding(string buildingTag);
+  void addBuilding(string buildingTag, int fortLevel = 0);
+  void removeBuilding(string buildingTag, int fortLevel = 0);
   bool hasCore (string countryTag);
   int numCKProvinces () const {return ckProvinces.size();}
   void remCore (string countryTag);
