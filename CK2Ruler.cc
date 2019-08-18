@@ -32,6 +32,7 @@ CK2Character::CK2Character (Object* obj, Object* dynasties)
   , council(CouncilTitle::totalAmount())
   , dynasty(0)
   , heir(0)
+  , heir_override(false)
 {
   string dynastyNum = safeGetString(dynastyString, PlainNone);
   if (dynastyNum != PlainNone) {
@@ -155,10 +156,12 @@ void CK2Ruler::personOfInterest (CK2Character* person) {
   if ((person->safeGetString(fatherString) == myId) ||
       (person->safeGetString(motherString) == myId)) {
     children.push_back(person);
-    if ((!heir) ||
-        (heir->getAge(
-             remQuotes(person->safeGetString(birthDateString))) < 0)) {
-      heir = person;
+    if (!heir_override) {
+      if ((!heir) ||
+          (heir->getAge(remQuotes(person->safeGetString(birthDateString))) <
+           0)) {
+        heir = person;
+      }
     }
   }
 

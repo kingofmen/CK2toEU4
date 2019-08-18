@@ -76,7 +76,8 @@ protected:
   vector<CK2Character*> spouses;
   unordered_map<string, vector<CK2Character*> > advisors;
   Object* dynasty;
-  CK2Character* heir;  
+  CK2Character* heir;
+  bool heir_override;
   set<string> traits;
   map<string, bool> modifiers;
 };
@@ -91,7 +92,7 @@ public:
   int  countBaronies ();
   void createLiege ();
   int getEnemies () const {return enemies.size();}
-  void overrideHeir(CK2Character* heir) { heir = heir; }
+  void overrideHeir(CK2Character* h) { heir = h; heir_override = true; }
   virtual EU4Country* getEU4Country () const {return eu4Country;}
   CK2Ruler* getLiege () {return liege;}
   CK2Ruler* getSovereignLiege ();
