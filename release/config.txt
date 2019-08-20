@@ -341,6 +341,23 @@ statistics = {
   humans_for_overlap = 0
 }
 
+great_works = {
+  wonder_underground_city = local_fortress
+  wonder_garden = karesansui_garden
+  wonder_harbor = the_staple_port
+  wonder_library = bookmarket_of_x
+  wonder_statue_ruler = loyalist_stronghold
+  wonder_wall = improved_fortifications
+  wonder_pagan_stones = minority_prospers
+  wonder_fortress = local_fortress
+  #wonder_university = 
+  #wonder_temple_pagan = 
+  #wonder_lighthouse = 
+  #wonder_statue_horse = 
+  #wonder_pyramid = 
+  #wonder_palace = dsa
+}
+
 # Blacklist for navies; provinces listed here cannot be used as navy
 # locations. This is a patched-up workaround for not having a good way
 # to identify coastal provinces.

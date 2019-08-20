@@ -5630,6 +5630,47 @@ bool Converter::warsAndRebels () {
   return true;
 }
 
+bool Converter::greatWorks() {
+  Logger::logStream(LogStream::Info) << "Starting Great Works.\n";
+  Object* modifiers = configObject->safeGetObject("great_works");
+  if (modifiers == nullptr) {
+    Logger::logStream(LogStream::Info)
+        << "No Great Works config found, ignoring.\n";
+    return true;
+  }
+  Object* wonderObj = ck2Game->safeGetObject("wonder");
+  if (wonderObj == nullptr) {
+    Logger::logStream(LogStream::Info)
+        << "No Great Works object found, ignoring.\n";
+    return true;
+  }
+  objvec wonders = wonderObj->getLeaves();
+  for (auto* wonder : wonders) {
+    CK2Province* ckProv = CK2Province::findByName(wonder->safeGetString("province", PlainNone));
+    if (ckProv == nullptr || ckProv->numEU4Provinces() == 0) {
+      continue;
+    }
+    std::string type = remQuotes(wonder->safeGetString("type"));
+    std::string mod = modifiers->safeGetString(type);
+    if (mod.empty()) {
+      Logger::logStream(LogStream::Info)
+          << "No conversion for type " << type << ", skipping.\n";
+      continue;
+    }
+    EU4Province* euProv = ckProv->eu4Province(0);
+    Logger::logStream(LogStream::Info)
+        << wonder->safeGetString("name") << " in " << nameAndNumber(ckProv)
+        << " -> " << nameAndNumber(euProv) << " " << mod << "\n";
+    Object* modifier = new Object("modifier");
+    euProv->setValue(modifier);
+    modifier->setLeaf("date", "-1.1.1");
+    modifier->setLeaf("permanent", "yes");
+    modifier->setLeaf("modifier", addQuotes(mod));
+  }
+  Logger::logStream(LogStream::Info) << "Done with Great Works.\n";
+  return true;
+}
+
 /******************************* End conversions ********************************/
 
 /*******************************  Begin calculators ********************************/
@@ -5705,6 +5746,8 @@ void Converter::convert () {
   if (!hreAndPapacy()) return;
   if (debug) (*debug) << "warsAndRebels" << std::endl;
   if (!warsAndRebels()) return;
+  if (debug) (*debug) << "Great Works" << std::endl;
+  if (!greatWorks()) return;
   if (debug) (*debug) << "displayStats" << std::endl;
   displayStats();
 

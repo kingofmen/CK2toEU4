@@ -69,6 +69,7 @@ private:
   bool setupDiplomacy ();
   bool transferProvinces ();
   bool warsAndRebels ();
+  bool greatWorks ();
 
   // Infrastructure
   void loadFile ();
