@@ -2783,17 +2783,18 @@ Object* Converter::makeMonarchObject(const string& capitalTag,
   Object* monarchDef = new Object(keyword);
   monarchDef->setLeaf("name", ruler->safeGetString(birthNameString, "\"Some Guy\""));
   map<string, map<string, double> > sources;
-  sources["MIL"]["ck_martial"] = max(0, ruler->getAttribute(CKAttribute::Martial) / 5);
+  sources["MIL"]["ck_martial"] =
+      max(0.0, ruler->getAttribute(CKAttribute::Martial) * 0.2);
   sources["DIP"]["ck_diplomacy"] =
-      max(0,
+      max(0.0,
           (ruler->getAttribute(CKAttribute::Diplomacy) +
-           ruler->getAttribute(CKAttribute::Intrigue)) /
-              5);
+           ruler->getAttribute(CKAttribute::Intrigue)) *
+              0.2);
   sources["ADM"]["ck_stewardship"] =
-      max(0,
+      max(0.0,
           (ruler->getAttribute(CKAttribute::Stewardship) +
-           ruler->getAttribute(CKAttribute::Learning)) /
-              5);
+           ruler->getAttribute(CKAttribute::Learning)) *
+              0.2);
   for (auto& area : sources) {
     Object* bonus = bonusTraits->getNeededObject(area.first);
     for (auto* bon : bonus->getLeaves()) {
@@ -2831,13 +2832,13 @@ Object* Converter::makeMonarchObject(const string& capitalTag,
   for (map<string, map<string, double>>::iterator area = sources.begin();
        area != sources.end(); ++area) {
     Logger::logStream("characters") << area->first << " : ";
-    int amount = 0;
-    for (map<string, double>::iterator source = area->second.begin(); source != area->second.end(); ++source) {
-      int rounded = (int) floor(0.5 + source->second);
-      if (rounded < 1) continue;
-      Logger::logStream("characters") << source->first << " " << rounded << " ";
-      amount += rounded;
+    double total = 0;
+    for (auto& source : area->second) {
+      total += source.second;
+      Logger::logStream("characters") << source.first << " " << source.second << " ";
     }
+    int amount = (int)floor(total + 0.5);
+    Logger::logStream("characters") << "rounding -> " << amount << " ";
     if (amount < 1) {
       Logger::logStream("characters") << "minimum 1 ";
       amount = 1;
