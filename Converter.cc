@@ -3571,7 +3571,13 @@ bool Converter::cultureAndReligion () {
     for (map<string, double>::iterator cand = cultureWeights.begin(); cand != cultureWeights.end(); ++cand) {
       if (cand->first == ckRulerCulture) continue;
       if (cand->second > acceptedCutoff * cultureWeights[ckRulerCulture]) {
-	acceptedCultures.push_back(cultureMap[cand->first][0]);
+        if (cultureMap[cand->first].size() > 0) {
+          acceptedCultures.push_back(cultureMap[cand->first][0]);
+        } else {
+          Logger::logStream(LogStream::Warn)
+              << "Skipping accepted culture '" << cand->first
+              << "' because it has no equivalent EU4 culture.\n";
+        }
       }
     }
     Logger::logStream("cultures") << (*eu4country)->getKey() << ":\n" << LogOption::Indent;
