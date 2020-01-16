@@ -2760,6 +2760,8 @@ void addPersonality(objvec& personalities, CK2Character* ck2char, Object* eu4cha
   }
 }
 
+// Sets culture and religion for the target object, based on those of the CK2
+// character.
 void setCultureAndReligion(const string& capitalTag, CK2Character* ruler,
                            Object* target) {
   string ckCulture = ruler->getBelief("culture");
