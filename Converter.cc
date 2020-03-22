@@ -455,6 +455,7 @@ bool Converter::displayStats() {
             << "CK2 province " << nameAndNumber(ck2Prov)
             << " does not have a sovereign for its title " << title->getKey()
             << "?\n";
+        continue;
       }
       
       if (ruler->isHuman() && sovereigns.find(ruler) == sovereigns.end()) {
