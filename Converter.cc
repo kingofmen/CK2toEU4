@@ -542,19 +542,15 @@ void Converter::playerWars () {
 
 void Converter::dynastyScores () {
   Logger::logStream(LogStream::Info) << "Dynastic scores.\n";
-  if (!createCK2Objects()) {
-    return;
-  }
-  string dirToUse = remQuotes(configObject->safeGetString("maps_dir", ".\\maps\\"));
-  string overrideFileName =
-      remQuotes(configObject->safeGetString("custom", QuotedNone));
-  customObject = loadTextFile(dirToUse + overrideFileName);
+  loadFiles();
   if (!customObject) {
     Logger::logStream(LogStream::Warn)
         << "Couldn't find custom object, no dynastic scores.\n";
     return;
   }
-
+  if (!createCK2Objects()) {
+    return;
+  }
   calculateDynasticScores();
 }
 
@@ -1976,6 +1972,45 @@ void handleEvent(Object* event, CK2Title* title, int startDays, int endDays,
   }
 }
 
+// Count and number of primary titles for simplified score.
+void Converter::collectPrimaryTitles(std::vector<Object*>& players) {
+  std::unordered_map<string, Object*> customMap;
+  for (auto* player : players) {
+    customMap[player->safeGetString("dynasty")] = player;
+  }
+
+  for (auto* character : CK2Ruler::getAll()) {    
+    string dIndex = character->safeGetString(dynastyString, PlainNone);
+    if (dIndex == PlainNone || customMap.find(dIndex) == customMap.end()) {
+      continue;
+    }
+    auto* title = character->getPrimaryTitle();
+    if (!title) {
+      continue;
+    }
+    if (title->safeGetString("landless") == "yes") {
+      continue;
+    }
+    auto* target = customMap[dIndex];
+    auto const* const level = title->getLevel();
+    string levelName = level->getName();
+    target->resetLeaf(levelName, 1 + target->safeGetInt(levelName));
+    Logger::logStream(LogStream::Info)
+        << target->safeGetString("name") << " : " << title->getKey() << "\n";
+  }
+  for (const auto& cm : customMap) {
+    Object* score = cm.second;
+    Logger::logStream(LogStream::Info)
+        << score->safeGetString("name") << " :\n " << LogOption::Indent;
+    for (const auto* const level : TitleLevel::getAll()) {
+      Logger::logStream(LogStream::Info)
+          << level->getName() << "\t: " << score->safeGetInt(level->getName())
+          << "\n";
+    }
+    Logger::logStream(LogStream::Info) << LogOption::Undent;
+  }
+}
+
 void Converter::calculateDynasticScores() {
   auto customs = customObject->getNeededObject("custom_score")->getLeaves();
   if (customs.size() == 0) {
@@ -1983,6 +2018,7 @@ void Converter::calculateDynasticScores() {
   }
   Logger::logStream(LogStream::Info) << "Beginning dynasty score calculation.\n"
                                      << LogOption::Indent;
+  collectPrimaryTitles(customs);
 
   auto* titlePoints = customObject->getNeededObject("custom_score_title_points");
   DynastyScore::BaronyPoints = titlePoints->safeGetInt("baron", 0);

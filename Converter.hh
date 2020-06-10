@@ -91,6 +91,7 @@ private:
   void setDynastyNames (Object* dynastyNames);
 
   // Helpers:
+  void collectPrimaryTitles(std::vector<Object*>& players);
   string getConversionDate(int add_years);
   string getConversionDate(const string& ck2Date);
   double calculateTroopWeight (Object* levy, Logger* logstream = 0, int idx = 1);
