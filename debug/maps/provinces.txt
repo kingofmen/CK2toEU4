@@ -1,3 +1,5 @@
+# CK2TITLE;EU4ID;Filename;Comment
+
 # Iceland
 c_vestisland = 370 # Vestisland - Reykjavik
 c_sunnlendingafjordungur = 370 # Sudurland - Reykjavik
@@ -8,14 +10,15 @@ c_nordlendingafjordungur = 371 # Nordland - Akureyri
 c_ulster = 4121 # County Ulster - Ulaidh
 c_tyrone = 372 # Tyrone - Ulster
 c_tyrconnell = 4380 # Tyrconnell - Donegal
-c_oriel = 4121 # Oriel - Ulaidh
-c_meath = 374 # Meath - Leinster
+c_oriel = 373 # Oriel - Pale
+c_meath = 373 # Meath - Pale
 c_dublin = 373 # Dublin - Pale
 c_breifne = 4119 # Breifne - Sligo
 c_ui_fiachrach = 4119 # Ui Fiachrach - Sligo
-c_hy_many = 376 # Hy Many - Connaught
+c_hy_many = 4119 # Hy Many - Sligo
 c_connacht = 376 # County Connacht - Connaught
 c_westmeath = 4379 # Westmeath - Middlands
+c_kildare = 4379 # Kildare - Middlands
 c_kildare = 4120 # Kildare - Cilldara
 c_thomond = 375 # Thomond - Munster
 c_desmond = 4378 # Desmond - Kinsale
@@ -29,17 +32,17 @@ c_leinster = 374 # County Leinster - Leinster
 
 # Scotland
 d_galloway = 249 # Duchy Galloway - Ayrshire
-c_galloway = 4362 # County Galloway - West March
+c_galloway = 249 # County Galloway - Ayrshire
 c_carrick = 249 # Carrick - Ayrshire
 c_clydesdale = 249 # Clydesdale - Ayrshire
 d_lothian = 248 # Duchy Lothian - Lothian
-c_lothian = 4361 # County Lothian - East March
+c_lothian = 248 # County Lothian - Lothian
 c_dunbar = 4361 # Dunbar - East March
 c_teviotdale = 4362 # Teviotdale - West March
-c_fife = 248 # Fife - Lothian
+c_fife = 250 # Fife - Perth
 c_strathearn = 250 # Strathearn - Perth
 c_gowrie = 251 # Gowrie - Aberdeen
-c_atholl = 250 # Atholl - Perth
+c_atholl = 251 # Atholl - Aberdeen
 c_buchan = 251 # Buchan - Aberdeen
 d_moray = 252 # Duchy Moray - Highlands
 c_moray = 252 # County Moray - Highlands
@@ -52,14 +55,14 @@ c_iona = 4364 # Iona - Inner Hebrides
 # England & Wales
 d_northumberland = 246 # Duchy Northumberland - Northumberland
 c_northumberland = 246 # County Northumberland - Northumberland
-c_durham = 246 # Durham - Scarborough
+c_durham = 246 # Durham - Northumberland
 c_lindisfarne = 246 # Lindisfarne - Northumberland
 c_cumberland = 247 # Cumberland - Cumbria
 c_isle_of_man = 4365 # Isle of Man - Mann
 c_york = 4368 # York - Scarborough
 c_hull = 4367 # Hull - Hull
 c_yoredale = 245 # Yoredale - York
-c_leeds = 245 # Leeds - York
+c_leeds = 4785 # Leeds - Sheffield
 d_lancaster = 244 # Duchy Lancaster - Lancashire
 c_lancaster = 244 # Lancaster - Lancashire
 c_westmorland = 244 # Westmorland - Lancashire
@@ -70,7 +73,7 @@ c_leicester = 4376 # Leicester - Leicester
 d_hereford = 240 # Duchy Hereford - Shrewsbury
 c_hereford = 240 # County Hereford - Shrewsbury
 c_shrewsbury = 240 # Shrewsbury - Shrewsbury
-c_worcester = 4372 # Worcester - Coventry
+c_worcester = 240 # Worcester - Shrewsbury
 c_warwick = 4372 # Warwick - Coventry
 d_gwynedd = 242 # Duchy Gwynedd - Gwynedd
 c_gwynedd = 242 # County Gwynedd - Gwynedd
@@ -82,12 +85,12 @@ d_deheubarth = 241 # Duchy Deheubarth - Glamorgan
 c_glamorgan = 241 # Glamorgan - Glamorgan
 c_gower = 241 # Gower - Glamorgan
 c_gwent = 241 # Gwent - Glamorgan
-c_brycheiniog = 4366 # Brycheiniog - Montgomery
+c_brycheiniog = 241 # Brycheiniog - Glamorgan
 c_dyfed = 4369 # Dyfed - Carmarthen
 c_ceredigion = 4369 # Ceredigion - Carmarthen
 d_gloucester = 239 # Duchy Gloucester - Gloucestershire
 c_gloucester = 239 # County Gloucester - Gloucestershire
-c_bath = 4130 # Bath - Somerset
+c_bath = 239 # Bath - Gloucestershire
 c_wiltshire = 239 # Wiltshire - Gloucestershire
 d_somerset = 234 # Duchy Somerset - Wessex
 c_winchester = 234 # Winchester - Wessex
@@ -111,21 +114,20 @@ c_surrey = 4371 # Surrey - Sussex
 c_sussex = 4371 # Sussex - Sussex
 
 # Norway
-
 c_faereyar = 1979 # Faereyar - Färöarna
 c_shetland = 1978 # Shetland - The Shetlands
 c_orkney = 369 # Orkney - Orkney
-c_bergenshus = 24 # Bergenhus - Agder
+c_bergenshus = 23 # Bergenhus - Bergenhus
 c_sogn = 23 # Sogn - Bergenhus
 c_forde = 23 # Forde - Bergenhus
-c_rogaland = 4145 # Rogaland - Agdesiden
+c_rogaland = 24 # Rogaland - Agder
 c_agder = 4145 # Agder - Agdesiden
 c_telemark = 4144 # Telemark - Bratsberg
 c_akershus = 4143 # Akershus - Smalenene
 c_vestfold = 17 # Vestfold - Akershus
-c_hedmark = 17 # Hedmark - Akershus
+c_hedmark = 22 # Hedmark - Eidsiva
 c_oppland = 22 # Oppland - Eidsiva
-c_romerike = 4143 # Romerike - Smalenene
+c_romerike = 22 # Romerike - Eidsiva
 c_gudbrandsdal = 22 # Gudbrandsdalen - Eidsiva
 c_sunnmore = 2752 # Sunnmore - Sogn
 c_romsdal = 2752 # Romsdal - Sogn
@@ -140,7 +142,6 @@ c_herjedalen = 10 # Herjedalen - Jämtland
 c_viken = 16 # Viken - Bohuslän
 
 # Sweden & Finland
- 
 c_skara = 7 # Skara - Västergötland
 c_vastergotland = 4163 # Västergötland - Elfsborg
 c_smaland = 4166 # Småland - Tioharad
@@ -149,10 +150,10 @@ c_finnveden = 4166 # Finnveden - Tioharad
 c_more = 3 # Möre - Kalmar
 c_sevede = 3 # Sevede - Kalmar
 c_oland = 3 # Öland - Kalmar
-c_tjust = 2 # Tjust - Östergötland
-c_kinda = 2 # Kinda - Östergötland
-c_vista = 2 # Vista - Östergötland
-c_ostergotland = 1985 # Östergötland - Närke
+c_tjust = 3 # Tjust - Kalmar
+c_kinda = 3 # Kinda - Kalmar
+c_vista = 3 # Vista - Kalmar
+c_ostergotland = 2 # Östergötland - Östergötland
 c_narke = 1985 # Närke - Närke
 c_gotland = 25 # Gotland - Gotland
 c_sodermanland = 1 # Södermanland - Stockholm
@@ -163,7 +164,7 @@ c_dal = 4164 # Dal - Dal
 c_vastmanland = 4 # Västmanland - Bergslagen
 c_dalarna = 8 # Dalarna - Dalaskogen
 c_halsingland = 9 # Hälsingland - Hälsingland
-c_gastrikland = 4 # Gästrikland - Bergslagen
+c_gastrikland = 9 # Gästrikland - Hälsingland
 c_medelpad = 9 # Medelpad - Hälsingland
 c_vasterbotten = 11 # Västerbotten - Västerbotten
 c_angermanland = 11 # Ångermanland - Västerbotten
@@ -176,7 +177,6 @@ c_nyland = 28 # Nyland - Nyland
 c_siuntio = 28 # Siuntio - Nyland
 c_tavasts = 29 # Tavasts - Tavastland
 c_savolaks = 31 # Savolaks - Savolax
-c_kuopio = 31 # Kalavesi - Savolax
 c_kexholm = 30 # Kexholm - Viborg
 c_joensuu = 4124 # Joensuu - Karelia
 c_sortavala = 32 # Sortavala - Kexholm
@@ -187,16 +187,17 @@ c_kemi = 4113 # Kemi - Rovaniemi
 c_rovaniemi = 4151 # Rovaniemi - Inari
 c_kola = 1777 # Kola - Kola
 c_karelen = 1776 # Karelen - Karelia
-c_kandalax = 1777 # Kandalax - Kola
-c_east_karelia = 309 # East Karelia - Olonets
+c_kandalax = 1776 # Kandalax - Karelia
 c_onega = 309 # Onega - Olonets
+c_zaozerye = 309 # Zaozerye - Olonets
+c_chlisselbourg = 309 # Chlisselbourg - Olonets
+c_vodi = 33 # Vodi - Neva
 c_vodi = 34 # Vodi - Ingermanland
 c_narva = 1842 # Narva - Narva
 c_reval = 36 # Reval - Reval
 c_livs = 36 # Reval - Reval
 
 # Denmark
-
 c_skane = 6 # Skåne - Skåne
 c_skane = 4165 # Skåne - Goinge
 c_halland = 26 # Halland - Halland
@@ -206,19 +207,19 @@ c_sjaelland = 12 # Sjaelland - Sjaelland
 c_lolland = 1983 # Lolland - Lolland
 c_fyn = 14 # Fyn - Fyn
 c_jylland = 1984 # Jylland - Nordjylland
-c_himmersyssel = 4142 # Himmersyssel - Aarhus
+c_himmersyssel = 1984 # Himmersyssel - Nordjylland
 c_hardsyssel = 15 # Hardsyssel - Midtjylland
+c_abosyssel = 4142 # Abosyssel - Aarhus
 c_abosyssel = 4149 # Abosyssel - Kolding
 c_slesvig = 13 # Slesvig - Slesvig
 c_holstein = 1775 # Holstein - Holstein
 c_dithmarschen = 4141 # Ditmarschen - Ditmarschen
 
-# Francia 
-
+# Francia
 c_french_leon = 170 # French Leon - Finistere
 c_cornouaille = 170 # Cornouaille - Finistere
-c_poher = 171 # Poher - Vannetais
-c_tregor = 169 # Tregor - Armor
+c_poher = 170 # Poher - Finistere
+c_tregor = 170 # Tregor - Finistere
 c_penthievre = 169 # Penthievre - Armor
 c_rennes = 4384 # Rennes - Rennes
 c_vannes = 171 # Vannes - Vannetais
@@ -226,10 +227,12 @@ c_nantes = 172 # Nantes - Vendee
 c_retz = 172 # Retz - Vendee
 c_avranches = 4385 # Avranches - Cotentin
 c_evreux = 1879 # Evreux - Alencon
+c_evreux = 168 # Evreux - Normandie
+c_caen = 1879 # Caen - Alencon
 c_caen = 168 # Caen - Normandie
 c_chartres = 4388 # Chartres - Chartres
 c_dunois = 4388 # Dunois - Chartres
-c_arques = 168 # Arques - Normandie
+c_arques = 167 # Arques - Caux
 c_eu = 167 # Eu - Caux
 c_vexin = 167 # Vexin - Caux
 c_thouars = 4386 # Thouars - Vendee
@@ -241,11 +244,10 @@ c_bearn = 176 # Bearn - Bearn
 c_agen = 175 # Agen - Armagnac
 c_armagnac = 175 # Armagnac - Armagnac
 c_rosello = 197 # Rosello - Roussillon
-c_foix = 2753 # Foix - Narbonne
+c_foix = 4694 # Foix - Foix
 c_toulouse = 196 # Toulouse - Toulouse
 c_carcassonne = 196 # Carcassonne - Toulouse
 c_rouergue = 198 # Rouergue - Rouergue
-c_gevaudan = 198 # Gevaudan - Rouergue
 c_montpellier = 200 # Montpellier - Languedoc
 c_narbonne = 2753 # Narbonne - Narbonne
 c_provence = 201 # Provence - Provence
@@ -255,8 +257,9 @@ c_forcalquier = 2991 # Forcalquier - Draguignan
 c_venaissin = 202 # Venaissin - Avignon
 c_dauphine_viennois = 204 # Dauphine Viennois - Dauphine
 c_viviers = 4391 # Viviers - Vivarais
+c_gevaudan = 4391 # Gevaudan - Vivarais
 c_lyon = 203 # Lyon - Lyonnais
-c_forez = 203 # Forez - Lyonnais
+c_forez = 4777 # Forez - Forez
 d_auvergne = 199 # Duchy Auvergne - Auvergne
 c_auvergne = 199 # County Auvergne - Auvergne
 c_aurillac = 199 # Aurillac - Auvergne
@@ -267,9 +270,10 @@ c_lusignan = 180 # Lusignan - Perigord
 c_poitiers = 180 # Poitiers - Poitou
 c_tourraine = 4389 # Tours - Touraine
 c_limousin = 195 # Limousin - Limousin
-c_la_marche = 195 # La Marche - Limousin
+c_la_marche = 4697 # La Marche - La Marche
 c_bourbon = 190 # Bourbon - Bourbon
 d_berry = 179 # Berry - Berry
+c_tourraine = 179 # Tourraine - Berry
 c_bourges = 179 # Bourges - Berry
 c_sancerre = 179 # Sancerre - Berry
 c_maine = 177 # Maine - Maine
@@ -277,654 +281,1138 @@ c_perche = 177 # Perche - Maine
 c_anjou = 178 # Anjou - Anjou
 c_saumur = 178 # Saumur - Anjou
 c_ile_de_france = 183 # Ile de France - Ile-de-France
-c_senlis = 185 # Senlis - Nemours
+c_senlis = 183 # Senlis - Ile-de-France
 d_orleans = 184 # Duchy Orleans - Orleanais
 c_orleans = 184 # County Orleans - Orleanais
-c_blois = 184 # Blois - Orleanais
-c_vendome = 4389 # Vendome - Touraine
+c_blois = 4776 # Blois - Blois
+c_vendome = 184 # Vendome - Orleanais
 c_reims = 186 # Reims - Vermandois
 c_brie = 186 # Brie - Vermandois
 c_troyes = 4390 # Troyes - Troyes
 c_sens = 185 # Sens - Nemours
 c_nevers = 191 # Nevers - Nevers
 c_auxerre = 4392 # Auxerre - Auxerrois
-c_dijon = 4392 # Dijon - Auxerrois
+c_dijon = 192 # Dijon - Bourgogne
 c_charolais = 1877 # Charolais - Charolais
 c_charolais = 1877 # Duplicate to increase weight
 c_macon = 1877 # Macon - Charolais
 c_chalons = 1877 # Chalons - Charolais
 c_amiens = 182 # Amiens - Cambray
 c_clermont = 182 # Clermont - Cambray
-c_vermandois = 1743 # Vermandois - Cambray
+c_vermandois = 181 # Vermandois - Valenciennes
 c_boulogne = 89 # Boulogne - Picardie
 c_ponthieu = 89 # Ponthieu - Picardie
 c_guines = 87 # Guines - Calais
 c_artois = 88 # Artois - Artois
 c_bar = 187 # Bar - Barrois
 c_saintois = 187 # Santois - Barrois
-c_verdun = 181 # Verdun - Valenciennes
+c_verdun = 4766 # Verdun - Verdun
 c_metz = 188 # Metz - Metz
 c_lorraine = 189 # Lorraine - Lothringen
-c_besancon = 193 # Besancon - Franche-Comte
-c_montbeliard = 193 # Montbeliard - Franche-Comte
-c_vesoul = 192 # Vesoul - Bourgogne
-c_amous = 192 # Amous - Bourgogne
-c_escuens = 193 # Escuens - Franche-Comte
+c_besancon = 4764 # Besancon - Salins
+c_vesoul = 193 # Vesoul - Franche-Comte
+c_amous = 193 # Amous - Franche-Comte
+c_escuens = 4719 # Escuens - Bresse
 c_sundgau = 1880 # Sundgau - Sundgau
 
 # Hispania
 
 d_galicia = 206 # Duchy Galicia - Galicia
 c_coruna = 206 # Coruna - Galicia
+
 c_santiago = 4555 # Santiago - Vigo
+
 c_lugo = 4554 # Lugo - Lugo
 c_lugo = 4558 # Lugo - Orense
+
 c_porto = 231 # Porto - Porto
 c_porto = 4556 # Porto - Aviero
+
 c_braganza = 232 # Braganza - Braganca
+
 c_castelo_branco = 228 # Castelo Branco - Beira
+
 c_coimbra = 1851 # Coimbra - Ribatejo
+
 c_lisboa = 227 # Lisboa - Lisboa
-c_almada = 4150 # Lisboa - Evora
+
 c_evora = 4150 # Evora - Evora
-c_egitanea = 228 # Evora - Beira
+
 c_alcacer_do_sal = 229 # Alcacer do Sal - Alentejo
 c_mertola = 229 # Mertola - Alentejo
+
 d_algarve = 230 # Algarve - Algarve
 c_silves = 230 # Silves - Algarve
 c_faro = 230 # Faro - Algarve
+
 d_asturias = 207 # Duchy Asturias - Asturias
 c_asturias_de_oviedo = 207 # County Asturias de Oviedo - Asturias
 c_astorga = 207 # Astorga - Asturias
+
 c_leon = 208 # Leon - Leon
+
 c_zamora = 4553 # Zamora - Zamora
+
 c_palencia = 4552 # Palencia - Palencia
+
 c_salamanca = 216 # Salamanca - Salamanca
-c_caceres = 218 # Caceres - Badajoz
+
+c_caceres = 1747 # Caceres - Caceres
 c_alcantara = 1747 # Alcantara - Caceres
 c_plasencia = 1747 # Plasencia - Caceres
+
+c_plasencia = 4788 # Plasencia - Plasencia
+c_alcantara = 4788 # Alcantara - Plasencia
+
 c_badajoz = 218 # Badajoz - Badajoz
+
 c_sevilla = 224 # Sevilla - Andalucia
 c_aracena = 224 # Aracena - Andalucia
-c_huelva = 4548 # Niebla - Huelva
+
 c_niebla = 4548 # Niebla - Huelva
+
 c_cadiz = 1749 # Cadiz - Cadiz
+
 c_algeciras = 226 # Algeciras - Gibraltar
+
 c_cordoba = 225 # Cordoba - Cordoba
+
 c_cuenca = 2751 # Cuenca - Cuenca
 c_alcala = 2751 # Alcala - Cuenca
+
 c_molina = 217 # Molina - Madrid
+
+c_toledo = 219 # Toledo - Toledo
 c_toledo = 4551 # Toledo - Avila
 c_calatrava = 219 # Calatrava - Toledo
+
 c_la_mancha = 2754 # La Mancha - La Mancha
+
 c_granada = 223 # Granada - Granada
+
 c_malaga = 4546 # Malaga - Malaga
+
 c_jaen = 1748 # Jaen - Jaen
+
 c_almeria = 222 # Almeria - Almeria
+
 c_murcia = 221 # Murcia - Murcia
+
 c_almansa = 221 # Almansa - Murcia
+
 c_denia = 1750 # Denia - Alicante
+
 c_valencia = 220 # Valencia - Valencia
 c_valencia = 4549 # Valencia - Xativa
+
 c_castellon = 4550 # Castellon - Castellon
+
 d_aragon = 214 # Duchy Aragon - Aragon
 c_zaragoza = 214 # Zaragoza - Aragon
+
 c_calatayud = 4557 # Calatayud - Lleida
 c_calatayud = 2990 # Calatayud - Teruel
+
 c_albarracin = 4547 # Albarracin - Albacete
+
 d_barcelona = 213 # Duchy Barcelona - Barcelona
 c_barcelona = 213 # County Barcelona - Barcelona
 c_lleida = 213 # Lleida - Barcelona
+
 c_tarragona = 2988 # Tarragona - Tarragona
+
 c_empuries = 212 # Empuries - Girona
+
 c_alto_aragon = 211 # Alto Aragon - Pirineo
+
 c_urgell = 2987 # Urgell - Urgell
+
 c_navarra = 210 # Navarra - Navarra
+
 c_viscaya = 209 # Viscaya - Viscaya
+
 c_asturias_de_santillana = 1745 # Asturias de Santillana - Cantabria
+
 c_burgos = 1746 # Burgos - Burgos
+
 c_najera = 2989 # Najera - La Rioja
+
 c_valladolid = 215 # Valladolid - Castilla La Vieja
 c_osma = 215 # Osma - Castilla La Vieja
+
+c_osma = 4789 # Osma - Segovia
+
 c_soria = 2755 # Soria - Soria
+
 d_mallorca = 333 # Duchy Mallorca - The Baleares
 c_mallorca = 333 # County Mallorca - The Baleares
 c_mallorca = 4560 # County Mallorca - Ibiza
+
 c_menorca = 4559 # Menorca - Minorca
 
 # Italy
 
 c_corsica = 1247 # Corsica - Corsica
 c_cinarca = 1247 # Cinarca - Corsica
+
 c_gallura = 127 # Gallura - Sassari
 c_torres = 127 # Torres - Sassari
+
 c_cagliari = 2986 # Cagliari - Cagliari
 c_ogliastra = 2986 # Ogliastra - Cagliari
-c_arborea = 2986 # Arborea - Cagliari
+c_arborea = 4735 # Arborea - Arborea
+
 c_palermo = 125 # Palermo - Palermo
-c_trapani = 125 # Trapani - Palermo
-c_agrigento = 2982 # Agrigento - Syracuse
+c_trapani = 4736 # Trapani - Trapani
+c_agrigento = 4737 # Agrigento - Girgenti
+
 c_messina = 124 # Messina - Messina
+
 c_siracusa = 2982 # Siracusa - Syracuse
+
 c_malta = 126 # Malta - Malta
+
 c_reggio = 123 # Reggio - Calabria
 c_catanzaro = 123 # Catanzaro - Calabria
+
 c_consenza = 2984 # Cosenza - Cosenza
+
 c_lecce = 122 # Lecce - Salento
+
 d_salerno = 1934 # Duchy Salerno - Lucania
 c_taranto = 1934 # Taranto - Lucania
 c_amalfi = 1934 # Amalfi - Lucania
+
 c_salerno = 2983 # Salerno - Salerno
 d_apulia = 122 # Duchy Apulia - Apulia
 c_apulia = 122 # County Apulia - Apulia
+
 c_bari = 1933 # Bari - Bari
+
 c_foggia = 2985 # Foggia - Bari
-d_benevento = 1933 # Duchy Benevento - Foggia
-c_benevento = 1933 # County Benevento - Foggia
+
+d_benevento = 4733 # Duchy Benevento - Molise
+c_benevento = 4733 # County Benevento - Molise
+c_foggia = 4733 # County Foggia - Molise
+
+d_benevento = 4733 # Duchy Benevento - Avellino
+c_benevento = 4734 # County Benevento - Avellino
+
+c_foggia = 2985 # Foggia - Capitane
+
 d_capua = 121 # Duchy Capua - Napoli
 c_capua = 121 # County Capua - Napoli
-c_napoli = 2983 # Napoli - Salerno
-d_spoleto = 120 # Duchy Spoleto - Abruzzi
+c_napoli = 121 # Napoli - Napoli
+
+d_spoleto = 4731 # Duchy Spoleto - Spoleto
+c_spoleto = 4731 # County Spoleto - Spoleto
+
+c_perugia = 120 # Perugia - Abruzzi
 c_aprutium = 120 # Aprutium - Abruzzi
 c_chieti = 120 # Chieti - Abruzzi
+
 c_spoleto = 2976 # County Spoleto - Umbria
-c_perugia = 2976 # Perugia - Umbria
+
 c_roma = 118 # Roma - Roma
+c_roma = 118 # Duplicate to increase weight
+c_roma = 118 # Duplicate to increase weight
 d_latium = 118 # Duchy Latium - Roma
-c_orvieto = 121 # Orvieto - Napoli
-c_orbetello = 117 # Orbetello - Siena
+c_orvieto = 118 # Orvieto - Roma
+c_orbetello = 118 # Orbetello - Roma
+
+c_roma = 4732 # Roma - Terracina
+
 c_ancona = 119 # County Ancona - Ancona
+
 c_urbino = 2977 # Urbino - Urbino
 c_rimini = 2977 # Rimini - Urbino
+
 c_siena = 117 # Siena - Siena
+
 d_pisa = 115 # Duchy Pisa - Pisa
 c_pisa = 115 # County Pisa - Pisa
 c_piombino = 115 # Piombino - Pisa
+
 c_firenze = 116 # Firenze - Firenze
+
 c_arezzo = 2978 # Arezzo - Arezzo
+
 c_lucca = 2980 # Lucca - Firenze
+
 c_modena = 106 # Modena - Modena
+
 c_parma = 105 # Parma - Parma
+
 c_genoa = 101 # Genoa - Liguria
+
 c_noli = 2992 # Noli - Liguria
+
 c_nice = 102 # Nice - Nice
+
 c_ravenna = 114 # Ravenna - Romagna
-c_bologna = 114 # Bologna - Romagna
+c_bologna = 4730 # Bologna - Bologna
+
 c_ferrara = 113 # Ferrara - Ferrara
+
 c_mantua = 109 # Mantua - Mantua
+
 c_verona = 108 # Verona - Verona
+c_padova = 4729 # Padova - Padova
+
 c_brescia = 107 # Brescia - Brescia
+c_brescia = 4739 # Brescia - Bergamo
+
 c_cremona = 1862 # Cremona - Cremona
+
+c_lombardia = 104 # Lombardia - Lombardia
+c_como = 4740 # Como - Como
+c_leventina = 4740 # Leventina - Como
+c_pavia = 4728 # Pavia - Pavia
+
+c_leventina = 4722 # Leventina - Illanz
+c_schwyz = 4722 # Schwyz - Illanz
+
 c_lombardia = 2979 # Lombardia - Novarra
-c_como = 104 # Como - Lombardia
-c_leventina = 104 # Leventina - Lombardia
 c_pavia = 2979 # Pavia - Novarra
+
 c_monferrato = 2981 # Monferrato - Montferrat
 c_ivrea = 2981 # Ivrea - Montferrat
+
 c_saluzzo = 1875 # Saluzzo - Cuneo
+c_saluzzo = 4727 # Saluzzo - Saluzzo
+
 c_piemonte = 103 # Piemonte - Piedmont
+
 c_trent = 110 # Trent - Trent
 c_bolzano = 110 # Bolzano - Trent
-c_padova = 108 # Padova - Verona
+
 c_treviso = 1774 # Treviso - Treviso
-c_udine = 111 # Udine - Friuli
+c_treviso = 111 # Treviso - Friuli
+
 c_venezia = 112 # Venezia - Venezia 
+
 c_istria = 130 # Istria - Istria
+
 c_krain = 129 # Krain - Krain
 c_pettau = 129 # Pettau - Krain
-c_aquileia = 1769 # Aquileia - Görz
+c_pettau = 4751 # Pettau - Cilli
 
-# Switzerland 
+c_aquileia = 1769 # Aquileia - Görz
+c_aquileia = 4738 # Aquileia - Triest
+
+# Switzerland
 
 c_savoie = 205 # Savoie - Savoie
+
 c_valais = 1871 # Valais - Wallis
 c_aosta = 1871 # Aosta - Wallis
-c_geneve = 205 # Geneve - Savoie
+
+c_geneve = 4720 # Geneve - Geneva
 c_vaud = 1867 # Vaud - Freiburg
 c_neuchatel = 1867 # Neuchatel - Freiburg
+c_montbeliard = 1867 # Montbeliard - Freiburg
+
+c_neuchatel = 4721 # Neuchatel - Freiburg
+
 c_bern = 165 # Bern - Bern
 c_aargau = 165 # Aargau - Bern
-c_zurichgau = 1869 # Zurich - Zurich
+
+c_schwyz = 1869 # Schwyz - Zurich
 c_schwyz = 166 # Schwyz - Waldstatte
+
 c_st_gallen = 1870 # St Gallen - St Gallen
 
-# Low Countries  
+c_st_gallen = 4710 # St Gallen - Bregenz
+c_schwaben = 4710 # St Gallen - Bregenz
+
+# Low Countries
 
 c_yperen = 90 # Yperen - Vlaanderen
+c_yperen = 4769 # Yperen - Rijsel
+
 c_brugge = 1744 # Brugge - Antwerpen
+
 c_gent = 1865 # Gent - Ghent
+
 c_hainaut = 91 # Hainaut - Hainaut
+
+c_hainaut = 1743 # Hainaut - Cambray
+
 c_brabant = 92 # Brabant - Brabant
+
 c_liege = 93 # Liege - Liege
 c_liege = 1866 # Liege - Namur
+
 c_luxembourg = 94 # Luxembourg - Luxemburg
+
 c_julich = 1878 # Julich - Aachen
+c_julich = 4768 # Julich - Julich
+
 c_loon = 1742 # Loon - Limburg
+
 c_loon = 2974 # Loon - Loon
+
 c_kleve = 2975 # Kleve - Cleves
+
 c_breda = 95 # Breda - Breda
+c_breda = 4770 # Breda - Hertogenbosch
+
 c_zeeland = 96 # Zeeland - Zeeland
-c_holland = 4383 # Holland - Haag
+c_zeeland = 4383 # Zeeland - Haag
+
+c_holland = 97 # Holland - Holland
 c_westfriesland = 97 # Westfriesland - Holland
+
 c_sticht = 98 # Sticht - Utrecht
+
 c_gelre = 99 # Gelre - Gelre
+	
 c_overijssel = 4381 # Overijssel - Oversticht
+
 c_frisia = 100 # Frisia - Friesland
 c_frisia = 4382 # Frisia - Ommeland
 
-# Holy Roman Empire  
+# Holy Roman Empire
 
 c_breisgau = 72 # Breisgau - Breisgau
+
 c_baden = 74 # Baden - Baden
-c_pfalz = 1761 # Pfalz - Worms	
-c_rottenburg = 77 # Rottenburg - Pfalz
+c_baden = 4714 # Baden - Durlach
+
+c_pfalz = 77 # Pfalz - Pfalz
+
 c_mainz = 78 # Mainz - Mainz
-c_nordgau = 75 # Nordgau - Elsass
+
+c_nordgau = 4765 # Nordgau - Mulhouse
+
 c_trier = 80 # Trier - Trier
 c_trier = 1760 # Trier - Koblenz
+
 c_saargau = 1761 # Saargau - Worms
+c_saargau = 4767 # Saargau - Zweibrucken
+c_saargau = 75 # Saargau - Strassburg
+
 c_koln = 85 # Köln - Köln
+
 c_berg = 84 # Berg - Berg
+c_berg = 69 # Berg - Dortmund
+
 c_frankfurt = 83 # Frankfurt - Nassau
 c_frankfurt = 1876 # Frankfurt - Frankfurt
+
 c_gottingen = 2972 # Gottingen - Paderborn
+c_gottingen = 4775 # Gottingen - Ravensberg
+
 c_nassau = 1762 # Fritzlar - Kassel
+
 c_hesse = 81 # Hesse - Hessen
 c_hesse = 82 # Hesse - Westfalen
+
 c_munster = 86 # Munster - Munster
-c_munster = 2973 # Munster - Meppen
+
 c_osnabruck = 56 # Osnabruck - Osnabruck
+
+c_munster = 2973 # Munster - Meppen
 c_osnabruck = 2973 # Osnabruck - Meppen
+
 c_ostfriesland = 1931 # Ostfriesland - East Frisia
+
 c_oldenburg = 55 # Oldenburg - Oldenburg
+
 c_bremen = 1874 # Bremen - 1874
+
 c_celle = 54 # Celle - 54
-c_verden = 1758 # Verden - Hannover
+c_celle = 1874 # Celle - BRemen
+
+c_verden = 4771 # Verden - Verden
+
 c_luneburg = 53 # Luneburg - Luneburg
+c_luneburg = 4772 # Luneburg - Celle
+
 c_braunschweig = 57 # Braunschweig - Brunswick
+c_braunschweig = 4742 # Braunschweig - Goslar
+c_braunschweig = 4773 # Braunschweig - Göttingen
+c_braunschweig = 1758 # Braunschweig - Brunswick
+
 c_minden = 2971 # Minden - Hoya
+
 c_hamburg = 44 # Hamburg - Hamburg
+
 c_lubeck = 45 # Lubeck - Lubeck
 c_lubeck = 1857 # Lubeck - Lauenburg
+
 c_altmark = 2964 # Altmark - Altmark
+
 c_magdeburg = 52 # Magdeburg - Magdeburg
+
 c_anhalt = 58 # Anhalt - Anhalt
+
 d_mecklemburg = 46 # Mecklemburg - Mecklenburg
-c_mecklemburg = 2996 # Mecklemburg - Wismar
+c_mecklemburg = 46 # Mecklemburg - Mecklenburg
 c_rostock = 46 # Rostock - Mecklenburg
+c_werle = 46 # Werle - Mecklenburg
+
+d_mecklemburg = 47 # Mecklemburg - Stralsund
+c_rostock = 47 # Rostock - Stralsund
+c_werle = 47 # Werle - Stralsund
+
+c_werle = 2996 # Werle - Wismar
+c_werle = 4749 # Werle - Neubrandeburg
+
 c_wolgast = 2994 # Wolgast - Greifswald
-c_rugen = 47 # Rugen - Vorpommern
+c_wolgast = 1858 # Wolgast - Stettin
+
+c_rugen = 4745 # Rugen - Rugen
+
 c_plauen = 62 # Plauen - Leipzig
+c_plauen = 2965 # Plauen - Vogtland
+c_plauen = 4741 # Plauen - Halle
+c_magdeburg = 4741 # Magdeburg - Halle
+
 c_meissen = 59 # Meissen - Meissen
+c_meissen = 2965 # Meissen - Vogtland
 c_meissen = 61 # Meissen - Dresden
+c_meissen = 4744 # Meissen - Zwickau
+
 c_thuringen = 63 # Thuringen - Thuringen
-c_weimar = 2965 # Weimar - Vogtland
-c_furstenberg = 69 # Furstenberg - Konstanz
+c_weimar = 63 # Weimar - Thuringen
+
+c_thuringen = 4716 # Thuringen - Coburg
+c_thuringen = 4774 # Thuringen - Fulda
+
+c_weimar = 4743 # Weimar - Weimar
+
+c_furstenberg = 4712 # Furstenberg - Konstanz
+c_furstenberg = 4713 # Furstenberg - Urach
+
 c_wurttemberg = 70 # Wurttemberg - Wurttemberg
+c_rottenburg = 70 # Rottenburg - Wurttemberg
+
+c_rottenburg = 4715 # Rottenburg - Rottenburg
+
 c_ulm = 1872 # Ulm - Ulm
+c_ulm = 4711 # Ulm - Donauworth
+
 c_leiningen = 71 # Leiningen - Ansbach
+c_eichstadt = 71 # Eichstadt - Ansbach
+
+c_leiningen = 4718 # Leiningen - Aschaffenburg
+
 c_wurzburg = 79 # Wurzburg - Wurzburg
+
 c_bamberg = 66 # Bamberg - Bamberg
+c_bamberg = 4717 # Bamberg - Bayreuth
+
 c_nurnberg = 67 # Nurnberg - Franken
 c_nurnberg = 1757 # Nurnberg - Oberpfalz
+
 c_regensburg = 2957 # Regensburg - Regensburg
+
 c_niederbayern = 64 # Niederbayern - Niederbayern
 c_niederbayern = 2956 # Niederbayern - Straubing
-c_kempten = 1868 # Kempten - Augsburg
-c_schwaben = 68 # Schwaben - Memmingen
-c_eichstadt = 2955 # Eichstadt - Ingolstadt
+
+c_kempten = 68 # Kempten - Memmingen
+
+c_kempten = 2955 # Kempten - Ingolstadt
+
+c_oberbayern = 4708 # Oberbayern - Freising
+c_oberbayern = 4707 # Oberbayern - Wasserburg
 c_oberbayern = 65 # Oberbayern - Munchen
+c_oberbayern = 1868 # Oberbayern - Augsburg
+
 c_tirol = 73 # Tirol - Tirol
+c_schwaben = 73 # Schwaben - Tirol
+
 c_chur = 1873 # Chur - Chur
+
 c_innsbruck = 1768 # Innsbruck - Lienz
-c_pongau = 1768 # Pongau - Lienz
+c_innsbruck = 4758 # Innsbruck - Etschtal
+c_pongau = 4759 # Pongau - Oberkanten
+
 c_salzburg = 76 # Salzburg - Salzburg
-c_passau = 76 # Passau - Linz
-c_znojmo = 265 # Znojmo - Brno
-c_freistadt = 1770 # Freistadt - Ostmarch
+c_salzburg = 4760 # Salzburg - Innbaiern
+
+c_freistadt = 133 # Freistadt - Linz
+c_passau = 133 # Passau - Linz
+
+c_passau = 4709 # Passau - Passau
+
+c_znojmo = 1770 # Znojmo - Ostmarch
 c_krems = 1770 # Krems - Ostmarch
+
 c_osterreich = 134 # Osterreich - Wien
-c_medelike = 134 # Medelike - Wien
+c_medelike = 4762 # Medelike - Wienerwald
+
 c_graz = 1863 # Graz - Graz
 c_pitten = 1863 # Osterreich - Graz
-c_steiermark = 133 # Steiermark - Steiermark
-c_traungau = 133 # Traungau - Linz
+
+c_steiermark = 132 # Steiermark - Steiermark
+c_steiermark = 4761 # Steiermark - Steiermark
+c_traungau = 4761 # Traungau - Traungau
 c_leoben = 132 # Leoben - Steiermark
+
 c_karnten = 128 # Karnten - Karnten
+c_udine = 128 # Udine - Karnten
 c_friesach = 128 # Friesach - Karnten
+
+c_udine = 128 # Udine - Karnten
+
+c_plzen = 2967 # Plzen - Eger
 c_plzen = 267 # Plzen - Plzen
+
 c_domazlice = 2968 # Domazlice - Budejovice
+
 c_litomerice = 1771 # Litomerice - Erz
-c_zatec = 2967 # Zatec - Eger
+
+c_zatec = 1771 # Zatec - Erz
+
 c_praha = 266 # Praha - Bohemia
+
 c_brno = 265 # Brno - Moravia
+
 c_olomouc = 4237 # Olomouc - Olomouc
 c_opava = 4237 # Opava - Olomouc
-c_hradec = 2970 # Hradec - Hradeco
+
+c_hradec = 2968 # Hradec - Budejovice
+c_hradec = 4725 # Hradec - Hradec
+c_hradec = 4724 # Hradec - Pardubice
+
 c_lower_silesia = 2966 # Lower Silesia - Glogow
+
 c_lubusz = 2969 # Lubusz - Sternberg
+
 c_gorlitz = 60 # Gorlitz - Oberlausitz
+
 c_upper_silesia = 4238 # Upper Silesia - Liegnitz
+c_upper_silesia = 264 # Upper Silesia - Wroclaw
+c_upper_silesia = 4778 # Upper Silesia - Zhorelec
+
 c_lausitz = 1763 # Lausitz - Niederlausitz
+c_lausitz = 61 # Lausitz - Dresden
+
 c_brandenburg = 50 # Brandenburg - Berlin
 c_brandenburg = 1759 # Brandenburg - Potsdam
-c_werle = 2993 # Werle - Uckermark
+c_brandenburg = 2993 # Brandenburg - Uckermark
+c_brandenburg = 4748 # Brandenburg - Brandenburg
+
 c_havelberg = 51 # Havelberg - Ruppin
+c_havelberg = 4786 # Havelberg - Prignitz
 
-# Balkans  
+# Balkans
 
-c_veglia = 1826 # Veglia - Lika
+c_veglia = 4752 # Veglia - Rijeka
 c_senj = 1826 # Senj - Lika
+
 d_dalmatia = 136 # Duchy Dalmatia - Dalmatia
-c_zadar = 136 # Zadar - Dalmatia
+c_zadar = 4753 # Zadar - Zara
 c_split = 136 # Split - Dalmatia
-c_zachlumia = 137 # Zachlumia - Ragusa
+c_zachlumia = 136 # Zachlumia - Dalmatia
+c_imotski = 136 # Imotski - Dalmatia
+
 c_zagreb = 131 # Zagreb - Croatia
+
 c_varadzin = 152 # Varadzin - Belovar
+
 c_ragusa = 137 # Ragusa - Ragusa
+
+c_travunia = 1831 # Travunia - Travunia
+
 c_zeta = 138 # Zeta - Zeta
-c_travunia = 138 # Travunia - Zeta
+c_zeta = 4754 # Zeta - Cattaro
+
 c_rashka = 1827 # Rashka - Raska
-c_astibus = 1766 # Astibus - Kosovo
+c_rashka = 1766 # Rashka - Kosovo
+
 c_belgrade = 141 # Belgrade - Smederevo
+
 c_belgrade = 4239 # Belgrade - Belgrade
+
 c_vidin = 2746 # Vidin - Vidin
 c_vidin = 4176 # Vidin - Brancievo
-c_krizevci = 1767 # Krizevci - Veroce
+
+c_krizevci = 4756 # Krizevci - Bjelovar
 c_vukovar = 1767 # Vukovar - Veroce
+
 c_usora = 1828 # Usora - Soli
-c_imotski = 139 # Imotski - Hum
-c_hum = 1831 # Hum - Travunia
-c_onogost = 1831 # Onogost - Travunia
+
+c_hum = 139 # Hum - Hum
+c_hum = 4757 # Hum - Kolubara
+c_hum = 4755 # Hum - Podrinje
+c_onogost = 139 # Onogost - Hum
+
 c_soli = 140 # Soli - Bosnia
 c_bilino_polje = 140 # Bilino Polje - Bosnia
+
 c_rama = 3002 # Rama - Visoki
 
-# Byzantine Empire  
+# Byzantine Empire
 
 c_aulon = 4174 # Aulon - Durres
+
 c_dyrrachion = 143 # Dyrrachion - Vlore
-c_ochrid = 4175 # Ochrid - Lezhe
-c_lyncestis = 4175 # Lyncestis - Lezhe
-c_epeiros = 143 # Epeiros - Vlore
-c_arta = 144 # Arta - Janina
+c_dyrrachion = 4175 # Ochrid - Lezhe
+c_ochrid = 4750 # Ochrid - Kruje
+c_lyncestis = 4780 # Lyncestis - Ohri
+
+c_epeiros = 144 # Epeiros - Janina
+c_kastoria = 144 # Kastoria - Janina
+c_arta = 4699 # Arta - Arta
 c_naupactus = 144 # Naupactus - Janina
+
 c_corfu = 142 # Corfu - Corfu
-c_cephalonia = 142 # Cephalonia - Corfu
+c_cephalonia = 4698 # Cephalonia - Cephalonia
 c_zakynthos = 142 # Zakynthos - Corfu
+
 c_achaia = 1773 # Achaia - Achaea
 c_korinthos = 1773 # Kornithos - Achaea
+
 c_monemvasia = 145 # Monemvasia - Morea
 c_methone = 145 # Methone - Morea
+
 d_athens = 146 # Duchy Athens - Athens
 c_atheniai = 146 # Atheniai - Athens
 c_hellas = 146 # Hellas - Athens
-c_demetrias = 147 # Demetrias - Larissa
+c_demetrias = 146 # Demetrias - Athens
+
 c_naxos = 164 # Naxos - Naxos
+
 c_euboia = 3003 # Euboia - Euboea
-c_lesbos = 2348 # Lesbos - Chios
+
+c_lesbos = 4700 # Lesbos - Lesbos
 c_chios = 2348 # Chios - Chios
+
 c_thessalia = 147 # Thessalia - Larissa
+
 c_thessalonike = 1853 # Thessalonike - Kozani
-c_kastoria = 1853 # Kastoria - Kozani
+
 c_chalkidike = 148 # Chalkidike - Thessaloniki
 c_seres = 148 # Seres - Thessaloniki
+
 c_strymon = 3001 # Strymon - Skopje
+c_astibus = 3001 # Astibus - Skopje
+
 c_naissus = 3000 # Naissus - Nis
+
 c_serdica = 1765 # Serdica - Sofia
+
 d_turnovo = 2750 # Turnovo - Plovdiv
 c_tyrnovo = 2750 # Tyrnovo - Plovdiv
+
 c_nikopolis = 150 # Nikopolis - Bulgaria
-c_dorostotum = 150 # Dorostotum - Bulgaria
-c_constantia = 159 # Constantia - Silistria
+c_dorostotum = 4704 # Dorostotum - Tirnova
+
+c_constantia = 4706 # Constantia - Tolcu
 c_karvuna = 159 # Karvuna - Silistria
+
 d_adrianopolis = 149 # Duchy Adrianopolis - Edirne
 c_adrianopolis = 149 # County Adrianopolis - Edirne
-c_traianopolis = 149 # Traianopolis - Edirne
-c_philippopolis = 148 # Philippopolis - Thessaloniki
+c_traianopolis = 4705 # Traianopolis - Gumulcine
+c_philippopolis = 4702 # Philippopolis - Siroz
+c_philippopolis = 4703 # Philippopolis - Kostendil
 c_maroneia = 149 # Maroneia - Edirne
+c_kaliopolis = 4779 # Kaliopolis - Gelibolu
+
 c_mesembria = 1764 # Mesembria - Burgas
 c_thrake = 1764 # Thrake - Burgas
-c_kaliopolis = 1764 # Kaliopolis - Burgas
+
 c_byzantion = 151 # Byzantion - Thrace
+
 c_nikomedeia = 316 # Nikomedeia - Izmit
+
 c_nikaea = 4312 # Nikea - Sultanönu
 c_claudiopolis = 4312 # Claudiopolis - Sultanönu
+
 c_kyzikos = 317 # Kyzikos - Hudavendigar
 c_prusa = 317 # Prusa - Hudavendigar
+
 c_abydos = 2296 # Abydos - Biga
+
+c_smyrna = 318 # Smyrna - Sugla
 c_smyrna = 2297 # Smyrna - Saruhan
 c_ephesos = 318 # Ephesos - Sugla
+
 c_laodikeia = 4309 # Laodikeia - Aydin
 c_laodikeia = 4308 # Laodikeia - Denizli
 c_sardis = 4309 # Sardis - Aydin
 c_sardis = 4308 # Sardis - Denizli
+
 c_lykia = 319 # Lykia - Mentese
+
 c_rhodos = 320 # Rhodos - Rhodes
+
 c_seleukeia = 2302 # Seleukeia - Icel
+
 c_attaleia = 2298 # Attaleia - Tekke
+
 d_armenia_minor = 327 # Duchy Armenia Minor - Adana
 c_adana = 327 # Adana - Adana
-c_tarsos = 2302 # Tarsos - Icel
+c_tarsos = 327 # Tarsos - Adana
 c_teluch = 327 # Teluch - Adana
 c_lykandos = 327 # Lykandos - Adana
+
+c_tyana = 4307 # Tyana - Aksaray
 c_nyssa = 4307 # Nyssa - Aksaray
+
 c_sozopolis = 1848 # Sozopolis - Hamid
+
 c_dorylaion = 322 # Dorylaion - Kutahya
 c_akroinon = 322 # Akroinon - Kutahya
+
 c_amorion = 4311 # Amorion - Karahisar
+
 c_ikonion = 323 # Ikonion - Konya
-c_tyana = 324 # Tyana - Karaman
+c_ikonion = 324 # Ikonion - Karaman
+
 c_paphlagonia = 4313 # Paphlagonia - Kangiri
+
 c_ankyra = 326 # Ankyra - Ankara
+
 c_herakleia = 2299 # Herakleia - Bolu
 c_amastris = 2299 # Amastris - Bolu
+
 c_kastamon = 325 # Kastamon - Kastamon
+
 c_sinope = 328 # Sinope - Sinope
+
 c_chaldea = 2304 # Chaldea - Canik
+c_amisos = 2304 # Amisos - Canik
 c_amisos = 1846 # Amisos - Amasya
+
 c_trapezous = 330 # Trapezous - Trebizond
 c_theodosiopolis = 330 # Theodosiopolis - Trebizond
+
 c_kaisereia = 2301 # Kaisereia - Kayseri
+
 c_charsianon = 2300 # Charsianon - Bozok
+
 c_galatia = 4314 # Galatia - Kirshehir
+
 c_koloneia = 329 # Koloneia - Sivas
 c_koloneia = 2305 # Karin - Erzincan
 c_koloneia = 4315 # Karin - Tokat
-c_aintab = 332 # Aintab - Marash
+
+c_melitene = 332 # Melitene - Marash
 c_melitene = 4310 # Melitene - Divrigi
-c_taron = 2303 # Taron - Malatya
+c_melitene = 2303 # Melitene - Malatya
+
 c_karin = 331 # Karin - Erzurum
 c_ani = 331 # Ani - Erzurum
+
 c_ani = 4302 # Ani - Bayazid
+
 c_vaspurakan = 2307 # Vaspurakan - Van
 c_vaspurakan = 4296 # Vaspurakan - Bitlis
+
 c_dwin = 4304 # Dwin - Khoy
+
 c_lori = 419 # Dwin - Armenia
+
 c_kartli = 423 # Kartli - Tbilisi
+
+
+c_taron = 418 # Taron - Diyarbekir
+
 c_guria = 2196 # Guria - Gruia
+
 c_tao = 4303 # Tao - Tao
+
 c_klarjeti = 2204 # Klarjeti - Samtskhe
+
 c_mesopotamia = 2306 # Mesopotamia - Mush
+
 c_mtskheta = 4301 # Mtskheta - Kartli
+
 c_kakheti = 2203 # Kahketi - Kahketi
+
 c_albania = 4305 # Albania - Shaki
+
 d_cyprus = 321 # Duchy Cyprus - Cyprus
 c_famagusta = 321 # Famagusta - Cyprus
 c_limisol = 321 # Limisol - Cyprus
+
 d_krete = 163 # Duchy Krete - Crete
 c_chandax = 163 # Chandax - Crete
 c_kaneia = 163 # Kaneia - Crete
 
-# Levant  
+# Levant
 
 c_aleppo = 377 # Aleppo - Aleppo
-c_tell_bashir = 4298 # Tell Bashir - Ayntab
+c_tell_bashir = 377 # Tell Bashir - Aleppo
+
+c_aintab = 4298 # Aintab - Ayntab
+
 c_alexandretta = 2313 # Alexandretta - Antioch
 c_antiocheia = 2313 # Antiocheia - Antioch
+
 c_tripoli = 378 # Tripoli - Tarabulus
 c_tortosa = 378 # Tortosa - Tarabulus
+
 c_hama = 1849 # Hama - Hammah
-c_asas = 377 # Asas - Aleppo
-c_archa = 4297 # Archa - Homs
-c_homs = 1849 # Homs - Hammah
+c_asas = 1849 # Asas - Hammah
+c_archa = 1849 # Archa - Hamah
+
+c_homs = 4297 # Homs - Homs
 c_baalbek = 4297 # Baalbek - Homs
+
 d_ascalon = 1854 # Duchy Ascalon - Jaffa
 c_ascalon = 1854 # Ascalon - Jaffa
 c_jaffa = 1854 # Jaffa - Jaffa
+
 d_galilee = 1855 # Duchy Galilee - Sidon
 c_tyrus = 1855 # Tyrus - Sidon
 c_beirut = 1855 # Beirut - Sidon
 c_acre = 1855 # Acre - Sidon
+
 c_tiberias = 381 # Tiberias - Ajiloun
-c_irbid = 381 # Irbid - Ajiloun
+
 d_jerusalem = 379 # Duchy Jerusalem - Judea
 c_jerusalem = 379 # County Jerusalem - Judea
 c_jerusalem = 379 # Duplicate to increase weight
-c_hebron = 4268 # Hebron - Aqabah
-c_beersheb = 4268 # Beersheb - Aqabah
-c_negev = 4268 # Negev - Aqabah
+c_negev = 379 # Negev - Judea
+c_hebron = 379 # Hebron - Judea
+c_beersheb = 379 # Beersheb - Judea
+
 c_damascus = 382 # County Damascus - Damascus
 c_safed = 382 # Safed - Damascus
+
 c_amman = 4270 # Amman - Hawran
 c_madaba = 4270 # Madaba - Hawran
-c_al_mafraq = 4271 # Al Mafraq - Suwayda
+
 c_az_zarqa = 4271 # Az Zarqa - Suwayda
+c_irbid = 4271 # Irbid - Suwayda
+
+c_negev = 1854 # Negev - Negev
+c_eilat = 1854 # Eilat - Negev
+
 c_darum = 364 # Darum - Gaza
 c_el-arish = 364 # El-Arish - Gaza
+
 c_kerak = 380 # Kerak - Al Karak
 c_monreal = 380 # Monreal - Al Karak
-c_eilat = 365 # Eilat - Sinai
+
+c_eilat = 4268 # Eilat - Aqabah
+c_al_aqabah = 4268 # Al Aqabah - Aqabah
+
 c_sinai = 365 # Sinai - Sinai
+
 c_farama = 2315 # Farama - Suez
-c_kolzum = 2315 # Sarqihya - Suez
+c_sarqihya = 2315 # Sarqihya - Suez
+
 c_bira = 4295 # Bira - Hisn Kayfa
+
 c_amida = 418 # Amida - Diyarbekir
+
 c_edessa = 2308 # Edessa - Urfa
-c_nisibin = 4292 # Nisibin - Mardin
+c_nisibin = 2308 # Nisibin - Urfa
+
 d_mosul = 411 # Duchy Mosul - Mosul
 c_mosul = 411 # County Mosul - Mosul
+
 c_sinjar = 2309 # Sinjar - Sinjar
-c_al_bichri = 2314 # Al Bichri - Rahba
-c_al_jazira = 2314 # Al Jazira - Rahba
-c_druz = 407 # Druz - Rakka
-c_tadmor = 407 # Tadmor - Rakka
+c_sinjar = 4292 # Sinjar - Mardin
+
+c_al_bichri = 407 # Al Bichri - Rakka
+c_al_jazira = 407 # Al Jazira - Rakka
+
+c_rahbah = 2314 # Rahbah - Rahba
+
+c_druz = 405 # Druz - Tadmor
+c_tadmor = 405 # Tadmor - Tadmor
 c_palmyra = 405 # Palmyra - Tadmor
 c_syria = 405 # County Syria - Tadmor
-c_rahbah = 406 # Rahbah - Haditha
+c_al_mafraq = 405 # Al Mafraq - Tadmor
+
+c_karbala = 406 # Karbala - Haditha
 c_karbala = 409 # Karbala - Karbala
 
-# Egypt 
+# Egypt, Abyssinia, Socotra & Somalia
 
 c_pelusia = 4316 # Pelusia - Sharqiya
+
 c_delta = 362 # Delta - Rashid
 c_gabiyaha = 363 # Gabiyaha - Rashid
 c_manupura = 2316 # Manupura - Al Gharbia
+
 d_alexandria = 358 # Alexandria - Alexandria
 c_alexandria = 358 # Alexandria - Alexandria
-c_paraetonium = 358 # Alexandria - Alexandria
+
 c_al_alamayn = 2326 # Al Alamayn - Bardiyah
 c_quattara = 2326 # Quattara - Bardiyah
+
 c_al_alamayn = 2325 # Al Alamayn - Tarrana
 c_quattara = 2325 # Quattara - Tarrana
+c_alexandria = 2325 # Quattara - Tarrana
+
 d_cairo = 361 # Duchy Cairo - Cairo
 c_cairo = 361 # County Cairo - Cairo
-c_sarqihya = 361 # Sarqihya - Cairo
-c_kharibta = 4317 # Gizeh - Bahiriya
+
+c_gizeh = 4317 # Gizeh - Bahiriya
 c_gizeh = 359 # Gizeh - Faiyum
-c_faiyum = 359 # Gizeh - Faiyum
+
 c_asyut = 4318 # Asyut - Atfih
 c_asyut = 2317 # Asyut - Minya
-c_akhmim = 2319 # Asyut - Asyut
+c_asyut = 2319 # Asyut - Asyut
+
 c_quena = 4320 # Quena - Girga
 c_quena = 360 # Quena - Qena
+
 c_alqusair = 2320 # AlQusair - RasGharib
+
 c_kharga = 2318 # Kharga - Buhaira
-c_farafra = 4323 # Buhairya - Farafreh
+
+c_buhairya = 4323 # Buhairya - Farafreh
 c_buhairya = 1233 # Buhairya - Kharga
+
 d_aswan = 1231 # Duchy Aswan - Aswan
 c_aswan = 1231 # Aswan - Aswan
-c_esna = 4319 # Aswan - Isna
+c_aswan = 4319 # Aswan - Isna
+
 d_aswan = 2321 # Duchy Aswan - Queseer
 c_aswan = 2321 # Aswan - Queseer
+
 d_nobatia = 1234 # Duchy Nobatia - Qasr Ibrim
 c_dotawo = 1234 # Dotawo - Qasr Ibrim
-c_nobatia = 2322 # Nobatia - Qasr Ibrim
+c_nobatia = 1234 # Nobatia - Qasr Ibrim
+
 d_nobatia = 1232 # Duchy Nobatia - Suakin
 c_suakin = 1232 # Suakin - Suakin
+
 c_aydhab = 2324 # Aydhab - Halaib
+
 d_nubia = 1228 # Duchy Makuria - Dongola
 c_makuria = 1228 # Makuria - Dongola
-c_napata = 1229 # Napata - Berber
+c_napata = 1228 # Napata - Dongola
+
 d_nubia = 2322 # Duchy Makuria - Wadi Halfa
+c_makuria = 2322 # Makuria - Wadi Halfa
+c_napata = 2322 # Napata - Wadi Halfa
+
+c_makuria = 2798 # Makuria - Soba
+
 d_nubia = 2323 # Duchy Makuria - Sahra an Nubyah
 c_nubia = 2323 # Nubia - Sahra an Nubyah
+
 d_nubia = 1229 # Duchy Nubia - Berber
-c_atbara = 2798 # Atbara - Soba
+c_atbara = 1229 # Atbara - Berber
+c_hayya = 1229 # Haya - Berber
+
 d_nubia = 2787 # Duchy Nubia - Hamasien
 c_hayya = 2787 # Haya - Hamasien
+c_akordat = 2787 # Akordat - Hamasien
 c_massawa = 2787 # Massawa - Hamasien
+
 c_bayuda = 1220 # Bayuda - Bayuda
+
 c_atbara = 2797 # Atbara - Shendy
+
+
+
 c_gezira = 4033 # Gezira - Al Qadirif
-c_matamma = 2772 # Gezira - Demibya
-c_matamma = 2770 # Matamma - Agew
+c_gezira = 2772 # Gezira - Demibya
+c_gezira = 2770 # Gezira - Agew
+
 d_hayya = 1226 # Duchy Blemmyia - Beja
 c_hayya = 1226 # Hayya - Beja
 c_kassala = 1226 # Kassala - Beja
+
 c_kassala = 1225 # Kassala - Butana
+
 d_axum = 1230 # Duchy Axum - Massawa
 c_trinkitat = 1230 # Trinkitat - Massawa
 c_massawa = 1230 # Massawa - Massawa
+
+c_massawa = 2767 # Massawa - Enderta
+
 d_sennar = 1222 # Duchy Alodia - Gezira
 c_alodia = 1222 # Alodia - Gezira
+
 c_sennar = 2799 # Sennar - Sennar
 c_sennar = 1217 # Sennar - Fazughli
+
 c_kosti = 2800 # Kosti - Kosti
 c_kosti = 1216 # Kosti - Dar Nuba
-c_aksum = 2767 # Aksum - Enderta
+
+d_axum = 1227 # Duchy Axum - Tigray
+d_semien = 1227 # Duchy Semien - Tigray
+d_wag = 1227 # Duchy Wag - Tigray
+c_aksum = 1227 # Aksum - Tigray
 c_tigrinya = 1227 # Tigrinya - Tigray
+c_semien = 1227 # Semien - Tigray
+c_wag = 1227 # Wag - Tigray
+c_lakomelza = 1227 # Lakomelza - Tigray
+c_begemder = 1227 # Begemder - Tigray
+
 c_wag = 2769 # Wag - Lasta
+
 d_axum = 2766 # Duchy Axum - Mendefera
 d_semien = 2766 # Duchy Semien - Mendefera
 d_wag = 2766 # Duchy Wag - Mendefera
 c_akordat = 2766 # Akordat - Mendefera
+
 d_semien = 2771 # Duchy Semien - Semien
 c_semien = 2771 # Semien - Semien
+
 d_afar = 1215 # Duchy Afar - Tajura
 c_tadjoura = 1215 # Tadjoura - Tajura
+
 d_afar = 2765 # Duchy Afar - Assab
 c_assab = 2765 # Assab - Assab
+
 c_begemder = 1214 # Begemder - Wollo
+
 c_harer = 1211 # Harer - Harer
 c_harer = 2773 # Harer - Mora
+
 c_asayita = 2764 # Asayita - Ausa
+
+c_asayita = 2768 # Asayita - Angot
 c_lakomelza = 2768 # Lakomelza - Angot
+
 c_zeila = 1212 # Zeila - Zeila
 c_zeila = 2793 # Zeila - Hargeisa
+
 c_berbera = 1209 # Berbera - Berbera
 c_berbera = 2790 # Berbera - Sanaag
 c_berbera = 2789 # Berbera - Las Khorey
 c_berbera = 2792 # Berbera - Togdheer
+
 c_busaso = 2786 # Busaso - Busaso
 c_busaso = 2788 # Busaso - Hafun
+
 d_shewa = 1213 # Duchy Shewa - Shewa
 c_ankober = 1213 # Ankober - Shewa
 c_antalo = 1213 # Antalo - Shewa
+
 c_ankober = 2791 # Ankober - Ankober
+
+d_gojjam = 1223 # Duchy Gojjam - Gojjam
 c_gojjam = 1223 # Gojjam - Gojjam
+c_gojjam = 1223 # Gojjam - Gojjam #Added weight
+c_matamma = 1223 # Matamma - Gojjam
+d_damot = 1223 # Duchy Damot - Gojjam
+
 c_asosa = 2763 # Asosa - Asosa
+
 c_damot = 2762 # Damot - Damot
+
 #d_gondar = 1224 # Duchy Gondar - Gonder
 c_gondar = 1224 # Gondar - Gonder
+
 #d_socotra = 1099 # Duchy Socotra - Socotra
 c_socotra = 1099 # Socotra - Socotra
-#Off the map for CK2 but included to avoid stump Ethiopian/Adal provinces in EU4: # 
+
+#Off the map for CK2 but included to avoid stump Ethiopian/Adal provinces in EU4:
 d_shewa = 1218 # Duchy Shewa - Sidamo
+c_ankober = 1218 # Ankober - Sidamo
+c_antalo = 1218 # Antalo - Sidamo
+
 c_ankober = 2761 # Ankober - Arsi
+c_antalo = 2760 # Ankober - Hadiya
+
 d_shewa = 1210 # Duchy Shewa - Dawaro
 c_ankober = 1210 # Ankober - Dawaro
 c_antalo = 1210 # Antalo - Dawaro
+
 d_harer = 1208 # Duchy Berbera - Haud
 c_berbera = 1208 # Berbera - Haud
 c_zeila = 1208 # Zeila - Haud
@@ -933,1423 +1421,2292 @@ c_zeila = 1208 # Zeila - Haud
 
 c_canarias = 366 # Canarias - The Canarias
 c_canarias = 4565 # Canarias - Tenerife
+
 c_anti-atlas = 2470 # Anti-Atlas - Haha
+
+c_warzazat = 2464 # Warzazat - Quarzazate
 c_warzazat = 4568 # Warzazat - Demnate
+
 c_tharasset = 348 # Tharasset - Sus
 c_tharasset = 1110 # Tharasset - Agadir
+
 c_ifni = 347 # Ifni - Ifni
+
 c_marrakech = 344 # Marrakech - Marrakech
 c_tinmallal = 344 # Tinmallal - Marrakech
+
 c_tadla = 2468 # Tadla - Tadla
-c_fes = 2467 # Fes - Meknes
+
 c_meknes = 2467 # Meknes - Meknes
+
 c_tudgha = 346 # Tudgha - Figuig
-c_ziz = 346 # Ziz - Figuig
+
 c_sijilmasa = 2460 # Sijilmasa - Saoura
-c_draa = 2464 # Draa - Draa
+
+c_draa = 2466 # Draa - Draa
+
 c_massat = 2469 # Massat - Dukkala
 c_massat = 345 # Massat - Abda
 c_massat = 4564 # Massat - Anfa
 c_infa = 342 # Infa - Charb
 c_infa = 4563 # Infa - Sale
+
 c_tangiers = 334 # Tangiers - Tangiers
+
 c_cebta = 1751 # Cebta - Ceuta
 c_cebta = 4561 # Cebta - Tetouan
+
+c_fes = 343 # Fes - Fez
 c_taza = 343 # Taza - Fez
-c_muluja = 343 # Muluja - Fez
+
 c_el_rif = 335 # El Rif - Mellila
+
 c_figuig = 2463 # Figuig - Kasadir
 c_atlas_mnt = 2463 # Atlas Mnt - Kasadir
+
 c_figuig = 349 # Figuig - Figuig
+c_muluja = 349 # Muluja - Figuig
+
 c_snassen = 2465 # Snassen  - Oujda
+
 c_tlemcen = 336 # Tlemcen - Tlemcen
+
 c_orania = 337 # Orania - Oran
 c_orania = 4562 # Orania - Mers el Kebir
+
+
 c_beni_yanni = 2461 # Beni Yanni - Dahra
+
 c_al_djazair = 338 # Al Djazair - Al-Djazair
+
 c_lemdiyya = 2462 # Lemdiyya - Ouarsenis
 c_hanyan = 2462 # Hanyan - Ouarsenis
+
 c_ashir = 2459 # Ashir - Titteri
+
 c_mzab = 2457 # Mzab - Mzab
+
 c_tuggurt = 2456 # Tuggurt - Touggourt
+
 c_arigh = 2472 # Arigh - Ouargla
+
+
 c_bejaija = 339 # Bejaija - Kabylia
 c_tell_atlas = 339 # Tell Atlas - Kabylia
+
 c_constantine = 340 # Constantine - Constantine
 c_annaba = 1882 # Annaba - Annaba
+
 c_biskra = 351 # Biskra - Biskra
 c_biskra = 2458 # Biskra - Hodna
+
 c_ouled_nail = 350 # Ouled Nail - Laghouat
+
 c_tunis = 341 # Tunis - Tunis
 c_tunis = 341 # Duplicate to increase weight
+
 c_bizerte = 2455 # Bizerte - Bizerte
+
 c_gabes = 352 # Gabes - Gafsa
+
 c_gabes = 2453 # Gabes - Sfax
 c_mahdia = 2453 # Mahdia - Sfax
+
 c_mahdia = 2473 # Mahdia - Sousse
+
 c_tripolitana = 354 # Tripolitana - Tripolitania
+
 c_djerba = 353 # Djerba - Tataouine
 c_djerba = 2954 # Djerba - Djerba
 c_djerba = 2452 # Djerba - Zuwarah
+
 c_syrte = 355 # Syrta - Sirt
 c_tadjrift = 355 # Leptis Magna - Sirt
-c_ajadabiya = 355 # Senoussi - Sirt
+
+c_cyrenaica = 356 # Cyrenaica - Cyrenaica
 c_benghazi = 356 # Benghazi - Cyrenaica
-c_senoussi = 357 # Senoussi - Dahrna
-c_cyrenaica = 357 # Cyrenaica - Dahrna
+c_senoussi = 356 # Senoussi - Cyrenaica
+c_ajadabiya = 356 # Senoussi - Cyrenaica
+
 c_tobruk = 357 # Tobruk - Dahrna
+
 c_leptis_magna = 2451 # Leptis Magna - Thubaqt
+
 c_nafusa = 2449 # Nafusa - Jufra
-c_nalut = 4567 # Nalut - Sabha
+c_nafusa = 4567 # Nafusa - Sabha
+
 c_suf = 2450 # Suf - Ghadames
+
 c_gafsa = 352 # Gafsa - Gafsa
+
 c_kairwan = 4566 # Kairwan - Kairwan
 c_medjerda = 4566 # Medjerda - Kairwan
+
 c_tebessa = 2454 # Tebessa - Kef
+
+
 
 # Mali
 
 c_ouadane = 1127 # Ouadane - Tuat
-c_idjil = 2466 # Idjil - Tuat
+c_idjil = 1127 # Idjil - Tuat
+
+c_araouane = 1128 # Araouane - Taodeni
 c_araouane = 1129 # Araouane - Azawadd
 c_taghaza = 1128 # Taghaza - Taodeni
+
 c_timbuktu = 1132 # Timbuktu - Timbuktu
+
 c_gao = 1133 # Gao - Gao
 c_gao = 2262 # Gao - Karabara
 c_gao = 2271 # Gao - Azawagh
+
 c_songhay = 2268 # Songhay - Aribanda
+
 c_tahoua = 2269 # Tahoua - Zarmaganda
 c_tahoua = 2273 # Tahoua - Ader
+
 c_tadmekka = 1130 # Tadmekka - Tadimekket
+
 c_kurumba = 2264 # Kurumba - Hombori
 c_kurumba = 2265 # Kurumba - Liptako
+
 c_dendi = 1142 # Dendi - Dendi
+
 c_dyamare = 2270 # Dyamare - Dallol
+
 c_kebbi = 2278 # Kebbi - Kebbi
+
 c_zarma = 1143 # Zarma - Borgu
 c_zarma = 2293 # Zarma - Yawuri
+
 c_gurma = 1136 # Gurma - Gurma
+
 c_yatenga = 1135 # Yatenga - Yatenga
+
 c_djenne = 1134 # Djenne - Jenne
 c_djenne = 2263 # Djenne - Haayre
 c_djenne = 2259 # Djenne - Bara
 c_djenne = 2261 # Djenne - Kala
+
 c_wagadougou = 1137 # Wagadougou - Wagadugu
 c_wagadougou = 2267 # Wagadougou - Tenkodogo
 c_wagadougou = 2266 # Wagadougou - Bilanga
+
 c_bambuk = 1120 # Bambuk - Bambuk
 c_bambuk = 1117 # Bambuk - Futa Jallon
+
 c_kantor = 2238 # Kantor - Kantor
 c_kantor = 2240 # Kantor - Galam
 c_kantor = 1114 # Kantor - Gabu
+
 c_bure = 1121 # Bure - Bure
+
 c_kiri = 2248 # Kiri - Do
+
 c_tagant = 2244 # Tagant - Tagant
-c_aoudaghost = 2243 # Aoudaghost - Tagant
+c_aoudaghost = 2244 # Aoudaghost - Tagant
+
 c_diafunu = 1115 # Diafunu - Brakna
 c_diafunu = 2237 # Diafunu - Tekrur
+
 c_oualata = 2247 # Oualata - Hodh
 c_oualata = 2246 # Oualata - Baghena
+
 c_ghana = 2245 # Ghana - Wagadu
+c_ghana = 2243 # Ghana - Termes
+
 c_mema = 2260 # Mema - Mema
 c_mema = 1131 # Mema - Massina
+
 c_soso = 1123 # Soso - Segu
+
 c_bobo_dyulasso = 2253 # Bobo Dyulasso - Gwiriko
 c_bobo_dyulasso = 2252 # Bobo Dyulasso - Lobi
 c_bobo_dyulasso = 1125 # Bobo Dyulasso - Kong
+
 c_mali = 1122 # Mali - Bagoe
 c_mali = 2250 # Mali - Bendugu
+
 c_dodugu = 2249 # Dodugu - Sibiridugu
 c_dodugu = 1124 # Dodugu - Wasuju
+
+
 c_zamfara = 1150 # Zamfara - Zamfara
+
 c_katsina = 1149 # Katsina - Katsina
 c_katsina = 1154 # Katsina - Zazzau
+
 c_gobir = 1148 # Gobir - Gobir
+
 c_kano = 1155 # Kano - Kano
 c_kano = 2280 # Kano - Biram
 c_kano = 2281 # Kano - Rano
+
 c_daura = 2279 # Daura - Daurau
+
 c_air = 2276 # Air - Itesan
 c_air = 2274 # Air - Air
 c_air = 2272 # Air - Azbin
+
 c_fachi = 1156 # Fachi - Damagaram
 c_fachi = 2275 # Fachi - Tenere
+
 c_munio = 2282 # Munio - Muniyo
 c_munio = 2283 # Munio - Bedde
+
 c_bauchi = 1161 # Bauchi - Bauchi
+
 c_bornu = 1157 # Bornu - Borno
+
 c_kagha = 1160 # Kagha - Mandara
 c_kagha = 2285 # Kagha - Marghi
+
 c_makari = 2287 # Makari - Kotoko
 c_makari = 2286 # Makari - Logone
+
 c_masseniya = 1159 # Masseniya - Bagirmi
+
 c_manan = 2284 # Manan - Manga
+
 c_bilma = 2277 # Bilma - Kawar
+
 c_djado = 2475 # Djado - Djado
+c_djado = 2474 # Djado - Tajhari
+
 c_murzuk = 2448 # Murzuk - Fezzan
-c_zawila = 2474 # Zawila - Tajhari
+c_zawila = 2448 # Zawila - Fezzan
+
 c_djimi = 1158 # Djimi - Kanem
+
 c_fitri = 2288 # Fitri - Yao
+
 c_wadai = 2932 # Wadai - Obidos
+
 c_ennedi = 774 # Ennedi - Al Junaynahr
+
 c_darfur = 1219 # Darfur - Kordofan
 c_darfur = 2801 # Darfur - Medwa
 c_darfur = 2802 # Darfur - Kobbe
 c_darfur = 1221 # Darfur - Taqali
 
-# Arabia 
+# Arabia
 
 c_maan = 2327 # Maan - Maan
-c_al_aqabah = 2327 # Al Aqabah - Maan
+
 c_medina = 384 # Medina - Medina
 c_medina = 2330 # Medina - Ma'din Sulaym
+
 c_mecca = 385 # Mecca - Mecca
 c_mecca = 2332 # Mecca - Truba
 c_mecca = 4277 # Mecca - Taif
+
 c_jeddah = 2331 # Jeddah - Jeddah
 c_jeddah = 4278 # Jeddah - Qunfudhah
+
 c_asir = 386 # Asir - Asir
 c_asir = 2335 # Asir - Dawasir
+
 c_sanaa = 390 # Sanaa - Sana'a
 c_sanaa = 4281 # Sanaa - Dhamar
+
 c_al_ahqaf = 2344 # Sanaa - Marib
+
 c_zabid = 4279 # Zabid - Zabid
 c_zabid = 387 # Zabid - Mukha
+
 c_najran = 391 # Najran - Najran
 c_najran = 4282 # Najran - Sahda
+
 c_taizz = 4280 # Taizz - Taiz
+
 c_tihama = 2346 # Tihama - Abu Arish
+
 c_aden = 388 # Aden - Adan
+c_bayda = 388 # Bayda - Adan
 c_bayda = 2345 # Bayda - Beihan
+
 c_kathiri = 389 # Kathiri - Mukalla
 c_kathiri = 2343 # Kathiri - Hadramawt
 c_kathiri = 4283 # Kathiri - Shihr
+
 c_mahra = 402 # Mahra - Qishn
 c_mahra = 4284 # Mahra - Al Ghaydah
+
 c_dhofar = 401 # Dhofar - Dhofar
 c_dhofar = 2342 # Dhofar - Wusta
+
 c_duqm = 2341 # Duqm - Masirah
 c_duqm = 4287 # Duqm - Ibra
 c_duqm = 403 # Duqm - Nizwa
+
 c_muscat = 400 # Muscat - Muscat
 c_muscat = 4286 # Muscat - Ash Sharqiyah
+
 c_hajar = 399 # Hajar - Suhar
 c_hajar = 4285 # Hajar - Baraimi
+
 c_dhu_zabi = 398 # Dhu Zabi - Qawasim
 c_dhu_zabi = 404 # Dhu Zabi - Liwa
 c_dhu_zabi = 397 # Dhu Zabi - Beni Yas
+
 c_al_hasa = 2347 # Al Hasa - Hufuf
+
 c_uwal = 396 # Uwal - Bahrain
+
 c_bahrein = 395 # Bahrein - Qatar
 c_bahrein = 2333 # Bahrein - Zufra
+
 c_damman = 394 # Damman - Al-Qatif
+
 c_kuwait = 2340 # Kuwait - Grane
+
 c_al_jawf = 4272 # Al Jawf - Al Jawf
+
 c_tabuk = 383 # Tabuk - Tabuk
 c_tabuk = 4269 # Tabuk - Al Wajh
+
 c_hijaz = 2328 # Al Ula - Al Ula
+
 c_khaybar = 2329 # Khaybar - Yanbu
+
 c_hail = 393 # Hail - Jabal Shammar
+c_dariya = 393 # Dariya - Jabal Shammar
+
 c_rafha = 2338 # Rafha - Hafar
+
 c_hajr = 392 # Hajr - Najd
 c_hajr = 2339 # Hajr - Yabrin
 c_hajr = 2336 # Hajr - Aflaj
 c_hajr = 4274 # Hajr - Sudayr
 c_hajr = 4275 # Hajr - Al-Yamamah
-c_dariya = 2337 # Dariya - Buraydah
+
+c_halaban = 2337 # Halaban - Buraydah
 c_halaban = 4273 # Halaban - Al-Kariatan
+
 c_al_nadjaf = 2311 # Al Nadjaf - Samawat
 c_rummah = 2311 # Rummah - Samawat
+
 c_al_amarah = 2312 # Al Amarah - Wasit
+
 c_kufa = 4288 # Kufa - Shatt
-# Persian Empire # 
+
+# Persian Empire
+
 d_basra = 408 # Duchy Basra - Basra
 c_basra = 408 # Basra - Basra
+
 c_ilam = 4291 # Ilam - Qazaniya
+
 c_baghdad = 410 # County Baghdad - Baghdad
+c_baghdad = 4291 # County Baghdad - Qazaniya
+
 c_deir = 2310 # Deir - Tikrit
 c_euphrates = 2310 # Deir - Tikrit
+
 c_kabul = 451 # Kabul - Kabul
 c_kabul = 2226 # Kabul - Jalalabad
 c_bamiyan = 451 # Bamiyan - Kabul
+
 c_kunduz = 2227 # Kunduz - Kunduz
+
 c_balkh = 450 # Balkh - Balkh
+
 c_chaghaniyan = 4343 # Chaghaniyan - Termez
 c_nakhshab = 4343 # Nakhshab - Termez
 c_chaghaniyan = 4344 # Chaghaniyan - Kish
 c_nakhshab = 4344 # Nakhshab - Kish
+
 c_badakhshan = 452 # Badakhshan - Kish
 c_vakhan = 452 # Vakhan - Kish
+
 c_maymana = 2228 # Maymana - Maymana
 c_kanj_rustaq = 2228 # Kanj Rustaq - Maymana
 c_guzgan = 2228 # Guzgan - Maymana
+
 c_bost = 2229 # Bost - Bust
 c_bost = 447 # Bost - Kandahar
+
 c_zahedan = 435 # Zahedan - Zaranj
 c_zaranj = 2230 # Zaranj - Chakhansur
+
 c_farrah = 2224 # Farrah - Ferah
+
 c_herat = 446 # Herat - Herat
 c_herat = 4324 # Herat - Ghuriyan
+
 c_ghazna = 448 # Ghazna - Gazni
 c_zamindawar = 448 # Herat - Gazni
+
 c_mandesh = 449 # Mandesh - Ghor
 c_mandesh = 2225 # Mandesh - Bamyan
+
 c_sarakhs = 4325 # Sarakhs - Sarakhs
 c_badghis = 4325 # Badghis - Sarakhs
+
 c_sistan = 4327 # Sistan - Jask
+
 c_tis = 2233 # Tis - Chabahar
 c_tis = 434 # Tis - Quhistan
+
 c_merv = 445 # Merv - Merv
+
 c_amol = 444 # Amol - Charjuy
+
 c_kerman = 432 # Kerman - Kerman
+
 c_saravan = 2232 # Saravan - Kharan
+
 c_bam = 2220 # Bam - Bam
+
 c_hormuz = 431 # Hormuz - Mogostan
 c_hormuz = 2999 # Hormuz - Hormuz
+
 c_ladistan = 2223 # Ladistan - Larestan
 c_ladistan = 2219 # Ladistan - Bandar Langeh
+
 c_sirjan = 4345 # Sirjan - Saidabad
+
 c_shiraz = 2218 # Shiraz - Shiraz
 c_shiraz = 4331 # Shiraz - Kazerun
 c_shiraz = 4329 # Shiraz - Fasa
 c_shiraz = 4330 # Shiraz - Darab
+
 c_fars = 430 # Fars - Dashtistan
 c_fars = 4332 # Fars - Siraf
+
 c_hendjan = 2217 # Hendjan - Yasuj
+
 c_avhaz = 4289 # Avhaz - Shushtar
 c_avhaz = 4342 # Avhaz - Malamir
+
 c_tigris = 4290 # Tigris - Hoveyzeh
+
 c_qom = 2213 # Qom - Qom
 c_qom = 4337 # Qom - Savah
+
 c_luristan = 2210 # Luristan - Kirmanshah
 c_luristan = 413 # Luristan - Khorramabad
+
 c_rayy = 428 # Rayy - Tehran
 c_qwivir = 428 # Qwivir - Tehran
 c_rayy = 2216 # Rayy - Semnan
+
 c_qazwin = 2215 # Qazqin - Qazvin
+
 c_alamut = 426 # Alamut - Amol
+
 c_khozistan = 412 # Khozistan - Khuzestan
+
 c_esfahan = 429 # Esfahan - Isfahan
 c_esfahan = 4335 # Esfahan - Kashan
+
 c_istakhr = 4171 # Istakhr - Abarquh
 c_istakhr = 2234 # Istakhr - Rafsanjan
+
 c_yazd = 433 # Yazd - Yazd
+
+
 c_hamadan = 414 # Hamadan - Hamadan
+
 c_oromieh = 4293 # Irbil - Arbil
+
 c_qohistan = 2235 # Qohistan - Sabzevar
 c_qohistan = 427 # Qohistan - Qumis
+
 c_birjand = 436 # Birjand - Khorasan
 c_birjand = 4336 # Birjand - Tun
 c_birjand = 4334 # Birjand - Tabas
+
 c_lut = 2222 # Lut - Ardakan
+
 c_konjikala = 437 # Konjikala - Kopet Dag
 c_konjikala = 2350 # Konjikala - Konjikala
+
 c_tus = 2236 # Tus - Bojnord
+
 c_nishapur = 4326 # Nishapur - Nishapur
 c_nishapur = 2221 # Nishapur - Mashhad
+
 c_kirkuk = 415 # Kirkuk - Kirkuk
+
 c_shirvan = 421 # Shirvan - Shirvan
+
 c_suenik = 2205 # Suenik - Nakhchivan
+
 c_azerbaijan = 420 # Azerbaijan - Gaja
 c_azerbaijan = 2202 # Azerbaijan - Melikates
+
 c_shahrazur = 4294 # Shahrazur - Sulimanyeh
 c_shahrazur = 2211 # Shahrazur - Ardalan
+
 c_kurdistan = 2206 # Kurdistan - Urmia
 c_kurdistan = 2207 # Kurdistan - Maragheh
 c_maragha = 2207 # Maragha - Maragheh
+
 c_kermanshah = 2209 # Kermanshah - Ilam
+
 c_gurgan = 2214 # Gurgan - Golestan
+
 c_daylam = 4300 # Daylam - Mianeh
+
 c_tabaristan = 4341 # Tabaristan - Sari
+
 c_tabriz = 416 # Tabriz - Tabriz
 c_tabriz = 424 # Tabriz - Ardabil
+
 c_gilan = 417 # Gilan - Gilan
 c_gilan = 4339 # Gilan - Rasht
 c_gilan = 4340 # Gilan - Astara
+
 c_zanjan_abhar = 2212 # Zanjan - Zanjan
 c_zanjan_abhar = 4338 # Zanjan - Soltanieh
+
 c_kyzyl-su = 2349 # Kyzyl-su - Kizil-Su
 c_dihistan = 2349 # Dihistan - Kizil-Su
+
 c_kara-kum = 438 # Kara Kum - Karakum
+
 c_usturt = 443 # Usturt - Ust Yurt
 c_kara_bogaz = 443 # Kara Bogaz - Ust Yurt
+
 c_khiva = 441 # Khiva - Khiva
+
 c_urgench = 440 # Urgench - Qaraqalpak
+
 c_kusbulak = 2370 # Kusbulak - Kungirot
+
 c_gurganj = 2362 # Gurganj - Gurganj
 c_gurganj = 1973 # Gurganj - Urgench
+
 c_bukhara = 442 # Bukhara - Bukhara
+
 c_samarkand = 453 # Samarkand - Qarshi
 c_samarkand = 454 # Samarkand - Samarkand
+
 c_oshrusana = 2363 # Oshrushana - Atakent
 c_oshrusana = 1967 # Oshrushana - Khujand
+
 c_khuttal = 1968 # Khuttal - Kulob
+
 c_fergana = 458 # Fergana - Kokand
 c_fergana = 2127 # Fergana - Yashilkul
+
 c_khaylam = 460 # Khaylam - Uzkend
+
 c_khojand = 1967 # Khojand - Khujand
 
-#Turkestan  
+#Turkestan
 
 c_dashhowuz = 455 # Dashhowuz - Kyzylkum
 c_dashhowuz = 1970 # Dashhowuz - Syghnak
+
 c_chach = 457 # Chach - Tashkent
 c_chach = 2356 # Chach - Shymkent
+
 c_talas = 2364 # Talas - Talas
+
 c_otrar = 1969 # Otrar - Sozak
 c_otrar = 456 # Otrar - Turkestan
+
 c_yangikent = 2352 # Yangikent - Alty-Kuduk
+
 c_syr_darya = 2358 # Syr Darya - Altyn
+
 c_karluk = 459 # Karluk - Taraz
+
 c_chuy = 2126 # Chuy - Chuy
+
 c_barskhan = 2125 # Barskhan - Kochkor
+
 c_ili = 2120 # Ili - Ili
-c_almaliq = 2120 # Almaliq - Ili
+c_qayaliq = 2120 # Qayaliq - Ili
+
+c_almaliq = 4208 # Almaliq - Qurqara-usu
+
+
+c_almada = 4787 # Almada - Ribatejo
+
 c_zhetysu = 2368 # Zhetysu - Karamegdan
 c_almaty = 461 # Almaty - Almaty
-c_qayaliq = 461 # Qayaliq - Almaty
+c_zhetysu = 461 # Zhetysu - Almaty
+
+
 c_mangyshlak = 439 # Mangyshlak - Mangyshlak
 c_buzachi = 439 # Buzachi - Mangyshlak
 
-# Cumania & Perm 
- 
-c_tarbagatai = 4208 # Tarbagatai - Qurqara-usu
-c_altay = 2119 # Altay - Chuguchak
-c_aylik = 2119 # Aylik - Chuguchak
+# Cumania & Perm
+
+c_aral = 471 # Aral - Alimuly
 c_emba = 471 # Emba - Alimuly
-c_aral = 2351 # Aral - Shekty
+
 c_turkestan = 2351 # Turkestan - Shekty
+
 c_erchis = 1068 # Ket - Ket
+
 c_ket = 2433 # Ket - Vah
 c_ob = 2433 # Ob - Vah
+
 c_saur = 2118 # Saur - Urzhar
 c_urzhar = 2118 # Urzhar - Urzhar
+
+c_tarbagatai = 2119 # Tarbagatai - Chuguchak
+
 c_kangly = 465 # Kangly - Nogay
+
 c_tobol = 1076 # Tyumen - Kurgan
+
 c_magnitaya = 2441 # Magnitaya - Iglino
+
+c_tyumen = 1075 # Tyumen - Tyumen
 c_vagay = 1075 # Vagay - Tyumen
 c_tyumen = 2427 # Tyumen - Ostyaki
+
 c_tura = 1071 # Tura - Irtesh
 c_osha = 1071 # Osha - Irtesh
+
 c_sibir = 1074 # Sibir - Sibir
+
 c_ishim = 2357 # Ishim - Aksary
+
 c_ubagan = 2369 # Ubagan - Lower Ishim
 c_kartaly = 2369 # Kartaly - Lower Ishim
-c_shish = 2429 # Shish - Agan
+
+c_tara = 2429 # Tara - Agan
 c_tara = 2428 # Tara - Yugan
+
 c_narim = 1070 # Narim - Koda
+
 c_tui = 1069 # Tui - Surgut
-c_bolshoy = 1072 # Bolshoy - Obdorsk
+c_shish = 1069 # Shish - Surgut
+
+c_bolshoy = 2445 # Bolshoy - Mangazea
 c_vasyugan = 2445 # Vasyugan - Mangazea
+
 c_tavda = 1078 # Tavda - Tura
 c_miass = 1078 # Miass - Tura
+
 c_yamalia = 1073 # Yamalia - Berezov
+c_yamalia = 1072 # Yamalia - Obdorsk
+
 c_mansia = 1080 # Mansia - Pelym
+
 c_khantia = 1780 # Khantia - Komi
+
 c_kipchak = 476 # Kipchak - Kypshak
 c_kipchak = 2359 # Kipchak - Baganaly
 c_turgay = 2359 # Turgay - Baganaly
 c_irgiz = 2359 # Irgiz - Baganaly
+
 c_betpaqdala = 477 # Betpaqdala - Nadym
 c_sarysu = 477 # Sarysu - Nadym
+
 c_sarysu = 2361 # Sarysu - Dzhaman-Kuduk
 c_kazakh = 2361 # Kazakh - Dzhaman-Kuduk
+
 c_or = 2353 # Or - Tortkara
 c_boqtybay = 2353 # Boqtybay - Tortkara
+
 c_kimak = 478 # Kimak - Argyn
+
 c_om = 2434 # Om - Barnaul
 c_buqtirma = 2434 # Buqtirma - Barnaul
+
 c_seletyteniz = 479 # Seletyteniz - Kerey
 c_seletyteniz = 2354 # Seletyteniz - Shegendyk
+
 c_balkhash = 2360 # Balkhash - Tobykty
 c_qarazhyrya = 2360 # Qarazhyrya - Tobykty
+
 c_kirghiz = 2355 # Kirghiz - Narym
 c_zaysan = 2355 # Zaysan - Narym
+
 c_katun = 480 # Katun - Pegaya Orda
+
 c_aqtobe = 472 # Aqtobe - Zhetyru
-c_mughalzhar = 472 # Mughalzhar - Zhetyru
-c_utva = 470 # Utva - Bayuly
-c_inder = 2366 # Inder - Utva
+
+c_utva = 470 # Utva - Bayuly, these two should ideally be flipped, but province setup works bet like this...
+c_inder = 2366 # Inder - Utva, these two should ideally be flipped, but province setup works bet like this...
+
 c_irtek = 2420 # Irtek - Agyidel
 c_sakmara = 2420 # Sakmara - Agyidel
+
 c_yaik = 1966 # Yaik - Chelyaba
+
+c_bashkirs = 475 # Bashkiria - Bashkortostan
 c_belaya = 475 # Belaya - Bashkortostan
 c_bashkirs = 2444 # Bashkiria - Bashgird
-c_tynea = 305 # Tynea - Perm
+
 c_perm = 305 # Perm - Perm
+c_thisageta = 305 # Thisageta - Perm
+c_tynea = 305 # Tynea - Perm
+
 c_kudymkar = 1962 # Kudymkar - Kudymkar
+c_kudymkar = 4266 # Kudymkar - Izhkar
+
 c_udmurts = 1972 # Udmurts - Udmurtia
 c_alabuga = 1972 # Alabuga - Udmurtia
-c_thisageta = 1077 # Thisageta - Solikamsk
+
 c_ural = 1077 # Ural - Solikamsk
+
 c_vishera = 1963 # Vishera - Cherdyn
-c_kolva = 1963 # Kolva - Ust-Cherdyn
+
+c_kolva = 1964 # Kolva - Ust-Sysolsk
 c_komi = 1964 # Komi - Ust-Sysolsk
-c_severnaya = 1964 # Severnaya - Ust-Sysolsk
+
+
 d_bulgar = 4267 # Duchy Bulgar - Bolgar
 c_qazan = 1082 # Kazan - Kazan
 c_kremenchuk = 1082 # Kremenchuk - Kazan
 c_bulgar = 4267 # Bulgar - Bolgar
+
 c_grassland_cheremisa = 2422 # Ashli - Veda-Suvar
+
 c_bilyar = 2421 # Bilyar - Juketau
+
 c_naberezhnye = 4265 # Naberezhnye - Ar-Chally
+
 c_syrt = 1081 # Syrt - Simbirsk
 c_syrt = 2419 # Syrt - Kanadey
+
 c_ashli = 4264 # Ashli - Tetyushi
+
+c_pecheneg = 473 # Pecheneg - Samara
 c_pecheneg = 1965 # Pecheneg - Buzuluk
-c_uzens = 474 # Uzens - Yaik
+c_pecheneg = 474 # Pecheneg - Yaik
+
 c_saray = 466 # Saray - Sarai
 c_saqsin = 466 # Saqsin - Sarai
-c_uvek = 2418 # Uvek - Ukek
-c_lower_volga = 473 # Lower Volga - Samara
 
-# Southeastern Europe 
+c_uvek = 2418 # Uvek - Ukek
+c_lower_volga = 2418 # Lower Volga - Ukek
+
+# Southeastern Europe
 
 c_sopron = 135 # Sopron - Sopron
 c_sopron = 135 # Sopron - Sopron
 c_vas = 135 # Vas - Sopron
+
 c_fejer = 4240 # Fejer - Fejer
+
 c_szekezfehervar = 1864 # Szekezfehervar - Pozsony
 c_pecs = 1864 # Pecs - Pozsony
-c_bacs = 4126 # Bacs - Bacs
-c_pecs = 1954 # Pecs - Torontal
+c_pecs = 4126 # Pecs - Bacs
+
+c_bacs = 1954 # Bacs - Torontal
+c_csanad = 1954 # Csanad - Torontal
+
 c_syrmia = 4173 # Syrmia - Syrmia
+
 c_temes = 156 # Temes - Temes
+
 c_pest = 153 # Pest - Pest
+c_esztergom = 153 # Esztergom - Pest
 c_esztergom = 4125 # Esztergom - Szolnok
-c_csanad = 155 # Csanad - Bekes
+c_pest = 155 # Pest - Bekes
+
 d_nyitra = 4236 # Trencin - Trencin
 c_trencin = 4236 # Trencin - Trencin
 c_saris = 4236 # Trencin - Trencin
+
+c_trencin = 4726 # Trencin - Ostrava
+
 c_pressburg = 1772 # Pressburg - Pozsony
 c_nitra = 1772 # Nitra - Pozsony
+
 c_orava = 154 # Orava - Ersekujvar
+
 c_gemer = 154 # Gemer - Ersekujvar
+
 c_orava = 1318 # Orava - Szepes
 c_saris = 1318 # Saris - Szepes
 c_gemer = 1318 # Gemer - Szepes
+
 c_bereg = 162 # Bereg - Zemplen
+
 c_abauj = 1953 # Abauj - Szabolcs
+
 c_marmaros = 1952 # Marmaros - Maramaros
-c_marmaros = 158 # Marmaros - Maros
-c_szekelyfold = 4128 # Szekelyfold - Kiralyfold
-c_bihar = 4127 # Bihar - Torda
+
+c_szekelyfold = 158 # Szekelyfold - Maros
+c_szekelyfold = 4127 # Szekelyfold - Torda
+
+c_bihar = 157 # Bihar - Bihar
 c_heves = 157 # Heves - Bihar
+
 c_feher = 1951 # Feher - Hunyad
+c_feher = 4128 # Feher - Kiralyfold
+
 c_severin = 4532 # Severin - Severin
+
 c_targu_jiu = 160 # Targu Jiu - Oltenia
 c_craiova = 160 # Craiova - Oltenia
+
 c_turnu = 4531 # Turnu - Giurgiu
+
 c_calarasi = 2998 # Calarasi - Buzau
+
+c_turnu = 161 # Turnu - Wallachia
 c_tirgoviste = 161 # Tirgoviste - Wallachia
 c_campulung = 161 # Campulung - Wallachia
+
 c_galaz = 1756 # Galaz - Bessarabia
 c_chilia = 1756 # Chilia - Bessarabia
+
 c_birlad = 4530 # Birlad - Birlad
 c_bacau = 4530 # Bacau - Birlad
+
 c_torki = 268 # Torki - Moldavia
+
 c_iasi = 4529 # Iasi - Iasi
 
-# Eastern Europe 
+# Eastern Europe
 
-c_stettin = 1858 # Stettin - Stettin
+c_stettin = 4746 # Stettin - Stargard
+
 c_slupsk = 48 # Slupsk - Kolberg
 c_slupsk = 2995 # Slupsk - Stolp
+
+c_danzig = 2997 # Danzig - Tuchel
 c_bytow = 2997 # Bytow - Tuchel
+
 c_danzig = 43 # Danzig - Danzig
+
 c_gnieznienskie = 4523 # Gnieznienskie - Inowroclaw
+
 c_marienburg = 1841 # Marienburg - Marienburg
+c_marienburg = 42 # Marienburg - Warmia
 c_marienburg = 2958 # Marienburg - Osterode
-c_sambia = 42 # Sambia - Warmia
+
+c_sambia = 41 # Sambia - Ostpreussen
 c_scalovia = 41 # Scalovia - Ostpreussen
+
 c_memel = 40 # Memel - Memel
+
 c_kurs = 39 # Kurs - Kurland
 c_vanema = 39 # Vanema - Kurland
-c_tukums = 273 # Tukums - Latgalia
+c_tukums = 39 # Tukums - Kurland
+
 c_riga = 38 # Riga - Riga
+
 c_lettigalians = 37 # Lettigalians - Livland
 c_jarva = 37 # Jarva - Livland
+
 c_zemigalians = 1935 # Zemigalians - Semigallia
+c_selija = 1935 # Selija - Semigallia
+
 c_osel = 35 # Osel - Ösel
+
 c_dorpat = 1834 # Dorpat - Dorpat
+
 c_west_dvina = 273 # West Dvina - Latgalia
+
 c_jersika = 4241 # Jersika - Wenden
 c_talava = 4241 # Talava - Wenden
+
+
 c_zhmud = 271 # Zhmud - Samogitia
+
 c_poznanskie = 2963 # Poznanskie - Notec
 c_poznanskie = 254 # Poznanskie - Poznan
+
 c_neumark = 49 # Neumark - Neumark
+c_neumark = 4747 # Neumark - Dramburg
+
 c_kaliskie = 255 # Kaliskie - Kalisz
 c_kaliskie = 4526 # Kaliskie - Gniezno
+
 c_chelminskie = 1859 # Chelminskie - Chelmno
+
 c_dobrzynska = 4524 # Bobrzynska - Dobryzn
+
 c_plock = 256 # Plock - Plock
+
 c_lomzynska = 1938 # Lomzynska - Wizna
+
 c_kujawy = 1939 # Kujawy - Leczyca
 c_kujawy = 4528 # Kujawy - Kuyavia
+
 c_sieradzko-leczyckie = 4525 # Sieradzko-Leczyckie - Rawa
+c_sieradzko-leczyckie = 257 # Sieradzko-Leczyckie - Warsawa
 c_czersk = 257 # Czersk - Warsawa
+
 c_sieradzka = 258 # Sieradzka - Sieradz
+
 c_wielunska = 4533 # Wielunska - Wielun
-c_opole = 264 # Opole - Breslau
+
+c_opole = 4723 # Opole - Opole
+
 c_cieszyn = 263 # Cieszyn - Ratibor
+
 c_krakowskie = 262 # Krakowskie - Krakow
+
 c_sacz = 2960 # Sacz - Nowy Sacz
+c_sacz = 2959 # Sacz - Tarnow
+
 c_galich = 261 # Galich - Ruthenia
-c_terebovl = 2961 # Terebovl - Lwow
+c_galich = 2961 # Galich - Lwow
+
 c_peremyshl = 2424 # Peremyshl - Peremyshl
+
 c_zvenyhorod = 4541 # Zvenyhorod - Drohobycz
+
+c_terebovl = 281 # Terebovl - Podolia
 c_ushytsia = 281 # Ushytsia - Kamienec
+
 c_sandomierskie = 259 # Sandomierskie - Sandomierz
 c_sandomierskie = 4527 # Sandomierskie - Checiny
-c_lubelska = 2959 # Lubelska - Tarnow
+
+c_lubelska = 260 # Lubelska - Lublin
 c_stezycka = 260 # Stezycka - Lublin
-c_belgorod = 2405 # Belgorod - Bender
+
+c_belgorod = 282 # Belgorod - Yedisan
 c_odessa = 282 # Odessa - Yedisan
 c_olvia = 282 # Olvia - Yedisan
+
 c_peresechen = 2405 # Peresechen - Bender
+
 c_beresty = 277 # Beresty - Brest
+
 c_pinsk = 278 # Pinsk - Pinsk
+
 c_slutsk = 4545 # Slutsk - Sluck
+
+c_novogrodek = 4537 # Novogrodek - Nowogrodek
 c_volkovysk = 4537 # Volkovysk - Nowogrodek
+
 c_turov = 1941 # Turov - Turov
 c_korosten = 1941 # Korosten - Turov
+
 c_medjybij = 1942 # Medjybij - Zhytomyr
+
 c_vozviahel = 4247 # Vozviahel - Owrucz
-c_minsk = 276 # Minsk - Minsk
-c_lepiel = 4242 # Lepiel - Ula
-c_lyubech = 4115 # Lyubech - Mazyr
-c_drutsk = 4544 # Drutsk - Bobrujsk
-c_kiev = 280 # Kiev - Kiev
-c_kiev = 280 # Kiev - Kiev
-c_jacwiez = 1937 # Jacwiez - Grodno
-c_sudovia = 270 # Sudovia - Trakai
-c_yatvyagi = 1936 # Yatvyagi - Kovno
-c_deltuva = 4534 # Deltuva - Upita
-c_galindia = 767 # Galindia - Wystuc
-c_podlasie = 269 # Podlasie - Podlasie
-c_aukshayts = 272 # Aukshayts - Vilna
-c_novogrodek = 4536 # Novogrodek - Lida
-c_vladimir_volynsky = 279 # Vladimir Volynsky - Volhynia
-c_lutsk = 2962 # Lutsk - Rowne
+
+c_zaslav = 2962 # Saslav - Rowne
 c_zaslav = 4539 # Saslav - Kremenets
+
+c_minsk = 276 # Minsk - Minsk
+c_minsk = 4242 # Minsk - Ula
+c_lyubech = 276 # Lyubech - Minsk
+c_lyubech = 4115 # Lyubech - Mazyr
+
+c_drutsk = 4544 # Drutsk - Bobrujsk
+
+c_kiev = 280 # Kiev - Kiev
+c_kiev = 280 # Kiev - Kiev
+
+c_jacwiez = 1937 # Jacwiez - Grodno
+
+c_sudovia = 270 # Sudovia - Trakai
+
+c_yatvyagi = 1936 # Yatvyagi - Kovno
+
+c_deltuva = 4534 # Deltuva - Upita
+
+
+c_galindia = 767 # Galindia - Wystuc
+
+c_podlasie = 269 # Podlasie - Podlasie
+
+c_aukshayts = 272 # Aukshayts - Vilna
+c_aukshayts = 4536 # Aukshayts - Lida
+
+c_vladimir_volynsky = 279 # Vladimir Volynsky - Volhynia
+c_lutsk = 279 # Lutsk - Volhynia
+
+
 c_belz = 1940 # Belz - Belz
+
 c_cherven = 4538 # Cherven - Chelm
+
 c_korsun = 1944 # Korsun - Cherkasy
+
 c_bratslav = 1943 # Bratslav - Bratslav
+c_vinnytsia = 1943 # Vinnytsia - Bratslav
 c_vinnytsia = 4540 # Vinnytsia - Winnica
+
 c_voin = 4542 # Voin - Lubnie
 c_priluk = 4542 # Priluk - Lubnie
+
+
 c_hradyzk = 290 # Hradyzk - Poltava
+
 c_pereyaslavl = 2407 # Pereyaslavl - Pereyaslavl
+
 c_polotsk = 275 # Polotsk - Polotsk
+c_lepiel = 275 # Lepiel - Polotsk
+
+c_lepiel = 770 # Lepiel - Braslaw
 c_selija = 770 # Selija - Braslaw
+
 c_nalsia = 4535 # Nalsia - Wilkimierz
+
+
 c_smolensk = 293 # Smolensk - Smolensk
+c_smolensk = 293 # Smolensk - Smolensk
+c_vitebsk = 293 # Vitebsk - Smolensk
+
 c_vitebsk = 771 # Vitebsk - Vitebsk
+
 c_mstislavl = 4246 # Mstislavl - Mstislav
 c_roslavl = 4246 # Roslavl - Mstislav
+
 c_orsha = 292 # Orsha - Mogilev
+
 c_chernigov = 289 # Chernigov - Chernigov
+
 c_starodub = 4244 # Starodub - Starodub
+
+
+c_kromy = 1945 # Kromy - Novgorod-Seversky
 c_novgorod_seversky = 1945 # Novgorod Seversky - Novgorod-Seversky
+
 c_pskov = 274 # Pskov - Pskov
-c_gdov = 274 # Gdov - Pskov
 c_izborsk = 1960 # Isborzk - Ostrov
-c_bezhetsky_verh = 33 # Bezhetsky Verh - Neva
+c_pskov = 1960 # Pskov - Ostrov
+
+c_bezhetsky_verh = 1961 # Bezhetsky Verh - Ladoga
 c_chlisselbourg = 1961 # Chlisselbourg - Ladoga
-c_zaozerye = 1961 # Zaozerye - Ladoga
+
 c_novgorod = 310 # Novgorod - Novgorod
 c_borovichi = 310 # Borovichi - Novgorod
-c_tver = 1959 # Tver - Torzhok
+
+c_torzhok = 1959 # Torzhok - Torzhok
 c_torzhok = 4260 # Torzhok - Vyshny Volochyok
+
 c_kholm = 311 # Kholm - Kholm
 c_rusa = 311 # Rusa - Kholm
+
 c_velikiye_luki = 4148 # Velikiye Luki - Luki
+
 c_north_dvina = 4258 # North Dvina- Onega
-c_trans-portage = 313 # Trans-Portage - Arkhangelsk
-c_onega_peninsula = 313 # Trans-Portage - Arkhangelsk
+c_trans-portage = 4258 # Trans-Portage - Onega
+c_onega_peninsula = 4258 # Trans-Portage - Onega
+
 c_kargopol = 1958 # Kargopol - Kargopol
+c_chud = 1958 # Chud - Kargopol
 c_romny = 1958 # Romny - Kargopol
-c_bjarmia = 4258 # Bjarmia - Onega
-c_pinega = 4258 # Pinega - Onega
-c_mezen = 1955 # Mezen - Kholmogory
-c_samoyeds = 1955 # Kholmogory
-c_kanin = 1955 # Kholmogory
-c_kolguyev = 4257 # Polar Circle Placeholder mapping
-c_soyma = 4257 # Polar Circle Placeholder mapping
-c_zavarot = 4257 # Polar Circle Placeholder mapping
-c_koshma = 4257 # Polar Circle Placeholder mapping
-c_tobysh = 4257 # Polar Circle Placeholder mapping
+
+c_east_karelia = 313 # East Karelia - Arkhangelsk
+
+c_bjarmia = 1955 # Bjarmia - Kholmogory
+c_pinega = 1955 # Pinega - Kholmogory
+
+c_mezen = 4257 # Mezen - Mezen
+c_mezen = 4257 # Mezen - Mezen
+c_mezen = 4257 # Mezen - Mezen
+c_mezen = 4257 # Mezen - Mezen
+c_mezen = 4257 # Mezen - Mezen
+
+c_samoyeds = 4257 # Polar Circle Placeholder mapping, there's nothing better...
+c_kanin = 4257 # Polar Circle Placeholder mapping, there's nothing better...
+c_kolguyev = 4257 # Polar Circle Placeholder mapping, there's nothing better...
+c_soyma = 4257 # Polar Circle Placeholder mapping, there's nothing better...
+c_zavarot = 4257 # Polar Circle Placeholder mapping, there's nothing better...
+c_koshma = 4257 # Polar Circle Placeholder mapping, there's nothing better...
+c_tobysh = 4257 # Polar Circle Placeholder mapping, there's nothing better...
+
 c_bezichy = 4117 # Bezichy - Bezhetsk
+
+c_uglich = 4261 # Uglich - Ustyuzhna
 c_uglich = 4252 # Uglich - Kolomna
-c_beloozero = 4261 # Beloozero - Ustyuzhna
+
+
+c_beloozero = 312 # Beloozero - Beloozero
 c_chud = 312 # Chud - Beloozero
+
 c_tikhvine = 2749 # Tikhvine - Tikhvin
+
 c_vologda = 314 # Vologda - Ustyug
+
+
 c_velsk = 4259 # Velsk - Velsk
-c_veliky_ustug = 4263 # Veliky Ustug - Sol Galitskaya
-c_hlynov = 4263 # Hlynov - Sol Galitskaya
-c_syktyvkar = 4262 # Ustyug
-c_bolshaya = 4262 # Rough approximation
-c_zyriane = 4262 # Zyriane - Ustyug
-c_yolva = 1755 # Rough approximation
-c_sedyu = 1755 # Rough approximation
-c_vychegda = 1755 # Rough approximation
-c_izhma = 4256 # Rough approximation
+
+c_veliky_ustug = 1755 # Veliky Ustug - Ustyug
+
+c_yolva = 4129 # Rough approximation
+c_sedyu = 4129 # Rough approximation
+c_izhma = 4129 # Rough approximation
 c_vel = 4129 # Rough approximation
 c_kozhva = 4129 # Rough approximation
 c_lyzha = 4129 # Rough approximation
+
+#c_zyriane = 4129 # Zyriane - Ust-Vym
+
 c_ugra = 4256 # Ugra - Solvychegodsk
-c_tsilma = 4256 # 4256 - Solvychegodsk
+c_tsilma = 4257 # 4256 - Solvychegodsk;c_tsilma - Solvychegodsk
+
 c_syrj = 4122 # Syrj - Shenkursk
+c_bolshaya = 4122 # Rough approximation
 c_yezhuga = 4122 # Rough approximation
 c_vashka = 4122 # Rough approximation
+c_syktyvlar = 4122 # Rough approximation
+
 c_kostroma = 1753 # Kostroma - Kostroma
+
 c_galich_mersky = 1957 # Galich Mersky - Galich
-c_merya = 1957 # Merya - Galich
+c_galich_mersky = 4263 # Galich Mersky - Sol Galitskaya
+
 c_yaroslavl = 308 # Yaroslavl - Yaroslavl
-c_rostov = 4250 # Rostov - Mologa
-c_pereyaslavl_zalessky = 4147 # Pereyaslavl - Rostov
+c_yaroslavl = 4250 # Yaroslavl - Mologa
+
+c_rostov = 4147 # Rostov - Rostov
+
+c_tver = 294 # Tver - Tver
 c_naro-fominsk = 294 # Naro Fominsk - Tver
+
 c_zoubtsov = 4249 # Zoubtsov - Zubtsov
+
 c_kashin = 4248 # Kashin - Kashin
+
 c_suzdal = 1956 # Suzdal - Suzdal
+
 c_murom = 1754 # Murom - Murom
+
+
 c_vladimir = 307 # Vladimir - Vladimir
-c_orekhovo-zouievo = 1778 # Orekhovo-Zouievo - Kasimov
+c_orekhovo-zouievo = 307 # Orekhovo-Zouievo - Vladimir
+
 c_yuryev = 4253 # Yuryev - Yuriev
+c_pereyaslavl_zalessky = 4253 # Pereyaslavl - Yuriev
+
 d_moskva = 295 # Duchy Moskva - Moskva
 c_moskva = 295 # County Moskva - Moskva
+
 c_mozhaysk = 4251 # Mozhaysk - Mozhaisk
-c_kozelsk = 296 # Kozelsk - Kaluga
-c_karachev = 296 # Karachev - Kaluga
-c_kromy = 296 # Kromy - Kaluga
+c_mozhaysk = 296 # Mozhaysk - Kaluga
+
 c_vyazma = 4245 # Vyazma - Vyazma
+
 c_ryazan = 301 # Ryazan - Ryazan
+
 c_kolomna = 300 # Kolomna - Tula
 c_serpukhov = 300 # Serpukhov - Tula
+
 c_pronsk = 4255 # Pronsk - Pronsk
+
 c_nizhny_novgorod = 306 # Nizhny Novgorod - Nizhny Novgorod
+
 c_gorodez = 4254 # Gorodez - Starodub
+
+c_merya = 1083 # Merya - Vetluga
+
+c_hlynov = 4262 # Hlynov - Totma
+
 c_votyaki = 1079 # Votyaki - Viatka
 c_keltma = 1079 # Keltma - Viatka
-c_vetluga = 1083 # Vetluga - Vetluga
-c_khlynov = 4266 # Vetluga - Izhkar
+c_vetluga = 1079 # Vetluga - Viatka
+c_khlynov = 1079 # Vetluga - Viatka
+
 c_itil = 464 # Itil - Astrakhan
+
 c_kuma = 2208 # Kuma - Terek
-c_kalaus = 2417 # Kalaus - Kuma
+c_terek = 2208 # Terek - Terek
+
+c_kuma = 2417 # Kuma - Kuma
+c_yegorlyk = 2417 # Yegorlyk - Kuma
+c_manych = 2417 # Manych - Kuma
+
 c_derbent = 425 # County Derbent - Dagestan
+
 c_shemakha = 4299 # Shemakha - Shamakhi
+
 c_durdzukia = 2198 # Durdzukia - Khundzia
+
 c_semender = 2199 # Semender - Tarki
+
 c_balanjar = 4306 # Balanjar - Lakia
+
 c_egrisi = 462 # Egrisi - Mingrelia
+
 c_imeretia = 422 # Imeretia - Imereti
+
 c_abkhazia = 1856 # Abkhazia - Abkhazia
+
 c_kuban = 287 # Kuban - Kuban
+
 c_tmutarakan = 2447 # Tmutarakan - Mantrega
+
+c_tmutarakan = 2195 # Tmutarakan - Adyghe
+
 c_yegorlyk = 2416 # Yegorlyk - Majar
+
 c_azov = 286 # Azov - Azov
-c_lower_dniepr = 284 # Lower Dniepr - Crimea
+
+c_lower_dniepr = 1974 # Lower Dniepr - Yedishkul
 c_lukomorie = 1974 # Lukomorie - Yedishkul
+
 c_lower_don = 2412 # Lower Don - Kyzyl-Yar
+
 c_crimea = 284 # Crimea - Crimea
+
 c_theodosia = 2410 # Theodosia - Theodoro
+
 c_cherson = 285 # Cherson - Kaffa
 c_korchev = 285 # Korchev - Kaffa
+
 c_oleshye = 2406 # Oleshye - Ingil
 c_oleshye = 283 # Oleshye - Zaporozhia
+
 c_alania = 2197 # Alania - Kabardia
-c_terek = 2201 # Terek - Alania
+c_alania = 2201 # Alania - Alania
+
 c_kasogs = 463 # Kasogs - Circassia
-c_kasogs = 2195 # Kasogs - Adyghe
 # c_kasogia = 463 # Kasogia - Circassia
+
 c_manych = 468 # Manych - Manych
+
 c_don_portage = 1971 # Don Portage - Tsaritsyn
+
 c_sarpa = 2414 # Sarpa - Azaraba
+
 c_sarkel = 288 # Sarkel - Lower Don
+
 c_tana = 2413 # Tana - Tyn
+
+c_uzens = 2365 # Uzens - Orda
 c_yeruslan = 2365 # Yeruslan - Orda
+
 c_guryev = 469 # Guryev - Ryn
+
 c_ryn = 2367 # Ryn - Lower Yik
+
 c_bryansk = 297 # Bryansk - Bryansk
+
+c_karachev = 4116 # Karachev - Odayev
+c_kozelsk = 4116 # Kozelsk - Odayev
 c_vorotynsk = 4116 # Vorotynsk - Odayev
 c_novosil = 4116 # Novosil - Odayev
+
 c_yelets = 2408 # Yelets - Yelets
+
 c_sugrov = 299 # Sugrov - Voronezh
+
 c_kursk = 298 # Kursk - Kursk
+
 c_rylsk = 4543 # Rylsk - Rylsk
+
 c_sharukan = 291 # Sharukan - Kharkov
+
 c_desht-i-kipchak = 2409 # Desht-i-Kipchak - Bahmut
+
 c_khopyor = 467 # Khopyor - Borisoglebsk
+
 c_mordva = 302 # Mordva - Tambov
+
 c_burtasy = 303 # Lower Volga - Saratov
 c_burtasy = 2415 # Lower Volga - Etkara
+
 c_mountain_cheremisa = 304 # Mountain Cheremisa - Penza
+c_mountain_cheremisa = 1778 # Mountain Cheremisa - Kasimov
+
+
 c_chuvash = 2423 # Chuvash - Alatyr
+
 c_rzheva = 1752 # Rzheva - Rzhev
+
 c_toropets = 4243 # Toropets - Toropets
+
 c_chortitza = 2411 # Chortitza - Mansur
 
 #India and Baluchistan:
-  
+
 d_sauvira = 504 # Duchy Sauvira - Lower Sind
 c_debul = 504 # Debul - Lower Sind
 c_ranikot = 504 # Ranikot - Lower Sind
+
 d_sauvira = 2088 # Duchy Sauvira - Umarkot
 c_sonda = 2088 # Sonda - Umarkot
+
 c_mansura = 4503 # Mansura - Mansura
+
 c_mansura = 4504 # Mansura - Nasirpur
 c_sonda = 4504 # Sonda - Nasirpur
+
 c_bhakkar = 2072 # Bhakkar - Bhakkar
 c_rajanpur = 2072 # Rajanpur - Bhakkar
 c_vijnot = 505 # Vijnot - Upper Sind
+
 d_bhakkar = 505 # Duchy Bhakkar - Upper Sind
 c_aror = 505 # Aror - Upper Sind
+
 c_siwistan = 4505 # Siwistan - Khairpur
+
 c_makran = 575 # Makran - Gwadar
+
 c_chagai = 576 # Chagai - Kalat
+
 c_sibi = 2068 # Sibi - Siwistan
+
 c_kalat = 577 # Kalat - Quetta
+
 c_kandail = 576 # Kandail - Kalat
 c_quzdar = 576 # Quzdar - Kalat
+
 c_armail = 2231 # Armail - Bela
+
 c_kafirkot = 2079 # Kafirkot - Derajat
 c_wana = 2079 # Wana - Derajat
+
 c_multan = 506 # Multan - Multan
+
 d_multan = 2086 # Duchy Multan - Cholistan
 c_uch = 2086 # Uch - Cholistan
+
 c_karur = 4508 # Karur - Bahawalpur
+
 c_karor = 4509 # Karor - Karor
-# Adding these to avoid the wasteland problem # 
+# Adding these to avoid the wasteland problem
 c_kafirkot = 4509 # Kafirkot - Kafirkot
 c_bannu = 4509 # Bannu - Karor
+
 d_lahore = 507 # Duchy Lahore - Punjab
 c_lahur = 507 # Lahur - Punjab
+
 c_dipalpur = 4513 # Dipalpur - Dipalpur
+
 d_haritanaka = 510 # Duchy Haritanaka - Sirhind
 c_trigarta = 510 # Trigarta - Sirhind
 c_hisar = 510 # Hisar - Sirhind
 c_sarasvati = 510 # Sarasvati - Sirhind
 c_sthanisvara = 510 # Sthanisvara - Sirhind
+
 c_hisar = 4500 # Hisar - Bharatpur
+
+
 c_tribandapura = 4411 # Tribandapura - Samana
+
 c_trigarta = 2075 # Trigarta - Doaba
 c_sakala = 2075 # Sakala - Doaba
+
 c_sthanisvara = 2062 # Sthanisvara - Panipat
+
+
 d_haritanaka = 520 # Duchy Haritanaka - Mewat
 c_hisar = 520 # Hisar - Mewat
 c_vairata = 520 # Vairata - Mewat
+
 c_ranthambore = 4465 # Ranthambore - Ranthambore
+c_vairata = 4465 # Vairata - Ranthambore
 c_sripatha = 4465 # Sripatha - Ranthambore
+
 c_nandana = 4511 # Nandana - Bhera
 c_bhera = 4511 # Bhera - Bhera
 c_gurjaratra = 4511 # Gurjaratra - Bhera
+
 c_gurjaratra = 2076 # Gurjaratra - Sialkot
+
 c_shorkot = 4510 # Shorkot - Shorkot
+
 c_udabhanda = 2077 # Udabhanda - Margalla
+
 c_purushapura = 578 # Purushapura - Roh
+
 c_bannu = 2078 # Bannu - Bannu
+
 d_kuru = 522 # Duchy Kuru - Delhi
 c_delhi = 522 # Delhi - Delhi
 c_sthanisvara = 522 # Sthanisvara - Delhi
+
 c_hastinapura = 2060 # Hastinapura - Upper Doab
+
 d_mathura = 524 # Duchy Mathura - Central Doab
 c_mathura = 524 # Mathura - Central Doab
 c_kol = 524 # Kol - Central Doab
+c_sripatha = 524 # Sripatha - Central Doab
+
 c_lakhnau = 523 # Lakhnau - Oudh
+
 c_lakhnau = 2094 # Lakhnau - Bahreich
 c_bharauli = 2094 # Bharauli - Bahreich
 d_saryupara = 2094 # Duchy Saryapura - Bahreich
 c_ayodhya = 2094 # Ayodhya - Bahreich
 c_naimisa = 2094 # Naimisa - Bahreich
+
 d_vodamayutja = 2061 # Duchy Vodamayutja - Katehar
 c_katehar = 2061 # Katehar - Katehar
 c_vodamayutja = 2061 # Vodamayutja - Katehar
+
 c_sambhal = 4498 # Sambhal - Sambhal
+
 c_vodamayutja = 4499 # Vodamayutja - Bareily
+
 c_naimisa = 4494 # Naimisa - Khairabad
 c_katehar = 4494 # Katehar - Khairabad
+
 c_ayodhya = 4495 # Ayodhya - Feyzabad
 c_sravasti = 4495 # Sravasti - Feyzabad
 c_naimisa = 4495 # Naimisa - Feyzabad
+
 d_gurjara_mandala = 521 # Duchy Gurjara Mandala - Rajkot
 c_mohadavasaka = 521 # Mohadavasaka - Rajkot
 d_anartta = 521 # Duchy Anartta - Rajkot
 c_dhamalpur = 521 # Dhamalpur - Rajkot
 c_vardhamana = 521 # Vardhamana - Rajkot
+
 c_sarasvata_mandala = 2053 # Sarasvata Mandala - Patan
 d_gurjara_mandala = 521 # Duchy Gurjara Mandala - Patan
+
 c_sarasvata_mandala = 4456 # Sarasvata Mandala - Jhalavad
+
 c_dvaraka = 515 # Dvaraka - Kathiawar
 d_saurashtra = 515 # Duchy Saurashtra - Kathiawar
 c_somnath = 515 # Somnath - Kathiawar
+
 c_somnath = 4455 # Somnath - Diu
+
 d_anartta = 2052 # Anartta - Navanagar
 c_dvaraka = 2052 # Dvaraka - Navanagar
 c_dhamalpur = 2052 # Dhamalpur - Navanagar
+
 c_bhumilka = 4454 # Bhumilka - Porbandar
+
 c_kutch = 503 # Kutch - Kutch
 c_satyapura = 503 # Satyapura - Kutch
+
 d_lata = 516 # Duchy Lata - Gujarat
 c_navasarika = 516 # Navasarika - Gujarat
 c_vadodara = 516 # Vadodara - Gujarat
+
 d_lata = 2056 # Vadodara - Rewakantha
 c_vadodara = 2056 # Vadodara - Rewakantha
 c_dadhipadra = 2056 # Dadhipadra - Rewakantha
+
 c_khetaka = 2054 # Khetaka - Ahmadabad
+
 c_khetaka = 4457 # Khetaka - Khambhat
+
 c_valabhi = 2051 # Valabhi - Bhavanagar
 c_somnath = 2051 # Somnath - Bhavanagar
+
 d_lata = 517 # Duchy Lata - Surat
 c_navasarika = 517 # Navasarika - Surat
 c_thana = 517 # Thana - Surat
+
 c_daman = 4430 # Daman - Daman
+
 c_navasarika = 4512 # Navasarika - Bharuch
+
 d_nasikya = 4433 # Duchy Nasikya - Nasik
 c_nasikya = 4433 # Nasikya - Nasik
 c_kondana = 4433 # Kondana - Nasik
+
 c_naldurg = 4432 # Naldurg - Junir
 c_kondana = 4432 # Kondana - Junir
+
 c_kondana = 2034 # Kondana - Pune
 c_kolhapur = 2034 # Kolhapur - Pune
+
 c_nandurbar = 2036 # Nandurbar - Baglana
 c_nasikya = 2036 # Nasikya - Baglana
+
 c_nagauda = 2066 # Nagauda - Nagaur
+
 c_mandavyapura = 514 # Mandavyapura - Marwar
 c_mandavyapura = 2066 # Mandavyapura - Nagaur
 c_mandavyapura = 2087 # Mandavyapura - Ajmer
+
 c_godwad = 2067 # Godwad - Gorwar
+
 d_jangladesh = 512 # Duchy Jangladesh - Jangladesh
 c_vikramapura = 512 # Vikramapura - Jangladesh
+
 c_reni = 4507 # Reni - Churu
+
 #d_stravani = 513 # Duchy Stravani - Jaisalmer
 c_ludrava = 513 # Ludrava - Jaisalmer
 #c_vijnot = 513 # Vijnot - Jaisalmer
+
 c_ludrava = 4506 # Ludrava - Barmer
+
 d_medapata = 518 # Duchy Medapata - Chitrakut
 c_chitrakut = 518 # Chitrakut - Chitrakut
+
 d_medapata = 2058 # Duchy Medapata - Mewar
 c_medapata = 2058 # Mewar - Mewar
+
 c_nagauda = 2064 # Nagauda - Shekhawati
+
 c_medantaka = 4502 # Medantaka - Merta
+
 c_hisar = 2065 # Hisar - Bhattiana
 d_jangladesh = 2065 # Duchy Jangladesh - Bhattiana
+
 c_sarasvati = 4463 # Sarasvati - Bhatnair
+
 c_kota = 4464 # Hadoti - Bundi
+
 c_kota = 528 # Kota - Hadoti
+
 d_ajmer = 519 # Duchy Ajmer - Dhundar
 c_ajayameru = 519 # Ajayameru - Dhundar
 c_ranthambore = 519 # Ranthambore - Dhundar
 c_vairata = 519 # Vairata - Dhundar
 c_vairata = 519 # Vairata - Dhundar #Added weight
+
 c_ajayameru = 4501 # Ajayameru - Bhilwara
 c_chitrakut = 4501 # Chitrakut - Bhilwara
+
+
 c_gwalior = 525 # Gwalior - Gird
+
 d_dadhipadra = 526 # Duchy Avanti - Mandu
+c_mandapika = 526 # Mandapika - Mandu
+c_dhara = 526 # Dhara - Mandu
 c_dadhipadra = 526 # Dadhipadra - Mandu
+c_ujjayini = 526 # Ujjayini - Mandu
+d_akara_dasarna = 526 # Duchy Akara Dasarna - Mandu
 c_sarangpur = 526 # Sarangpur - Mandu
-c_chanderi = 740 # Chanderi - Malwa
+c_chanderi = 526 # Chanderi - Mandu
 c_candhoba = 526 # Candhoba - Mandu
+
+c_ujjayini = 4461 # Ujjayini - Ujjain
+
 c_dhara = 2093 # Dhara - Mandsaur
 c_mandapika = 2093 # Mandapika - Mandsaur
+
 c_mohadavasaka = 4480 # Mohadavasaka - Mahikantha
 c_vadodara = 4480 # Vadodara - Mahikantha
+
 c_dasapura = 4462 # Dasapura - Vagad
 c_mohadavasaka = 4462 # Mohadavasaka - Vagad
+
 c_ujjayini = 2057 # Ujjayini - Bhilsa
+
 c_mandapika = 2092 # Mandapika - Mahadeo
+
+
 d_dadhipadra = 740 # Duchy Avanti - Malwa
 d_akara_dasarna = 740 # Duchy Akara Dasarna - Malwa
 c_dasapura = 740 # Dasapura - Malwa
-c_ujjayini = 4461 # Ujjayini - Ujjain
+c_ujjayini = 740 # Ujjayini - Malwa
 c_vidisa = 740 # Vidisa - Malwa
+
 d_anupa = 527 # Duchy Anupa - Khandesh
 c_asirgarh = 527 # Asirgarh - Khandesh
 c_burhanpur = 527 # Burhanpur - Khandesh
 c_thalner = 527 # Thalner - Khandesh
+
 c_asirgarh = 4460 # Asirgarh - Handia
+
 c_thalner = 4453 # Thalner - Thalner
+
 d_kanyakubja = 2063 # Duchy Kanyakubja - Etawah
 c_kanyakubja = 2063 # Kanyakubja - Etawah
+
 d_kanyakubja = 4497 # Duchy Kanyakubja - Kannaut
 c_kanyakubja = 4497 # Kanyakubja - Kannaut
+
 c_lakhnau = 523 # Lakhnau - Oudh
 d_kanyakubja = 523 # Duchy Kanyakubja - Lucknow
 c_kanyakubja = 523 # Kanyakubja - Lucknow
 c_bharauli = 523 # Bharauli - Lucknow
+
 c_prayaga = 556 # Prayag - Lower Doab
 c_asni = 4496 # Asni - Kora
+
 d_kanyakubja = 2063 # Duchy Kanyakubja - Etawah
 c_kanyakubja = 2063 # Kanyakubja - Etawah
+
 d_jejakabhukti = 559 # Duchy Jejakabhukti - Bundelkhand
 c_mahoba = 559 # Mahoba - Bundelkhand
 c_kalanjara = 559 # Kalanjara - Bundelkhand
 c_chanderi = 559 # Chanderi - Bundelkhan
+
 c_kalanjara = 4467 # Kalanjara - Kalinjar
+
 c_gurgi = 2097 # Gurgi - Baghelkhand
 c_jharkand = 2097 # Jharkand - Baghelkhand
+
 c_kalpi = 2059 # Kalpi - Kalpi
+
 d_dahala = 550 # Duchy Dahala - Mahakoshal
 c_tripuri = 550 # Tripuri - Mahakoshal
 c_chauragarh = 550 # Chauragarh - Mahakoshal
 c_kiranapura = 550 # Kiranapura - Mahakoshal
+
 c_kherla = 4458 # Kherla - Narbada
 c_ramagiri = 4458 # Ramagiri - Narbada
+
 c_damoh = 4459 # Damoh - Saugor
 c_tripuri = 4459 # Tripuri - Saugor
 c_vidisa = 4459 # Vidisa - Saugor
+
 c_damoh = 4466 # Damoh - Mahoba
 c_kalanjara = 4466 # Kalanjara - Mahoba
 c_chanderi = 4466 # Chanderi - Mahoba
+
 d_ratanpur = 551 # Duchy Ratanpur - Mandla
 c_tripuri = 551 # Tripuri - Mandla
 c_bandhugadha = 551 # Bandhugadha - Mandla
+
 c_bandhugadha = 4468 # Bandhugadha - Bandogarh
+
 d_ratanpur = 2098 # Duchy Ratanpur - Surguja
 c_tummana = 2098 # Tummana - Surguja
+
 c_ratanpur = 4452 # Ratanpur - Ratanpur
 c_rayapura = 4452 # Rayapura - Ratanpur
+
 d_vanga = 564 # Duchy Vanga - Dacca
 c_candradvipa = 564 # Candradvipa - Dacca
 d_varendra = 564 # Duchy Varendra - Dacca
+
 c_kumara_mandala = 4475 # Kumara Mandala - Fathabad
+
 c_madhupur = 4479 # Madhupur - Ghoraghat
 c_laksmanavati = 4479 # Laksmanavati - Goraghat
+
 c_suvarnagram = 564 # Suvarnagram - Dacca
+
 d_gauda = 563 # Duchy Gauda - Gauda
 c_gauda = 563 # Gauda - Gauda
 c_radha = 563 # Radha - Gauda
 c_damin_i_koh = 563 # Damin I Koh - Gauda
+
 c_mudgagiri = 4472 # Mudgagiri - Monghyr
+
 c_kotivarsa = 2044 # Kotivarsa - Bhagalpur
 c_mudgagiri = 2044 # Mudgagiri - Bhagalpur
+
 c_pundravardhana = 2045 # Pundravardhana - Barind
+
 c_nabadwipa = 4476 # Nabadwipa - Nadia
+
 c_saptagrama = 4477 # Saptagrama - Satagaon
+
 d_nadia = 561 # Duchy Nadia - Bengal Delta
 d_nadia = 561 # Duchy Nadia - Bengal Delta #Again for extra weight
 c_vijayapura = 561 # Vijayapura - Bengal Delta
 d_suhma = 561 # Duchy Suhma - Bengal Delta
+
 c_tamralipti = 2039 # Tamralipti - Sunderbans
+
 c_mallabhum = 2081 # Mallabhum - Lakhnor
+
 c_mallabhum = 4471 # Mallabhum - Bishnupur
+
 c_midnapore = 2038 # Midnapore - Midnapore
+
 d_kamarupanagara = 571 # Duchy Kamarupangara - Darrang
 c_kamarupanagara = 571 # Kamarupangara - Darrang
 d_para_lauhitya = 571 # Duchy Para Lauhitya - Darrang
 c_goalpara = 571 # Goalpara - Darrang
+
 c_dimapur = 570 # Dimapur - Naga
+
 c_kamatapur = 562 # Kamatapur - Koch
+
 c_sikkim = 4482 # Sikkim - Sikkim
+
 c_samatata = 568 # Samatata - Chittagong
+
 c_samatata = 4474 # Samatata - Sonargaon
 c_bikrampur = 4474 # Bikrampur - Sonargaon
 c_karmanta = 4474 # Karmanta - Sonargaon
+
 c_dimapur = 567 # Dimapur - Silhet
 c_srihatta = 567 # Srihatta - Silhet
 c_karmanta = 567 # Karmanta - Silhet
+
 c_karmanta = 2091 # Karmanta - Tripura
 c_karmanta = 4473 # Karmanta - Chakla
+
 c_suvarnagram = 2046 # Suvarnagram - Nasirabad
 c_suvarnagram = 4478 # Suvarnagram - Haibatnagar
+
 c_kamarupanagara = 2042 # Kamarupanagara - Koch Hajo
+
 c_haruppeswara = 566 # Haruppeswara - Assam
 c_monyul = 4440 # Haruppeswara - Narayanpur
+
 c_dimapur = 573 # Dimapur - Cachar
+
 c_kundina = 2040 # Kundina - Sadiya
 c_lhoyu = 2040 # Kundina - Sadiya
+
 d_daksina_kosala = 547 # Duchy Daksina Kosala - Bastar
+
 d_dandakaranya = 547 # Duchy Dandakaranya - Bastar
 c_cakrakuta = 547 # Cakrakuta - Bastar
 c_barasuru = 547 # Barasuru - Bastar
+
 c_cakrakuta = 4446 # Cakrakuta - Kalahandi
 c_suvarnapura = 4446 # Suvarnapura - Kalahandi
+
 c_cakrakuta = 4445 # Cakrakuta - Kanker
+
 c_rayapura = 2082 # Rayapura - Raipur
+
 d_daksina_kosala = 553 # Duchy Daksina Kosala - Garjat
 c_sambalpur = 553 # Sambalpur - Garjat
 c_nandapur = 553 # Nandapur - Garjat
+
 c_sripuri = 4447 # Sripuri - Patna
+
 c_suvarnapura = 4451 # Suvarnapura - Sonpur
+
 c_khinjali_mandala = 2049 # Khinjali Mandala - Khudra
 c_kodalaka_mandala = 2049 # Kodalaka Mandala - Khudra
+
 c_khijjingakota = 4450 # Khijjingakota - Mayurbhanj
+
 c_swetaka_mandala = 2048 # Swetaka Mandala - Garjat
 c_swetaka_mandala = 4448 # Swetaka Mandala - Parlakhimedi
+
 d_tosali = 552 # Duchy Tosala - Rajabara
 c_kataka = 552 # Kataka - Rajabara
 c_viraja = 552 # Viraja - Rajabara
+
 c_viraja = 2043 # Viraja - Balasore
+
 c_puri = 4441 # Puri - Ganjam
+
 d_kalinga = 549 # Duchy Kalinga - Kalingandhra
 c_kalinganagar = 549 # Kalinganagar - Kalingandhra
 c_vizagipatam = 549 # Vizagipatam - Kalingandhra
+
 c_kalinganagar = 2080 # Kalinganagar - Srikakulum
+
 d_tirabhukti = 558 # Duchy Tirabhukti - Bihar
+
 d_magadha = 558 # Duchy Magadha - Bihar
 d_magadha = 558 # Duchy Magadha - Bihar #Added weight
 c_magadha = 558 # Magadha - Bihar
 c_gaya = 558 # Gaya - Bihar
+
 c_rothas = 4469 # Rothas - Rohtasgarh
 c_jharkand = 4469 # Jharkand - Rohtasgarh
 c_rajrappa = 4469 # Rajrappa - Rohtasgarh
+
 c_simaramapura = 4488 # Simaramapura - Champaran
 c_mithila = 4488 # Mithila - Champaran
+
 c_mithila = 2047 # Mithila - Tirhut
+
 c_mithila = 4486 # Mithila - Purnia
 c_kotivarsa = 4486 # Kotivarsa - Purnia
+
 c_varanasi = 2095 # Varanasi - Varanasi
 c_sasaram = 2095 # Sasaram - Varanasi
+
 c_sasaram = 4490 # Sasaram - Ghazipur
 c_kusinagara = 4490 # Kusinagara - Ghazipur
+
 c_mithila = 4487 # Mithila - Saran
 c_kusinagara = 4487 # Kusinagara - Saran
+
 c_mithila = 4489 # Mithila - Hajipur
+
 d_kasi = 555 # Duchy Kasi - Jaunpur
 c_varanasi = 555 # Varanasi - Jaunpur
 c_jaunpur = 555 # Jaunpur - Jaunpur
 c_chunar = 555 # Chunar - Jaunpur
+
 c_sravasti = 2055 # Sravasti - Gorakhpur
 c_kusinagara = 2055 # Kusinagara - Gorakhpur
+
 d_jharkand = 560 # Duchy Jharkand - Jharkand
 c_jharkand = 560 # Jharkand - Jharkand
 c_munda = 560 # Munda - Jharkand
 c_rothas = 560 # Rothas - Jharkand
+
 c_munda = 4470 # Munda - Soumelpur
 c_sambalpur = 4470 # Munda - Soumelpur
+
 c_rajrappa = 2096 # Rajrappa - Damin
 c_radha = 2096 # Radha - Damin
+
 c_acalapura = 548 # Acalapura - West Berar
+
 d_vidharba = 546 # Duchy Vidharbha - East Berar
 c_ramagiri = 546 # Ramagiri - East Berar
 c_vairagara = 546 # Vairagara - East Berar
+
 c_canda = 2050 # Canda - Chanda
+
 d_konkana = 530 # Duchy Konkana - Malvana
 c_thana = 530 # Thana - Malvana
 c_daman = 530 # Daman - Malvana
-d_lata = 529 # Duchy Lata - North Konkan	#North Konkan is between these duchies
+
+d_lata = 529 # Duchy Lata - North Konkan	#North Konkan is between these duchies, having both the adjacent duchies helps
 d_konkana = 529 # Duchy Konkana - North Konkan
 c_daman = 529 # Daman - North Konkan
-c_thana = 529 # Thana - North Konkan	#Added weight
+c_thana = 529 # Thana - North Konkan	#Added weight, province capital
 c_thana = 529 # Thana - North Konkan
+
 c_thana = 2089 # Thana - Chud
+
 c_goa = 2030 # Goa - Goa
+
 c_kolhapur = 2033 # Kolhapur - Savanur
 c_vatapi = 2033 # Vatapi - Savanur
+
 c_goa = 531 # Goa - Kanara
 c_honnore = 531 # Honnore - Kanara
 c_kanara = 531 # Kanara - Kanara
+
 c_honnore = 4427 # Honnore - Honnavara
+
 c_kanara = 2029 # Kanara - South Kanara
+
 d_nasikya = 1946 # Duchy Nasikya - Desh
 c_kondana = 1946 # Kondana - Desh
 c_kolhapur = 1946 # Kolhapur - Desh
+
 c_kolhapur = 4431 # Kolhapur - Kolhapur
+
 c_goa = 4429 # Goa - Rajpur
+
 d_devagiri = 545 # Duchy Devagiri - Marathwada
+c_devagiri = 545 # Devagiri - Marathwada
+c_pratishthana = 545 # Pratisthana - Marathwada
 c_vatsagulma = 545 # Vatsagulma - Marathwada
+c_nanded = 545 # Nanded - Marathwada
+c_parnakheta = 545 # Parnaketha - Marathwada
+
 c_parnakheta = 4443 # Parnaketha - Karanja
+
 c_pratishthana = 4442 # Pratisthana - Washim
+
 d_devagiri = 4434 # Duchy Devagiri - Dharangaon
 c_devagiri = 4434 # Devagiri - Dharangaon
 c_thalner = 4434 # Thalner - Dharangaon
+
 d_rattapadi = 544 # Duchy Rattapadi - Ahmadnagar
 c_lattalura = 544 # Lattalura - Ahmadnagar
 c_naldurg = 544 # Naldurg - Ahmadnagar
+
 c_taradavadi = 569 # Taradavadi - Bijapur
+
 c_taradavadi = 4435 # Taradavadi - Sholhapur
+
 d_kalyani = 1948 # Duchy Kalyani - Bidar
 c_kalyani = 1948 # Kalyani - Bidar
 c_bidar = 1948 # Bidar - Bidar
-c_sagar = 2035 # Sagar - Gulbarga
+c_sagar = 1948 # Sagar - Bidar
+
 c_nanded = 4437 # Nanded - Paithre
+
 c_nanded = 4438 # Nanded - Nander
 c_vemulavada = 4438 # Vemulavada - Nander
+
 c_manyakheta = 2035 # Manyaketha - Gulbarga
+
 d_gangavadi = 533 # Duchy Gangavadi - Mysore
 c_srirangapatna = 533 # Srirangapatna - Mysore
 c_talakad = 533 # Talakad - Mysore
 c_manyapura = 533 # Manyapura - Mysore
 c_nandagiri = 533 # Nandagiri - Mysore
+
 d_nulambavadi = 541 # Duchy Nulambavadi - Vijayanagara
 c_uchangidurga = 541 # Uchangidurga - Vijayanagara
 c_banavasi = 541 # Banavasi - Vijayanagara
+
 c_dwarasamudra = 4421 # Dwarasamudra - Seringapatam
+
 c_dwarasamudra = 4426 # Dwarasamudra - Chitradurg
 c_banavasi = 4426 # Dwarasamudra - Banavasi
 c_uchangidurga = 4426 # Uchangidurga - Banavasi
+
 c_dwarasamudra = 4422 # Dwarasamudra - Sira
 c_manyapura = 4422 # Manyapura - Sira
 c_uchangidurga = 4422 # Uchangidurga - Sira
+
 c_alampur = 4424 # Alampur - Adavani
+
 c_udayagiri = 4423 # Udayagiri - Alampur
 c_alampur = 4423 # Alampur - Alampur
 c_penugonda = 4423 # Penugonda - Alampur
-c_dwarasamudra = 2032 # Dwarasamudra - Melenadu
+
+c_dwarasamudra = 2023 # Dwarasamudra - Melenadu
+
 d_gangavadi = 2031 # Duchy Gangavadi - Morasandu
 c_manyapura = 2031 # Manyapura - Morasandu
 c_nandagiri = 2031 # Nandagiri - Morasandu
 c_talakad = 2031 # Talakad - Morasandu
+
 c_potapi = 2027 # Potapi - Arcot
 c_tagadur = 2027 # Tagadur - Arcot
+
 c_udayagiri = 2090 # Udayagiri - Kurnool
 c_alampur = 2090 # Alampur - Kurnool
+
 d_raichur_doab = 532 # Duchy Raichur Doab - Raichur Doab
 c_idatarainadu = 532 # Idatarainadu - Raichur Doab
+
 d_raichur_doab = 4428 # Duchy Raichur Doab - Mudgal
 c_kudalasangama = 4428 # Kudalasangama - Mudgal
 c_idatarainadu = 4428 # Idatarainadu - Mudgal
+
 c_cholamandalam = 540 # Cholamandalam - Cuddalore
 c_kanchipuram = 540 # Canchipuram - Cuddalore
+
 c_cholamandalam = 2026 # Cholomandalam - Tanjore
 c_cholamandalam = 2085 # Cholomandalam - Tiruchirappalli
+
 c_cholamandalam = 4416 # Cholamandalam - Tranqebar
 c_cholamandalam = 4415 # Cholamandalam - Nagapatam
+
 d_chola_nadu = 1947 # Duchy Chola Nadu - Carnatic
 c_tagadur = 1947 # Tagadur - Carnatic
 c_potapi = 1947 # Potapi - Carnatic
+
 c_tagadur = 4420 # Tagadur - Chandragiri
 c_cholamandalam = 4420 # Cholamandalam - Chandragiri
 c_talakad = 4420 # Talakad - Chandragiri
 c_nandagiri = 4420 # Nandagiri - Chandragiri
+
 c_manyapura = 4414 # Manyapura - Salem
 c_talakad = 4414 # Talakad - Salem
 c_nandagiri = 4414 # Nandagiri - Salem
+
 d_pandya_nadu = 536 # Duchy Pandya Nadu - Madurai
 c_madurai = 536 # Madurai - Madurai
+
 #c_tenkasi = 536 # Tenkasi - Madurai
+
 c_tenkasi = 4412 # Tenkasi - Dindigul
+
 c_tirunelveli = 2101 # Tirunelveli - Tirunelveli
+
 c_kongu = 538 # Kongu - Kongu
+
 d_chera_nadu = 534 # Duchy Chera Nadu - Malabar
 c_mahoyadapuram = 534 # Mahoyadapuram - Malabar
 c_qalqut = 534 # Qalqut - Malabar
+
 c_kanara = 4413 # Kanara - Cannanore
 c_qalqut = 4413 # Qalqut - Cannanore
+
 c_mahoyadapuram = 535 # Mahoyadapuram - Kochin
+
 c_venadu = 537 # Venadu - Venad
+
 c_venadu = 4410 # Venadu - Kumari
+
 c_maldives = 1248 # Maldives - Maldives
+
 d_tondai_nadu = 539 # Duchy Tondai Nadu - Tondainadu
 c_kanchipuram = 539 # Kanchipuram - Tondainadu
+
 c_nellore = 4418 # Nellore - Nellore
 c_kanchipuram = 4418 # Kanchipuram - Nellore
+
 c_nellore = 4419 # Nellore - Adanki
+
 c_nellore = 4425 # Nellore - Kondavidu
 c_amaravati = 4425 # Amaravati - Kondavidu
+
 c_nellore = 2083 # Nellore - Kosta
+
 c_kanchipuram = 4417 # Kanchipuram - Kanchpuram
+
 d_vengi = 543 # Duchy Vengi - Kosta
 c_vijayawada = 543 # Vijayawada - Kosta
 c_nellore = 543 # Nellore - Kosta
+
 d_vengi = 2084 # Duchy Vengi - Konaseema
 c_vengipura = 2084 # Vengipura - Konaseema
 c_pithapuram = 2084 # Pithapuram - Konaseema
+
 d_udayagiri = 1949 # Duchy Udayagiri - Rayalaseema
 c_udayagiri = 1949 # Udayagiri - Rayalaseema
 c_amaravati = 1949 # Amaravati - Rayalaseema
 c_penugonda = 1949 # Penugonda - Rayalaseema
+
 d_warangal = 2037 # Duchy Warangal - Warangal
 c_kambampet = 2037 # Kambampet - Warangal
+c_orangallu = 2037 # Orangallu - Warangal
 c_rajamahendravaram = 2037 # Rajamahendravaram - Warangal
+
+c_kambampet = 4439 # Kambampet - Khamammet
+c_rajamahendravaram = 4439 # Rajamahendravaram - Khamammet
+
 d_warangal = 2028 # Duchy Warangal - Mahur
 c_vemulavada = 2028 # Vemulavada - Mahur
 c_balkonda = 2028 # Balkonda - Mahur
+
 c_balkonda = 4444 # Balkonda - Manidurg
 c_orangallu = 4444 # Orangallu - Manidurg
+
 d_racakonda = 542 # Duchy Racakonda - Telingana
+c_racakonda = 542 # Racakonda - Telingana
+c_nilagiri = 542 # Nilagiri - Telingana
+c_pannagallu = 542 # Pannagallu - Telingana
 c_medak = 542 # Medak - Telingana
 c_kollipake = 542 # Kollipake - Telingana
-c_racakonda = 4439 # Racakonda - Khamammet
+
+c_racakonda = 4436 # Racakonda - Devarakonda
 c_nilagiri = 4436 # Nilagiri - Devarakonda
 c_pannagallu = 4436 # Pannagallu - Devarakonda
+
 d_lanka = 572 # Duchy Lanka - Kotte
+c_phiti = 572 # Pihiti - Kotte
 c_dakhina_desa = 572 # Dakhina Desa - Kotte
+
 c_phiti = 4408 # Pihiti - Salavata
+
 c_kotthasara = 4409 # Kotthasara - Trincomale
+
 c_rohana = 4407 # Rohanna - Ruhunu
+
 d_lanka = 2099 # Duchy Lanka - Kandy
 d_sinhala = 2099 # Duchy Sinhala - Kandy
 c_rohana = 2099 # Rohanna - Kandy
 c_kotthasara = 2099 # Kotthasara - Kandy
+c_phiti = 2099 # Pihiti - Kandy
+
 d_sinhala = 2100 # Duchy Sinhala - Vanni
+c_phiti = 2100 # Pihiti - Vanni
 c_nagadipa = 2100 # Nagadipa - Vanni
+
+
 b_kathmandu = 557 # Barony Kathmandu - Katmandu
 
-# Tarim Basim  
+
+# Tarim Basim
 
 c_kashgar = 739 # Kashgar - Kashgar
+
 c_yopurga = 4210 # Yopurga - Yangi Hissar
+
 c_yarkand = 2124 # Yarkand - Yarkand
-c_artux = 4209 # Artux - Maralbexi
+c_artux = 2124 # Artux - Yarkand
+c_yopurga = 2124 # Yopurga - Yarkand
 c_karghalik = 2124 # Karghalik - Yarkand
+
 c_khotan = 710 # Khotan - Hotan
 c_keriya = 710 # Keriya - Hotan
+
 c_aksu = 712 # Aksu - Aksu
+
 c_uchturpan = 4209 # Uchturpan - Maralbexi
+
 c_kucha = 2121 # Kucha - Kuqa
 c_kubera = 2121 # Kucha - Kuqa
+
 c_cherchen = 711 # Cherchen - Qarqan
 c_cadota = 711 # Cadota - Qarqan
+
 c_karashar = 2192 # Karashar - Korla
 c_mingoi = 2192 # Karashar - Korla
+
 c_charkliq = 2123 # Charkliq - Qakilik
-c_loulan = 4207 # Loulan - Turpan
+c_loulan = 2123 # Loulan - Qakilik
 c_yuni = 2123 # Yuni - Qakilik
-c_kumtag = 4207 # Kumtag - Turpan
+c_kumtag = 2123 # Kumtag - Qakilik
 c_lopnor = 2123 # LopNor - Qakilik
+
 c_yumen = 707 # Yumen - Yumen
-c_dunhuang = 2122 # Dunhuang - Hami
+c_dunhuang = 707 # Dunhuang - Yumen
 c_anxi = 707 # Dunhuang - Yumen
 c_yungguan = 707 # Dunhuang - Yumen
+
 c_jiuquan = 708 # Jiuquan - Gansu
+
 c_kumul = 2122 # Kumul - Hami
+
 c_juyan = 2191 # Juyan - Ejin
+
 c_ejin = 709 # Ejin - Alxa
+
 c_beshbaliq = 713 # Beshbaliq - Beshbaliq
-c_dunkheger = 4206 # Dunkheger - Balikul
-c_monkh_khairkhan = 713 # Monkh Khairkhan - Beshbaliq
+c_dunkheger = 713 # Dunkheger - Beshbaliq
+c_monkh_kairkhan = 713 # Monkh Khairkhan - Beshbaliq
+
 c_barkul = 4206 # Barkul - Balikul
+
 c_kara_khoja = 4207 # Kara Khoja - Turpan
-c_luntai = 4208 # Luntai - Qurqara-usu
 
-# Mongolia  
+c_luntai = 715 # Luntai - Urumqi
 
-c_muztau = 714 # Muztau - Hoboksar
-c_belukha = 714 # Belukha - Hoboksar
-c_markakol = 715 # Markakol - Urumqi
-c_khuiten = 715 # Khuiten - Urumqi
+# Mongolia
+
+c_altay = 714 # Altay - Hoboksar
+c_aylik = 714 # Aylik - Hoboksar
+
+c_muztau = 1066 # Muztau - Altai Uriankhai
+c_belukha = 1066 # Belukha - Altai Uriankhai
+c_markakol = 1066 # Markakol - Altai Uriankhai
+c_khuiten = 1066 # Khuiten - Altai Uriankhai
+
+c_tsagaannuur = 718 # Tsagaannuur - Kobdo
+c_otgontenger = 718 # Otgontenger - Kobdo
+c_khasagt_khairkhan = 718 # Khasagt Khairkhan - Kobdo
+c_sutai = 718 # Sutai - Kobdo
+c_khokh_serkh = 718 # Khokh Serkh - Kobdo
 c_kyzyl = 718 # Kyzyl - Kobdo
 c_tsambagarav = 718 # Tsambagarav - Kobdo
 c_kharkhiraa = 718 # Kharkhiraa - Kobdo
-c_uvs = 4222 # Uvs - Ulaangom
-c_tsagaannuur = 719 # Tsagaannuur - Uliastai
-c_sutai = 2117 # Sutai - Zasagt
-c_khokh_serkh = 2117 # Khokh Serkh - Zasagt
-c_terkhiin_tsagaan = 4222 # Terkhiin Tsagan - Ulaangom
+c_uvs = 718 # Uvs - Kobdo
+
+c_terkhiin_tsagan = 4222 # Terkhiin Tsagan - Ulaangom
 c_tarvagatai = 4222 # Tarvagatai - Ulaangom
+
 c_kuznetsk = 1065 # Kuznetsk - Kuznetsk
-c_abakan = 1066 # Abakan - Altai Uriankhai
-c_tannu_ola = 1066 # Tannu Ola - Altai Uriankhai
+c_abakan = 1065 # Abakan - Kuznetsk
+c_tannu_ola = 1065 # Tannu Ola - Kuznetsk
+
 c_tom = 1064 # Tom - Tomsk
+
 c_otuken = 1060 # Otuken - Irkutsk
-c_khovsgol = 1060 # Khovsgol - Irkutsk
+
 c_gorgol = 716 # Gorgol - Tannu Uriankhai
 c_eastern_sayan = 716 # Eastern Sayan - Tannu Uriankhai
-c_otgontenger = 719 # Otgontenger - Uliastai
-c_suvraga_khairkhan = 719 # Burkhan Buudai - Uliastai
-c_burkhan_buudai = 2193 # Burkhan Buudai - Govi
-c_khasagt_khairkhan = 2193 # Khasagt Khairkhan - Govi
+
+c_khangai = 719 # Khangai - Uliastai
+c_orkhon = 719 # Orkhon - Uliastai
+
+c_aj_bogd = 2117 # Aj Bogd - Zasagt
+c_ikh_bogd = 2117 # Ikh Bogd - Zasagt
+c_burkhan_buudai = 2117 # Burkhan Buudai - Zasagt
+c_suvagra_khairkhan = 2117 # Burkhan Buudai - Zasagt
+
+c_gurvan_saikhan = 2193 # Gurvan Saikhan - Govi
+c_gurvan_saikhan = 2747 # Gurvan Saikhan - Khara Narin Ula
+c_gurvan_saikhan = 720 # Gurvan Saikhan - Dorno Govi
+
 c_kara_khorum = 2190 # Kara Khorum - Qaraqorum
-c_orkhon = 2190 # Orkhon - Qaraqorum
+
+c_delgerkhangai = 4221 # Delgerkhangai - Dundgovi
+
+c_khovsgol = 2189 # Khovsgol - Tsetserleg
 c_egiin = 2189 # Egiin - Tsetserleg
-c_khangai = 2189 # Khangai - Tsetserleg
+
 c_baygal = 1057 # Baygal - Udinsky
 c_uda = 1057 # Uda - Udinsky
+
 c_tuul = 2116 # Tuul - Ih Huree
 c_chikoi = 2116 # Chikoi - Ih Huree
-c_selenge = 4220 # Selenge - Khiagt
+c_selenge = 2116 # Selenge - Ih Huree
+
 c_khilok = 4220 # Khilok - Khiagt
-c_gurvan_saikhan = 720 # Gurvan Saikhan - Dorno Govi
-c_aj_bogd = 720 # Aj Bogd - Dorno Govi
-c_delgerkhangai = 4221 # Delgerkhangai - Dundgovi
-c_ikh_bogd = 4221 # Ikh Bogd - Dundgovi
 
-# Tibet & Nepal #
- 
-# k_kashmir # 
+# Tibet & Nepal
 
+# k_kashmir
 c_kasmira = 508 # Kasmira - Kashmir
 c_kasmira = 4449 # Kasmira - Jammu
+
 c_pamir = 2073 # Pamir - Baltistan
 c_tashkurgan = 2073 # Tashkurgan - Baltistan
+c_gilgit = 2073 # Gilgit - Baltistan
 c_kangra = 509 # Kangra - Kangra
 c_garhwal = 511 # Garhwal - Garhwal
 c_kurmanchal = 2069 # Kurmanchal - Kumaon
+
 c_garhwal = 4493 # Garhwal - Sirmur
+
 c_skardu = 4521 # Skardu - Skardu
 c_gilgit = 4521 # Gilgit - Skardu
 
-# k_nepal # 
-
+# k_nepal
 c_kathmandu = 557 # Kathmandu - Katmandu
 c_pokhara = 2070 # Pokhara - Chaubisi Rajya
 c_mustang = 2070 # Mustang - Chaubisi Rajya
+
 c_lumbini = 554 # Lumbini - Baisi Rajya
+
 c_kathmandu = 2071 # Kathmandu - Limbuwan
 c_limbuwan = 2071 # Limbuwan - Limbuwan
+
 c_limbuwan = 4483 # Limbuwan - Morang
+
 c_janakpur = 4484 # Janakpur - Makwanpur
+
 c_lumbini = 4491 # Lumbini - Dang
+
 c_pokhara = 4485 # Pokhara - Palpa
+
 c_doti = 4492 # Doti - Doti
 c_jumla = 4492 # Jumla - Doti
 
-# k_yarlung # 
-
+# k_yarlung
 c_lhasa = 677 # Lhasa - Lhasa
 c_lhunzhub = 677 # Lhunzhub - Lhasa
-c_xainza = 677 # Shigatse - Lhasa
-c_kunggar = 2130 # Kunggar - Nyingchi
+c_kunggar = 677 # Kunggar - Lhasa
+
 c_gyantse = 676 # Gyantse - Shigatse
-c_shigatse = 676 # Shigatse - Shigatse
 c_paro = 565 # Paro - Bhutan
+c_nagchu = 4205 # Nagchu - Nagchu
+c_nagchu = 4205 # Nagchu - Nagchu
 c_nagchu = 4205 # Nagchu - Nagchu
 c_banbar = 4205 # Banbar - Nagchu
 c_bome = 4205 # Bome - Nagchu
+
 c_nedong = 4517 # Nedong - Nedong
 c_taktse = 4517 # Taktse - Nedong
 c_lhunze = 4517 # Lhunze - Nedong
+
 c_bumthang = 4481 # Bumthang - Punakha
+
 c_sakya = 4514 # Sakya - Sakya
 c_lhatse = 4514 # Lhatse - Sakya
+
 c_mangyul = 4515 # Mangyul - Gyirong
 c_gyesar = 4515 # Gyesar - Gyirong
 c_coqen = 4515 # Coqen - Gyirong
-c_purang = 4516 # Purang - Purang
+
 c_zhongba = 4516 # Zhongba - Purang
+c_gyesar = 4516 # Gyesar - Purang
+
+c_shigatse = 4518 # Shigatse - Tsurphu
 c_nyima = 4518 # Shigatse - Tsurphu
+c_xainza = 4518 # Shigatse - Tsurphu
+
+c_lhasa = 4519 # Shigatse - Tsurphu
+c_xainza = 4519 # Shigatse - Tsurphu
+
 c_rutog = 4520 # Shigatse - Tsurphu
-#Changtang is now a wasteland # 
-c_samtho = 4519 # Samtho - Tsurphu
-c_gerze = 4519 # Gerze - Tsurphu
-c_kunlun = 4518 # Kunlun - Tsurphu
-c_tsakha = 4518 # Tsakha - Tsurphu
-c_qangtang = 4519 # Tsakha - Tsurphu
-c_amdo = 705 # Amdo - Gyegu
-c_arjin = 705 # Arjin - Gyegu
-#c_tanggula = 2129 # Amdo - Changtang
+c_kulung = 4520 # Shigatse - Tsurphu
+
+#Changtang is now a wasteland
+#c_samtho = 2129 # Samtho - Changtang
 #c_nyima = 2129 # Nyima - Changtang
 #c_xainza = 2129 # Xainza - Changtang
+#c_gerze = 2129 # Gerze - Changtang
+#c_kunlun = 2129 # Kunlun - Changtang
+#c_tsakha = 2129 # Tsakha - Changtang
+#c_qangtang = 2129 # Tsakha - Changtang
+#c_amdo = 2129 # Amdo - Changtang
+#c_tanggula = 2129 # Amdo - Changtang
+#c_arjin = 2129 # Arjin - Changtang
 
-# k_guge 
-
+# k_guge
 c_tsaparang = 2128 # Tsaparang - Ngari
-c_gar = 4520 # Gar - Tsurphu
+c_rutog = 2128 # Rutog - Ngari
+c_gar = 2128 # Gar - Ngari
 c_kyunglung = 2128 # Kyunglung - Ngari
 c_gegyai = 2128 # Kyunglung - Ngari
 c_leh = 2074 # Leh - Ladakh
 c_diskit = 2074 # Diskit - Ladakh
 c_pangong = 2074 # Pangong - Ladakh
 
-# k_dege 
-
+# k_dege
 c_nyingchi = 2130 # Nyingchi - Nyingchi
-c_medog = 2132 # Medog - Markam
-c_mainling = 2132 # Mainling - Markam
+c_medog = 2130 # Medog - Nyingchi
+c_mainling = 2130 # Mainling - Nyingchi
 c_dege = 2133 # Dege - Dege
+c_dege = 2135 # Dege - Garze
+c_lhatok = 2133 # Lhatok - Dege
 c_lhatok = 2135 # Lhatok - Garze
+c_markam = 2132 # Markam - Markam
 c_markam = 678 # Markam - Tachienlu
 c_qamdo = 2131 # Qamdo - Qamdo
+c_fuqi = 706 # Fuqi - Tsaidam
 c_fuqi = 4204 # Fuqi - Anding
+c_delingha = 706 # Delingha - Tsaidam
 c_delingha = 4204 # Delingha - Anding
 c_nagormo = 2134 # Nagormo - Rebgong
-c_lenghu = 706 # lenghu - Tsaidam
+c_lenghu = 2134 # lenghu - Rebgong
 c_zadoi = 2134 # Zadoi - Rebgong
-c_qaidam = 706 # Qaidam - Tsaidam
+c_qaidam = 2134 # Qaidam - Rebgong
 c_dulan = 2134 # Dulan - Rebgong
-c_lingtsang = 2133 # Lingtsang - Dege
-c_nangqen = 2131 # Nangqen - Qamdo
+
+c_lingtsang = 705 # Lingtsang - Gyegu
+c_nangqen = 705 # Nangqen - Gyegu
+c_lingtsang = 705 # Lingtsang - Gyegu
+c_nangqen = 705 # Nangqen - Gyegu
+c_ando = 705 # Lingtsang - Gyegu
 c_tanggula = 705 # Lingtsang - Gyegu
