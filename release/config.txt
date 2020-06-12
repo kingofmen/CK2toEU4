@@ -345,20 +345,90 @@ statistics = {
 convertWars = no
 
 great_works = {
-  wonder_underground_city = local_fortress
-  wonder_garden = karesansui_garden
-  wonder_harbor = the_staple_port
-  wonder_library = bookmarket_of_x
-  wonder_statue_ruler = loyalist_stronghold
-  wonder_wall = improved_fortifications
-  wonder_pagan_stones = minority_prospers
-  wonder_fortress = local_fortress
-  #wonder_university = 
-  #wonder_temple_pagan = 
-  #wonder_lighthouse = 
-  #wonder_statue_horse = 
-  #wonder_pyramid = 
-  #wonder_palace = dsa
+  wonder_underground_city = {
+    0 = local_fortress
+    1 = local_fortress
+    2 = local_fortress
+    3 = local_fortress
+  }
+  wonder_garden = {
+    0 = karesansui_garden
+    1 = karesansui_garden
+    2 = karesansui_garden
+    3 = karesansui_garden
+  }
+  wonder_harbor = {
+    0 = the_staple_port
+    1 = the_staple_port
+    2 = the_staple_port
+    3 = the_staple_port
+  }
+  wonder_library = {
+    0 = bookmarket_of_x
+    1 = bookmarket_of_x
+    2 = bookmarket_of_x
+    3 = bookmarket_of_x
+  }
+  wonder_statue_ruler = {
+    0 = loyalist_stronghold
+    1 = loyalist_stronghold
+    2 = loyalist_stronghold
+    3 = loyalist_stronghold
+  }
+  wonder_wall = {
+    0 = improved_fortifications
+    1 = improved_fortifications
+    2 = improved_fortifications
+    3 = improved_fortifications
+  }
+  wonder_pagan_stones = {
+    0 = minority_prospers
+    1 = minority_prospers
+    2 = minority_prospers
+    3 = minority_prospers
+  }
+  wonder_fortress = {
+    0 = local_fortress
+    1 = local_fortress
+    2 = local_fortress
+    3 = local_fortress
+  }
+  wonder_university = {
+    0 = bookmarket_of_x
+    1 = bookmarket_of_x
+    2 = bookmarket_of_x
+    3 = bookmarket_of_x
+  }
+  wonder_temple_pagan = {
+    0 = minority_prospers
+    1 = minority_prospers
+    2 = minority_prospers
+    3 = minority_prospers
+  }
+  wonder_lighthouse = {
+    0 = the_staple_port
+    1 = the_staple_port
+    2 = the_staple_port
+    3 = the_staple_port
+  }
+  wonder_statue_horse = {
+    0 = minority_prospers
+    1 = minority_prospers
+    2 = minority_prospers
+    3 = minority_prospers
+  }
+  wonder_pyramid = {
+    0 = minority_prospers
+    1 = minority_prospers
+    2 = minority_prospers
+    3 = minority_prospers
+  }
+  wonder_palace = {
+    0 = loyalist_stronghold
+    1 = loyalist_stronghold
+    2 = loyalist_stronghold
+    3 = loyalist_stronghold
+  }
 }
 
 # Blacklist for navies; provinces listed here cannot be used as navy
