@@ -341,6 +341,9 @@ statistics = {
   humans_for_overlap = 0
 }
 
+# Set to 'yes' to turn on war and rebellion conversions.
+convertWars = no
+
 great_works = {
   wonder_underground_city = local_fortress
   wonder_garden = karesansui_garden

@@ -5116,6 +5116,10 @@ bool Converter::transferProvinces () {
 }
 
 bool Converter::warsAndRebels () {
+  if (configObject->safeGetString("convertWars", "no") != "yes") {
+    return true;
+  }
+
   Logger::logStream(LogStream::Info) << "Beginning wars.\n" << LogOption::Indent;
   objvec euWars = eu4Game->getValue("active_war");
   for (objiter euWar = euWars.begin(); euWar != euWars.end(); ++euWar) {
