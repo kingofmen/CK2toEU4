@@ -5700,21 +5700,25 @@ bool Converter::greatWorks() {
       continue;
     }
     std::string type = remQuotes(wonder->safeGetString("type"));
-    std::string mod = modifiers->safeGetString(type);
-    if (mod.empty()) {
+    Object* mod = modifiers->getNeededObject(type);
+    std::string stage = wonder->safeGetString("stage");
+    std::string graded_mod = mod->safeGetString(stage);
+    if (graded_mod.empty()) {
       Logger::logStream(LogStream::Info)
-          << "No conversion for type " << type << ", skipping.\n";
+          << "No conversion for type " << type << " at stage " << stage
+          << ", skipping.\n";
       continue;
     }
     EU4Province* euProv = ckProv->eu4Province(0);
     Logger::logStream(LogStream::Info)
         << wonder->safeGetString("name") << " in " << nameAndNumber(ckProv)
-        << " -> " << nameAndNumber(euProv) << " " << mod << "\n";
+        << " type " << type << " stage " << stage << " -> "
+        << nameAndNumber(euProv) << " " << graded_mod << "\n";
     Object* modifier = new Object("modifier");
     euProv->setValue(modifier);
     modifier->setLeaf("date", "-1.1.1");
     modifier->setLeaf("permanent", "yes");
-    modifier->setLeaf("modifier", addQuotes(mod));
+    modifier->setLeaf("modifier", addQuotes(graded_mod));
   }
   Logger::logStream(LogStream::Info) << "Done with Great Works.\n";
   return true;
