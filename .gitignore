@@ -3,6 +3,7 @@
 *.pro
 *.aux
 *.log
+*.pdf
 object_script*
 release/*.o
 release/*.ck2

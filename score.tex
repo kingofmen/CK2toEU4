@@ -1,0 +1,146 @@
+\documentclass[12pt]{article}
+\usepackage{listings}
+\title{Dynastic Score Calculation}
+\author{King of Men}
+
+\lstset{
+breaklines=true,
+keepspaces=true,
+showspaces=false,
+}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+The dynastic score is calculated by the source code in the Appendix,
+which is a complete description of the algorithm. However, the
+auxiliary outline in English below may serve as a rough guide for
+understanding the code.
+
+\section{Base Score}
+
+For each player dynasty \footnote{Stored in the \texttt{custom\_score} object of
+the custom file specified in \texttt{config.txt}.}, the converter will
+go through the characters (living and dead) of that dynasty, looking
+for score-worthy traits and for titles. Traits are considered below.
+For each landed title of County level and above, the converter goes
+through the events associated with the title, that is to say, when it
+changed hands and who it went to. For each holder of a player dynasty,
+it calculates a title score, which is equal to the number of days the
+dynast held the title times the title weight. The title weight is one for
+counties, three for duchies, five for kingdoms, and seven for
+Empires. In addition, creating the title counts as ten years of
+holding it; the curse of Pharaoh and the GM is upon those who
+would exploit this by repeatedly destroying and re-creating
+titles. Note again that landless titles are ignored, so having the
+world's greatest collection of rebels does not give score.
+
+The total title score of the dynasty, i.e. the sum of the title scores
+of all the dynasts, is the \emph{base score}. Once the base score of
+all the player dynasties has been calculated, those which are below
+the median are given the median base score, and all the scores are
+then adjusted by traits and achievements. Note that this means there
+is some variation even in the bottom half of the score table; note
+further that, if you do very badly on titles but well on achievements
+and traits, your final score may be higher than that of someone who
+was about average on titles but had no achievements.
+
+\section{Trait Adjustment}
+
+For each dynasty, the
+converter counts up the number of members and the numbers of the
+traits listed in the \verb|custom_score_traits| object:
+
+\begin{verbatim}
+custom_score_traits = {
+  inbred = 1
+  kinslayer = 1
+  ravager = 1
+  seaking = 2
+  sea_queen = 2
+  genius = 1
+  berserker = 1
+  crusader = 1
+  valhalla_bound = 1
+  mujahid = 1
+  eagle_warrior = 1
+  sun_warrior = 1
+  ukkos_shield = 1
+  nyames_shield = 1
+  peruns_chosen = 1
+  romuvas_own = 1
+  ares_own = 1
+  tengri_warrior = 1
+  shaddai = 1
+  gondi_shahansha = 1
+  achievements = 0.01
+}
+\end{verbatim}
+
+The dynasty's score is then adjusted by the median base score times
+the fraction of members with each trait, times the weight of the trait
+in the list above. For example, suppose you have 100 dynasts, and two
+of them are Sea Kings and one is a Berserker. Then your trait fraction
+is 0.05 (two Sea Kings, each worth two points; a Berserker worth one
+point; divided by 100 dynasts to get the fraction), and so you will
+get a bonus of 5\% of the median base score.
+
+\section{Achievement Adjustment}
+
+Achievement points are listed in the \verb|custom_score| object, which
+is created by hand at the end of the CK2 period, when the GM counts up
+the achievement score. For example, this listing:
+\begin{verbatim}
+custom_score = {
+  10292922 = 37   # Ivering
+  10292920 = 28   # Yngling
+}
+\end{verbatim}
+indicates that there are two player dynasties, with scores of 37 and
+28 achievement points respectively. The names on the right are
+comments, helpful to the one writing the custom score section but
+ignored by the converter code. The achievement points are multiplied
+by the \verb|achievements| ``trait''\footnote{Yes, it is a bit of a
+kludge to have this all in the same object.} in the custom traits
+list; the result is the fraction of the median base score which will
+be given as a bonus. For example, the Ynglings, above, with their 28
+achievement points, will get 28\% of the median base score as their
+achievement adjustment.
+
+\section{Worked Example}
+
+Consider a hypothetical Yngling family with 100 dynasty members
+throughout the game. Of these 100, only ten have held landed titles;
+to be specific, the ten have held one County, one Duchy, one Kingdom,
+and one Empire, and each of them held those titles for ten years. In
+addition the first one created the Empire title on day one of the
+game, because it is an example. This gives a base score of:
+\begin{verbatim}
+100 County-years  = 100
+100 Duchy-years   = 300
+100 Kingdom-years = 500
+100 Empire-years  = 700
+1 Empire creation =  70
+\end{verbatim}
+for a total of 1670. Since we are considering only one dynasty, this
+is also the median score.
+
+Among the 100 Ynglings, we find a Sea King, a Berserker, a Crusader,
+and five Geniuses. The Sea King trait is worth two points, the others
+are one point each; the total weighted cool-trait fraction is therefore
+0.09 - nine cool-trait points, divided by a hundred dynasts. This is
+multiplied by the median base score of 1670 to give a trait adjustment
+of 150.3.
+
+Finally, the Ynglings have accumulated 10 achievement points, for a
+10\% achievement adjustment, or 167 points. Their total is therefore
+1987.3.
+
+\newpage
+\appendix{Code}
+
+\lstinputlisting[language=C++,firstline=1337,lastline=1637]{Converter.cc}
+
+\end{document}
