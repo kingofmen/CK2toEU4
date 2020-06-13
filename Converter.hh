@@ -6,6 +6,7 @@
 #include <map>
 #include <string>
 #include <queue>
+#include <unordered_set>
 
 #include "UtilityFunctions.hh"
 
@@ -100,6 +101,8 @@ private:
   Object* createTypedId (string keyword, string idType);
   Object* createUnitId (string unitType);
   Object* loadTextFile (string fname);
+  bool hasDLC(const std::string& dlc);
+  bool hasAnyDLC(const std::unordered_set<std::string>& dlcs);
   bool makeAdvisor(CK2Character* councillor, Object* country_advisors,
                    objvec& advisorTypes, string& birthDate, Object* history,
                    string capitalTag, map<string, objvec>& allAdvisors);

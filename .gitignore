@@ -1,8 +1,13 @@
 *.o
 *.ps1
 *.pro
+*.aux
+*.log
+object_script*
 release/*.o
+release/*.ck2
 release/moc*
+release/Output/*
 debug/*
 documentation.aux
 documentation.out

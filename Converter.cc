@@ -568,6 +568,24 @@ Object* Converter::loadTextFile (string fname) {
   return ret; 
 }
 
+bool Converter::hasDLC(const std::string& dlc) {
+  return hasAnyDLC({dlc});
+}
+
+bool Converter::hasAnyDLC(const std::unordered_set<std::string>& dlcs) {
+  Object* dlcsobj = eu4Game->safeGetObject("dlc_enabled");
+  if (dlcsobj == nullptr) {
+    return false;
+  }
+  for (int i = 0; i < dlcsobj->numTokens(); ++i) {
+    string dlc = remQuotes(dlcsobj->getToken(i));
+    if (dlcs.find(dlc) != dlcs.end()) {
+      return true;
+    }
+  }
+  return false;
+}
+
 bool Converter::swapKeys (Object* one, Object* two, string key) {
   if (one == two) return true; 
   Object* valOne = one->safeGetObject(key);
@@ -5151,16 +5169,12 @@ bool Converter::warsAndRebels () {
 
   bool addParticipants = false;
   bool joined_war = true;
-  Object* dlcs = eu4Game->getNeededObject("dlc_enabled");
-  for (int i = 0; i < dlcs->numTokens(); ++i) {
-    string dlc = remQuotes(dlcs->getToken(i));
-    if ((dlc == "Art of War") || (dlc == "Common Sense") ||
-        (dlc == "Conquest of Paradise") || (dlc == "The Cossacks")) {
-      addParticipants = true;
-    }
-    if (dlc == "The Cossacks") {
-      joined_war = false;
-    }
+  if (hasAnyDLC({"Art of War", "Common Sense", "Conquest of Paradise",
+                 "The Cossacks"})) {
+    addParticipants = true;
+  }
+  if (hasDLC("The Cossacks")) {
+    joined_war = false;
   }
 
   Object* before = eu4Game->getNeededObject("income_statistics");
