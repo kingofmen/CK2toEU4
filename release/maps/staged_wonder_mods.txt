@@ -1,0 +1,165 @@
+# This file is not used by the converter but can be copied into your EU4
+# mod if you want Great Works to convert by stages.
+  
+royal_palace_1 = {
+	land_forcelimit = 2
+}
+royal_palace_2 = {
+	land_forcelimit = 4
+}
+royal_palace_3 = {
+	land_forcelimit = 6
+}
+royal_palace_4 = {
+	land_forcelimit = 8
+}
+
+magnificent_garden_1 = {
+	trade_goods_size = 0.25
+}
+magnificent_garden_2 = {
+	trade_goods_size = 0.5
+}
+magnificent_garden_3 = {
+	trade_goods_size = 0.75
+}
+magnificent_garden_4 = {
+	trade_goods_size = 1
+}
+
+great_harbor_1 = {
+	naval_forcelimit = 3
+}
+great_harbor_2 = {
+	naval_forcelimit = 6
+}
+great_harbor_3 = {
+	naval_forcelimit = 9
+}
+great_harbor_4 = {
+	naval_forcelimit = 12
+}
+
+great_walls_1 = {
+	local_defensiveness = 0.25
+}
+great_walls_2 = {
+	local_defensiveness = 0.5
+}
+great_walls_3 = {
+	local_defensiveness = 0.75
+}
+great_walls_4 = {
+	local_defensiveness = 1
+}
+
+grand_university_1 = {
+	local_institution_spread = 0.125
+	local_tax_modifier = 0.05
+	trade_value_modifier = 0.05
+}
+grand_university_2 = {
+	local_institution_spread = 0.25
+	local_tax_modifier = 0.10
+	trade_value_modifier = 0.10
+}
+grand_university_3 = {
+	local_institution_spread = 0.375
+	local_tax_modifier = 0.15
+	trade_value_modifier = 0.15
+}
+grand_university_4 = {
+	local_institution_spread = 0.5
+	local_tax_modifier = 0.20
+	trade_value_modifier = 0.20
+}
+
+grand_fortress_1 = {
+	local_defensiveness = 0.25
+}
+grand_fortress_2 = {
+	local_defensiveness = 0.5
+}
+grand_fortress_3 = {
+	local_defensiveness = 0.75
+}
+grand_fortress_4 = {
+	local_defensiveness = 1.0
+}
+
+great_underground_city_1 = {
+	local_defensiveness = 0.125
+	local_hostile_attrition = 0.5
+	local_core_creation = 0.25	
+}
+great_underground_city_2 = {
+	local_defensiveness = 0.25
+	local_hostile_attrition = 1
+	local_core_creation = 0.5
+}
+great_underground_city_3 = {
+	local_defensiveness = 0.375
+	local_hostile_attrition = 1.5
+	local_core_creation = 0.75
+}
+great_underground_city_4 = {
+	local_defensiveness = 0.5
+	local_hostile_attrition = 2
+	local_core_creation = 1
+}
+
+great_lighthouse_1 = {
+	province_trade_power_modifier = 0.4
+}
+great_lighthouse_2 = {
+	province_trade_power_modifier = 0.8
+}
+great_lighthouse_3 = {
+	province_trade_power_modifier = 1.2
+}
+great_lighthouse_4 = {
+	province_trade_power_modifier = 1.6
+}
+
+great_temple_1 = {
+	local_tax_modifier = 0.25
+}
+great_temple_2 = {
+	local_tax_modifier = 0.5
+}
+great_temple_3 = {
+	local_tax_modifier = 0.75
+}
+great_temple_4 = {
+	local_tax_modifier = 1
+}
+
+ruler_statue_1 = {
+	tax_income = 2.5
+}
+ruler_statue_2 = {
+	tax_income = 5
+}
+ruler_statue_3 = {
+	tax_income = 7.5
+}
+ruler_statue_4 = {
+	tax_income = 10
+}
+
+great_library_1 = {
+	local_institution_spread = 0.125
+	trade_value = 2
+}
+great_library_2 = {
+	local_institution_spread = 0.25
+	trade_value = 4
+}
+great_library_3 = {
+	local_institution_spread = 0.375
+	trade_value = 6
+}
+great_library_4 = {
+	local_institution_spread = 0.5
+	trade_value = 8
+}
