@@ -195,11 +195,16 @@ void Converter::cleanUp () {
     eu4country->resetHistory("technology_group", "western");
     objvec estates = eu4country->getValue("estate");
     for (auto* estate : estates) {
-      estate->unsetValue("province");
-      estate->resetLeaf("loyalty", "40.000");
-      estate->resetLeaf("total_loyalty", "40.000");
-      estate->resetLeaf("influence", "40.000");
-      estate->resetLeaf("province_influence", "0.000");
+      if (hasDLC("Emperor")) {
+        estate->resetLeaf("loyalty", "50.000");
+        estate->unsetValue("active_influences");
+      } else {
+        estate->unsetValue("province");
+        estate->resetLeaf("loyalty", "40.000");
+        estate->resetLeaf("total_loyalty", "40.000");
+        estate->resetLeaf("influence", "40.000");
+        estate->resetLeaf("province_influence", "0.000");
+      }
     }
   }
 
@@ -1544,6 +1549,103 @@ void constructOwnerMap (map<EU4Country*, int>* ownerMap) {
     if (!owner) continue;
     (*ownerMap)[owner]++;
   }
+}
+
+bool Converter::estates() {
+  Logger::logStream(LogStream::Info) << "Converting estates.\n";
+  if (!hasDLC("Emperor")) {
+    Logger::logStream(LogStream::Info) << "Emperor not active, doing nothing.\n";
+    return true;
+  }
+
+  for (auto* eu4country : EU4Country::getAll()) {
+    CK2Ruler* ruler = eu4country->getRuler();
+    if (!ruler) continue;
+    std::unordered_map<string, double> estateWeights;
+    double totalWeight = 0;
+    double demesneWeight = 0;
+    for (auto* eu4prov : eu4country->getProvinces()) {
+      for (auto* ck2prov : eu4prov->ckProvs()) {
+        int cities = 0;
+        int castles = 0;
+        int temples = 0;
+        for (auto baron = ck2prov->startBarony();
+             baron != ck2prov->finalBarony(); ++baron) {
+          auto btype = (*baron)->safeGetString("type");
+          if (btype == "city") {
+            cities++;
+          } else if (btype == "castle") {
+            castles++;
+          } else if (btype == "temple") {
+            temples++;
+          }
+        }
+        double weight = ck2prov->totalWeight();
+        totalWeight += weight;
+        if (ruler->hasTitle(ck2prov->getCountyTitle())) {
+          demesneWeight += weight;
+        }
+        estateWeights["nobles"]   += weight * castles;
+        estateWeights["burghers"] += weight * cities;
+        estateWeights["church"]   += weight * temples;
+      }
+    }
+    if (totalWeight < 0.001) {
+      Logger::logStream(LogStream::Warn)
+          << "Country " << eu4country->getKey()
+          << " has no weight, ignoring its estates.\n";
+      continue;
+    }
+
+    double crown = 2 * demesneWeight / totalWeight;
+    if (crown < 0.30) {
+      crown = 0.30;
+    } else if (crown > 0.8) {
+      crown = 0.8;
+    }
+    crown *= 100;
+    std::string gov = ruler->safeGetString(governmentString);
+    if (gov == "merchant_republic_government") {
+      estateWeights["burghers"] *= 3;
+    } else if (gov == "theocracy_government") {
+      estateWeights["church"] *= 3;
+    }
+    objvec estates = eu4country->getValue("estate");
+    Object* nobles = nullptr;
+    Object* burghers = nullptr;
+    Object* church = nullptr;
+    double remainder = 100 - crown;
+    totalWeight = estateWeights["nobles"] + estateWeights["burghers"] +
+                  estateWeights["church"];
+    for (auto* estate : estates) {
+      auto type = remQuotes(estate->safeGetString("type"));
+      if (type == "estate_church") {
+        church = estate;
+      } else if (type == "estate_nobles") {
+        nobles = estate;
+      } else if (type == "estate_burghers") {
+        burghers = estate;
+      } else {
+        estate->resetLeaf("territory", "5.00");
+        remainder -= 5;
+      }
+    }
+    if (nobles != nullptr) {
+      nobles->resetLeaf("territory",
+                        remainder * (estateWeights["nobles"] / totalWeight));
+    }
+    if (burghers != nullptr) {
+      burghers->resetLeaf(
+          "territory", remainder * (estateWeights["burghers"] / totalWeight));
+    }
+    if (church != nullptr) {
+      church->resetLeaf("territory",
+                        remainder * (estateWeights["church"] / totalWeight));
+    }
+  }
+  
+  Logger::logStream(LogStream::Info) << "Done with estates.\n";
+  return true;
 }
 
 bool Converter::adjustBalkanisation () {
@@ -5815,6 +5917,8 @@ void Converter::convert () {
   if (!warsAndRebels()) return;
   if (debug) (*debug) << "Great Works" << std::endl;
   if (!greatWorks()) return;
+  if (debug) (*debug) << "Estates" << std::endl;
+  if (!estates()) return;
   if (debug) (*debug) << "displayStats" << std::endl;
   displayStats();
 

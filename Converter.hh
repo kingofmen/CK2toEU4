@@ -60,6 +60,7 @@ private:
   bool createNavies ();  
   bool cultureAndReligion ();
   bool displayStats ();
+  bool estates ();
   bool hreAndPapacy ();
   bool modifyProvinces ();
   bool moveBuildings ();
