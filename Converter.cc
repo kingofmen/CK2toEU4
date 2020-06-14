@@ -1415,7 +1415,7 @@ bool Converter::createProvinceMap() {
     if (0 == conversions.size()) {
       Logger::logStream(LogStream::Warn)
           << "Could not find EU4 equivalent for province "
-          << nameAndNumber(ckprov) << ", ignoring.\n";
+          << nameAndNumber(ckprov) << " (" << countytag << "), ignoring.\n";
       continue;
     }
 
@@ -4124,13 +4124,26 @@ bool Converter::rankProvinceDevelopment () {
         backup_ck2_provs.push_back(ck2prov);
       }
       EU4Province* eu4prov = ck2prov->eu4Province(index);
+      bool reset = true;
       if (unassignedEu4Provs.count(eu4prov) == 0) {
-        // Already assigned.
-        continue;
+        // Already assigned, add rather than replacing.
+        reset = false;
       }
-      if (eu4Index >= (int) sorted_eu4_devs.size()) {
-        Logger::logStream(LogStream::Warn) << "Exiting devs " << eu4Index << "\n";
-        break;
+      while (eu4Index >= (int) sorted_eu4_devs.size()) {
+        Logger::logStream(LogStream::Warn)
+            << "Ran out of real provinces, making fake "
+            << nameAndNumber(ck2prov) << "\n";
+        sorted_eu4_devs.emplace_back(new Object(ck2prov->getKey()));
+        double dev = 0;
+        for (const auto& key :
+             {"base_tax", "base_production", "base_manpower"}) {
+          double val = 1;
+          dev += val;
+          sorted_eu4_devs.back()->resetLeaf(key, val);
+        }
+        sorted_eu4_devs.back()->resetLeaf(kDevSortKey, dev);
+        sorted_eu4_devs.back()->resetLeaf("name",
+                                          ck2prov->safeGetString("name"));
       }
       Object* eu4dev = sorted_eu4_devs[eu4Index++];
       if (!eu4dev) {
@@ -4146,7 +4159,11 @@ bool Converter::rankProvinceDevelopment () {
           << nameAndNumber(ck2prov) << " with weight "
           << ck2Weight << "\n";
       for (const auto& key : {"base_tax", "base_production", "base_manpower"}) {
-        eu4prov->resetLeaf(key, eu4dev->safeGetFloat(key));
+        double newAmount = eu4dev->safeGetFloat(key);
+        if (!reset) {
+          newAmount += eu4prov->safeGetFloat(key);
+        }
+        eu4prov->resetLeaf(key, newAmount);
       }
       if (ck2prov->safeGetString("primary_settlement") == "\"---\"") {
         Logger::logStream("provinces")

@@ -617,7 +617,7 @@ c_neuchatel = 4721 # Neuchatel - Freiburg
 c_bern = 165 # Bern - Bern
 c_aargau = 165 # Aargau - Bern
 
-c_schwyz = 1869 # Schwyz - Zurich
+c_zurichgau = 1869 # Zurichgau - Zurich
 c_schwyz = 166 # Schwyz - Waldstatte
 
 c_st_gallen = 1870 # St Gallen - St Gallen
