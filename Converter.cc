@@ -4067,6 +4067,8 @@ bool Converter::rankProvinceDevelopment () {
   static const string kDevSortKey = "development_weight";
   unordered_set<EU4Province*> unassignedEu4Provs;
   objvec sorted_eu4_devs;
+  static const std::vector<string> devKeys = {"base_tax", "base_production",
+                                              "base_manpower"};
   for (EU4Province::Iter eu4prov = EU4Province::start();
        eu4prov != EU4Province::final(); ++eu4prov) {
     if (0 == (*eu4prov)->numCKProvinces()) {
@@ -4075,7 +4077,7 @@ bool Converter::rankProvinceDevelopment () {
     unassignedEu4Provs.insert(*eu4prov);
     sorted_eu4_devs.emplace_back(new Object((*eu4prov)->getKey()));
     double dev = 0;
-    for (const auto& key : {"base_tax", "base_production", "base_manpower"}) {
+    for (const auto& key : devKeys) {
       double val = (*eu4prov)->safeGetFloat(key);
       dev += val;
       sorted_eu4_devs.back()->resetLeaf(key, val);
@@ -4135,8 +4137,7 @@ bool Converter::rankProvinceDevelopment () {
             << nameAndNumber(ck2prov) << "\n";
         sorted_eu4_devs.emplace_back(new Object(ck2prov->getKey()));
         double dev = 0;
-        for (const auto& key :
-             {"base_tax", "base_production", "base_manpower"}) {
+        for (const auto& key : devKeys) {
           double val = 1;
           dev += val;
           sorted_eu4_devs.back()->resetLeaf(key, val);
@@ -4158,7 +4159,7 @@ bool Converter::rankProvinceDevelopment () {
           << nameAndNumber(eu4dev) << " based on conversion from "
           << nameAndNumber(ck2prov) << " with weight "
           << ck2Weight << "\n";
-      for (const auto& key : {"base_tax", "base_production", "base_manpower"}) {
+      for (const auto& key : devKeys) {
         double newAmount = eu4dev->safeGetFloat(key);
         if (!reset) {
           newAmount += eu4prov->safeGetFloat(key);
@@ -4170,7 +4171,7 @@ bool Converter::rankProvinceDevelopment () {
             << nameAndNumber(eu4prov)
             << " wasted by nomads due to conversion from "
             << nameAndNumber(ck2prov) << "\n";
-        for (const auto& key : {"base_tax", "base_production", "base_manpower"}) {
+        for (const auto& key : devKeys) {
           eu4prov->resetLeaf(key, 1.0);
         }
         Object* modifier = new Object("modifier");
@@ -4192,6 +4193,54 @@ bool Converter::rankProvinceDevelopment () {
     sorted_ck2_provs = backup_ck2_provs;
     backup_ck2_provs.clear();
     sort(sorted_ck2_provs.begin(), sorted_ck2_provs.end(), sorter);
+  }
+
+  for (auto* ck2prov : CK2Province::getAll()) {
+    int eu4s = ck2prov->numEU4Provinces();
+    if (2 > eu4s) continue;
+    Logger::logStream("provinces")
+        << "Smoothing " << eu4s << " provinces converting from "
+        << nameAndNumber(ck2prov) << "\n" << LogOption::Indent;
+    for (int i = 0; i < eu4s; ++i) {
+      auto* eu4prov = ck2prov->eu4Province(i);
+      eu4prov->resetLeaf("previous_base_tax", eu4prov->safeGetFloat("base_tax"));
+      eu4prov->resetLeaf("previous_base_production", eu4prov->safeGetFloat("base_production"));
+      eu4prov->resetLeaf("previous_base_manpower", eu4prov->safeGetFloat("base_manpower"));
+    }
+    for (const auto& key : devKeys) {
+      double amount = 0;
+      for (int i = 0; i < eu4s; ++i) {
+        auto* eu4prov = ck2prov->eu4Province(i);
+        amount += eu4prov->safeGetFloat(key);
+      }
+      int baseAmount = (int) floor(amount + 0.5);
+      for (int i = 0; i < eu4s; ++i) {
+        auto* eu4prov = ck2prov->eu4Province(i);
+        amount = (baseAmount / eu4s);
+        if (i < baseAmount % eu4s) {
+          amount++;
+        }
+        if (amount < 1) {
+          amount = 1;
+        }
+        eu4prov->resetLeaf(key, amount);
+      }
+    }
+    for (int i = 0; i < eu4s; ++i) {
+      auto* eu4prov = ck2prov->eu4Province(i);
+      Logger::logStream("provinces")
+          << nameAndNumber(eu4prov) << " smoothed to ("
+          << eu4prov->safeGetString("base_tax") << ", "
+          << eu4prov->safeGetString("base_production") << ", "
+          << eu4prov->safeGetString("base_manpower") << ") from ("
+          << eu4prov->safeGetString("previous_base_tax") << ", "
+          << eu4prov->safeGetString("previous_base_production") << ", "
+          << eu4prov->safeGetString("previous_base_manpower") << ")\n";
+      eu4prov->unsetValue("previous_base_tax");
+      eu4prov->unsetValue("previous_base_production");
+      eu4prov->unsetValue("previous_base_manpower");
+      }
+      Logger::logStream("provinces") << LogOption::Undent;
   }
 
   return true;
