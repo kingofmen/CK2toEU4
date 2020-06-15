@@ -177,6 +177,7 @@ c_nyland = 28 # Nyland - Nyland
 c_siuntio = 28 # Siuntio - Nyland
 c_tavasts = 29 # Tavasts - Tavastland
 c_savolaks = 31 # Savolaks - Savolax
+c_kuopio = 31 # Kallavesi - Savolax
 c_kexholm = 30 # Kexholm - Viborg
 c_joensuu = 4124 # Joensuu - Karelia
 c_sortavala = 32 # Sortavala - Kexholm
@@ -331,6 +332,7 @@ c_porto = 4556 # Porto - Aviero
 c_braganza = 232 # Braganza - Braganca
 
 c_castelo_branco = 228 # Castelo Branco - Beira
+c_egitanea = 228 # Egitanea = Beira
 
 c_coimbra = 1851 # Coimbra - Ribatejo
 
@@ -369,6 +371,7 @@ c_badajoz = 218 # Badajoz - Badajoz
 c_sevilla = 224 # Sevilla - Andalucia
 c_aracena = 224 # Aracena - Andalucia
 
+c_huelva = 4548 # Huelva - Huelva
 c_niebla = 4548 # Niebla - Huelva
 
 c_cadiz = 1749 # Cadiz - Cadiz
@@ -1197,6 +1200,7 @@ c_sinai = 365 # Sinai - Sinai
 
 c_farama = 2315 # Farama - Suez
 c_sarqihya = 2315 # Sarqihya - Suez
+c_kolzum = 2315 # Kulzum - Suez
 
 c_bira = 4295 # Bira - Hisn Kayfa
 
@@ -1233,8 +1237,8 @@ c_delta = 362 # Delta - Rashid
 c_gabiyaha = 363 # Gabiyaha - Rashid
 c_manupura = 2316 # Manupura - Al Gharbia
 
-d_alexandria = 358 # Alexandria - Alexandria
 c_alexandria = 358 # Alexandria - Alexandria
+c_paraetonium = 358 # Baretoun - Alexandria
 
 c_al_alamayn = 2326 # Al Alamayn - Bardiyah
 c_quattara = 2326 # Quattara - Bardiyah
@@ -1246,10 +1250,13 @@ c_alexandria = 2325 # Quattara - Tarrana
 d_cairo = 361 # Duchy Cairo - Cairo
 c_cairo = 361 # County Cairo - Cairo
 
-c_gizeh = 4317 # Gizeh - Bahiriya
-c_gizeh = 359 # Gizeh - Faiyum
+c_gizeh = 4317 # Gizeh - Buhaira
+c_kharibta = 4317 # Badaqun - Buhaira
 
-c_asyut = 4318 # Asyut - Atfih
+c_fayyum = 359 # Fayyum - Fayyum
+
+c_akhmim = 4318 # Akhmim - Atfih
+
 c_asyut = 2317 # Asyut - Minya
 c_asyut = 2319 # Asyut - Asyut
 
@@ -1258,16 +1265,13 @@ c_quena = 360 # Quena - Qena
 
 c_alqusair = 2320 # AlQusair - RasGharib
 
-c_kharga = 2318 # Kharga - Buhaira
+c_kharga = 1233 # Kharga - Kharga
+c_farafra = 4323 # Farafra - Farafreh
+c_buhairya = 2318 # Buhairya - Buhairya
 
-c_buhairya = 4323 # Buhairya - Farafreh
-c_buhairya = 1233 # Buhairya - Kharga
+c_esna = 4319 # Isna - Isna
 
-d_aswan = 1231 # Duchy Aswan - Aswan
 c_aswan = 1231 # Aswan - Aswan
-c_aswan = 4319 # Aswan - Isna
-
-d_aswan = 2321 # Duchy Aswan - Queseer
 c_aswan = 2321 # Aswan - Queseer
 
 d_nobatia = 1234 # Duchy Nobatia - Qasr Ibrim
@@ -1442,6 +1446,7 @@ c_meknes = 2467 # Meknes - Meknes
 c_tudgha = 346 # Tudgha - Figuig
 
 c_sijilmasa = 2460 # Sijilmasa - Saoura
+c_ziz = 2460 # Ziz - Saoura
 
 c_draa = 2466 # Draa - Draa
 
@@ -1536,6 +1541,7 @@ c_nafusa = 2449 # Nafusa - Jufra
 c_nafusa = 4567 # Nafusa - Sabha
 
 c_suf = 2450 # Suf - Ghadames
+c_nalut = 2450 # Nalut - Ghadames
 
 c_gafsa = 352 # Gafsa - Gafsa
 
@@ -2124,6 +2130,7 @@ c_zaysan = 2355 # Zaysan - Narym
 c_katun = 480 # Katun - Pegaya Orda
 
 c_aqtobe = 472 # Aqtobe - Zhetyru
+c_mughalzhar = 472 # Mughalzhar - Zhetyru
 
 c_utva = 470 # Utva - Bayuly, these two should ideally be flipped, but province setup works bet like this...
 c_inder = 2366 # Inder - Utva, these two should ideally be flipped, but province setup works bet like this...
@@ -2462,8 +2469,8 @@ c_kromy = 1945 # Kromy - Novgorod-Seversky
 c_novgorod_seversky = 1945 # Novgorod Seversky - Novgorod-Seversky
 
 c_pskov = 274 # Pskov - Pskov
+c_gdov = 274 # Gdov - Pskov
 c_izborsk = 1960 # Isborzk - Ostrov
-c_pskov = 1960 # Pskov - Ostrov
 
 c_bezhetsky_verh = 1961 # Bezhetsky Verh - Ladoga
 c_chlisselbourg = 1961 # Chlisselbourg - Ladoga
@@ -2531,7 +2538,9 @@ c_vel = 4129 # Rough approximation
 c_kozhva = 4129 # Rough approximation
 c_lyzha = 4129 # Rough approximation
 
-#c_zyriane = 4129 # Zyriane - Ust-Vym
+c_vychegda = 4129 # Vychegda - Ust-Vym
+c_syktyvkar = 4129 # Syktyvkar - Ust-Vym
+c_severnaya = 4129 # Severnaya - Ust-Vym
 
 c_ugra = 4256 # Ugra - Solvychegodsk
 c_tsilma = 4257 # 4256 - Solvychegodsk;c_tsilma - Solvychegodsk
@@ -2590,6 +2599,7 @@ c_nizhny_novgorod = 306 # Nizhny Novgorod - Nizhny Novgorod
 c_gorodez = 4254 # Gorodez - Starodub
 
 c_merya = 1083 # Merya - Vetluga
+c_zyriane = 1083 # Illyinsk - Vetluga
 
 c_hlynov = 4262 # Hlynov - Totma
 
@@ -2605,7 +2615,6 @@ c_terek = 2208 # Terek - Terek
 
 c_kuma = 2417 # Kuma - Kuma
 c_yegorlyk = 2417 # Yegorlyk - Kuma
-c_manych = 2417 # Manych - Kuma
 
 c_derbent = 425 # County Derbent - Dagestan
 
@@ -2655,6 +2664,7 @@ c_kasogs = 463 # Kasogs - Circassia
 # c_kasogia = 463 # Kasogia - Circassia
 
 c_manych = 468 # Manych - Manych
+c_kalaus = 468 # Kalaus - Manych
 
 c_don_portage = 1971 # Don Portage - Tsaritsyn
 
@@ -3526,6 +3536,8 @@ c_luntai = 715 # Luntai - Urumqi
 c_altay = 714 # Altay - Hoboksar
 c_aylik = 714 # Aylik - Hoboksar
 
+c_monkh_khairkan = 4681 # Monkh Khairkan - Olgii
+
 c_muztau = 1066 # Muztau - Altai Uriankhai
 c_belukha = 1066 # Belukha - Altai Uriankhai
 c_markakol = 1066 # Markakol - Altai Uriankhai
@@ -3541,7 +3553,7 @@ c_tsambagarav = 718 # Tsambagarav - Kobdo
 c_kharkhiraa = 718 # Kharkhiraa - Kobdo
 c_uvs = 718 # Uvs - Kobdo
 
-c_terkhiin_tsagan = 4222 # Terkhiin Tsagan - Ulaangom
+c_terkhiin_tsagaan = 4222 # Terkhiin Tsagan - Ulaangom
 c_tarvagatai = 4222 # Tarvagatai - Ulaangom
 
 c_kuznetsk = 1065 # Kuznetsk - Kuznetsk
@@ -3557,11 +3569,12 @@ c_eastern_sayan = 716 # Eastern Sayan - Tannu Uriankhai
 
 c_khangai = 719 # Khangai - Uliastai
 c_orkhon = 719 # Orkhon - Uliastai
+c_suvraga_khairkhan = 719 # Suvagra Khairkan - Uliastai
 
 c_aj_bogd = 2117 # Aj Bogd - Zasagt
 c_ikh_bogd = 2117 # Ikh Bogd - Zasagt
 c_burkhan_buudai = 2117 # Burkhan Buudai - Zasagt
-c_suvagra_khairkhan = 2117 # Burkhan Buudai - Zasagt
+
 
 c_gurvan_saikhan = 2193 # Gurvan Saikhan - Govi
 c_gurvan_saikhan = 2747 # Gurvan Saikhan - Khara Narin Ula
@@ -3647,21 +3660,27 @@ c_lhatse = 4514 # Lhatse - Sakya
 c_mangyul = 4515 # Mangyul - Gyirong
 c_gyesar = 4515 # Gyesar - Gyirong
 c_coqen = 4515 # Coqen - Gyirong
+c_gerze = 4515 # Gerze - Gyirong
+c_qangtang = 4515 # Tsakha - Gyirong
+c_samtho = 4515 # Samtho - Gyirong
 
 c_zhongba = 4516 # Zhongba - Purang
 c_gyesar = 4516 # Gyesar - Purang
+c_purang = 4516 # Purang - Purang
+c_tsakha = 4516 # Tsakha - Purang
 
 c_shigatse = 4518 # Shigatse - Tsurphu
 c_nyima = 4518 # Shigatse - Tsurphu
 c_xainza = 4518 # Shigatse - Tsurphu
+c_tsakha = 4518 # Tsakha - Tsurphu
+c_amdo = 4518 # Amdo - Tsurphu
+c_lhasa = 4519 # Shigatse - Damxung
+c_xainza = 4519 # Shigatse - Damxung
+c_kulung = 4519 # Shigatse - Damxung
+c_arjin = 4519 # Arjin - Damxung
 
-c_lhasa = 4519 # Shigatse - Tsurphu
-c_xainza = 4519 # Shigatse - Tsurphu
-
-c_rutog = 4520 # Shigatse - Tsurphu
-c_kulung = 4520 # Shigatse - Tsurphu
-
-#Changtang is now a wasteland
+# Changtang is now a wasteland. (Pdox)
+# Compressed into the sliver of land south of the wasteland. (KoM)
 #c_samtho = 2129 # Samtho - Changtang
 #c_nyima = 2129 # Nyima - Changtang
 #c_xainza = 2129 # Xainza - Changtang
@@ -3673,12 +3692,15 @@ c_kulung = 4520 # Shigatse - Tsurphu
 #c_tanggula = 2129 # Amdo - Changtang
 #c_arjin = 2129 # Arjin - Changtang
 
+
+
 # k_guge
 c_tsaparang = 2128 # Tsaparang - Ngari
 c_rutog = 2128 # Rutog - Ngari
 c_gar = 2128 # Gar - Ngari
 c_kyunglung = 2128 # Kyunglung - Ngari
 c_gegyai = 2128 # Kyunglung - Ngari
+c_kunlun = 2128 # Kulung - Ngari
 c_leh = 2074 # Leh - Ladakh
 c_diskit = 2074 # Diskit - Ladakh
 c_pangong = 2074 # Pangong - Ladakh
@@ -3710,3 +3732,4 @@ c_lingtsang = 705 # Lingtsang - Gyegu
 c_nangqen = 705 # Nangqen - Gyegu
 c_ando = 705 # Lingtsang - Gyegu
 c_tanggula = 705 # Lingtsang - Gyegu
+
