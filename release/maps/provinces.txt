@@ -3329,7 +3329,7 @@ c_udayagiri = 4423 # Udayagiri - Alampur
 c_alampur = 4423 # Alampur - Alampur
 c_penugonda = 4423 # Penugonda - Alampur
 
-c_dwarasamudra = 2023 # Dwarasamudra - Melenadu
+c_dwarasamudra = 2032 # Dwarasamudra - Malenadu
 
 d_gangavadi = 2031 # Duchy Gangavadi - Morasandu
 c_manyapura = 2031 # Manyapura - Morasandu
