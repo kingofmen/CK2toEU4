@@ -679,7 +679,7 @@ c_breisgau = 72 # Breisgau - Breisgau
 c_baden = 74 # Baden - Baden
 c_baden = 4714 # Baden - Durlach
 
-c_pfalz = 77 # Pfalz - Pfalz
+c_pfalz = 77 # Pfalz - Heidelberg
 
 c_mainz = 78 # Mainz - Mainz
 
@@ -688,7 +688,7 @@ c_nordgau = 4765 # Nordgau - Mulhouse
 c_trier = 80 # Trier - Trier
 c_trier = 1760 # Trier - Koblenz
 
-c_saargau = 1761 # Saargau - Worms
+c_saargau = 1761 # Saargau - Pfalz
 c_saargau = 4767 # Saargau - Zweibrucken
 c_saargau = 75 # Saargau - Strassburg
 
@@ -786,9 +786,8 @@ c_furstenberg = 4712 # Furstenberg - Konstanz
 c_furstenberg = 4713 # Furstenberg - Urach
 
 c_wurttemberg = 70 # Wurttemberg - Wurttemberg
-c_rottenburg = 70 # Rottenburg - Wurttemberg
 
-c_rottenburg = 4715 # Rottenburg - Rottenburg
+c_rottenburg = 4715 # Rottenburg - Rothenburg
 
 c_ulm = 1872 # Ulm - Ulm
 c_ulm = 4711 # Ulm - Donauworth
@@ -964,7 +963,7 @@ c_cephalonia = 4698 # Cephalonia - Cephalonia
 c_zakynthos = 142 # Zakynthos - Corfu
 
 c_achaia = 1773 # Achaia - Achaea
-c_korinthos = 1773 # Kornithos - Achaea
+c_korinthos = 4701 # Kornithos - Corinth
 
 c_monemvasia = 145 # Monemvasia - Morea
 c_methone = 145 # Methone - Morea
