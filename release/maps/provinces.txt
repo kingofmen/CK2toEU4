@@ -247,14 +247,13 @@ c_armagnac = 175 # Armagnac - Armagnac
 c_rosello = 197 # Rosello - Roussillon
 c_foix = 4694 # Foix - Foix
 c_toulouse = 196 # Toulouse - Toulouse
-c_carcassonne = 196 # Carcassonne - Toulouse
+c_carcassonne = 4695 # Carcassonne - Carcassonne
 c_rouergue = 198 # Rouergue - Rouergue
 c_montpellier = 200 # Montpellier - Languedoc
 c_narbonne = 2753 # Narbonne - Narbonne
 c_provence = 201 # Provence - Provence
-c_forcalquier = 201 # Forcalquier - Provence
-c_provence = 2991 # Provence - Draguignan
-c_forcalquier = 2991 # Forcalquier - Draguignan
+c_provence = 4696 # Provence - Tolone
+c_forcalquier = 2991 # Forcalquier - Forcalquier
 c_venaissin = 202 # Venaissin - Avignon
 c_dauphine_viennois = 204 # Dauphine Viennois - Dauphine
 c_viviers = 4391 # Viviers - Vivarais
@@ -482,12 +481,11 @@ c_consenza = 2984 # Cosenza - Cosenza
 
 c_lecce = 122 # Lecce - Salento
 
-d_salerno = 1934 # Duchy Salerno - Lucania
 c_taranto = 1934 # Taranto - Lucania
-c_amalfi = 1934 # Amalfi - Lucania
 
+c_amalfi = 2983 # Amalfi - Salerno
 c_salerno = 2983 # Salerno - Salerno
-d_apulia = 122 # Duchy Apulia - Apulia
+
 c_apulia = 122 # County Apulia - Apulia
 
 c_bari = 1933 # Bari - Bari
@@ -503,7 +501,6 @@ c_benevento = 4734 # County Benevento - Avellino
 
 c_foggia = 2985 # Foggia - Capitane
 
-d_capua = 121 # Duchy Capua - Napoli
 c_capua = 121 # County Capua - Napoli
 c_napoli = 121 # Napoli - Napoli
 
