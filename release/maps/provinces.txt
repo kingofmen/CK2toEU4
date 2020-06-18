@@ -1249,7 +1249,7 @@ c_cairo = 361 # County Cairo - Cairo
 c_gizeh = 4317 # Gizeh - Buhaira
 c_kharibta = 4317 # Badaqun - Buhaira
 
-c_fayyum = 359 # Fayyum - Fayyum
+c_faiyum = 359 # Fayyum - Fayyum
 
 c_akhmim = 4318 # Akhmim - Atfih
 
