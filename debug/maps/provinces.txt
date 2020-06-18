@@ -3519,7 +3519,7 @@ c_ejin = 709 # Ejin - Alxa
 
 c_beshbaliq = 713 # Beshbaliq - Beshbaliq
 c_dunkheger = 713 # Dunkheger - Beshbaliq
-c_monkh_kairkhan = 713 # Monkh Khairkhan - Beshbaliq
+c_monkh_khairkhan = 713 # Monkh Khairkhan - Beshbaliq
 
 c_barkul = 4206 # Barkul - Balikul
 

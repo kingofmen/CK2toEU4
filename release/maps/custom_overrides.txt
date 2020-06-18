@@ -105,10 +105,19 @@ governments = {
 }
 
 # All countries ruled by members of these dynasties will be part of
-# the HRE. This and the electors field below only take effect if 'hre'
-# is set to 'dynasties' in config.txt.
+# the HRE. This and the fields below only take effect if 'hre' is
+# set to 'filter' in config.txt.
 empire_members = {
 #  10292922 10292925 704733  
+}
+
+empire_religions = {
+#  orthodox
+}
+
+# Set to 'exclude' or 'include' to force primary titles into the HRE.
+empire_force_title = {
+  c_example = include
 }
 
 # First tag listed becomes emperor.
