@@ -2499,8 +2499,8 @@ bool Converter::cleanEU4Nations () {
       string second = (*dip)->safeGetString("second");
       if ((first != eu4tag) && (remQuotes(second) != eu4tag)) continue;
       Logger::logStream(LogStream::Info)
-          << "Removing " << (*dip) << " due to " << first << ", " << second
-          << " vs " << eu4tag << "\n";
+          << "Removing " << (*dip) << " due to " << first << ", "
+          << remQuotes(second) << " and " << eu4tag << " has no provinces\n";
       dipsToRemove.push_back(*dip);
       EU4Country* overlord = EU4Country::getByName(first);
       overlord->getNeededObject("friends")->remToken(second);
@@ -3844,7 +3844,7 @@ Object* Converter::createMonarchId () {
 bool Converter::hreAndPapacy () {
   Logger::logStream(LogStream::Info) << "Beginning HRE and papacy.\n" << LogOption::Indent;
   string hreOption = configObject->safeGetString("hre", "keep");
-  const std::unordered_set<string> allowedOptions = {"keep", "remove", "dynasties"};
+  const std::unordered_set<string> allowedOptions = {"keep", "remove", "filter"};
   if (allowedOptions.find(hreOption) == allowedOptions.end()) {
     Logger::logStream(LogStream::Warn)
         << "Unknown HRE option " << hreOption << ", defaulting to 'keep'.\n";
@@ -3852,13 +3852,45 @@ bool Converter::hreAndPapacy () {
   }
 
   std::unordered_set<string> hre_dynasties;
+  std::unordered_set<string> hre_religions;
+  std::unordered_set<string> hre_includes;
+  std::unordered_set<string> hre_excludes;
   std::set<string> hre_electors;
+  string dominant;
+  string heretic;
   string empTag = addQuotes("---");
-  if (customObject && hreOption == "dynasties") {
-    auto* members = customObject->getNeededObject("empire_members");
+  if (customObject && hreOption == "filter") {
+    auto* members = customObject->getNeededObject("empire_dynasties");
     for (int i = 0; i < members->numTokens(); ++i) {
       hre_dynasties.insert(members->getToken(i));
       Logger::logStream("hre") << members->getToken(i) << " is HRE dynasty.\n";
+    }
+    auto* religions = customObject->getNeededObject("empire_religions");
+    for (int i = 0; i < religions->numTokens(); ++i) {
+      auto token = religions->getToken(i);
+      if (i == 0) {
+        dominant = token;
+      } else if (heretic.empty()) {
+        heretic = token;
+        if (heretic == dominant) {
+          heretic = "";
+        }
+      }
+      hre_religions.insert(token);
+      Logger::logStream("hre") << token << " is HRE religion.\n";
+    }
+    auto* force = customObject->getNeededObject("empire_force_title");
+    auto forces = force->getLeaves();
+    for (auto* f : forces) {
+      std::string key = f->getKey();
+      std::string value = force->safeGetString(key);
+      if (value == "include") {
+        Logger::logStream("hre") << key << " is force-included in HRE.\n";
+        hre_includes.insert(key);
+      } else if (value == "exclude") {
+        Logger::logStream("hre") << key << " is force-excluded from HRE.\n";
+        hre_excludes.insert(key);
+      }
     }
     auto* electors = customObject->getNeededObject("electors");
     for (int i = 0; i < electors->numTokens(); ++i) {
@@ -3874,7 +3906,7 @@ bool Converter::hreAndPapacy () {
   if (hreOption != "keep") {
     Logger::logStream("hre") << "Removing bratwurst with option " << hreOption << ".\n";
     for (auto* eu4prov : EU4Province::getAll()) {
-      if (hreOption == "dynasties") {
+      if (hreOption == "filter") {
         auto* country = eu4prov->getEU4Country();
         CK2Ruler* ruler = nullptr;
         if (country) {
@@ -3884,23 +3916,46 @@ bool Converter::hreAndPapacy () {
               << "No country for " << nameAndNumber(eu4prov) << "\n";
         }
         string dynastyId = PlainNone;
+        string primaryTitle = PlainNone;
+        string religion = PlainNone;
+        bool makeHRE = false;
         if (ruler) {
           dynastyId = ruler->safeGetString(dynastyString, PlainNone);
+          primaryTitle = ruler->getPrimaryTitle()->getTag();
+          religion = ruler->getBelief("religion");
+          if (hre_excludes.find(primaryTitle) != hre_excludes.end()) {
+            Logger::logStream("hre")
+                << "Excluding " << nameAndNumber(eu4prov)
+                << " from HRE due to primary title " << primaryTitle
+                << " of ruler " << nameAndNumber(ruler) << ".\n";
+          } else if (hre_dynasties.find(dynastyId) != hre_dynasties.end()) {
+            Logger::logStream("hre")
+                << nameAndNumber(eu4prov) << " belongs to "
+                << nameAndNumber(ruler) << " of HRE dynasty " << dynastyId
+                << ", making part of HRE.\n";
+            makeHRE = true;
+          } else if (hre_includes.find(primaryTitle) != hre_includes.end()) {
+            Logger::logStream("hre")
+                << "Including " << nameAndNumber(eu4prov)
+                << " in HRE due to primary title " << primaryTitle
+                << " of ruler " << nameAndNumber(ruler) << ".\n";
+            makeHRE = true;
+          } else if (hre_religions.find(religion) != hre_religions.end()) {
+            Logger::logStream("hre")
+                << "Including " << nameAndNumber(eu4prov)
+                << " in HRE due to religion " << religion << " of ruler "
+                << nameAndNumber(ruler) << ".\n";
+            makeHRE = true;
+          }
         } else {
           Logger::logStream("hre")
               << "No ruler for " << nameAndNumber(eu4prov) << "\n";
         }
-        if (dynastyId != PlainNone &&
-            hre_dynasties.find(dynastyId) != hre_dynasties.end()) {
-          Logger::logStream("hre")
-              << nameAndNumber(eu4prov) << " belongs to "
-              << nameAndNumber(ruler) << " of HRE dynasty " << dynastyId
-              << ", making part of HRE.\n";
+
+        if (makeHRE) {
           eu4prov->resetLeaf("hre", "yes");
           eu4prov->getNeededObject("history")->resetLeaf("hre", "yes");
         } else {
-          Logger::logStream("hre") << "No HRE for " << nameAndNumber(eu4prov)
-                                   << " " << dynastyId << "\n";
           eu4prov->unsetValue("hre");
         }
       } else {
@@ -3918,13 +3973,32 @@ bool Converter::hreAndPapacy () {
     Object* empire = eu4Game->safeGetObject("empire");
     if (empire) {
       auto* electorObject = empire->getNeededObject("electors");
+      electorObject->clear();
       if (!hre_electors.empty()) {
         for (auto& tag : hre_electors) {
-          electorObject->addToList(addQuotes(tag));
+          electorObject->addToList(tag);
         }
       }
       empire->resetLeaf("emperor", empTag);
       empire->unsetValue("old_emperor");
+    }
+
+    auto* relObject = eu4Game->safeGetObject("religions");
+    if (!dominant.empty() && relObject != nullptr) {
+      auto religions = relObject->getLeaves();
+      for (auto* religion : religions) {
+        religion->unsetValue("hre_religion");
+        religion->unsetValue("original_hre_religion");
+        religion->unsetValue("hre_heretic_religion");
+        religion->unsetValue("original_hre_heretic_religion");
+        if (religion->getKey() == dominant) {
+          religion->resetLeaf("hre_religion", "yes");
+          religion->resetLeaf("original_hre_religion", "yes");
+        } else if (religion->getKey() == heretic) {
+          religion->resetLeaf("hre_heretic_religion", "yes");
+          religion->resetLeaf("original_hre_heretic_religion", "yes");          
+        }
+      }
     }
   }
 
