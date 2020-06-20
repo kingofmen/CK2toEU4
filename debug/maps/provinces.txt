@@ -968,10 +968,8 @@ c_korinthos = 4701 # Kornithos - Corinth
 c_monemvasia = 145 # Monemvasia - Morea
 c_methone = 145 # Methone - Morea
 
-d_athens = 146 # Duchy Athens - Athens
 c_atheniai = 146 # Atheniai - Athens
 c_hellas = 146 # Hellas - Athens
-c_demetrias = 146 # Demetrias - Athens
 
 c_naxos = 164 # Naxos - Naxos
 
@@ -980,7 +978,8 @@ c_euboia = 3003 # Euboia - Euboea
 c_lesbos = 4700 # Lesbos - Lesbos
 c_chios = 2348 # Chios - Chios
 
-c_thessalia = 147 # Thessalia - Larissa
+c_thessalia = 147 # Thessalia - Thessaly
+c_demetrias = 146 # Demetrias - Thessaly
 
 c_thessalonike = 1853 # Thessalonike - Kozani
 
@@ -1043,11 +1042,9 @@ c_seleukeia = 2302 # Seleukeia - Icel
 
 c_attaleia = 2298 # Attaleia - Tekke
 
-d_armenia_minor = 327 # Duchy Armenia Minor - Adana
 c_adana = 327 # Adana - Adana
 c_tarsos = 327 # Tarsos - Adana
 c_teluch = 327 # Teluch - Adana
-c_lykandos = 327 # Lykandos - Adana
 
 c_tyana = 4307 # Tyana - Aksaray
 c_nyssa = 4307 # Nyssa - Aksaray
@@ -1081,6 +1078,7 @@ c_trapezous = 330 # Trapezous - Trebizond
 c_theodosiopolis = 330 # Theodosiopolis - Trebizond
 
 c_kaisereia = 2301 # Kaisereia - Kayseri
+c_lykandos = 2301 # Lykandos - Kayseri
 
 c_charsianon = 2300 # Charsianon - Bozok
 
@@ -1908,7 +1906,6 @@ c_istakhr = 2234 # Istakhr - Rafsanjan
 
 c_yazd = 433 # Yazd - Yazd
 
-
 c_hamadan = 414 # Hamadan - Hamadan
 
 c_oromieh = 4293 # Irbil - Arbil
@@ -2049,22 +2046,22 @@ c_erchis = 1068 # Ket - Ket
 c_ket = 2433 # Ket - Vah
 c_ob = 2433 # Ob - Vah
 
-c_saur = 2118 # Saur - Urzhar
+c_saur = 4684 # Saur - Dzhemenika
 c_urzhar = 2118 # Urzhar - Urzhar
 
 c_tarbagatai = 2119 # Tarbagatai - Chuguchak
 
 c_kangly = 465 # Kangly - Nogay
 
-c_tobol = 1076 # Tyumen - Kurgan
+c_tobol = 4690 # Tobol - Ishim
 
 c_magnitaya = 2441 # Magnitaya - Iglino
 
-c_tyumen = 1075 # Tyumen - Tyumen
-c_vagay = 1075 # Vagay - Tyumen
+c_vagay = 4689 # Vagay - Om
 c_tyumen = 2427 # Tyumen - Ostyaki
+c_tyumen = 1075 # Tyumen - Tyumen
 
-c_tura = 1071 # Tura - Irtesh
+c_tura = 4688 # Tura - Baraba
 c_osha = 1071 # Osha - Irtesh
 
 c_sibir = 1074 # Sibir - Sibir
@@ -2086,7 +2083,7 @@ c_bolshoy = 2445 # Bolshoy - Mangazea
 c_vasyugan = 2445 # Vasyugan - Mangazea
 
 c_tavda = 1078 # Tavda - Tura
-c_miass = 1078 # Miass - Tura
+c_miass = 1076 # Miass - Kurgan
 
 c_yamalia = 1073 # Yamalia - Berezov
 c_yamalia = 1072 # Yamalia - Obdorsk
@@ -2097,7 +2094,7 @@ c_khantia = 1780 # Khantia - Komi
 
 c_kipchak = 476 # Kipchak - Kypshak
 c_kipchak = 2359 # Kipchak - Baganaly
-c_turgay = 2359 # Turgay - Baganaly
+c_turgay = 4692 # Turgay - Turgay
 c_irgiz = 2359 # Irgiz - Baganaly
 
 c_betpaqdala = 477 # Betpaqdala - Nadym
@@ -2111,14 +2108,14 @@ c_boqtybay = 2353 # Boqtybay - Tortkara
 
 c_kimak = 478 # Kimak - Argyn
 
-c_om = 2434 # Om - Barnaul
+c_om = 4687 # Om - Imakia
 c_buqtirma = 2434 # Buqtirma - Barnaul
 
 c_seletyteniz = 479 # Seletyteniz - Kerey
-c_seletyteniz = 2354 # Seletyteniz - Shegendyk
+c_seletyteniz = 4686 # Seletyteniz - Ekibastuz
 
 c_balkhash = 2360 # Balkhash - Tobykty
-c_qarazhyrya = 2360 # Qarazhyrya - Tobykty
+c_qarazhyrya = 4685 # Qarazhyrya - Karagandy
 
 c_kirghiz = 2355 # Kirghiz - Narym
 c_zaysan = 2355 # Zaysan - Narym
@@ -2512,8 +2509,8 @@ c_tobysh = 4257 # Polar Circle Placeholder mapping, there's nothing better...
 c_bezichy = 4117 # Bezichy - Bezhetsk
 
 c_uglich = 4261 # Uglich - Ustyuzhna
-c_uglich = 4252 # Uglich - Kolomna
 
+c_kolomna = 4252 # Kolomna - Kolomna
 
 c_beloozero = 312 # Beloozero - Beloozero
 c_chud = 312 # Chud - Beloozero
@@ -2585,7 +2582,6 @@ c_vyazma = 4245 # Vyazma - Vyazma
 
 c_ryazan = 301 # Ryazan - Ryazan
 
-c_kolomna = 300 # Kolomna - Tula
 c_serpukhov = 300 # Serpukhov - Tula
 
 c_pronsk = 4255 # Pronsk - Pronsk
@@ -3493,7 +3489,7 @@ c_kucha = 2121 # Kucha - Kuqa
 c_kubera = 2121 # Kucha - Kuqa
 
 c_cherchen = 711 # Cherchen - Qarqan
-c_cadota = 711 # Cadota - Qarqan
+c_cadota = 4693 # Cadota - Keriya
 
 c_karashar = 2192 # Karashar - Korla
 c_mingoi = 2192 # Karashar - Korla
@@ -3514,12 +3510,13 @@ c_jiuquan = 708 # Jiuquan - Gansu
 c_kumul = 2122 # Kumul - Hami
 
 c_juyan = 2191 # Juyan - Ejin
+c_juyan = 4676 # Juyan - Badain Jaran
 
 c_ejin = 709 # Ejin - Alxa
 
 c_beshbaliq = 713 # Beshbaliq - Beshbaliq
-c_dunkheger = 713 # Dunkheger - Beshbaliq
-c_monkh_khairkhan = 713 # Monkh Khairkhan - Beshbaliq
+c_dunkheger = 4680 # Dunkheger - Zakhchin
+c_monkh_khairkhan = 4682 # Monkh Khairkhan - Monkhkhairkhan
 
 c_barkul = 4206 # Barkul - Balikul
 
@@ -3529,7 +3526,7 @@ c_luntai = 715 # Luntai - Urumqi
 
 # Mongolia
 
-c_altay = 714 # Altay - Hoboksar
+c_altay = 4683 # Altay - Altay
 c_aylik = 714 # Aylik - Hoboksar
 
 c_monkh_khairkan = 4681 # Monkh Khairkan - Olgii
@@ -3537,7 +3534,7 @@ c_monkh_khairkan = 4681 # Monkh Khairkan - Olgii
 c_muztau = 1066 # Muztau - Altai Uriankhai
 c_belukha = 1066 # Belukha - Altai Uriankhai
 c_markakol = 1066 # Markakol - Altai Uriankhai
-c_khuiten = 1066 # Khuiten - Altai Uriankhai
+c_khuiten = 4681 # Khuiten - Olgii
 
 c_tsagaannuur = 718 # Tsagaannuur - Kobdo
 c_otgontenger = 718 # Otgontenger - Kobdo
@@ -3564,23 +3561,21 @@ c_gorgol = 716 # Gorgol - Tannu Uriankhai
 c_eastern_sayan = 716 # Eastern Sayan - Tannu Uriankhai
 
 c_khangai = 719 # Khangai - Uliastai
-c_orkhon = 719 # Orkhon - Uliastai
+c_orkhon = 4668 # Orkhon - Orkhon
 c_suvraga_khairkhan = 719 # Suvagra Khairkan - Uliastai
 
-c_aj_bogd = 2117 # Aj Bogd - Zasagt
-c_ikh_bogd = 2117 # Ikh Bogd - Zasagt
+c_aj_bogd = 2193 # Aj Bogd - Govi
 c_burkhan_buudai = 2117 # Burkhan Buudai - Zasagt
+c_ikh_bogd = 4677 # Ikh Bogd - Noyon
 
-
-c_gurvan_saikhan = 2193 # Gurvan Saikhan - Govi
-c_gurvan_saikhan = 2747 # Gurvan Saikhan - Khara Narin Ula
 c_gurvan_saikhan = 720 # Gurvan Saikhan - Dorno Govi
 
 c_kara_khorum = 2190 # Kara Khorum - Qaraqorum
+c_kara_khorum = 4678 # Kara Khorum - Sain Noyon
 
 c_delgerkhangai = 4221 # Delgerkhangai - Dundgovi
 
-c_khovsgol = 2189 # Khovsgol - Tsetserleg
+c_khovsgol = 4679 # Khovsgol - Khovsgol
 c_egiin = 2189 # Egiin - Tsetserleg
 
 c_baygal = 1057 # Baygal - Udinsky
@@ -3692,7 +3687,7 @@ c_arjin = 4519 # Arjin - Damxung
 
 # k_guge
 c_tsaparang = 2128 # Tsaparang - Ngari
-c_rutog = 2128 # Rutog - Ngari
+c_rutog = 4520 # Rutog - Rutog
 c_gar = 2128 # Gar - Ngari
 c_kyunglung = 2128 # Kyunglung - Ngari
 c_gegyai = 2128 # Kyunglung - Ngari
