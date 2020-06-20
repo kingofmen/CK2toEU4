@@ -1,3 +1,6 @@
+#ifndef CONSTANT_STRINGS_HH
+#define CONSTANT_STRINGS_HH
+
 #include <string>
 
 const std::string kDynastyPower = "dynasty_power";
@@ -62,3 +65,5 @@ extern std::string deadCharHoldingsString;
 const std::string kOldTraits = "traits";
 const std::string kNewTraits = "tr";
 extern std::string traitString;
+
+#endif

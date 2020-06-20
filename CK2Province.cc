@@ -3,7 +3,9 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "constants.hh"
 #include "CK2Title.hh"
+#include "CK2Ruler.hh"
 #include "EU4Province.hh"
 #include "Logger.hh"
 #include "UtilityFunctions.hh"
@@ -116,6 +118,7 @@ void CK2Province::calculateWeights (Object* minWeights, objvec& buildings) {
   }
 
   Object* nerf = minWeights->getNeededObject("special_nerfs");
+  Object* govWeights = minWeights->getNeededObject("government_weights");
   double de_jure_nerf = 1;
   auto* liege = countyTitle;
   while (liege != nullptr) {
@@ -125,9 +128,27 @@ void CK2Province::calculateWeights (Object* minWeights, objvec& buildings) {
       de_jure_nerf *= current_nerf;
       Logger::logStream("provinces")
           << "Nerfing " << nameAndNumber(this) << " by " << current_nerf
-          << " due to " << key << "\n";
+          << " due to de-jure " << key << ".\n";
     }
     liege = liege->getDeJureLiege();
+  }
+  liege = countyTitle;
+  std::unordered_set<CK2Ruler*> rulers;
+  while (liege != nullptr) {
+    auto* ruler = liege->getRuler();
+    if (ruler != nullptr && rulers.find(ruler) == rulers.end()) {
+      rulers.insert(ruler);
+      string govKey = ruler->safeGetString(governmentString);
+      double currGov = govWeights->safeGetFloat(govKey, 1);
+      if (currGov != 1) {
+        de_jure_nerf *= currGov;
+        Logger::logStream("provinces")
+            << "Nerfing " << nameAndNumber(this) << " by " << currGov
+            << " due to government " << govKey << " of " << nameAndNumber(ruler)
+            << ".\n";
+      }
+    }
+    liege = liege->getLiege();
   }
   for (unsigned int i = 0; i < weights.size(); ++i) {
     weights[i] *= de_jure_nerf;

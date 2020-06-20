@@ -2391,6 +2391,7 @@ bool Converter::calculateProvinceWeights () {
 
   Object* minWeights = configObject->getNeededObject("minimumWeights");
   minWeights->setValue(customObject->getNeededObject("special_nerfs"));
+  minWeights->setValue(customObject->getNeededObject("government_weights"));
   for (auto* ck2prov : CK2Province::getAll()) {
     ck2prov->calculateWeights(minWeights, buildingTypes);
     Logger::logStream("provinces") << nameAndNumber(ck2prov)
