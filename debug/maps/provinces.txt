@@ -2113,6 +2113,7 @@ c_buqtirma = 2434 # Buqtirma - Barnaul
 
 c_seletyteniz = 479 # Seletyteniz - Kerey
 c_seletyteniz = 4686 # Seletyteniz - Ekibastuz
+c_seletyteniz = 2354 # Seletyteniz - Shegendyk
 
 c_balkhash = 2360 # Balkhash - Tobykty
 c_qarazhyrya = 4685 # Qarazhyrya - Karagandy
