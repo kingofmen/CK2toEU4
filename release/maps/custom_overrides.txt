@@ -18,6 +18,10 @@ religion_overrides = {
   baltic_pagan_reformed = baltic_pagan_reformed
   nestorian = nestorian
   bon = bon
+
+  # EU4 tags to be converted with specific religions. Use
+  # the CK2 religion.
+  # EXA = orthodox
 }
 
 # Allows setting of heir to something other than oldest male child.

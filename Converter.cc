@@ -3628,6 +3628,19 @@ void proselytise (map<string, vector<string> >& conversionMap, string key) {
     string ckBest;
     for (CK2Province::Iter ck2prov = (*eu4prov)->startProv(); ck2prov != (*eu4prov)->finalProv(); ++ck2prov) {
       string ckReligion = (*ck2prov)->safeGetString(key, PlainNone);
+      if (PlainNone == ckReligion) {
+        // Backup for nomad-wasted provinces which don't have
+        // culture or religion listed.
+        auto* title = (*ck2prov)->getCountyTitle();
+        if (title == nullptr) {
+          continue;
+        }
+        auto* ruler = title->getRuler();
+        if (ruler == nullptr) {
+          continue;
+        }
+        ckReligion = ruler->getBelief(key);
+      }
       if (PlainNone == ckReligion) continue;
       weights[ckReligion] += (*ck2prov)->getWeight(ProvinceWeight::Manpower);
       if (weights[ckReligion] <= weightiest) continue;
@@ -3717,6 +3730,7 @@ bool Converter::cultureAndReligion () {
   }
   proselytise(religionMap, "religion");
   proselytise(cultureMap, "culture");
+  auto* religionOverride = customObject->getNeededObject("religion_overrides");
 
   double acceptedCutoff = configObject->safeGetFloat("accepted_culture_threshold", 0.5);
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
@@ -3741,10 +3755,17 @@ bool Converter::cultureAndReligion () {
       }
     }
     Logger::logStream("cultures") << (*eu4country)->getKey() << ":\n" << LogOption::Indent;
+    string manualReligion =
+        religionOverride->safeGetString((*eu4country)->getKey(), PlainNone);
+    if (manualReligion != PlainNone) {
+      ckRulerReligion = manualReligion;
+      Logger::logStream("cultures") << "Overriding to " << ckRulerReligion << "\n";
+    }
     if (ckRulerReligion != PlainNone) {
       if (0 == religionMap[ckRulerReligion].size()) {
-	Logger::logStream("cultures") << "Emergency-assigning " << ckRulerReligion << " to catholic.\n";
-	religionMap[ckRulerReligion].push_back("catholic");
+        Logger::logStream("cultures")
+            << "Emergency-assigning " << ckRulerReligion << " to catholic.\n";
+        religionMap[ckRulerReligion].push_back("catholic");
       }
       string euReligion = religionMap[ckRulerReligion][0];
       Logger::logStream("cultures")
