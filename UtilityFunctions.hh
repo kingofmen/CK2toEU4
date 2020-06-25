@@ -321,6 +321,7 @@ struct ObjectWrapper {
   Object* safeGetObject (string key, Object* def = 0) const {return object->safeGetObject(key, def);}
   void    setLeaf (string key, string value) {object->setLeaf(key, value);}
   void    setValue (Object* val, Object* beforeThis = 0) {object->setValue(val, beforeThis);}
+  void    setValue (std::vector<Object*> val) {object->setValue(val);}
   void    unsetValue (string val) {object->unsetValue(val);}
   void    unsetKeyValue (string key, string val) {object->unsetKeyValue(key, val);}
   void    removeObject (Object* target) {object->removeObject(target);}
