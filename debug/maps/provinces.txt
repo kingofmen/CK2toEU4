@@ -862,6 +862,7 @@ c_plzen = 267 # Plzen - Plzen
 c_domazlice = 2968 # Domazlice - Budejovice
 
 c_litomerice = 1771 # Litomerice - Erz
+c_litomerice = 2970 # Litomerice - Hradecko
 
 c_zatec = 1771 # Zatec - Erz
 
