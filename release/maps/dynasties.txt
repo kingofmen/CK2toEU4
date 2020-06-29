@@ -1,7 +1,10 @@
 # Concatenate 00_dynasties and 01_animal_dynasties files from Pdox,
 # then ensure all names are in quotes, otherwise special characters
 # won't parse.
-
+# Also remove all comments as some of them have special characters.
+# In particular search for this regex: name = [^"]+? *$
+# Important to have non-greedy match for the not-quote, otherwise
+# it will match across very many line boundaries.
 1=
 {
 	name="Gårdske"
@@ -1778,12 +1781,12 @@
 }
 249=
 {
-	name="Jankovský z Vlašimi"
+	name="Hroznatid"
 	culture="bohemian"
 }
 250=
 {
-	name="z Psova"
+	name="ze Pšova"
 	culture="bohemian"
 	religion="slavic_pagan"
 }
@@ -4823,7 +4826,7 @@
 }
 669=
 {
-	name="Ludolfinger"
+	name="Liudolfinger"
 	culture="german"
 	religion="norse_pagan"
 	coat_of_arms=
@@ -6863,7 +6866,7 @@
 	used_for_random = no
 }
 
-112358={
+112358={ 
 	name="Enberg"
 	culture="swedish"
 	religion="catholic"
@@ -6876,6 +6879,8 @@
 	culture= "ilmenian"
 	used_for_random=no
 }
+
+
 
 906={
 	name="von Meyer"
@@ -7129,7 +7134,7 @@
 	used_for_random = no
 }
 
-927={
+927={ 
 	name="Overgaard"
 	culture="danish"
 	religion="catholic"
@@ -7605,6 +7610,20 @@
 	}
 }
 
+981 = {
+	name="Santos"
+	culture="portuguese"
+	religion="catholic"
+	is_modified=yes
+	coat_of_arms=
+	{
+		data=
+		{
+			0 0 23 14 1 3 1 0 14 14 1 3 4 0 0 9 1 3 2 0 0 14 1 3 2 
+		}
+		religion="catholic"
+	}
+}
 
 
 1002=
@@ -12262,7 +12281,7 @@
 7508=
 {
 	name="Mojmírid"
-	culture="bohemian"
+	culture="slovieni"
 	religion="slavic_pagan"
 	coat_of_arms=
 	{
@@ -12274,8 +12293,8 @@
 }
 7509=
 {
-	name="z Nitrava"
-	culture="bohemian"
+	name="Nitravský"
+	culture="slovieni"
 	religion="catholic"
 	coat_of_arms=
 	{
@@ -13019,7 +13038,7 @@
 8691=
 {
 	name="de Lacon"
-	culture="italian"
+	culture="sardinian"
 	religion="catholic"
 }
 8692=
@@ -13794,7 +13813,7 @@
 }
 9117=
 {
-	name="of Žemaiteje"
+	name="of Zemaiteje"
 	culture="lithuanian"
 	religion="baltic_pagan"
 	coat_of_arms=
@@ -14498,54 +14517,54 @@
 }
 10100=
 {
-	name="Benesovic"
+	name="Benešid"
 	culture="bohemian"
 }
 10101=
 {
-	name="Drslavic"
+	name="z Vlašimi"
 	culture="bohemian"
+	religion="catholic"
 }
 10102=
 {
-	name="Hrabisic"
+	name="Hrabišid"
 	culture="bohemian"
 }
 10103=
 {
-	name="Kounic"
+	name="z Kounic"
 	culture="bohemian"
 }
 10104=
 {
-	name="Markvartic"
+	name="Markvartid"
 	culture="bohemian"
 }
 10105=
 {
-	name="Ronovec"
+	name="z Ronova"
 	culture="bohemian"
-	religion="catholic"
 }
 10106=
 {
-	name="Vítkovec"
+	name="Vítkovic"
 	culture="bohemian"
 	religion="catholic"
 }
 10107=
 {
-	name="Vrsovec"
+	name="Vršovic"
 	culture="bohemian"
 }
 10108=
 {
-	name="Zerotín"
+	name="ze Zerotína"
 	culture="bohemian"
 }
 10109=
 {
-	name="Vratislavovec"
+	name="Vratislavid"
 	culture="bohemian"
 	religion="catholic"
 }
@@ -15902,7 +15921,7 @@
 {
 	name="Jannabid"
 	culture="bedouin_arabic"
-	religion="shiite"
+	religion="qarmatian"
 }
 12280=
 {
@@ -16323,7 +16342,7 @@
 }
 12474=
 {
-	name="von Sternberg"
+	name="ze Sternberka"
 	culture="bohemian"
 	religion="catholic"
 }
@@ -18053,6 +18072,10 @@
 	religion="catholic"
 }
 
+
+
+
+
 19100=
 {
 	name="Poyul"
@@ -18339,6 +18362,8 @@
 	culture="bodpa"
 	religion="buddhist"
 }
+
+
 
 20013=
 {
@@ -22110,7 +22135,7 @@
 }
 100362=
 {
-	name="Bavor ze Strakonic"
+	name="Bavorid"
 	culture="bohemian"
 }
 100364=
@@ -22723,12 +22748,12 @@
 }
 100436=
 {
-	name="Czernín"
+	name="Czernínid"
 	culture="bohemian"
 }
 100438=
 {
-	name="von Harrach"
+	name="Harrachid"
 	culture="bohemian"
 }
 100442=
@@ -23306,7 +23331,7 @@
 }
 100540=
 {
-	name="Duružmic"
+	name="Duruzmic"
 	culture="hungarian"
 	religion="catholic"
 }
@@ -33815,7 +33840,8 @@
 1029008=
 {
 	name="Buyid"
-	culture="kurdish"
+	culture="persian"
+	religion = shiite
 }
 1029009=
 {
@@ -34327,7 +34353,7 @@
 1042015=
 {
 	name="de Gunale"
-	culture="italian"
+	culture="sardinian"
 	religion="catholic"
 }
 1042017=
@@ -34905,7 +34931,7 @@
 1042808=
 {
 	name="de Callaris"
-	culture="italian"
+	culture="sardinian"
 	religion="catholic"
 }
 1043300=
@@ -36809,7 +36835,7 @@
 }
 9588=
 {
-	name="Slavnikovci"
+	name="Slavníkid"
 	culture="bohemian"
 	religion="catholic"
 }
@@ -36865,13 +36891,13 @@
 }
 9603=
 {
-	name="Slavomirid"
+	name="Slavomírid"
 	culture="bohemian"
 	religion="catholic"
 }
 9604=
 {
-	name="Draslavid"
+	name="Drslavid"
 	culture="bohemian"
 	religion="catholic"
 	coat_of_arms=
@@ -40126,13 +40152,13 @@
 1022321=
 {
 	name="Oristani"
-	culture="italian"
+	culture="sardinian"
 	religion="catholic"
 }
 1022322=
 {
 	name="Sorrenti"
-	culture="italian"
+	culture="sardinian"
 	religion="catholic"
 }
 1022323=
@@ -42860,6 +42886,11 @@
 	religion="finnish_pagan"
 }
 
+
+
+
+
+
 1045008=
 {
 	name="Papar"
@@ -43817,6 +43848,8 @@
 	religion = buddhist
 }
 
+
+
 1051150=
 {
 	name = "Li"
@@ -44563,11 +44596,16 @@
 	religion="taoist"
 }
 
+
+
+
+
 1051153=
 {
 	name = "Wanyan"
 	culture = jurchen
 	religion = taoist
+	
 }
 1051154=
 {
@@ -44955,6 +44993,7 @@
 	used_for_random = no
 }
 
+
 1051210=
 {
 	name="Borjigin"
@@ -44970,6 +45009,9 @@
 	}
 	used_for_random=no
 }
+
+
+
 
 
 1040021=
@@ -45263,27 +45305,27 @@
 	religion = sunni
 }
 1045096 = {
-	name="Bakhchisaray"
+	name = "Bakhchisaray"
 	culture = cuman
 	religion = tengri_pagan
 }
 1045097 = {
-	name="Varzas"
+	name = "Varzas"
 	culture = cuman
 	religion = tengri_pagan
 }
 1045098 = {
-	name="Tana"
+	name = "Tana"
 	culture = cuman
 	religion = tengri_pagan
 }
 1045099 = {
-	name="Aralkum"
+	name = "Aralkum"
 	culture = mongol
 	religion = tengri_pagan
 }
 1045100 = {
-	name="Dana"
+	name = "Dana"
 	culture = mongol
 	religion = sunni
 }
@@ -45293,77 +45335,77 @@
 	religion = sunni
 }
 1045102 = {
-	name="Bailjar"
+	name = "Bailjar"
 	culture = mongol
 	religion = tengri_pagan
 }
 1045103 = {
-	name="Kaztal"
+	name = "Kaztal"
 	culture = mongol
 	religion = sunni
 }
 1045104 = {
-	name="Pecha"
+	name = "Pecha"
 	culture = mongol
 	religion = sunni
 }
 1045105 = {
-	name="Kangly"
+	name = "Kangly"
 	culture = mongol
 	religion = sunni
 }
 1045106 = {
-	name="Itil"
+	name = "Itil"
 	culture = cuman
 	religion = tengri_pagan
 }
 1045107 = {
-	name="Ochak"
+	name = "Ochak"
 	culture = cuman
 	religion = tengri_pagan
 }
 1045108 = {
-	name="Zaporzhye"
+	name = "Zaporzhye"
 	culture = cuman
 	religion = tengri_pagan
 }
 1045109 = {
-	name="Akhtuba"
+	name = "Akhtuba"
 	culture = cuman
 	religion = tengri_pagan
 }
 1045110 = {
-	name="Zhezdi"
+	name = "Zhezdi"
 	culture = cuman
 	religion = tengri_pagan
 }
 1053000 = {
-	name = Rav 
+	name = "Rav"
 	culture = mordvin
 	religion = finnish_pagan
 }
 1053001 = {
-	name="Paas"
+	name = "Paas"
 	culture = mordvin
 	religion = finnish_pagan
 }
 1053002 = {
-	name = Shkai 
+	name = "Shkai"
 	culture = mordvin
 	religion = finnish_pagan
 }
 1053003 = {
-	name="Mastoratia"
+	name = "Mastoratia"
 	culture = mordvin
 	religion = finnish_pagan
 }
 1053004 = {
-	name = Chipaz 
+	name = "Chipaz"
 	culture = mordvin
 	religion = finnish_pagan
 }
 1053005 = {
-	name = Nishkepaz 
+	name = "Nishkepaz"
 	culture = mordvin
 	religion = finnish_pagan
 }
@@ -45686,35 +45728,35 @@
 
 1040094 = {
    name="di Gallura"
-   culture="italian"
+   culture="sardinian"
    religion="catholic"
 }
 
 1040095 = {
    name="di Logudoro"
-   culture="italian"
+   culture="sardinian"
    religion="catholic"
 }
 
 1040096 = {
    name="di Agugliastra"
-   culture="italian"
+   culture="sardinian"
    religion="catholic"
 }
 
 1040097 ={
    name="Salusiu de Lacon"
-   culture="italian"
+   culture="sardinian"
    religion="catholic"
 }
 1040098 ={
    name="Torchitoriu de Ugunale"
-   culture="italian"
+   culture="sardinian"
    religion="catholic"
 }
 1040099 ={
    name="de Lacon Gunale"
-   culture="italian"
+   culture="sardinian"
    religion="catholic"
 }
 1040100 ={
@@ -45734,12 +45776,12 @@
 }
 1040103 ={
    name="de Lacon Zori"
-   culture="italian"
+   culture="sardinian"
    religion="catholic"
 }
 1040104 ={
    name="de Zori"
-   culture="italian"
+   culture="sardinian"
    religion="catholic"
 }
 1040105 ={
@@ -45749,7 +45791,7 @@
 }
 1040106 ={
    name="Bas Serra"
-   culture="italian"
+   culture="sardinian"
    religion="catholic"
 }
 1040107 ={
@@ -47764,7 +47806,7 @@
 	religion = "catholic"
 }
 1062027 = {		
-	name = "Hrabisic"
+	name = "Hrabisid"
 	culture = "bohemian"
 	religion = "slavic_pagan" 
 }	
@@ -47940,7 +47982,7 @@
 	religion = "slavic_pagan"
 }
 1061040 = {
-	name="Hrodnich"
+	name = "Hrodnich"
 	culture = russian
 	religion = orthodox
 }
@@ -48657,7 +48699,7 @@
 1062088 = {
 	name = "Bonda"
 	culture = dalmatian
-	religion = orthodox
+	religion = catholic
 }
 1062089 = {
 	name = "Cataro"
@@ -49657,7 +49699,7 @@
 }
 105947=
 {
-	name="de NeufmarchŽ"
+	name="de NeufmarchZ"
 	culture="norman"
 	religion="catholic"
 }
@@ -50013,8 +50055,3865 @@
 	name="de Tilly"
 	culture="outremer"
 }
+1062205 = {
+	name = "af Hvamm"
+	culture = norse
+}
+1062206 = {
+	name = "af Skalholt"
+	culture = norse
+}
+1062207 = {
+	name = "af Holar"
+	culture = norse
+}
+1062208 = {
+	name = "of Hull"
+	culture = saxon
+}
+1062209 = {
+	name = "of Yore"
+	culture = saxon
+}
+1062210 = {
+	name = "of Mercia"
+	culture = saxon
+}
+1062211 = {
+	name = "Cumbria"
+	culture = norse
+}
+1062212 = {
+	name = "af Alclud"
+	culture = norse
+}
+1062213 = {
+	name = "of Wiltshire"
+	culture = saxon
+}
+1062214 = {
+	name = "of Somerset"
+	culture = saxon
+}
+1062215 = {
+	name = "of Devon"
+	culture = saxon
+}
+1062216 = {
+	name = "of Chester"
+	culture = saxon
+}
+1062217 = {
+	name = "of Hereford"
+	culture = saxon
+}
+1062218 = {
+	name = "of Bamburgh"
+	culture = saxon
+}
+1062219 = {
+	name = "of Amounderness"
+	culture = saxon
+}
+1062220 = {
+	name = "of Dunbar"
+	culture = saxon
+}
+1062221 = {
+	name = "of Melrose"
+	culture = saxon
+}
+1062222 = {
+	name = "mac Donnegan"
+	culture = irish
+}
+1062223 = {
+	name = "mac Mael Muire"
+	culture = irish
+}
+1062224 = {
+	name = "mac Sochlachan"
+	culture = irish
+}
+1062225 = {
+	name = "Ui Dunchada"
+	culture = irish
+}
+1062226 = {
+	name = "af Nordland"
+	culture = norse
+}
+1062227 = {
+	name = "Magga"
+	culture = lappish
+}
+1062228 = {
+	name = "af Herjadalr"
+	culture = norse
+}
+1062229 = {
+	name = "Gájka"
+	culture = lappish
+}
+1062230 = {
+	name = "Keite"
+	culture = lappish
+}
+1062231 = {
+	name = "Beorn"
+	culture = norse
+}
+1062232 = {
+	name = "Saxholm"
+	culture = norse
+}
+1062233 = {
+	name = "Ulvo"
+	culture = norse
+}
+1062234 = {
+	name = "Forsa"
+	culture = norse
+}
+1062235 = {
+	name = "Gormsson"
+	culture = norse
+}
+1062236 = {
+	name = "Wulfing"
+	culture = norse
+}
+1062237 = {
+	name = "Madkharydh"
+	culture = norse
+}
+1062238 = {
+	name = "Tornsfall"
+	culture = norse
+}
+1062239 = {
+	name = "Slite"
+	culture = norse
+}
+1062240 = {
+	name = "Geta"
+	culture = norse
+}
+1062241 = {
+	name = "Vend"
+	culture = norse
+}
+1062242 = {
+	name = "z Luzycka"
+	culture = "pommeranian"
+}
+1062243 = {
+	name = "Zirzipani"
+	culture = "pommeranian"
+}
+1062244 = {
+	name = "Doleczanie"
+	culture = "pommeranian"
+}
+1062245 = {
+	name = "z Wisla"
+	culture = pommeranian
+}
+1062246 = {
+	name = "von Wetterau"
+	culture = german
+}
+1062247 = {
+	name = "von Weinsberg"
+	culture = german
+}
+1062248 = {
+	name = "von Brodswinden"
+	culture = german
+}
+1062249 = {
+	name = "von Beutelsbach"
+	culture = german
+}
+1062250 = {
+	name = "von Altdorf"
+	culture = german
+}
+1062251 = {
+	name = "von Wimpfen"
+	culture = german
+}
+1062252 = {
+	name = "von Schwaz"
+	culture = german
+}
+1062253 = {
+	name = "von Passau"
+	culture = german
+}
+1062254 = {
+	name = "von Rees"
+	culture = german
+}
+1062255 = {
+	name = "von Cleve"
+	culture = german
+}
+1062256 = {
+	name = "von Pont"
+	culture = german
+	coat_of_arms = {
+		data=
+		{
+			0 2 0 29 3 2 2 2 0 18 2 1 1 2 0 18 2 1 1 2 0 19 2 1 1 
+		}
+		religion="catholic"
+	}
+}
+1062257 = {
+	name = "de Mende"
+	culture = occitan
+}
+1062258 = {
+	name = "Namsborg"
+	culture = norman
+	religion = "norse_pagan"
+	coat_of_arms = {
+		data=
+		{
+			0 0 0 12 5 7 4 
+		}
+		religion="norse_pagan"
+	}
+}
+1062259 = {
+	name = "de Lugo"
+	culture = visigothic
+}
+1062260 = {
+	name="Varanid"
+	culture="bedouin_arabic"
+	religion="sunni"
+}
+1062261 = {
+	name="Seravid"
+	culture="bedouin_arabic"
+	religion="sunni"
+}
+1062262 = {
+	name="Mubavid"
+	culture="bedouin_arabic"
+	religion="sunni"
+}
+1062263 = {
+	name="Suledid"
+	culture="bedouin_arabic"
+	religion="sunni"
+}
+1062264 = {
+	name = "di Lugano"
+	culture = italian
+}
+1062265 = {
+	name = "di Bologna"
+	culture = italian
+}
+1062266 = {
+	name = "di Cesena"
+	culture = italian
+}
+1062267 = {
+	name = "di Fano"
+	culture = italian
+}
+1062268 = {
+	name = "di Matelica"
+	culture = italian
+}
+1062269 = {
+	name = "di Teramo"
+	culture = italian
+}
+1062270 = {
+	name = "di Vasto"
+	culture = italian
+}
+1062271 = {
+	name = "di Pienza"
+	culture = italian
+}
+1062272 = {
+	name = "di Suvereto"
+	culture = italian
+}
+1062273 = {
+	name = "di Bassano"
+	culture = italian
+}
+1062274 = {
+	name = "Premizic"
+	culture = carantanian
+}
+1062275 = {
+	name = "Marizic"
+	culture = carantanian
+}
+1062276 = {
+	name = "Rajhradský"
+	culture = slovieni
+}
+1062277 = {
+	name="Kurtikainos"
+	culture="greek"
+	religion="orthodox"
+}
+1062278 = {
+	name="Studites"
+	culture="greek"
+	religion="orthodox"
+}
+1062279 = {
+	name = "Idridid"
+	culture = bedouin_arabic
+	religion = sunni
+}
+1062280 = {
+	name = "Merovid"
+	culture = bedouin_arabic
+	religion = sunni
+}
+1062281 = {
+	name = "Hussabid"
+	culture = bedouin_arabic
+	religion = sunni
+}
+1062282 = {
+	name = "Jesovic"
+	culture = croatian
+}
+1062283 = {
+	name = "Terovic"
+	culture = croatian
+}
+1062284 = {
+	name = "Dragovic"
+	culture = croatian
+}
+1062285 = {
+	name = "Nikovic"
+	culture = serbian
+}
+1062286 = {
+	name = "Sokolovic"
+	culture = serbian
+}
+1062287 = {
+	name = "Kosaca"
+	culture = bosnian
+}
+1062288 = {
+	name = "Lukaric"
+	culture = serbian
+}
+1062289 = {
+	name = "Muzaka"
+	culture = serbian
+}
+1062290 = {
+	name = "Nyék"
+	culture = hungarian
+	religion = tengri_pagan
+}
+1062291 = {
+	name = "Tarján"
+	culture = hungarian
+	religion = tengri_pagan
+}
+1062292 = {
+	name = "Jenó"
+	culture = hungarian
+	religion = tengri_pagan
+}
+1062293 = {
+	name = "Kér"
+	culture = hungarian
+	religion = tengri_pagan
+}
+1062294 = {
+	name = "Megyer"
+	culture = hungarian
+	religion = tengri_pagan
+}
+1062295 = {
+	name = "Kabar"
+	culture = hungarian
+	religion = jewish
+}
+1062296 = {
+	name = "Kounic"
+	culture = bohemian
+}
+1062297 = {
+	name = "Markvartic"
+	culture = bohemian
+}
+1062298 = {
+	name = "Keszi"
+	culture = hungarian
+	religion = tengri_pagan
+}
+1062299 = {
+	name = "Radomir"
+	culture = bulgarian
+}
+1062300 = {
+	name = "Tikh"
+	culture = bulgarian
+}
+1062301 = {
+	name = "Kastrioti"
+	culture = arberian
+	religion = orthodox
+}
+1062302 = {
+	name = "Arta"
+	culture = bulgarian
+}
+1062303 = {
+	name = "Hriz"
+	culture = bulgarian
+}
+1062304 = {
+	name = "Ohrid"
+	culture = bulgarian
+}
+1062305 = {
+	name = "Kostur"
+	culture = bulgarian
+}
+1062306 = {
+	name = "Boumbalis"
+	culture = greek
+}
+1062307 = {
+	name = "Chalkoutzes"
+	culture = greek
+}
+1062308 = {
+	name = "ot Strymon"
+	culture = bulgarian
+}
+1062309 = {
+	name = "Hsin"
+	culture = bulgarian
+}
+1062310 = {
+	name = "ot Vidin"
+	culture = bulgarian
+}
+1062311 = {
+	name = "Erdevelu"
+	culture = bulgarian
+}
+1062312 = {
+	name = "ot Turnu"
+	culture = bulgarian
+}
+1062313 = {
+	name = "Giurgiu"
+	culture = bulgarian
+}
+1062314 = {
+	name = "de Targoviste"
+	culture = romanian
+}
+1062315 = {
+	name = "ot Coconi"
+	culture = bulgarian
+}
+1062316 = {
+	name = "ot Belgorod"
+	culture = bulgarian
+}
+1062317 = {
+	name = "de Husi"
+	culture = romanian
+}
+1062318 = {
+	name = "de Tecuci"
+	culture = romanian
+}
+1062319 = {
+	name = "ot Bacau"
+	culture = bulgarian
+}
+1062320 = {
+	name = "Giazichopon"
+	culture = pecheneg
+	religion = tengri_pagan
+}
+1062321 = {
+	name = "Kato Gyla"
+	culture = pecheneg
+	religion = tengri_pagan
+}
+1062322 = {
+	name = "Erdem"
+	culture = pecheneg
+	religion = tengri_pagan
+}
+1062323 = {
+	name = "Yula"
+	culture = pecheneg
+	religion = tengri_pagan
+}
+1062324 = {
+	name = "ve Burtas"
+	culture = alan
+	religion = tengri_pagan
+}
+1062325 = {
+	name = "Oghuz"
+	culture = turkish
+	religion = tengri_pagan
+}
+1062326 = {
+	name = "Ubeni"
+	culture = cuman
+	religion = tengri_pagan
+}
+1062327 = {
+	name = "Sarener"
+	culture = cuman
+	religion = tengri_pagan
+}
+1062328 = {
+	name = "Azovi"
+	culture = khazar
+	religion = tengri_pagan
+}
+1062329 = {
+	name = "Sugren"
+	culture = khazar
+	religion = tengri_pagan
+}
+1062330 = {
+	name = "Sarek"
+	culture = khazar
+	religion = jewish
+}	
+
+1062331 = {
+	name = "Baskhir"
+	culture = bolghar
+	religion = tengri_pagan
+}
+1062332 = {
+	name = "Ashli"
+	culture = bolghar
+	religion = tengri_pagan
+}
+1062333 = {
+	name = "Qazan"
+	culture = bolghar
+	religion = sunni
+}
+1062334 = {
+	name = "Turovi"
+	culture = russian
+	religion = slavic_pagan
+}
+1062335 = {
+	name = "Orshisk"
+	culture = russian
+	religion = slavic_pagan
+}
+1062336 = {
+	name = "Lyakhovich"
+	culture = russian
+	religion = slavic_pagan
+}
+1062337 = {
+	name = "Izyaslavich"
+	culture = russian
+	religion = slavic_pagan
+}
+1062338 = {
+	name = "Drusovich"
+	culture = russian
+	religion = slavic_pagan
+}
+1062339 = {
+	name = "Chernyshev"
+	culture = russian
+	religion = slavic_pagan
+}
+1062340 = {
+	name = "Oravic"
+	culture = russian
+	religion = slavic_pagan
+}
+1062341 = {
+	name = "Lukovic"
+	culture = russian
+	religion = slavic_pagan
+}
+1062342 = {
+	name = "Klakis"
+	culture = russian
+	religion = slavic_pagan
+}
+1062343 = {
+	name = "Lukislav"
+	culture = russian
+	religion = slavic_pagan
+}
+1062344 = {
+	name = "Rusavic"
+	culture = russian
+	religion = slavic_pagan
+}
+1062345 = {
+	name = "Ivankovich"
+	culture = russian
+	religion = slavic_pagan
+}
+1062346 = {
+	name = "Petrilov"
+	culture = russian
+	religion = slavic_pagan
+}
+1062347 = {
+	name = "Urliskov"
+	culture = russian
+	religion = slavic_pagan
+}
+1062348 = {
+	name = "Torivic"
+	culture = russian
+	religion = slavic_pagan
+}
+1062349 = {
+	name = "Arovich"
+	culture = russian
+	religion = slavic_pagan
+}
+1062350 = {
+	name = "Meroslavich"
+	culture = russian
+	religion = slavic_pagan
+}
+1062351 = {
+	name = "Neresich"
+	culture = russian
+	religion = slavic_pagan
+}
+1062352 = {
+	name = "Arakid"
+	culture = mordvin
+	religion = finnish_pagan
+}
+1062353 = {
+	name = "Karavici"
+	culture = russian
+	religion = slavic_pagan
+}
+1062354 = {
+	name = "Vyazovic"
+	culture = russian
+	religion = slavic_pagan
+}
+1062355 = {
+	name = "Zubivic"
+	culture = russian
+	religion = slavic_pagan
+}
+1062356 = {
+	name = "Radivic"
+	culture = russian
+	religion = slavic_pagan
+}
+1062357 = {
+	name = "Bogolyubsky"
+	culture = russian
+	religion = slavic_pagan
+}
+1062358 = {
+	name = "Mozhavic"
+	culture = russian
+	religion = slavic_pagan
+}
+1062359 = {
+	name = "Kobilyn"
+	culture = russian
+	religion = slavic_pagan
+}
+1062360 = {
+	name = "Yurivic"
+	culture = russian
+	religion = slavic_pagan
+}
+1062361 = {
+	name = "Orevic"
+	culture = russian
+	religion = slavic_pagan
+}
+1062362 = {
+	name = "Muromid"
+	culture = russian
+	religion = slavic_pagan
+}
+1062363 = {
+	name = "Seranikid"
+	culture = mordvin
+	religion = finnish_pagan
+}
+1062364 = {
+	name = "Heranid"
+	culture = mordvin
+	religion = finnish_pagan
+}
+1062365 = {
+	name = "Karinid"
+	culture = mordvin
+	religion = finnish_pagan
+}
+1062366 = {
+	name = "Yelesic"
+	culture = russian
+	religion = slavic_pagan
+}
+1062367 = {
+	name = "Nosovic"
+	culture = russian
+	religion = slavic_pagan
+}
+1062368 = {
+	name = "Sarivic"
+	culture = russian
+	religion = slavic_pagan
+}
+1062369 = {
+	name = "Brysivic"
+	culture = russian
+	religion = slavic_pagan
+}
+1062370 = {
+	name = "Nepluyev"
+	culture = russian
+	religion = slavic_pagan
+}
+1062371 = {
+	name = "Ingrija"
+	culture = ugricbaltic
+	religion = finnish_pagan
+}
+1062372 = {
+	name = "Saremaa"
+	culture = ugricbaltic
+	religion = finnish_pagan
+}
+1062373 = {
+	name = "Huremaa"
+	culture = ugricbaltic
+	religion = finnish_pagan
+}
+1062374 = {
+	name = "Taremaa"
+	culture = ugricbaltic
+	religion = finnish_pagan
+}
+1062375 = {
+	name = "gada Zemgale"
+	culture = lettigallish
+	religion = baltic_pagan
+}
+1062376 = {
+	name = "gada Talava"
+	culture = lettigallish
+	religion = baltic_pagan
+}
+1062377 = {
+	name = "gada Selija"
+	culture = lettigallish
+	religion = baltic_pagan
+}
+1062378 = {
+	name = "Livo"
+	culture = ugricbaltic
+	religion = finnish_pagan
+}
+1062379 = {
+	name = "Seli"
+	culture = lettigallish
+	religion = baltic_pagan
+}
+1062380 = {
+	name = "Palemonaitis"
+	culture = lithuanian
+	religion = baltic_pagan
+}
+1062381 = {
+	name = "Besovich"
+	culture = russian
+	religion = slavic_pagan
+}
+1062382 = {
+	name = "Kaioyid"
+	culture = mordvin
+	religion = finnish_pagan
+}
+1062383 = {
+	name = "Chavoyid"
+	culture = mordvin
+	religion = finnish_pagan
+}
+1062384 = {
+	name = "Rayovid"
+	culture = samoyed
+	religion = finnish_pagan
+}
+1062385 = {
+	name = "Devoyid"
+	culture = samoyed
+	religion = finnish_pagan
+}
+1062386 = {
+	name = "Kuyoid"
+	culture = samoyed
+	religion = finnish_pagan
+}
+1062387 = {
+	name = "Kanoyed"
+	culture = samoyed
+	religion = finnish_pagan
+}
+1062388 = {
+	name = "Indiyavid"
+	culture = samoyed
+	religion = finnish_pagan
+}
+1062389 = {
+	name = "Zavoyid"
+	culture = samoyed
+	religion = finnish_pagan
+}
+1062390 = {
+	name = "Reyovid"
+	culture = samoyed
+	religion = finnish_pagan
+}
+1062391 = {
+	name = "Ugravid"
+	culture = samoyed
+	religion = finnish_pagan
+}
+1062392 = {
+	name = "Vashayid"
+	culture = samoyed
+	religion = finnish_pagan
+}
+1062393 = {
+	name = "Velyvid"
+	culture = samoyed
+	religion = finnish_pagan
+}
+1062394 = {
+	name = "Vileyid"
+	culture = samoyed
+	religion = finnish_pagan
+}
+1062395 = {
+	name = "Mariyid"
+	culture = mordvin
+	religion = finnish_pagan
+}
+1062396 = {
+	name = "Vayomid"
+	culture = komi
+	religion = finnish_pagan
+}
+1062397 = {
+	name = "Seduvid"
+	culture = komi
+	religion = finnish_pagan
+}
+1062398 = {
+	name = "Variyid"
+	culture = komi
+	religion = finnish_pagan
+}
+1062399 = {
+	name = "Lyavid"
+	culture = komi
+	religion = finnish_pagan
+}
+1062400 = {
+	name = "Kelmayid"
+	culture = komi
+	religion = finnish_pagan
+}
+1062401 = {
+	name = "Kolvayid"
+	culture = komi
+	religion = finnish_pagan
+}
+1062402 = {
+	name = "Thivanid"
+	culture = komi
+	religion = finnish_pagan
+}
+1062403 = {
+	name = "Permyanid"
+	culture = komi
+	religion = finnish_pagan
+}
+1062404 = {
+	name = "Platypodes"
+	culture = greek
+}
+1062405 = {
+	name = "Arotras"
+	culture = greek
+	religion = orthodox
+}
+1062406 = {
+	name = "Kallistos"
+	culture = greek
+}
+1062407 = {
+	name = "Aristatos"
+	culture = greek
+}
+1062408 = {
+	name = "Platys"
+	culture = greek
+}
+1062409 = {
+	name = "Thisaios"
+	culture = greek
+}
+1062410 = {
+	name = "of Kimmerikon"
+	culture = crimean_gothic
+}
+1062411 = {
+	name = "Ikhshidid"
+	culture = egyptian_arabic
+	religion = sunni
+}
+1062412 = {
+	name = "Hamdanid"
+	culture = levantine_arabic
+	religion = sunni
+}
+1062413 = {
+	name = "Kilabid"
+	culture = levantine_arabic
+	religion = sunni
+}
+1062414 = {
+	name = "al-Thamali"
+	culture = levantine_arabic
+	religion = sunni
+}
+1062415 = {
+	name = "al-Thamali"
+	culture = levantine_arabic
+	religion = sunni
+}
+1062416 = {
+	name = "Al-Madhara'i"
+	culture = levantine_arabic
+	religion = sunni
+}
+1062417 = {
+	name = "Boutrosid"
+	culture = levantine_arabic
+	religion = sunni
+}
+1062418 = {
+	name = "Muhsinnid"
+	culture = levantine_arabic
+	religion = sunni
+}
+1062419 = {
+	name = "Hamaddin"
+	culture = levantine_arabic
+	religion = sunni
+}
+1062420 = {
+	name = "Hussanid"
+	culture = levantine_arabic
+	religion = sunni
+}
+1062421 = {
+	name = "Banu'l-Furat"
+	culture = levantine_arabic
+	religion = sunni
+}
+1062422 = {
+	name = "Rayazid"
+	culture = levantine_arabic
+	religion = sunni
+}
+1062423 = {
+	name = "Tarassid"
+	culture = levantine_arabic
+	religion = sunni
+}
+1062424 = {
+	name = "Nuyassid"
+	culture = levantine_arabic
+	religion = sunni
+}
+1062425 = {
+	name = "mn Negev"
+	culture = levantine_arabic
+	religion = sunni
+}
+1062426 = {
+	name = "Jahannid"
+	culture = levantine_arabic
+	religion = sunni
+}
+1062427 = {
+	name = "Massirid"
+	culture = levantine_arabic
+	religion = sunni
+}
+1062428 = {
+	name = "Hayid"
+	culture = levantine_arabic
+	religion = sunni
+}
+1062429 = {
+	name = "Kerayid"
+	culture = levantine_arabic
+	religion = sunni
+}
+1062430 = {
+	name = "mn Akka"
+	culture = levantine_arabic
+	religion = sunni
+}
+1062431 = {
+	name = "Farayeed"
+	culture = egyptian_arabic
+	religion = sunni
+}
+1062432 = {
+	name = "mn Sinai"
+	culture = egyptian_arabic
+	religion = sunni
+}
+1062433 = {
+	name = "mn Cithium"
+	culture = levantine_arabic
+	religion = sunni
+}
+1062434 = {
+	name = "of Paphos"
+	culture = greek
+}
+1062435 = {
+	name = "Rashid"
+	culture = bedouin_arabic
+	religion = shiite
+}
+1062436 = {
+	name = "Mubarid"
+	culture = bedouin_arabic
+	religion = shiite
+}
+1062437 = {
+	name = "Tamimid"
+	culture = bedouin_arabic
+	religion = shiite
+}
+1062438 = {
+	name = "Amarid"
+	culture = bedouin_arabic
+	religion = shiite
+}
+1062439 = {
+	name = "Zarid"
+	culture = bedouin_arabic
+	religion = shiite
+}
+1062440 = {
+	name = "Farrukid"
+	culture = bedouin_arabic
+	religion = shiite
+}
+1062441 = {
+	name = "Mukhtarid"
+	culture = maghreb_arabic
+	religion = shiite
+}
+1062442 = {
+	name = "Ubayid"
+	culture = bedouin_arabic
+	religion = shiite
+}
+1062442 = {
+	name = "Ifranid"
+	culture = maghreb_arabic
+	religion = ibadi
+}
+1062443 = {
+	name = "Ahisid"
+	culture = maghreb_arabic
+	religion = ibadi
+}
+1062444 = {
+	name = "Midrarid"
+	culture = maghreb_arabic
+	religion = ibadi
+}
+1062445 = {
+	name = "Agdassid"
+	culture = maghreb_arabic
+	religion = shiite
+}
+1062446 = {
+	name = "Atissid"
+	culture = maghreb_arabic
+	religion = shiite
+}
+1062447 = {
+	name = "Amayadid"
+	culture = maghreb_arabic
+	religion = shiite
+}
+1062448 = {
+	name = "Aghrebid"
+	culture = maghreb_arabic
+	religion = shiite
+}
+1062449 = {
+	name = "Zusse"
+	culture = manden
+	religion = west_african_pagan
+}
+1062450 = {
+	name = "Ouse"
+	culture = manden
+	religion = west_african_pagan
+}
+1062451 = {
+	name = "Aeti"
+	culture = manden
+	religion = west_african_pagan
+}
+1062452 = {
+	name = "Bayei"
+	culture = songhay
+	religion = west_african_pagan
+}
+1062453 = {
+	name = "Kurillos"
+	culture = nubian
+}
+1062454 = {
+	name = "Aramim"
+	culture = nubian
+}
+1062455 = {
+	name = "Meriwa"
+	culture = nubian
+}
+1062456 = {
+	name = "Harida"
+	culture = nubian
+}
+1062457 = {
+	name = "Karaatar"
+	culture = nubian
+}
+1062458 = {
+	name = "Amare"
+	culture = ethiopian
+}
+1062459 = {
+	name = "Iyasu"
+	culture = ethiopian
+}
+1062460 = {
+	name = "Semere"
+	culture = ethiopian
+}
+1062461 = {
+	name = "Fethee"
+	culture = ethiopian
+}
+1062462 = {
+	name = "Amasid"
+	culture = ethiopian
+	religion = sunni
+}
+1062463 = {
+	name = "Abadid"
+	culture = somali
+	religion = sunni
+}
+1062464 = {
+	name = "Yarawh"
+	culture = bedouin_arabic
+	religion = nestorian
+}
+1062465 = {
+	name = "Andronid"
+	culture = egyptian_arabic
+	religion = shiite
+}
+1062466 = {
+	name = "Hishamid"
+	culture = egyptian_arabic
+	religion = sunni
+}
+1062467 = {
+	name = "Abanid"
+	culture = egyptian_arabic
+	religion = sunni
+}
+1062468 = {
+	name = "Bashirid"
+	culture = egyptian_arabic
+	religion = shiite
+}
+1062469 = {
+	name = "Agathid"
+	culture = egyptian_arabic
+	religion = sunni
+}
+1062470 = {
+	name = "Shaibanid"
+	culture = bedouin_arabic
+	religion = sunni
+}
+1062471 = {
+	name = "Ghalibid"
+	culture = bedouin_arabic
+	religion = sunni
+}
+1062472 = {
+	name = "Farukid"
+	culture = bedouin_arabic
+	religion = sunni
+}
+1062473 = {
+	name = "Jawifid"
+	culture = bedouin_arabic
+	religion = sunni
+}
+1062474 = {
+	name = "Sulamid"
+	culture = bedouin_arabic
+	religion = sunni
+}
+1062475 = {
+	name = "Hizzanid"
+	culture = bedouin_arabic
+	religion = shiite
+}
+1062476 = {
+	name = "Bilaid"
+	culture = bedouin_arabic
+	religion = shiite
+}
+1062477 = {
+	name = "Samirid"
+	culture = bedouin_arabic
+	religion = shiite
+}
+1062478 = {
+	name = "Sulayimid"
+	culture = bedouin_arabic
+	religion = shiite
+}
+1062479 = {
+	name = "Aramid"
+	culture = bedouin_arabic
+	religion = sunni
+}
+1062480 = {
+	name = "Shahrid"
+	culture = bedouin_arabic
+	religion = shiite
+}
+1062481 = {
+	name = "Bahrid"
+	culture = bedouin_arabic
+	religion = ibadi
+}
+1062482 = {
+	name = "al-Shirvani"
+	culture = levantine_arabic
+	religion = sunni
+}
+1062483 = {
+	name = "Jaffarid"
+	culture = levantine_arabic
+	religion = sunni
+}
+1062484 = {
+	name = "Arevmaneli"
+	culture = armenian
+	religion = miaphysite
+}
+1062485 = {
+	name = "Hadhbanis"
+	culture = kurdish
+	religion = sunni
+}
+1062486 = {
+	name = "Jalali"
+	culture = kurdish
+	religion = sunni
+}
+1062487 = {
+	name = "Raiqid"
+	culture = khazar
+	religion = sunni
+}
+1062488 = {
+	name = "al-Makani"
+	culture = turkish
+	religion = sunni
+}
+1062489 = {
+	name = "Tuzun"
+	culture = turkish
+	religion = sunni
+}
+1062490 = {
+	name = "Muqlaid"
+	culture = bedouin_arabic
+	religion = sunni
+}
+1062491 = {
+	name = "al-Baridi"
+	culture = bedouin_arabic
+	religion = sunni
+}
+1062492 = {
+	name = "Kakinid"
+	culture = persian
+	religion = zoroastrian
+}
+1062493 = {
+	name = "Kara-Bogaz"
+	culture = turkish
+	religion = tengri_pagan
+}
+1062494 = {
+	name = "Emba"
+	culture = turkish
+	religion = tengri_pagan
+}
+1062495 = {
+	name = "Usturt"
+	culture = turkish
+	religion = tengri_pagan
+}
+1062496 = {
+	name = "Barzikani"
+	culture = kurdish
+	religion = sunni
+}
+1062497 = {
+	name = "Farighunid"
+	culture = persian
+	religion = sunni
+}
+1062498 = {
+	name = "Muhtajid"
+	culture = persian
+	religion = sunni
+}
+1062499 = {
+	name = "Mikalid"
+	culture = persian
+	religion = sunni
+}
+1062500 = {
+	name = "Bal'ami"
+	culture = persian
+	religion = sunni
+}
+1062501 = {
+	name = "Ilyasid"
+	culture = persian
+	religion = sunni
+}
+1062502 = {
+	name = "Tabarid"
+	culture = persian
+	religion = sunni
+}
+1062503 = {
+	name = "Fasanjid"
+	culture = persian
+	religion = sunni
+}
+1062504 = {
+	name = "Maghribid"
+	culture = persian
+	religion = sunni
+}
+1062505 = {
+	name = "Wajihid"
+	culture = bedouin_arabic
+	religion = sunni
+}
+1062506 = {
+	name = "Kumidji"
+	culture = sogdian
+	religion = sunni
+}
+1062507 = {
+	name = "Serghan"
+	culture = karluk
+	religion = sunni
+}
+1062508 = {
+	name = "Tasyru"
+	culture = cuman
+	religion = manichean
+}
+1062509 = {
+	name = "Sariyi"
+	culture = cuman
+	religion = tengri_pagan
+}
+1062510 = {
+	name = "Turani"
+	culture = cuman
+	religion = tengri_pagan
+}
+1062511 = {
+	name = "Tengay"
+	culture = cuman
+	religion = tengri_pagan
+}
+1062512 = {
+	name = "Oshani"
+	culture = cuman
+	religion = tengri_pagan
+}
+1062513 = {
+	name = "Malyid"
+	culture = khanty
+	religion = finnish_pagan
+}
+1062514 = {
+	name = "Kokshavid"
+	culture = khanty
+	religion = finnish_pagan
+}
+1062515 = {
+	name = "Lyskovid"
+	culture = khanty
+	religion = finnish_pagan
+}
+1062516 = {
+	name = "Naiman"
+	culture = khitan
+	religion = tengri_pagan
+}
+1062517 = {
+	name = "Zubu"
+	culture = khitan
+	religion = tengri_pagan
+}
+1062518 = {
+	name = "Dilie"
+	culture = mongol
+	religion = tengri_pagan
+}
+1062519 = {
+	name = "Erevid"
+	culture = mongol
+	religion = nestorian
+}
+1062520 = {
+	name = "Uriankhai"
+	culture = mongol
+	religion = tengri_pagan
+}
+1062521 = {
+	name = "Sabeek"
+	culture = kirghiz
+	religion = tengri_pagan
+}
+1062522 = {
+	name = "Altay"
+	culture = kirghiz
+	religion = manichean
+}
+1062523 = {
+	name = "Katun"
+	culture = kirghiz
+	religion = manichean
+}
+1062524 = {
+	name = "Aksu"
+	culture = uyghur
+	religion = buddhist
+}
+1062525 = {
+	name = "Zhungpa"
+	culture = bodpa
+	religion = bon
+}
+1062526 = {
+	name = "Gotsang"
+	culture = zhangzhung
+	religion = bon
+}
+1062527 = {
+	name = "Drampagyang"
+	culture = bodpa
+	religion = bon
+}
+1062528 = {
+	name = "Qangma"
+	culture = bodpa
+	religion = bon
+}
+1062529 = {
+	name = "Riwoqê"
+	culture = bodpa
+	religion = bon
+}
+1062530 = {
+	name = "Yümai"
+	culture = bodpa
+	religion = bon
+}
+1062531 = {
+	name = "Tamu"
+	culture = bodpa
+	religion = bon
+}
+1062532 = {
+	name = "Namsai"
+	culture = bodpa
+	religion = buddhist
+}
+1062533 = {
+	name = "Joram"
+	culture = bodpa
+	religion = bon
+}
+1062534 = {
+	name = "Kainuu"
+	culture = finnish
+	religion = finnish_pagan
+}
+1062535 = {
+	name = "Mahmudid"
+	culture = persian
+	religion = sunni
+}
+1062536 = {
+	name = "Ehsanid"
+	culture = persian
+	religion = sunni
+}
+1062537 = {
+	name = "Kurushid"
+	culture = persian
+	religion = sunni
+}
+1062538 = {
+	name = "Mateen"
+	culture = afghan
+	religion = buddhist
+}
+1062539 = {
+	name = "Nandan"
+	culture = panjabi
+	religion = hindu
+}
+1062540 = {
+	name = "Azizid"
+	culture = sindhi
+	religion = sunni
+}
+1062541 = {
+	name = "Nizamuddin"
+	culture = sindhi
+	religion = sunni
+}
+1062542 = {
+	name = "Raeddin"
+	culture = sindhi
+	religion = sunni
+}
+1062543 = {
+	name = "Buhaadorid"
+	culture = baloch
+	religion = sunni
+}
+1062544 = {
+	name = "Akravid"
+	culture = afghan
+	religion = sunni
+}
+1062545 = {
+	name = "Ma'danid"
+	culture = baloch
+	religion = kharijite
+}
+1062546 = {
+	name = "Bherid"
+	culture = panjabi
+	religion = hindu
+}
+1062547 = {
+	name = "Gobindid"
+	culture = panjabi
+	religion = hindu
+}
+1062548 = {
+	name = "Nandelid"
+	culture = marathi
+	religion = hindu
+}
+1062549 = {
+	name = "Asiralid"
+	culture = marathi
+	religion = jain
+}
+1062550 = {
+	name = "Sripadarayid"
+	culture = kannada
+	religion = jain
+}
+1062551 = {
+	name = "Mahalid"
+	culture = tamil
+	religion = buddhist
+}
+1062552 = {
+	name = "Goshtasbid"
+	culture = persian
+	religion = zoroastrian
+}
+1062553 = {
+	name = "Nrpakamid"
+	culture = telugu
+	religion = hindu
+}
+1062554 = {
+	name = "Kausika"
+	culture = tocharian
+	religion = buddhist
+}
+1062555 = {
+	name = "Mihilid"
+	culture = bengali
+	religion = buddhist
+}
+1062556 = {
+	name = "Devavarman"
+	culture = hindustani
+	religion = hindu
+}
+1062557 = {
+	name = "Jharkanid"
+	culture =  bengali
+	religion = buddhist
+}
+1062558 = {
+	name = "Jatanpalid"
+	culture = hindustani
+	religion = hindu
+}
+1062559 = {
+	name = "Udaysan"
+	culture = rajput
+	religion = jain
+}
+1062560 = {
+	name = "Sripala"
+	culture = assamese
+	religion = buddhist
+}
+1062561 = {
+	name = "Vahhabid"
+	culture = persian
+	religion = sunni
+}
+1062562 = {
+	name = "Tang"
+	culture = han
+	religion = taoist
+	coat_of_arms=
+	{
+		data=
+		{
+			0 0 0 3 1 2 2 
+		}
+		religion="taoist"
+	}
+}
+1062563 = {
+	name = "af Borg"
+	culture = norse
+	religion = norse_pagan
+}
+1062564 = {
+	name = "af Torshavn"
+	culture = norse
+	religion = norse_pagan
+}
+1062565 = {
+	name = "nic Talorc"
+	culture = irish
+	religion = norse_pagan
+}
+1062566 = {
+	name = "Alfr"
+	culture = norse
+	religion = norse_pagan
+}
+1062567 = {
+	name = "Geta"
+	culture = norse
+	religion = norse_pagan
+}
+1062568 = {
+	name = "Inger"
+	culture = norse
+	religion = norse_pagan
+}
+1062569 = {
+	name = "Falk"
+	culture = norse
+	religion = norse_pagan
+}
+1062570 = {
+	name = "af Aarhus"
+	culture = norse
+	religion = norse_pagan
+}
+1062571 = {
+	name = "af Borg"
+	culture = norse
+	religion = norse_pagan
+}
+1062572 = {
+	name = "Strúgr"
+	culture = norse
+	religion = norse_pagan
+}
+1062573 = {
+	name = "av Jämtland"
+	culture = norse
+	religion = norse_pagan
+}
+1062574 = {
+	name = "Skál"
+	culture = norse
+	religion = norse_pagan
+}
+1062575 = {
+	name = "Eyjing"
+	culture = norse
+	religion = norse_pagan
+}
+1062576 = {
+	name = "Veøy"
+	culture = norse
+	religion = norse_pagan
+}
+1062577 = {
+	name = "Väse"
+	culture = norse
+	religion = norse_pagan
+}
+1062578 = {
+	name = "af Skalholt"
+	culture = norse
+	religion = norse_pagan
+}
+1062579 = {
+	name = "Geta"
+	culture = norse
+	religion = norse_pagan
+}
+1062580 = {
+	name = "Súrr"
+	culture = norse
+	religion = norse_pagan
+}
+1062581 = {
+	name = "Cumbria"
+	culture = norse
+	religion = norse_pagan
+}
+1062582 = {
+	name = "af Nordland"
+	culture = norse
+	religion = norse_pagan
+}
+1062583 = {
+	name = "z Heveli"
+	culture = pommeranian
+	religion = slavic_pagan
+}
+1062584 = {
+	name = "Doleczanie"
+	culture = pommeranian
+	religion = slavic_pagan
+}
+1062585 = {
+	name = "z Wieletow"
+	culture = pommeranian
+	religion = slavic_pagan
+}
+1062586 = {
+	name = "gada Seitlitz"
+	culture = lettigallish
+	religion = baltic_pagan
+}
+1062587 = {
+	name = "Tadrossid"
+	culture = egyptian_arabic
+	religion = shiite
+}
+1062588 = {
+	name = "Ablaronid"
+	culture = egyptian_arabic
+	religion = sunni
+}
+1062589 = {
+	name = "Saraid"
+	culture = egyptian_arabic
+	religion = sunni
+}
+1062590 = {
+	name = "Badrishid"
+	culture = egyptian_arabic
+	religion = sunni
+}
+1062591 = {
+	name = "en Asyut"
+	culture = coptic
+	religion = miaphysite
+}
+1062592 = {
+	name = "Musaddin"
+	culture = egyptian_arabic
+	religion = sunni
+}
+1062593 = {
+	name = "Dawlaid"
+	culture = egyptian_arabic
+	religion = sunni
+}
 1062594 = {
 	name = "Faroaldingi"
 	culture = lombard
 }
+1062595 = {
+	name = "Kál"
+	culture = hungarian
+	religion = tengri_pagan
+}
+1062596={
+	name="Shir"
+	culture="afghan"
+	religion="hindu"
+}
+1062597={
+	name="Lawik"
+	culture="afghan"
+	religion="hindu"
+}
+1062598={
+	name="Aflah"
+	culture="afghan"
+	religion="sunni"
+}
+1062599={
+	name="Daud"
+	culture="afghan"
+	religion="sunni"
+}
+1062600 = {
+	name = "Kafur"
+	culture = ethiopian
+	religion = sunni
+}
+1062601 = {
+	name = "Ghabunid"
+	culture = egyptian_arabic
+	religion = sunni
+}
+1063111=
+{
+	name="Rhabdouchos"
+	culture="greek"
+	religion="orthodox"
+}
+1063112=
+{
+	name="Varazhnuni"
+	culture="armenian"
+	religion="miaphysite"
+}
+1063118=
+{
+	name="Visevic"
+	culture="serbian"
+	religion="orthodox"
+}
+1063119=
+{
+	name="Gongyles"
+	culture="greek"
+	religion="orthodox"
+}
+1063559=
+{
+	name="Al-Jarajimah"
+	culture="levantine_arabic"
+	religion="miaphysite"
+}
+1063569=
+{
+	name="Sursuvul"
+	culture="bulgarian"
+	religion="orthodox"
+}
+1064000 = {
+	used_for_random = no
+	name = "Meginhardi"
+	culture = german
+	religion = catholic
+}
+1062594={
+	name="Khursid"
+	culture="persian"
+	religion="zoroastrian"
+}
+1062602 = {
+	name = "al-Gassani"
+	culture = bedouin_arabic
+	religion = sunni
+}
 
+1062603 = {
+	name = "Ru'ayn"
+	culture = bedouin_arabic
+	religion = sunni
+}
+
+1062604 = {
+	name = "Banu Sarray"
+	culture = maghreb_arabic
+	religion = sunni	
+}
+
+1062605 = {
+	name = "Aswadid"
+	culture = andalusian_arabic
+	religion = sunni
+}
+
+1062606 = {
+	name = "Logothetes"
+	culture = greek
+	religion = orthodox
+}
+
+1062607 = {
+	name = "di Mosezzo"
+	culture = italian
+	religion = catholic
+}
+
+1062608 = {
+	name = "de Mortagne"
+	culture = frankish
+	religion = catholic
+}
+1062609 = {
+	name="Theoderisian"
+	culture="lombard"
+	religion="catholic"
+}
+1062610 = {
+	name="Botaneiates"
+	culture="greek"
+}
+1062611 = {
+	name="Shahin"
+	culture="levantine_arabic"
+	religion="pagan"
+}
+1062612 = {
+	name = "di Arborea"
+	culture = sardinian
+}
+1062613 = {
+	name = "di Casteddu"
+	culture = sardinian
+}
+1062614 = {
+	name = "di Santa Igia"
+	culture = sardinian
+}
+1062615 = {
+	name = "di Patiolla"
+	culture = sardinian
+}
+1062616 = {
+	name = "di Ogiastra"
+	culture = sardinian
+}
+1062617 = {
+	name = "di Torres"
+	culture = sardinian
+}
+1062618 = {
+	name = "di Ballau"
+	culture = sardinian
+}
+1062619 = {
+	name = "di Bosa"
+	culture = sardinian
+}
+1062620 = {
+	name = "di Caddura"
+	culture = sardinian
+}
+1062621 = {
+	name = "di Pasada"
+	culture = sardinian
+}
+1062622 = {
+	name = "di Durgali"
+	culture = sardinian
+}
+1062623 = {
+	name = "di Calvi"
+	culture = sardinian
+}
+1062624 = {
+	name = "di Sartena"
+	culture = sardinian
+}
+
+1069000 = {
+	name = "z Buzic"
+	culture = "bohemian"
+}
+1069001 = {
+	name = "z Lipé"
+	culture = "bohemian"
+}
+1069002 = {
+	name = "z Lichtenburka"
+	culture = "bohemian"
+}
+1069003 = {
+	name = "z Michalovic"
+	culture = "bohemian"
+}
+1069004 = {
+	name = "ze Zviretic"
+	culture = "bohemian"
+}
+1069005 = {
+	name = "z Lemberka"
+	culture = "bohemian"
+}
+1069006 = {
+	name = "z Vartemberka"
+	culture = "bohemian"
+	religion = "catholic"
+}
+1069007 = {
+	name = "z Valdštejna"
+	culture = "bohemian"
+	religion = "catholic"
+}
+1069008 = {
+	name = "z Brezna"
+	culture = "bohemian"
+}
+1069009 = {
+	name = "z Rozmberka"
+	culture = "bohemian"
+	religion = "catholic"
+}
+1069010 = {
+	name = "z Hradce"
+	culture = "bohemian"
+	religion = "catholic"
+}
+1069011 = {
+	name = "z Krumlova"
+	culture = "bohemian"
+}
+1069012 = {
+	name = "z Ústí"
+	culture = "bohemian"
+	religion = "catholic"
+}
+1069013 = {
+	name = "z Dubé"
+	culture = "bohemian"
+}
+1069014 = {
+	name = "z Falkenštejna"
+	culture = "bohemian"
+	religion = "catholic"
+}
+1069015 = {
+	name = "z Landštejna"
+	culture = "bohemian"
+}
+1069016 = {
+	name = "ze Stráže"
+	culture = "bohemian"
+}
+1069017 = {
+	name = "z Lomnice"
+	culture = "bohemian"
+}
+1069018 = {
+	name = "z Tasova"
+	culture = "bohemian"
+}
+1069019 = {
+	name = "z Krizanova"
+	culture = "bohemian"
+	religion = "catholic"
+}
+1069020 = {
+	name = "z Benešova"
+	culture = "bohemian"
+}
+1069021 = {
+	name = "ze Cvilína"
+	culture = "bohemian"
+}
+1069022 = {
+	name = "z Bechyne"
+	culture = "bohemian"
+}
+1069023 = {
+	name = "z Tvorkova"
+	culture = "bohemian"
+}
+1069024 = {
+	name = "z Dedic"
+	culture = "bohemian"
+}
+1069025 = {
+	name = "z Kravar"
+	culture = "bohemian"
+	religion = "catholic"
+}
+1069026 = {
+	name = "z Divišova"
+	culture = "bohemian"
+}
+1069027 = {
+	name = "z Kunštátu"
+	culture = "bohemian"
+}
+1069028 = {
+	name = "ze Zbraslavi"
+	culture = "bohemian"
+}
+1069029 = {
+	name = "z Obran"
+	culture = "bohemian"
+	religion = "catholic"
+}
+1069030 = {
+	name = "z Pernštejna"
+	culture = "bohemian"
+}
+1069031 = {
+	name = "Lichovský"
+	culture = "bohemian"
+}
+1069032 = {
+	name = "z Boskovic"
+	culture = "bohemian"
+}
+1069033 = {
+	name = "ze Sovince"
+	culture = "bohemian"
+}
+1069034 = {
+	name = "ze Švábenic"
+	culture = "bohemian"
+}
+1069035 = {
+	name = "z Ojnic"
+	culture = "bohemian"
+}
+1069036 = {
+	name = "z Hodic"
+	culture = "bohemian"
+	religion = "catholic"
+}
+1069037 = {
+	name = "z Drnovic"
+	culture = "bohemian"
+	religion = "catholic"
+}
+1069038 = {
+	name = "z Prusinovic"
+	culture = "bohemian"
+}
+1069039 = {
+	name = "z Víckova"
+	culture = "bohemian"
+	religion = "catholic"
+}
+
+1069040 = {
+	name="Kopciansky"
+	culture="slovieni"
+}
+1069041 = {
+	name="Jasenovsky"
+	culture="slovieni"
+}
+1069042 = {
+	name="Smolenicky"
+	culture="slovieni"
+}
+1069043 = {
+	name="Detvansky"
+	culture="slovieni"
+}
+1069044 = {
+	name="Majcichovsky"
+	culture="slovieni"
+}
+1069045 = {
+	name="Tekovsky"
+	culture="slovieni"
+}
+1069046 = {
+	name="Kubinsky"
+	culture="slovieni"
+}
+1069047 = {
+	name="Pobedimsky"
+	culture="slovieni"
+}
+1069048 = {
+	name="Mikulcicky"
+	culture="slovieni"
+}
+1069049 = {
+	name="Pohansky"
+	culture="slovieni"
+	religion="slavic_pagan"
+}
+1069050 = {
+	name="Divinsky"
+	culture="slovieni"
+}
+1069051 = {
+	name="Ducovsky"
+	culture="slovieni"
+}
+1069052 = {
+	name="Bojnicky"
+	culture="slovieni"
+}
+1069053 = {
+	name="Devínsky"
+	culture="slovieni"
+}
+1069054 = {
+	name="Ostrihomský"
+	culture="slovieni"
+}
+1069055 = {
+	name="Kocelid"
+	culture="slovieni"
+}
+1069056 = {
+	name="z Modré"
+	culture="slovieni"
+}
+1069057 = {
+	name="z Hradiste"
+	culture="slovieni"
+}
+1069058 = {
+	name="Velehradský"
+	culture="slovieni"
+}
+1069059 = {
+	name="Veligradský"
+	culture="slovieni"
+}
+1069060 = {
+	name="Videnský"
+	culture="slovieni"
+}
+1069061 = {
+	name="Rastislavid"
+	culture="slovieni"
+}
+1069062 = {
+	name="Slavomírid"
+	culture="slovieni"
+}
+1069063 = {
+	name="Braslavid"
+	culture="slovieni"
+}
+1069064 = {
+	name="Blatnohradský"
+	culture="slovieni"
+}
+1069065 = {
+	name="Beckovský"
+	culture="slovieni"
+}
+1069066 = {
+	name="Zemplínský"
+	culture="slovieni"
+}
+1069067 = {
+	name="Tematínský"
+	culture="slovieni"
+}
+1069068 = {
+	name="Kostolanský"
+	culture="slovieni"
+}
+1069069 = {
+	name="Bratislavský"
+	culture="slovieni"
+}
+1069070 = {
+	name="Tunavský"
+	culture="slovieni"
+}
+1069071 = {
+	name="Budínský"
+	culture="slovieni"
+}
+1069072 = {
+	name="Munic"
+	culture="bohemian"
+}
+1069073 = {
+	name="Teptic"
+	culture="bohemian"
+}
+1069074 = {
+	name="z Loun"
+	culture="bohemian"
+	religion="slavic_pagan"
+}
+1069075 = {
+	name="Chropynský"
+	culture=slovieni
+	religion="catholic"
+}
+1069076 = {
+	name="Vitorazský"
+	culture=slovieni
+}
+1069077={
+	name="Temes"
+	culture="romanian"
+	religion="pagan"
+}
+1069080 = {
+	name="Lamtuna"
+	culture = maghreb_arabic
+	religion = sunni
+}
+1069081 = {
+	name="Banu Rand"
+	culture = maghreb_arabic
+	religion = sunni
+}
+1069082 = {
+	name="Lamta"
+	culture = maghreb_arabic
+	religion = sunni
+}
+1069083 = {
+	name="Tamtust"
+	culture = maghreb_arabic
+	religion = sunni
+}
+1069084 = {
+	name="Guddâla"
+	culture = maghreb_arabic
+	religion = sunni
+}
+1069085 = {
+	name="Gazzula"
+	culture = maghreb_arabic
+	religion = sunni
+}
+1069086 = {
+	name="Tânmak"   
+	culture = maghreb_arabic
+	religion = ibadi
+}
+1069087 = {
+	name="al-Jazzúlí"   
+	culture = maghreb_arabic
+	religion = sunni
+}
+1069088 = {
+	name="Massufa"   
+	culture = maghreb_arabic
+	religion = kharijite
+}
+1069089 = {
+	name="Ghusti"   
+	culture = maghreb_arabic
+	religion = sunni
+}
+1069090 = {
+	name="al-Ma'afiri"   
+	culture = maghreb_arabic 
+	religion = ibadi
+}
+1069091 = {
+	name="al-Mazâtî"   
+	culture = maghreb_arabic 
+	religion = ibadi
+}
+1069092 = {
+	name="Hawwâra"   
+	culture = maghreb_arabic
+	religion = ibadi
+}
+2000000 = {
+	name="Warhorse"
+	culture="horse"
+}
+2000001 = {
+	name="Equus Ferus"
+	culture="horse"
+}
+2000002 = {
+	name="Equidae"
+	culture="horse"
+}
+2000003 = {
+	name="Eohippus"
+	culture="horse"
+}
+2000004 = {
+	name="Wildmane"
+	culture="horse"
+}
+2000005 = {
+	name="Saddle"
+	culture="horse"
+}
+2000006 = {
+	name="Hotblood"
+	culture="horse"
+}
+2000007 = {
+	name="Drafthorse"
+	culture="horse"
+}
+2000008 = {
+	name="Gelding"
+	culture="horse"
+}
+2000009 = {
+	name="Colt"
+	culture="horse"
+}
+2000010 = {
+	name="Pony"
+	culture="horse"
+}
+2000011 = {
+	name="Falabella"
+	culture="horse"
+}
+2000012 = {
+	name="Chestnut"
+	culture="horse"
+}
+2000013 = {
+	name="Sorrel"
+	culture="horse"
+}
+2000014 = {
+	name="Grazer"
+	culture="horse"
+}
+2000015 = {
+	name="Trotter"
+	culture="horse"
+}
+2000016 = {
+	name="Pacer"
+	culture="horse"
+}
+2000017 = {
+	name="Canter"
+	culture="horse"
+}
+2000018 = {
+	name="Galop"
+	culture="horse"
+}
+2000019 = {
+	name="Quagga"
+	culture="horse"
+}
+2000020 = {
+	name="Mule"
+	culture="horse"
+}
+2000021 = {
+	name="Hinny"
+	culture="horse"
+}
+2000022 = {
+	name="Sleipnir"
+	culture="horse"
+}
+2000023 = {
+	name="Bit"
+	culture="horse"
+}
+2000024 = {
+	name="Bolting"
+	culture="horse"
+}
+2000025 = {
+	name="Bridle"
+	culture="horse"
+}
+2000026 = {
+	name="Broodmare"
+	culture="horse"
+}
+2000027 = {
+	name="Bucking"
+	culture="horse"
+}
+2000028 = {
+	name="Coldback"
+	culture="horse"
+}
+2000029 = {
+	name="Farrier"
+	culture="horse"
+}
+2000030 = {
+	name="Sire"
+	culture="horse"
+}
+2000031 = {
+	name="Furlong"
+	culture="horse"
+}
+2000032 = {
+	name="Halter"
+	culture="horse"
+}
+2000033 = {
+	name="Neigh"
+	culture="horse"
+}
+2000034 = {
+	name="Whinny"
+	culture="horse"
+}
+2000035 = {
+	name="Outlaw"
+	culture="horse"
+}
+2000036 = {
+	name="Shying"
+	culture="horse"
+}
+2000037 = {
+	name="Stride"
+	culture="horse"
+}
+2000038 = {
+	name="Ursus"
+	culture="bear"
+}
+2000039 = {
+	name="Paw"
+	culture="bear"
+}
+2000040 = {
+	name="Claw"
+	culture="bear"
+}
+2000041 = {
+	name="Growler"
+	culture="bear"
+}
+2000042 = {
+	name="Muncher"
+	culture="bear"
+}
+2000043 = {
+	name="Ide"
+	culture="bear"
+}
+2000044 = {
+	name="Sealchomper"
+	culture="bear"
+}
+2000045 = {
+	name="Brown"
+	culture="bear"
+}
+2000046 = {
+	name="Ours"
+	culture="bear"
+}
+2000047 = {
+	name="Ursidae"
+	culture="bear"
+}
+2000048 = {
+	name="Snout"
+	culture="bear"
+}
+2000049 = {
+	name="Bera"
+	culture="bear"
+}
+2000050 = {
+	name="Bear"
+	culture="bear"
+}
+2000051 = {
+	name="Arctoidea"
+	culture="bear"
+}
+2000052 = {
+	name="Helarctos"
+	culture="bear"
+}
+2000053 = {
+	name="Ursa"
+	culture="bear"
+}
+2000054 = {
+	name="BÃ¤r"
+	culture="bear"
+}
+2000055 = {
+	name="Metal"
+	culture="bear"
+}
+2000056 = {
+	name="Bearclaw"
+	culture="bear"
+}
+2000057 = {
+	name="Elisha"
+	culture="bear"
+}
+2000058 = {
+	name="Jaws"
+	culture="bear"
+}
+2000059 = {
+	name="Threebear"
+	culture="bear"
+}
+2000060 = {
+	name="Teddy"
+	culture="bear"
+}
+2000061 = {
+	name="Moon"
+	culture="bear"
+}
+2000062 = {
+	name="Sun"
+	culture="bear"
+}
+2000063 = {
+	name="Digger"
+	culture="bear"
+}
+2000064 = {
+	name="Dancer"
+	culture="bear"
+}
+2000065 = {
+	name="Carnivora"
+	culture="bear"
+}
+2000066 = {
+	name="Shaggy"
+	culture="bear"
+}
+2000067 = {
+	name="Den"
+	culture="bear"
+}
+2000068 = {
+	name="Fur"
+	culture="bear"
+}
+2000069 = {
+	name="Cave"
+	culture="bear"
+}
+2000070 = {
+	name="Baconi"
+	culture="bear"
+}
+2000071 = {
+	name="Katturan"
+	culture="cat"
+}
+2000072 = {
+	name="Kitten"
+	culture="cat"
+}
+2000073 = {
+	name="Felix"
+	culture="cat"
+}
+2000074 = {
+	name="Feline"
+	culture="cat"
+}
+2000075 = {
+	name="Felis Catus"
+	culture="cat"
+}
+2000076 = {
+	name="Feral"
+	culture="cat"
+}
+2000077 = {
+	name="Felidae"
+	culture="cat"
+}
+2000078 = {
+	name="Furry"
+	culture="cat"
+}
+2000079 = {
+	name="Vermin"
+	culture="cat"
+}
+2000080 = {
+	name="Lion"
+	culture="cat"
+}
+2000081 = {
+	name="Tiger"
+	culture="cat"
+}
+2000082 = {
+	name="Leopard"
+	culture="cat"
+}
+2000083 = {
+	name="Cat"
+	culture="cat"
+}
+2000084 = {
+	name="Pusekatt"
+	culture="cat"
+}
+2000085 = {
+	name="Wildcat"
+	culture="cat"
+}
+2000086 = {
+	name="Ratcatcher"
+	culture="cat"
+}
+2000087 = {
+	name="Dewclaw"
+	culture="cat"
+}
+2000088 = {
+	name="Jumper"
+	culture="cat"
+}
+2000089 = {
+	name="Night"
+	culture="cat"
+}
+2000090 = {
+	name="Ears"
+	culture="cat"
+}
+2000091 = {
+	name="Manx"
+	culture="cat"
+}
+2000092 = {
+	name="Purr"
+	culture="cat"
+}
+2000093 = {
+	name="Hiss"
+	culture="cat"
+}
+2000094 = {
+	name="Meow"
+	culture="cat"
+}
+2000095 = {
+	name="Jaguar"
+	culture="cat"
+}
+2000096 = {
+	name="Hairball"
+	culture="cat"
+}
+2000097 = {
+	name="Tabby"
+	culture="cat"
+}
+2000098 = {
+	name="Stalker"
+	culture="cat"
+}
+2000099 = {
+	name="Familiar"
+	culture="cat"
+}
+2000100 = {
+	name="Freyja"
+	culture="cat"
+}
+2000101 = {
+	name="Atelerix"
+	culture="hedgehog_culture"
+}
+2000102 = {
+	name="Erinaceus"
+	culture="hedgehog_culture"
+}
+2000103 = {
+	name="Hemiechinus"
+	culture="hedgehog_culture"
+}
+2000104 = {
+	name="Mesechinus"
+	culture="hedgehog_culture"
+}
+2000105 = {
+	name="Paraechinus"
+	culture="hedgehog_culture"
+}
+2000106 = {
+	name="Deinogalerix"
+	culture="hedgehog_culture"
+}
+2000107 = {
+	name="Echinosorex"
+	culture="hedgehog_culture"
+}
+2000108 = {
+	name="Hylomys"
+	culture="hedgehog_culture"
+}
+2000109 = {
+	name="Neohylomys"
+	culture="hedgehog_culture"
+}
+2000110 = {
+	name="Neotetracus"
+	culture="hedgehog_culture"
+}
+2000111 = {
+	name="Podogymnura"
+	culture="hedgehog_culture"
+}
+2000112 = {
+	name="Talpidae"
+	culture="hedgehog_culture"
+}
+2000113 = {
+	name="Soricidae"
+	culture="hedgehog_culture"
+}
+2000114 = {
+	name="Pholidocercus"
+	culture="hedgehog_culture"
+}
+2000115 = {
+	name="Silvacola"
+	culture="hedgehog_culture"
+}
+2000116 = {
+	name="Erinaceinae"
+	culture="hedgehog_culture"
+}
+2000117 = {
+	name="Amphechinus"
+	culture="hedgehog_culture"
+}
+2000118 = {
+	name="Scutisorex"
+	culture="hedgehog_culture"
+}
+2000119 = {
+	name="Crocidura"
+	culture="hedgehog_culture"
+}
+2000120 = {
+	name="Diplomesodon"
+	culture="hedgehog_culture"
+}
+2000121 = {
+	name="Paracrocidura"
+	culture="hedgehog_culture"
+}
+2000122 = {
+	name="Ruwenzorisorex"
+	culture="hedgehog_culture"
+}
+2000123 = {
+	name="Solisorex"
+	culture="hedgehog_culture"
+}
+2000124 = {
+	name="Sylvisorex"
+	culture="hedgehog_culture"
+}
+2000125 = {
+	name="Eulipotyphla"
+	culture="hedgehog_culture"
+}
+2000126 = {
+	name="Congosorex"
+	culture="hedgehog_culture"
+}
+2000127 = {
+	name="Myosorex"
+	culture="hedgehog_culture"
+}
+2000128 = {
+	name="Surdisorex"
+	culture="hedgehog_culture"
+}
+2000129 = {
+	name="Chimarrogale"
+	culture="hedgehog_culture"
+}
+2000130 = {
+	name="Chodsigoa"
+	culture="hedgehog_culture"
+}
+
+2000131 = {
+	name="von Duckington"
+	culture="duck_culture"
+}
+2000131 = {
+	name="mcDucker"
+	culture="duck_culture"
+}
+2000132 = {
+	name="Neochen"
+	culture="duck_culture"
+}
+2000133 = {
+	name="Chloephaga"
+	culture="duck_culture"
+}
+2000134 = {
+	name="Cyanochen"
+	culture="duck_culture"
+}
+2000135 = {
+	name="Tadorna"
+	culture="duck_culture"
+}
+2000136 = {
+	name="Radjah"
+	culture="duck_culture"
+}
+2000137 = {
+	name="Alopochen"
+	culture="duck_culture"
+}
+2000138 = {
+	name="Cairina"
+	culture="duck_culture"
+}
+2000139 = {
+	name="Duckling"
+	culture="duck_culture"
+}
+2000140 = {
+	name="Tachyeres"
+	culture="duck_culture"
+}
+2000141 = {
+	name="Aix"
+	culture="duck_culture"
+}
+2000142 = {
+	name="Callonetta"
+	culture="duck_culture"
+}
+2000143 = {
+	name="Chenonetta"
+	culture="duck_culture"
+}
+2000144 = {
+	name="Biziura"
+	culture="duck_culture"
+}
+2000145 = {
+	name="Pteronetta"
+	culture="duck_culture"
+}
+2000146 = {
+	name="Marmaronetta"
+	culture="duck_culture"
+}
+2000147 = {
+	name="Asarcornis"
+	culture="duck_culture"
+}
+2000148 = {
+	name="Netta"
+	culture="duck_culture"
+}
+2000149 = {
+	name="Lophonetta"
+	culture="duck_culture"
+}
+2000150 = {
+	name="Amazonetta"
+	culture="duck_culture"
+}
+2000151 = {
+	name="Dunstanetta"
+	culture="duck_culture"
+}
+2000152 = {
+	name="Oxyurini"
+	culture="duck_culture"
+}
+
+2000153 = {
+	name="Houndyr"
+	culture="dog_culture"
+}
+2000154 = {
+	name="Affenpinecher"
+	culture="dog_culture"
+}
+2000155 = {
+	name="Braccus"
+	culture="dog_culture"
+}
+2000156 = {
+	name="Bracco"
+	culture="dog_culture"
+}
+2000157 = {
+	name="Eekimo"
+	culture="dog_culture"
+}
+2000158 = {
+	name="Sheperd"
+	culture="dog_culture"
+}
+2000159 = {
+	name="Appenzeller"
+	culture="dog_culture"
+}
+2000160 = {
+	name="Coonhound"
+	culture="dog_culture"
+}
+2000161 = {
+	name="Bichon"
+	culture="dog_culture"
+}
+2000162 = {
+	name="Bluetick"
+	culture="dog_culture"
+}
+2000163 = {
+	name="Barbet"
+	culture="dog_culture"
+}
+2000164 = {
+	name="Boxer"
+	culture="dog_culture"
+}
+2000165 = {
+	name="Canaan"
+	culture="dog_culture"
+}
+2000166 = {
+	name="Corso"
+	culture="dog_culture"
+}
+2000167 = {
+	name="Spaniel"
+	culture="dog_culture"
+}
+2000168 = {
+	name="Chinook"
+	culture="dog_culture"
+}
+2000169 = {
+	name="Collie"
+	culture="dog_culture"
+}
+2000170 = {
+	name="Setter"
+	culture="dog_culture"
+}
+2000171 = {
+	name="Dane"
+	culture="dog_culture"
+}
+2000172 = {
+	name="Pinscher"
+	culture="dog_culture"
+}
+2000173 = {
+	name="Labradoodle"
+	culture="dog_culture"
+}
+2000174 = {
+	name="Labrador"
+	culture="dog_culture"
+}
+2000175 = {
+	name="Terrier"
+	culture="dog_culture"
+}
+2000176 = {
+	name="Loenberger"
+	culture="dog_culture"
+}
+2000176 = {
+	name="Maltese"
+	culture="dog_culture"
+}
+2000176 = {
+	name="Maltipoo"
+	culture="dog_culture"
+}
+
+2000177 = {
+	name="Noighyd"
+	culture="dragon_culture"
+}
+2000178 = {
+	name="Grautarrein"
+	culture="dragon_culture"
+}
+2000179 = {
+	name="Rackart"
+	culture="dragon_culture"
+}
+2000180 = {
+	name="Colichir"
+	culture="dragon_culture"
+}
+2000181 = {
+	name="Carrafyrt"
+	culture="dragon_culture"
+}
+2000182 = {
+	name="Draokoran"
+	culture="dragon_culture"
+}
+2000183 = {
+	name="Eorikamat"
+	culture="dragon_culture"
+}
+2000184 = {
+	name="Seserriff"
+	culture="dragon_culture"
+}
+2000185 = {
+	name="Vilisynther"
+	culture="dragon_culture"
+}
+2000186 = {
+	name="Vorcasymath"
+	culture="dragon_culture"
+}
+2000187 = {
+	name="Dragaret"
+	culture="dragon_culture"
+}
+2000188 = {
+	name="Kerokarvar"
+	culture="dragon_culture"
+}
+2000189 = {
+	name="Kytrapan"
+	culture="dragon_culture"
+}
+2000190 = {
+	name="Kosorrat"
+	culture="dragon_culture"
+}
+
+2000191 = {
+	name="Anka"
+	culture="duck_culture"
+}
+2000192 = {
+	name="Dununge"
+	culture="duck_culture"
+}
+2000193 = {
+	name="Doggo"
+	culture="dog_culture"
+}
+2000194 = {
+	name="Jellicle"
+	culture="cat"
+}
+2000195 = {
+	name="Heavyside"
+	culture="cat"
+}
+2000196 = {
+	name="Pollicle"
+	culture="dog_culture"
+}
+2000197 = {
+	name="Malta"
+	culture="duck_culture"
+}
+2000198 = {
+	name="Cakeduck"
+	culture="duck_culture"
+}
+2000199 = {
+	name="Goodboye"
+	culture="dog_culture"
+}
+2000200 = {
+	name="Woofer"
+	culture="dog_culture"
+}
+2000201 = {
+	name="Bork"
+	culture="dog_culture"
+}
+2000202 = {
+	name="Dog"
+	culture="dog_culture"
+}
+2000203 = {
+	name="Quackel"
+	culture="duck_culture"
+}
+2000204 = {
+	name="Boy"
+	culture="dog_culture"
+}
+2000205 = {
+	name="Girl"
+	culture="dog_culture"
+}
+2000206 = {
+	name="Pupper"
+	culture="dog_culture"
+}
+2000207 = {
+	name="Puppy"
+	culture="dog_culture"
+}
+2000208 = {
+	name="Yeller"
+	culture="dog_culture"
+}
+2000209 = {
+	name="Runner"
+	culture="duck_culture"
+}
+2000210 = {
+	name="Callduck"
+	culture="duck_culture"
+}
+2000211 = {
+	name="Mallard"
+	culture="duck_culture"
+}
+2000212 = {
+	name="O'Malley"
+	culture="cat"
+}
+2000213 = {
+	name="Pala"
+	culture="elephant_culture"
+}
+2000214 = {
+	name="Lambakanna"
+	culture="elephant_culture"
+}
+2000215 = {
+	name="Mlechchha"
+	culture="elephant_culture"
+}
+2000216 = {
+	name="Rashtrakuta"
+	culture="elephant_culture"
+}
+2000217 = {
+	name="Habbari"
+	culture="elephant_culture"
+}
+2000218 = {
+	name="Shahi"
+	culture="elephant_culture"
+}
+2000219 = {
+	name="Pallava"
+	culture="elephant_culture"
+}
+2000220 = {
+	name="Doot"
+	culture="elephant_culture"
+}
+2000221 = {
+	name="Marely"
+	culture="horse"
+}
+2000222 = {
+	name="Hoofington"
+	culture="horse"
+}
+2000223 = {
+	name="Neighthorpe"
+	culture="horse"
+}
+2000224 = {
+	name="Foaley"
+	culture="horse"
+}
+2000225 = {
+	name="Rum"
+	culture="horse"
+}
+2000226 = {
+	name="Marquis"
+	culture="horse"
+}
+2000227 = {
+	name="Versailles"
+	culture="horse"
+}
+2000228 = {
+	name="Chestnut"
+	culture="horse"
+}
+2000229 = {
+	name="Lipizzaner"
+	culture="horse"
+}
+2000230 = {
+	name="Appaloosa"
+	culture="horse"
+}
+2000231 = {
+	name="Shetlands"
+	culture="horse"
+}
+2000232 = {
+	name="Scottish Folds"
+	culture="cat"
+	
+}
+2000233 = {
+	name="Maine Coons"
+	culture="cat"
+	
+}
+2000234 = {
+	name="Sphynxes"
+	culture="cat"
+	
+}
+2000235 = {
+	name="Tabby"
+	culture="cat"
+	
+}
+2000236 = {
+	name="Tom"
+	culture="cat"
+	
+}
+2000237 = {
+	name="-in-Boots"
+	culture="cat"
+	
+}
+2000238 = {
+	name="Meow"
+	culture="cat"
+	
+}
+2000239 = {
+	name="Fivewhiskers"
+	culture="cat"
+	
+}
+2000240 = {
+	name="Rateater"
+	culture="cat"
+	
+}
+2000241 = {
+	name="Critterkiller"
+	culture="cat"
+	
+}
+2000242 = {
+	name="Naps-in-Shade"
+	culture="cat"
+	
+}
+2000243 = {
+	name="Bramblepelt"
+	culture="cat"
+	
+}
+2000244 = {
+	name="Ay"
+	culture="cat"
+	
+}
+2000245 = {
+	name="Bahari"
+	culture="cat"
+	
+}
+2000246 = {
+	name="von Furrington"
+	culture="cat"
+	
+}
+2000247 = {
+	name="Threebear"
+	culture="bear"
+	
+}
+2000248 = {
+	name="BjÃ¶rnsson"
+	culture="bear"
+	
+}
+2000249 = {
+	name="Brown"
+	culture="bear"
+	
+}
+2000250 = {
+	name="Black"
+	culture="bear"
+	
+}
+2000251 = {
+	name="Thorn"
+	culture="hedgehog_culture"
+	
+}
+2000252 = {
+	name="Prickles"
+	culture="hedgehog_culture"
+	
+}
+2000253 = {
+	name="Floof"
+	culture="hedgehog_culture"
+	
+}
+2000254 = {
+	name="Quill"
+	culture="hedgehog_culture"
+	
+}
+2000255 = {
+	name="Teja"
+	culture="hedgehog_culture"
+	
+}
+2000256 = {
+	name="McDuck"
+	culture="duck_culture"
+	
+}
+2000257 = {
+	name="Flapper"
+	culture="duck_culture"
+	
+}
+2000258 = {
+	name="Honker"
+	culture="duck_culture"
+	
+}
+2000259 = {
+	name="Anka"
+	culture="duck_culture"
+	
+}
+2000260 = {
+	name="Goodboy"
+	culture="dog_culture"
+	
+}
+2000261 = {
+	name="Baskerville"
+	culture="dog_culture"
+	
+}
+2000262 = {
+	name="McDogface"
+	culture="dog_culture"
+	
+}
+2000263 = {
+	name="Howler"
+	culture="dog_culture"
+	
+}
+2000264 = {
+	name="Pawser"
+	culture="dog_culture"
+	
+}
+2000265 = {
+	name="Goldenboi"
+	culture="dog_culture"
+	
+}
+2000266 = {
+	name="Woofington"
+	culture="dog_culture"
+	
+}
+2000267 = {
+	name="Blepper"
+	culture="dog_culture"
+	
+}
+2000268 = {
+	name="von Sploot"
+	culture="dog_culture"
+	
+}
+2000269 = {
+	name="Tusk"
+	culture="elephant_culture"
+	
+}
+2000270 = {
+	name="Ivory"
+	culture="elephant_culture"
+	
+}
+2000271 = {
+	name="Rumbler"
+	culture="elephant_culture"
+	
+}
+2000272 = {
+	name="Haathee"
+	culture="elephant_culture"
+	
+}
+2000273 = {
+	name="of the Skies"
+	culture="dragon_culture"
+	
+}
+2000274 = {
+	name="of the Earths"
+	culture="dragon_culture"
+	
+}
+2000275 = {
+	name="of the Waters"
+	culture="dragon_culture"
+	
+}
+2000276 = {
+	name="of the Fires"
+	culture="dragon_culture"
+	
+}
+2000277 = {
+	name="of the Stars"
+	culture="dragon_culture"
+	
+}
+2000278 = {
+	name="of the Moon"
+	culture="dragon_culture"
+	
+}
+2000279 = {
+	name="of the Sun"
+	culture="dragon_culture"
+	
+}
+2000280 = {
+	name="McÂ’scale"
+	culture="dragon_culture"
+	
+}
+2000281 = {
+	name="Rainbowscale"
+	culture="dragon_culture"
+	
+}
+2000282 = {
+	name="Goldscale"
+	culture="dragon_culture"
+	
+}
+2000283 = {
+	name="Goldclaw"
+	culture="dragon_culture"
+	
+}
+2000284 = {
+	name="Gemhide"
+	culture="dragon_culture"
+	
+}
+
+2000300 = {
+	name="Pandolf"
+	culture="red_panda"
+}
+
+2000301 = { 
+	name="Red"
+	culture="red_panda"
+}
+
+2000302 = { 
+	name="Pandulf"
+	culture="red_panda"
+}
+
+2000303 = { 
+	name="Bushytail"
+	culture="red_panda"
+}
+
+2000304 = { 
+	name="Snuggler"
+	culture="red_panda"
+}
+
+2000305 = { 
+	name="Bamboo"
+	culture="red_panda"
+}
+
+2000306 = { 
+	name="Leaf"
+	culture="red_panda"
+}
+
+2000307 = { 
+	name="Rust"
+	culture="red_panda"
+}
+
+2000308 = { 
+	name="Fire-Fox"
+	culture="red_panda"
+}
+
+2000309 = { 
+	name="Ponya"
+	culture="red_panda"
+}
+
+2000310 = { 
+	name="Ailuridae"
+	culture="red_panda"
+}
+
+2000311 = { 
+	name="Bear-Raccoon"
+	culture="red_panda"
+}
+
+2000312 = { 
+	name="Ã…kerblom"
+	culture="red_panda"
+}
+
+2000313 = { 
+	name="Pandamonium"
+	culture="red_panda"
+}
+
+2000314 = { 
+	name="Ailurus Fulgens"
+	culture="red_panda"
+}
+
+2000315 = { 
+	name="Hun-Ho"
+	culture="red_panda"
+}
+
+2000316 = { 
+	name="Styani"
+	culture="red_panda"
+}
+
+2000317 = { 
+	name="Sak Nam"
+	culture="red_panda"
+}
+
+2000318 = { 
+	name="Bhalu Biralo"
+	culture="red_panda"
+}
+
+2000319 = { 
+	name="Habre"
+	culture="red_panda"
+}
+
+2000320 = { 
+	name="Ye Niglva Ponva"
+	culture="red_panda"
+}
+
+20003201 = { 
+	name="Wah Donka"
+	culture="red_panda"
+}
+
+2000322 = { 
+	name="Kaala"
+	culture="red_panda"
+}
+
+2000323 = { 
+	name="Hoptongar"
+	culture="red_panda"
+}
+
+2000324 = { 
+	name="Oakdonga"
+	culture="red_panda"
+}
+
+2000325 = { 
+	name="XiaoxiÃ³ngmao"
+	culture="red_panda"
+}
+
+2000326 = { 
+	name="HÃ³ngxiÃ³ngmao"
+	culture="red_panda"
+}
+
+2000327 = { 
+	name="Fire-Cat"
+	culture="red_panda"
+}
+
+2000328 = { 
+	name="Red-Cat"
+	culture="red_panda"
+}
+
+2000329 = { 
+	name="Fox-Bear"
+	culture="red_panda"
+}
+
+2000330 = { 
+	name="Bright-Panda"
+	culture="red_panda"
+}
+
+2000331 = { 
+	name="Himalaya"
+	culture="red_panda"
+}
+
+2000332 = { 
+	name="Claws"
+	culture="red_panda"
+}
+
+2000333 = { 
+	name="Blep"
+	culture="red_panda"
+}
+
+2000334 = { 
+	name="Adorable"
+	culture="red_panda"
+}
+
+2000335 = { 
+	name="Fable"
+	culture="red_panda"
+}
+
+2000336 = { 
+	name="Mo"
+	culture="red_panda"
+}
+
+2000337 = { 
+	name="Cuvier"
+	culture="red_panda"
+}
+
+2000338 = { 
+	name="Blaze"
+	culture="red_panda"
+}
+
+2000339 = { 
+	name="Glow"
+	culture="red_panda"
+}
+
+2000340 = { 
+	name="Megachonker"
+	culture="cat"
+}

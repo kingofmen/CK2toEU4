@@ -1618,7 +1618,9 @@ void Converter::setDynastyNames (Object* dynastyNames) {
 
   Object* gameDynasties = ck2Game->safeGetObject("dynasties");
   if (!gameDynasties) {
-    Logger::logStream(LogStream::Warn) << "Warning: Could not find dynasties object. Proceeding with foreboding.\n";
+    Logger::logStream(LogStream::Warn) << "Warning: Could not find dynasties "
+                                          "object. Proceeding with "
+                                          "foreboding.\n";
     return;
   }
 
