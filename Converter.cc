@@ -3007,7 +3007,11 @@ string getFullName (CK2Character* character) {
   return addQuotes(name);
 }
 
-void addPersonality(objvec& personalities, CK2Character* ck2char, Object* eu4char) {
+void addPersonality(objvec& personalities, CK2Character* ck2char,
+                    Object* eu4char, bool general = false) {
+  if (personalities.empty()) {
+    return;
+  }
   Object* best_personality = nullptr;
   int best_score = 0;
   map<string, int> points;
@@ -3032,8 +3036,12 @@ void addPersonality(objvec& personalities, CK2Character* ck2char, Object* eu4cha
     points = curr_points;
   }
   if (best_personality != nullptr) {
-    eu4char->getNeededObject("personalities")
-        ->setLeaf(best_personality->getKey(), "yes");
+    if (general) {
+      eu4char->resetLeaf("personality", best_personality->getKey());
+    } else {
+      eu4char->getNeededObject("personalities")
+          ->setLeaf(best_personality->getKey(), "yes");
+    }
     Logger::logStream("characters")
         << "Personality " << best_personality->getKey() << " from ";
     for (const auto& point : points) {
@@ -3169,8 +3177,10 @@ Object* Converter::makeMonarch(const string& capitalTag, CK2Character* ruler,
   return monarchDef;
 }
 
-Object* createLeader(CK2Character* base, const string& leaderType,
-                     const objvec& generalSkills, const string& birthDate) {
+Object* Converter::createLeaderObject(CK2Character* base,
+                                      const string& leaderType,
+                                      const objvec& generalSkills,
+                                      const string& activationDate) {
   Object* leader = new Object("leader");
   leader->setLeaf("name", getFullName(base));
   leader->setLeaf("type", leaderType);
@@ -3192,13 +3202,16 @@ Object* createLeader(CK2Character* base, const string& leaderType,
     Logger::logStream("characters") << "\n";
   }
   auto personalities = euLeaderTraits->getNeededObject(leaderType)->getLeaves();
-  addPersonality(personalities, base, leader);
-  leader->setLeaf("activation", birthDate);
+  addPersonality(personalities, base, leader, true);
+  leader->setLeaf("activation", activationDate);
+  leader->setLeaf("birth_date",
+                  getConversionDate(remQuotes(base->safeGetString(
+                      birthDateString, addQuotes(gameDate)))));
   return leader;
 }
 
 bool Converter::makeAdvisor(CK2Character* councillor, Object* country_advisors,
-                            objvec& advisorTypes, string& birthDate,
+                            objvec& advisorTypes, string& activationDate,
                             Object* history, string capitalTag,
                             map<string, objvec>& allAdvisors) {
   static unordered_set<string> existing_advisors;
@@ -3261,7 +3274,7 @@ bool Converter::makeAdvisor(CK2Character* councillor, Object* country_advisors,
   advisor->setLeaf("female", councillor->safeGetString(femaleString, "no"));
   Object* id = createTypedId("advisor", "51");
   advisor->setValue(id);
-  Object* birth = new Object(birthDate);
+  Object* birth = new Object(activationDate);
   birth->setValue(advisor);
   history->setValue(birth);
   Object* active = new Object(id);
@@ -3272,14 +3285,15 @@ bool Converter::makeAdvisor(CK2Character* councillor, Object* country_advisors,
 
 void Converter::makeLeader(Object* eu4country, const string& leaderType,
                            CK2Character* base, const objvec& generalSkills,
-                           const string& birthDate) {
-  Object* leader = createLeader(base, leaderType, generalSkills, birthDate);
+                           const string& activationDate) {
+  Object* leader =
+      createLeaderObject(base, leaderType, generalSkills, activationDate);
   Object* id = createTypedId("leader", "49");
   leader->setValue(id);
   Object* active = new Object(id);
   active->setKey("leader");
   eu4country->setValue(active);
-  Object* birth = new Object(birthDate);
+  Object* birth = new Object(activationDate);
   birth->setValue(leader);
   eu4country->getNeededObject("history")->setValue(birth);
 }
@@ -3293,7 +3307,7 @@ bool Converter::createCharacters () {
   map<string, objvec> allAdvisors;
   objvec advisorTypes = advisorTypesObject->getLeaves();
   objvec generalSkills = configObject->getNeededObject("generalSkills")->getLeaves();
-  string birthDate = eu4Game->safeGetString("date", "1444.11.11");
+  string activationDate = eu4Game->safeGetString("date", "1444.11.11");
 
   int numAdvisors = 0;
   for (auto* eu4country : EU4Country::getAll()) {
@@ -3346,7 +3360,7 @@ bool Converter::createCharacters () {
       if (!councillor) {
         continue;
       }
-      if (makeAdvisor(councillor, country_advisors, advisorTypes, birthDate,
+      if (makeAdvisor(councillor, country_advisors, advisorTypes, activationDate,
                       history, capitalTag, allAdvisors)) {
         ++numAdvisors;
       }
@@ -3357,7 +3371,7 @@ bool Converter::createCharacters () {
       for (auto* courtier : advisor.second) {
         Logger::logStream("characters")
             << key << ": " << nameAndNumber(courtier);
-        if (makeAdvisor(courtier, country_advisors, advisorTypes, birthDate,
+        if (makeAdvisor(courtier, country_advisors, advisorTypes, activationDate,
                         history, capitalTag, allAdvisors)) {
           numAdvisors++;
         }
@@ -3387,7 +3401,7 @@ bool Converter::createCharacters () {
     if (bestGeneral) {
       Logger::logStream("characters") << LogOption::Indent;
       makeLeader(eu4country->object, string("general"), bestGeneral,
-                 generalSkills, birthDate);
+                 generalSkills, activationDate);
       Logger::logStream("characters") << LogOption::Undent;
     }
 
@@ -3397,7 +3411,7 @@ bool Converter::createCharacters () {
     if (admiral) {
       Logger::logStream("characters") << LogOption::Indent;
       makeLeader(eu4country->object, string("admiral"), admiral,
-                 generalSkills, birthDate);
+                 generalSkills, activationDate);
       Logger::logStream("characters") << LogOption::Undent;
     }
 
@@ -5794,7 +5808,7 @@ bool Converter::warsAndRebels () {
 
   Object* cbConversion = configObject->getNeededObject("rebel_faction_types");
   before = eu4Game->safeGetObject("religions");
-  string birthDate = eu4Game->safeGetString("date", "1444.11.11");
+  string activationDate = eu4Game->safeGetString("date", "1444.11.11");
   objvec generalSkills = configObject->getNeededObject("generalSkills")->getLeaves();
 
   for (auto* cand : rebelCandidates) {
@@ -5869,7 +5883,8 @@ bool Converter::warsAndRebels () {
           << "Independence target is " << revolter->getKey() << ".\n";
     }
     eu4Game->setValue(faction, before);
-    Object* general = createLeader(ckRebel, "general", generalSkills, birthDate);
+    Object* general =
+        createLeaderObject(ckRebel, "general", generalSkills, activationDate);
     general->setKey("general");
     faction->setValue(general);
     Object* id = createTypedId("leader", "49");

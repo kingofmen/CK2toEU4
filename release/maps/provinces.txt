@@ -597,7 +597,6 @@ c_krain = 129 # Krain - Krain
 c_pettau = 129 # Pettau - Krain
 c_pettau = 4751 # Pettau - Cilli
 
-c_aquileia = 1769 # Aquileia - Görz
 c_aquileia = 4738 # Aquileia - Triest
 
 # Switzerland
@@ -851,10 +850,9 @@ c_traungau = 4761 # Traungau - Traungau
 c_leoben = 132 # Leoben - Steiermark
 
 c_karnten = 128 # Karnten - Karnten
-c_udine = 128 # Udine - Karnten
 c_friesach = 128 # Friesach - Karnten
 
-c_udine = 128 # Udine - Karnten
+c_udine = 1769 # Udine - Görz
 
 c_plzen = 2967 # Plzen - Eger
 c_plzen = 267 # Plzen - Plzen

@@ -109,6 +109,9 @@ private:
   bool makeAdvisor(CK2Character* councillor, Object* country_advisors,
                    objvec& advisorTypes, string& birthDate, Object* history,
                    string capitalTag, map<string, objvec>& allAdvisors);
+  Object* createLeaderObject(CK2Character* base, const string& leaderType,
+                             const objvec& generalSkills,
+                             const string& activationDate);
   void makeLeader(Object* eu4country, const string& keyword, CK2Character* base,
                   const objvec& generalSkills, const string& birthDate);
   Object* makeMonarch(const string& capitalTag, CK2Character* ruler,
