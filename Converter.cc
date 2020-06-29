@@ -3004,8 +3004,11 @@ string getDynastyName (CK2Character* ruler) {
 
 string getFullName (CK2Character* character) {
   string name = remQuotes(character->safeGetString(birthNameString, "Someone"));
-  name += " ";
-  name += remQuotes(getDynastyName(character));
+  // Only add last names for non-lowborns.
+  if (character->safeGetString(dynastyString, PlainNone) != PlainNone) {
+    name += " ";
+    name += remQuotes(getDynastyName(character));
+  }
   return addQuotes(name);
 }
 
