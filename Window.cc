@@ -107,12 +107,14 @@ int main (int argc, char** argv) {
   QAction* dejures = actionMenu->addAction("Dejure lieges");
   QAction* dynastyScore = actionMenu->addAction("Dynastic scores");
   QAction* checkProvinces = actionMenu->addAction("Check provinces");
+  QAction* mergeSaves = actionMenu->addAction("Merge saves");
   QAction* playerWars = actionMenu->addAction("Player wars");
   QAction* statistics = actionMenu->addAction("Statistics");
   QObject::connect(convert, SIGNAL(triggered()), parentWindow, SLOT(convert()));
   QObject::connect(debugParser, SIGNAL(triggered()), parentWindow, SLOT(debugParser()));
   QObject::connect(dynastyScore, SIGNAL(triggered()), parentWindow, SLOT(dynasticScore()));
   QObject::connect(checkProvinces, SIGNAL(triggered()), parentWindow, SLOT(checkProvinces()));
+  QObject::connect(mergeSaves, SIGNAL(triggered()), parentWindow, SLOT(mergeSaves()));
   QObject::connect(playerWars, SIGNAL(triggered()), parentWindow, SLOT(playerWars()));
   QObject::connect(statistics, SIGNAL(triggered()), parentWindow, SLOT(statistics()));
   QObject::connect(dejures, SIGNAL(triggered()), parentWindow, SLOT(dejures()));
@@ -228,6 +230,14 @@ void Window::checkProvinces () {
   }
   Logger::logStream(LogStream::Info) << "Queued up province check.\n";
   worker->scheduleJob(ConverterJob::CheckProvinces);
+}
+
+void Window::mergeSaves () {
+  if (worker) delete worker;
+  worker = new Converter(this, "");
+  Logger::logStream(LogStream::Info) << "Queued up EU4 save merge.\n";
+  worker->scheduleJob(ConverterJob::MergeSaves);
+  worker->start();
 }
 
 void Window::playerWars () {

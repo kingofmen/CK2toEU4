@@ -35,6 +35,8 @@ ConverterJob const *const ConverterJob::DejureLieges =
     new ConverterJob("dejures", false);
 ConverterJob const *const ConverterJob::CheckProvinces =
     new ConverterJob("check_provinces", false);
+ConverterJob const *const ConverterJob::MergeSaves =
+    new ConverterJob("merge_saves", false);
 ConverterJob const *const ConverterJob::LoadFile =
     new ConverterJob("loadfile", false);
 ConverterJob const *const ConverterJob::PlayerWars = 
@@ -97,6 +99,7 @@ void Converter::run () {
       if (ConverterJob::DejureLieges   == job) dejures();
       if (ConverterJob::LoadFile       == job) loadFile();
       if (ConverterJob::CheckProvinces == job) checkProvinces();
+      if (ConverterJob::MergeSaves     == job) mergeSaves();
       if (ConverterJob::PlayerWars     == job) playerWars();
       if (ConverterJob::Statistics     == job) statistics();
       if (ConverterJob::DynastyScores  == job) dynastyScores();
@@ -567,6 +570,7 @@ Object* Converter::loadTextFile (string fname) {
     Logger::logStream(LogStream::Error) << "Could not open file, returning null object.\n";
     return 0; 
   }
+  reader.close();
   
   Object* ret = processFile(fname);
   Logger::logStream(LogStream::Info) << " ... done.\n";
@@ -651,6 +655,117 @@ void Converter::checkProvinces () {
       Logger::logStream(LogStream::Info) << "\n";
     }
   }
+}
+
+void Converter::mergeSaves () {
+  Logger::logStream(LogStream::Info) << "Merging savegames.\n";
+  string dirToUse =
+      remQuotes(configObject->safeGetString("maps_dir", ".\\maps\\"));
+  Logger::logStream(LogStream::Info) << "Directory: \"" << dirToUse << "\"\n"
+                                     << LogOption::Indent;
+
+  string overrideFileName =
+      remQuotes(configObject->safeGetString("custom", QuotedNone));
+  if ((PlainNone != overrideFileName) && (overrideFileName != "NOCUSTOM")) {
+    customObject = loadTextFile(dirToUse + overrideFileName);
+  }
+  if (customObject == nullptr) {
+    Logger::logStream(LogStream::Error) << "Must have custom object.\n";
+    return;
+  }
+  string secondary_input =
+      customObject->safeGetString("province_overrides", PlainNone);
+  Parser::ignoreString = "EU4txt";
+  Parser::specialCases["map_area_data{"] = "map_area_data={";
+  eu4Game = loadTextFile(dirToUse + "input.eu4");
+  Object* secondGame = loadTextFile(dirToUse + secondary_input);
+  Parser::specialCases.clear();
+  Parser::ignoreString = "";
+  Logger::logStream(LogStream::Info) << "Done loading input files\n"
+                                     << LogOption::Undent;
+
+
+  if (secondGame == nullptr) {
+    Logger::logStream(LogStream::Error) << "No override savegame.\n";
+    return;
+  }
+  if (eu4Game == nullptr) {
+    Logger::logStream(LogStream::Error) << "No input savegame.\n";
+    return;
+  }
+  // Last leaf needs special treatment.
+  objvec leaves = eu4Game->getLeaves();
+  Object* final = leaves.back();
+  eu4Game->removeObject(final);
+
+  Object* tradeZones = customObject->getNeededObject("trade_zone_overrides");
+  auto* provincesOne = eu4Game->safeGetObject("provinces");
+  if (provincesOne == nullptr) {
+    Logger::logStream(LogStream::Error) << "No input provinces.\n";
+    return;    
+  }
+  auto* provincesTwo = secondGame->safeGetObject("provinces");
+  if (provincesTwo == nullptr) {
+    Logger::logStream(LogStream::Error) << "No override provinces.\n";
+    return;    
+  }
+
+  auto* countriesOne = eu4Game->safeGetObject("countries");
+  if (countriesOne == nullptr) {
+    Logger::logStream(LogStream::Error) << "No input countries.\n";
+    return;    
+  }
+  auto* countriesTwo = secondGame->safeGetObject("countries");
+  if (countriesTwo == nullptr) {
+    Logger::logStream(LogStream::Error) << "No override countries.\n";
+    return;    
+  }
+  auto provs = provincesOne->getLeaves();
+  std::unordered_set<string> touchedTags;
+  for (Object* eu4prov : provs) {
+    string trade = remQuotes(eu4prov->safeGetString("trade", QuotedNone));
+    if (trade == PlainNone) {
+      continue;
+    }
+
+    if (tradeZones->safeGetString(trade, "no") != "yes") {
+      continue;
+    }
+
+    Object* overrideProv = provincesTwo->safeGetObject(eu4prov->getKey());
+    if (overrideProv == nullptr) {
+      Logger::logStream("provinces")
+          << "  Could not find override province " << nameAndNumber(eu4prov)
+          << ", skipping.\n";
+      continue;
+    }
+
+    string overrideTag = overrideProv->safeGetString("owner", PlainNone);
+    string inputTag = eu4prov->safeGetString("owner", PlainNone);
+    if (overrideTag != PlainNone) {
+      // Overriding with an owned province causes history complications
+      // such as duplicate advisors. Ignore.
+      continue;
+    }
+    Logger::logStream("provinces") << "Overriding " << nameAndNumber(eu4prov)
+                                   << " due to trade zone " << trade << "\n";
+    eu4prov->setValue(overrideProv->getLeaves());
+  }
+
+  Logger::logStream(LogStream::Info) << "Done with merge, writing output.\n";
+  writeConvertedSave(final);
+}
+
+void Converter::writeConvertedSave (Object* final) {
+  Parser::EqualsSign = "="; // No whitespace around equals, thanks Paradox.
+  ofstream writer;
+  writer.open(".\\Output\\converted.eu4");
+  Parser::topLevel = eu4Game;
+  writer << "EU4txt\n";
+  writer << (*eu4Game);
+  // No closing endline, thanks Paradox.
+  writer << final->getKey() << "=" << final->getLeaf();
+  Logger::logStream(LogStream::Info) << "Done writing.\n";
 }
 
 void detectChangedString(const string& old_string, const string& new_string,
@@ -1442,8 +1557,21 @@ bool Converter::createProvinceMap() {
 }
 
 void Converter::loadFiles () {
+  // Note: These files are pushing the limits of what Windows is willing
+  // to provide in memory. Any additions must either be very small, or accompanied
+  // by parser changes to reduce the memory footprint. Lategame CK saves, in
+  // particular, take up the best part of a gig when parsed.
   string dirToUse = remQuotes(configObject->safeGetString("maps_dir", ".\\maps\\"));
   Logger::logStream(LogStream::Info) << "Directory: \"" << dirToUse << "\"\n" << LogOption::Indent;
+
+  string overrideFileName = remQuotes(configObject->safeGetString("custom", QuotedNone));
+  if ((PlainNone != overrideFileName) && (overrideFileName != "NOCUSTOM")) {
+    customObject = loadTextFile(dirToUse + overrideFileName);
+  } else {
+    customObject = new Object("custom");
+  }
+  string secondary_input =
+      customObject->safeGetString("province_overrides", PlainNone);
 
   Parser::ignoreString = "EU4txt";
   Parser::specialCases["map_area_data{"] = "map_area_data={";
@@ -1470,12 +1598,6 @@ void Converter::loadFiles () {
 
   eu4_areas = loadTextFile(dirToUse + "areas.txt");
   ck_province_setup = loadTextFile(dirToUse + "ck_province_titles.txt");
-  string overrideFileName = remQuotes(configObject->safeGetString("custom", QuotedNone));
-  if ((PlainNone != overrideFileName) && (overrideFileName != "NOCUSTOM")) {
-    customObject = loadTextFile(dirToUse + overrideFileName);
-  } else {
-    customObject = new Object("custom");
-  }
   countryMapObject = customObject->getNeededObject("country_overrides");
   setDynastyNames(loadTextFile(dirToUse + "dynasties.txt"));
 
@@ -2471,6 +2593,7 @@ bool Converter::cleanEU4Nations () {
 
   Object* diplomacy = eu4Game->getNeededObject("diplomacy");
   Object* active_advisors = eu4Game->getNeededObject("active_advisors");
+  Object* default_missions = configObject->getNeededObject("default_missions");
   vector<string> tags_to_clean;
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
     if (!(*eu4country)->converts()) continue;
@@ -2481,6 +2604,9 @@ bool Converter::cleanEU4Nations () {
     for (int i = 0; i < keysToRemove->numTokens(); ++i) {
       (*eu4country)->unsetValue(keysToRemove->getToken(i));
     }
+
+    Object* missions = (*eu4country)->getNeededObject("country_missions");
+    missions->setValue(default_missions->getLeaves());
 
     if (0 < ownerMap[*eu4country]) continue;
     string eu4tag = (*eu4country)->getKey();
@@ -3089,7 +3215,8 @@ bool Converter::makeAdvisor(CK2Character* councillor, Object* country_advisors,
   set<string> decisionTraits;
   for (objiter advType = advisorTypes.begin(); advType != advisorTypes.end();
        ++advType) {
-    Object* mods = (*advType)->getNeededObject(traitString);
+    // Do not use 'traitString' here as it's my textfile, not Paradox's.
+    Object* mods = (*advType)->getNeededObject("traits");
     objvec traits = mods->getLeaves();
     int currPoints = 0;
     set<string> yesTraits;
@@ -6091,14 +6218,6 @@ void Converter::convert () {
   if (debug) (*debug) << "Done, writing" << std::endl;
 
   Logger::logStream(LogStream::Info) << "Done with conversion, writing to Output/converted.eu4.\n";
-  Parser::EqualsSign = "="; // No whitespace around equals, thanks Paradox.
-  ofstream writer;
-  writer.open(".\\Output\\converted.eu4");
-  Parser::topLevel = eu4Game;
-  writer << "EU4txt\n"; // Gah, don't ask me...
-  writer << (*eu4Game);
-  // No closing endline, thanks Paradox.
-  writer << final->getKey() << "=" << final->getLeaf();
-  Logger::logStream(LogStream::Info) << "Done writing.\n";
+  writeConvertedSave(final);
 }
 

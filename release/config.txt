@@ -453,3 +453,20 @@ fort_influence = {
   4312 = { 292 317 2299 } # Sultanonu
   183 = { 167 168 182 184 185 186 1879 } # Paris
 }
+
+default_missions = {
+  mission_slot={
+  }
+  mission_slot={
+    military_missions
+  }
+  mission_slot={
+    diplomatic_missions
+  }
+  mission_slot={
+    administrative_missions
+  }
+  mission_slot={
+    gen_europe
+  }
+}

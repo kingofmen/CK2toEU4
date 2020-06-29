@@ -29,6 +29,7 @@ public:
   static ConverterJob const* const PlayerWars;
   static ConverterJob const* const Statistics;
   static ConverterJob const* const DynastyScores;
+  static ConverterJob const* const MergeSaves;
 };
 
 class Object;
@@ -79,6 +80,7 @@ private:
   void convert ();
   void debugParser ();
   void dynastyScores ();
+  void mergeSaves ();
   void playerWars ();
   void configure ();
   void dejures ();
@@ -117,6 +119,7 @@ private:
   bool rankProvinceDevelopment();
   bool redistributeDevelopment();
   bool swapKeys(Object* one, Object* two, string key);
+  void writeConvertedSave(Object* final);
 
   // Input info
   Object* advisorTypesObject;

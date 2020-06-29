@@ -29,6 +29,7 @@ public slots:
   void debugParser ();
   void dejures ();
   void dynasticScore ();
+  void mergeSaves ();
   void playerWars ();
   void statistics ();
   void message (QString m);
