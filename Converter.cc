@@ -2596,6 +2596,7 @@ bool Converter::cleanEU4Nations () {
   Object* diplomacy = eu4Game->getNeededObject("diplomacy");
   Object* active_advisors = eu4Game->getNeededObject("active_advisors");
   Object* default_missions = configObject->getNeededObject("default_missions");
+  Object* custom_ideas = customObject->getNeededObject("custom_ideas");
   vector<string> tags_to_clean;
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
     if (!(*eu4country)->converts()) continue;
@@ -2609,9 +2610,15 @@ bool Converter::cleanEU4Nations () {
 
     Object* missions = (*eu4country)->getNeededObject("country_missions");
     missions->setValue(default_missions->getLeaves());
+    string eu4tag = (*eu4country)->getKey();
+    string ideas = custom_ideas->safeGetString(eu4tag, PlainNone);
+    if (ideas != PlainNone) {
+      auto* ideaObject = (*eu4country)->getNeededObject("active_idea_groups");
+      ideaObject->clear();
+      ideaObject->setLeaf(ideas, "0");
+    }
 
     if (0 < ownerMap[*eu4country]) continue;
-    string eu4tag = (*eu4country)->getKey();
     Logger::logStream("countries")
         << eu4tag << " has no provinces, removing diplomacy.\n";
     tags_to_clean.push_back(eu4tag);
