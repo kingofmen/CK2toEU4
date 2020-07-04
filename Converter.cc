@@ -2597,9 +2597,11 @@ bool Converter::cleanEU4Nations () {
   Object* active_advisors = eu4Game->getNeededObject("active_advisors");
   Object* default_missions = configObject->getNeededObject("default_missions");
   Object* custom_ideas = customObject->getNeededObject("custom_ideas");
+  Object* custom_colors = customObject->getNeededObject("custom_colors");
   vector<string> tags_to_clean;
   for (EU4Country::Iter eu4country = EU4Country::start(); eu4country != EU4Country::final(); ++eu4country) {
     if (!(*eu4country)->converts()) continue;
+    string eu4tag = (*eu4country)->getKey();
     for (int i = 0; i < keysToClear->numTokens(); ++i) {
       Object* toClear = (*eu4country)->getNeededObject(keysToClear->getToken(i));
       toClear->clear();
@@ -2608,9 +2610,27 @@ bool Converter::cleanEU4Nations () {
       (*eu4country)->unsetValue(keysToRemove->getToken(i));
     }
 
+    auto* colors = custom_colors->safeGetObject(eu4tag);
+    if (colors != nullptr && colors->numTokens() > 2) {
+      auto* originals = (*eu4country)->getNeededObject("colors");
+      auto* mc = originals->getNeededObject("map_color");
+      auto* cc = originals->getNeededObject("country_color");
+      for (int i = 0; i < mc->numTokens(); ++i) {
+        mc->resetToken(i, colors->getToken(i));
+      }
+      for (int i = 0; i < cc->numTokens(); ++i) {
+        cc->resetToken(i, colors->getToken(i));
+      }
+      while (mc->numTokens() < 3) {
+        mc->addToList(colors->getToken(mc->numTokens()));
+      }
+      while (cc->numTokens() < 3) {
+        cc->addToList(colors->getToken(cc->numTokens()));
+      }
+    }
+
     Object* missions = (*eu4country)->getNeededObject("country_missions");
     missions->setValue(default_missions->getLeaves());
-    string eu4tag = (*eu4country)->getKey();
     string ideas = custom_ideas->safeGetString(eu4tag, PlainNone);
     if (ideas != PlainNone) {
       auto* ideaObject = (*eu4country)->getNeededObject("active_idea_groups");
