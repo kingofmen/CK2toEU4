@@ -2616,6 +2616,7 @@ bool Converter::cleanEU4Nations () {
       auto* ideaObject = (*eu4country)->getNeededObject("active_idea_groups");
       ideaObject->clear();
       ideaObject->setLeaf(ideas, "0");
+      (*eu4country)->unsetValue("custom_national_ideas");
     }
 
     if (0 < ownerMap[*eu4country]) continue;
@@ -4505,8 +4506,30 @@ bool Converter::modifyProvinces () {
     Logger::logStream(LogStream::Info) << "Using province rank.\n";
     success = rankProvinceDevelopment();
   }
-  Logger::logStream(LogStream::Info) << "Done modifying provinces.\n" << LogOption::Undent;
-  return success;
+  if (!success) {
+    Logger::logStream(LogStream::Info) << "Failed.\n" << LogOption::Undent;
+    return false;
+  }
+
+  Object* offlimits = customObject->getNeededObject("trade_zone_modifiers");
+  for (auto* eu4prov : EU4Province::getAll()) {
+    string zone = remQuotes(eu4prov->safeGetString("trade", QuotedNone));
+    if (zone == PlainNone) {
+      continue;
+    }
+    string date = offlimits->safeGetString(zone, PlainNone);
+    if (date == PlainNone) {
+      continue;
+    }
+    auto* modObject = eu4prov->getNeededObject("modifier");
+    modObject->resetLeaf("modifier", addQuotes("off_limits"));
+    modObject->resetLeaf("permanent", "yes");
+    modObject->resetLeaf("date", date);
+  }
+
+  Logger::logStream(LogStream::Info) << "Done modifying provinces.\n"
+                                     << LogOption::Undent;
+  return true;
 }
 
 // Apparently making this definition local to the function confuses the compiler.
